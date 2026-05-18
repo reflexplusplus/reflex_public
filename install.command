@@ -44,6 +44,14 @@ else
 	exit 1
 fi
 
+EXTRACT_TOOLS="$ROOT/bin/tools/macos/extract.command"
+
+if [[ -x "$EXTRACT_TOOLS" ]]; then
+	"$EXTRACT_TOOLS"
+elif [[ -f "$EXTRACT_TOOLS" ]]; then
+	bash "$EXTRACT_TOOLS"
+fi
+
 cp "$VERSION_FILE" "$ROOT/bin/version.txt"
 
 rm -f "$ZIP"
