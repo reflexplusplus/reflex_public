@@ -1,0 +1,26 @@
+Reflex++ Public Evaluation License
+Copyright (c) Reflex Multimedia Technologies Ltd.
+All rights reserved.
+
+This repository and its contents ("Software") are provided for evaluation,
+testing, educational, and non-commercial use only.
+
+Commercial use of the Software, including use within commercial products,
+internal business tools, client work, paid services, or revenue-generating
+projects, requires a separate commercial license from Reflex Multimedia
+Technologies Ltd.
+
+Commercial licenses can be obtained by contacting:
+https://reflexplusplus.dev/contact
+
+You may not redistribute, sublicense, sell, rent, or otherwise commercially
+exploit the Software without prior written permission.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE, TITLE, AND NON-INFRINGEMENT.
+
+IN NO EVENT SHALL REFLEX MULTIMEDIA TECHNOLOGIES LTD OR ITS CONTRIBUTORS BE
+LIABLE FOR ANY CLAIM, DAMAGES, LOSSES, OR OTHER LIABILITY, WHETHER IN AN
+ACTION OF CONTRACT, TORT, OR OTHERWISE, ARISING FROM, OUT OF, OR IN
+CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.

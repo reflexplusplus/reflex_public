@@ -1,0 +1,67 @@
+@Font Code:
+{
+	path: ":res:IDE/mono";
+
+	size: 12;
+};
+
+size: 512,384;
+bg_colour: 255;
+padding: 8;
+
+Button:
+{
+	margin: 2;
+	size: 28;
+
+	bg:
+	Fill(colour: 232; corner: 2),
+	Text(font: Code; indent: 8,2; justify: center; value: &value; colour: 72);
+
+	@State hover:
+	{
+		bg:
+		Fill(colour: 236; corner: 2),
+		Text(font: Code; indent: 8,2; justify: center; value: &value; colour: 72);
+	};
+
+	@State selected:
+	{
+		bg:
+		Fill(colour: 0,200,255; corner: 2),
+		Text(font: Code; indent: 8,2; justify: center; value: &value; colour: 255);
+	};
+};
+
+Box:
+{
+	size: 64;
+	bg: 
+	Fill(indent: 4; color: 220; corner: 8),
+	Border(indent: 4; color: 160; corner: 8),
+	Text(font: Code; value: &value; color: 0; justify: center);
+};
+
+@Alias DragCursor: { source: Box; };
+
+Row:
+{
+	render: x4;
+	transition: 0.25;
+	
+	margin: 8;
+	padding: 4;
+	size: 72;
+	
+	bg: Border(width: 2; color: 128; corner: 12);
+	
+	@State dragover:
+	{
+		bg: 
+		Fill(corner: 12; colour: 236),
+		Mask(mask: Fill(corner: 12); content: InnerShadow(width: 6; color: 0,64)),
+		Border(color: 96; corner: 12; width: 2.5);
+	};
+
+	@Alias Box;
+};

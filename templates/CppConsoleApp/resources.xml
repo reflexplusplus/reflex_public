@@ -1,0 +1,9 @@
+<resources output="code/resources.cpp">
+
+	<_PRODUCT-NAME-SYMBOL_>
+
+		<folder path="resources" public="true" compress="auto"/>
+
+	</_PRODUCT-NAME-SYMBOL_>
+
+</resources>

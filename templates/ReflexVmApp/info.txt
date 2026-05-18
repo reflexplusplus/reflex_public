@@ -1,0 +1,12 @@
+#h Summary:
+
+#p Desktop/mobile non-audio app using Reflex VM.
+
+#h Supported platforms:
+
+<bullets>
+#li Windows
+#li macOS
+#li Android
+#li iOS
+</bullets>

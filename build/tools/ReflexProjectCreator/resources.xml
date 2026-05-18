@@ -1,0 +1,9 @@
+<Resources output="code/resources.cpp">
+
+	<ReflexProjectCreator>
+
+		<Folder path="resources" public="true" compress="true"/>
+
+	</ReflexProjectCreator>
+
+</Resources>

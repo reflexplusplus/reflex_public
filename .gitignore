@@ -1,0 +1,36 @@
+# Windows
+desktop.ini
+
+# macOS
+**/.DS_Store
+
+# --- Visual Studio ---
+# build files
+.vs/
+
+# User-specific files
+*.rsuser
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# --- Xcode ---
+*.DS_Store
+xcuserdata/
+DerivedData/
+
+# --- Others ---
+/.vscode/
+*.ignore
+
+# Causes too much issues (like exceptions at startup about not finding the gradle project path))
+**/.idea
+
+*.wasm
+
+.claude/
+.codex-build/
+
+# Reflex
+**/*.cache

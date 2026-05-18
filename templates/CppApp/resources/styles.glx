@@ -1,0 +1,35 @@
+include: "common.glx";
+
+@Font Medium:
+{
+	path: "fonts/Montserrat-Regular.ttf";
+	size: 12;
+};
+
+size: 512,384;
+
+bg_colour: 255;
+
+Button:
+{
+	margin: 2;
+	size: 28;
+
+	bg:
+	Fill(colour: 232; corner: 2),
+	Text(font: Medium; indent: 2,8; justify: center; value: &value; colour: 72);
+
+	@State hover:
+	{
+		bg:
+		Fill(colour: 236; corner: 2),
+		Text(font: Medium; indent: 2,8; justify: center; value: &value; colour: 72);
+	};
+
+	@State selected:
+	{
+		bg:
+		Fill(colour: 0,200,255; corner: 2),
+		Text(font: Medium; indent: 2,8; justify: center; value: &value; colour: 255);
+	};
+};

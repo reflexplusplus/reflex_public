@@ -1,0 +1,3117 @@
+1:
+{
+	Indexed: false;
+
+	@UInt32 Index: 1;
+
+	@UInt32 TypeFlags: 4;
+
+	@UInt64 Symbol: 8980083472638940421;
+
+	Name: "void";
+
+	Category: "type";
+};
+
+2:
+{
+	Indexed: false;
+
+	@UInt32 Index: 2;
+
+	@UInt32 TypeFlags: 4;
+
+	@UInt64 Symbol: 8976997392607876357;
+
+	Name: "bool";
+
+	Category: "type";
+};
+
+3:
+{
+	Indexed: false;
+
+	@UInt32 Index: 3;
+
+	@UInt32 TypeFlags: 4;
+
+	@UInt64 Symbol: 17531698606942196997;
+
+	Name: "CString";
+
+	Category: "type";
+};
+
+4:
+{
+	Indexed: false;
+
+	@UInt32 Index: 4;
+
+	@UInt32 TypeFlags: 4;
+
+	@UInt64 Symbol: 12411471392468374789;
+
+	Name: "Colour";
+
+	Category: "type";
+};
+
+5:
+{
+	Indexed: false;
+
+	@UInt32 Index: 5;
+
+	@UInt32 TypeFlags: 4;
+
+	@UInt64 Symbol: 14021901789926790405;
+
+	Name: "Margin";
+
+	Category: "type";
+};
+
+6:
+{
+	Indexed: false;
+
+	@UInt32 Index: 6;
+
+	@UInt32 TypeFlags: 4;
+
+	@UInt64 Symbol: 1001298640683144453;
+
+	Name: "Point";
+
+	Category: "type";
+};
+
+7:
+{
+	Indexed: false;
+
+	@UInt32 Index: 7;
+
+	@UInt32 TypeFlags: 4;
+
+	@UInt64 Symbol: 8974655634704176389;
+
+	Name: "Size";
+
+	Category: "type";
+};
+
+8:
+{
+	Indexed: false;
+
+	@UInt32 Index: 8;
+
+	@UInt32 TypeFlags: 4;
+
+	@UInt64 Symbol: 1452730837710673157;
+
+	Name: "Float32";
+
+	Category: "type";
+};
+
+9:
+{
+	Indexed: false;
+
+	@UInt32 Index: 9;
+
+	@UInt32 TypeFlags: 4;
+
+	@UInt64 Symbol: 14050649298824074501;
+
+	Name: "Float32[]";
+
+	Category: "type";
+};
+
+10:
+{
+	Indexed: false;
+
+	@UInt32 Index: 10;
+
+	@UInt32 TypeFlags: 4;
+
+	@UInt64 Symbol: 974353888473781509;
+
+	Name: "Key32";
+
+	Category: "type";
+};
+
+11:
+{
+	Indexed: false;
+
+	@UInt32 Index: 11;
+
+	@UInt32 TypeFlags: 4;
+
+	@UInt64 Symbol: 9606985643716515077;
+
+	Name: "Key32[]";
+
+	Category: "type";
+};
+
+12:
+{
+	Indexed: false;
+
+	@UInt32 Index: 12;
+
+	@UInt32 TypeFlags: 4;
+
+	@UInt64 Symbol: 1009347078683366661;
+
+	Name: "Range";
+
+	Category: "type";
+};
+
+13:
+{
+	Indexed: false;
+
+	@UInt32 Index: 13;
+
+	@UInt32 TypeFlags: 4;
+
+	@UInt64 Symbol: 13575353151103440133;
+
+	Name: "Alignment";
+
+	Category: "type";
+};
+
+14:
+{
+	Indexed: false;
+
+	@UInt32 Index: 14;
+
+	@UInt32 TypeFlags: 4;
+
+	@UInt64 Symbol: 13854888937195050245;
+
+	Name: "Layers";
+
+	Category: "type";
+};
+
+15:
+{
+	Indexed: false;
+
+	@UInt32 Index: 15;
+
+	@UInt32 TypeFlags: 4;
+
+	@UInt64 Symbol: 8972675534521636101;
+
+	Name: "Font";
+
+	Category: "type";
+};
+
+16:
+{
+	Indexed: false;
+
+	@UInt32 Index: 16;
+
+	@UInt32 TypeFlags: 4;
+
+	@UInt64 Symbol: 15743009861060793605;
+
+	Name: "TextProperty";
+
+	Category: "type";
+};
+
+17:
+{
+	Indexed: false;
+
+	@UInt32 Index: 17;
+
+	@UInt32 TypeFlags: 4;
+
+	@UInt64 Symbol: 10000786217219659013;
+
+	Name: "ImageSet";
+
+	Category: "type";
+};
+
+18:
+{
+	Indexed: false;
+
+	@UInt32 Index: 18;
+
+	@UInt32 TypeFlags: 4;
+
+	@UInt64 Symbol: 688282296029025541;
+
+	Name: "Function<WString(Float)>";
+
+	Category: "type";
+};
+
+19:
+{
+	Indexed: false;
+
+	@UInt32 Index: 19;
+
+	@UInt32 TypeFlags: 4;
+
+	@UInt64 Symbol: 14644261676606559493;
+
+	Name: "GraphicProperty";
+
+	Category: "type";
+};
+
+20:
+{
+	Indexed: true;
+
+	@UInt32 Index: 20;
+
+	@UInt64 Symbol: 9424123253560972549;
+
+	Name: "ViewPortGrid";
+
+	Category: "function";
+
+	Overloads:
+	[
+		{
+			Return:
+			{
+				@UInt64 TypeID: 8980083472638940421;
+			};
+
+			Arguments:
+			[
+				{
+					IsRef: true;
+
+					@UInt64 TypeID: 12411471392468374789;
+
+					Name: "color";
+				},
+
+				{
+					@UInt64 TypeID: 974353888473781509;
+
+					Name: "axis";
+				},
+
+				{
+					IsRef: true;
+
+					@UInt64 TypeID: 1452730837710673157;
+
+					Name: "origin";
+				},
+
+				{
+					IsRef: true;
+
+					@UInt64 TypeID: 1452730837710673157;
+
+					Name: "unit";
+				},
+
+				{
+					@UInt64 TypeID: 1452730837710673157;
+
+					Name: "minpx";
+				},
+
+				{
+					@UInt64 TypeID: 1452730837710673157;
+
+					Name: "indent";
+				},
+
+				{
+					@UInt64 TypeID: 8976997392607876357;
+
+					Name: "dotted";
+				},
+
+				{
+					@UInt64 TypeID: 974353888473781509;
+
+					Name: "font";
+				},
+
+				{
+					IsRef: true;
+
+					@UInt64 TypeID: 12411471392468374789;
+
+					Name: "text_color";
+				},
+
+				{
+					@UInt64 TypeID: 1001298640683144453;
+
+					Name: "text_offset";
+				},
+
+				{
+					@UInt64 TypeID: 14050649298824074501;
+
+					Name: "text_offset";
+				},
+
+				{
+					IsRef: true;
+
+					@UInt64 TypeID: 688282296029025541;
+
+					Name: "label";
+				},
+
+			];
+
+		},
+
+	];
+};
+
+21:
+{
+	Indexed: true;
+
+	@UInt32 Index: 21;
+
+	@UInt64 Symbol: 14882069948452050181;
+
+	Name: "Render";
+
+	Category: "function";
+
+	Overloads:
+	[
+		{
+			Return:
+			{
+				@UInt64 TypeID: 8980083472638940421;
+			};
+
+			Arguments:
+			[
+				{
+					@UInt64 TypeID: 13854888937195050245;
+
+					Name: "content";
+				},
+
+				{
+					IsRef: true;
+
+					@UInt64 TypeID: 14021901789926790405;
+
+					Name: "pad";
+				},
+
+				{
+					IsRef: true;
+
+					@UInt64 TypeID: 1452730837710673157;
+
+					Name: "density";
+				},
+
+			];
+
+		},
+
+	];
+};
+
+22:
+{
+	Indexed: true;
+
+	@UInt32 Index: 22;
+
+	@UInt64 Symbol: 8973691161143153925;
+
+	Name: "Mask";
+
+	Category: "function";
+
+	Overloads:
+	[
+		{
+			Return:
+			{
+				@UInt64 TypeID: 8980083472638940421;
+			};
+
+			Arguments:
+			[
+				{
+					@UInt64 TypeID: 13854888937195050245;
+
+					Name: "content";
+				},
+
+				{
+					@UInt64 TypeID: 13854888937195050245;
+
+					Name: "mask";
+				},
+
+				{
+					IsRef: true;
+
+					@UInt64 TypeID: 8976997392607876357;
+
+					Name: "invert";
+				},
+
+			];
+
+		},
+
+	];
+};
+
+23:
+{
+	Indexed: true;
+
+	@UInt32 Index: 23;
+
+	@UInt64 Symbol: 8972197732294857989;
+
+	Name: "Clip";
+
+	Category: "function";
+
+	Overloads:
+	[
+		{
+			Return:
+			{
+				@UInt64 TypeID: 8980083472638940421;
+			};
+
+			Arguments:
+			[
+				{
+					@UInt64 TypeID: 13854888937195050245;
+
+					Name: "content";
+				},
+
+				{
+					IsRef: true;
+
+					@UInt64 TypeID: 14021901789926790405;
+
+					Name: "indent";
+				},
+
+			];
+
+		},
+
+	];
+};
+
+24:
+{
+	Indexed: true;
+
+	@UInt32 Index: 24;
+
+	@UInt64 Symbol: 158847273793492229;
+
+	Name: "Pixelate";
+
+	Category: "function";
+
+	Overloads:
+	[
+		{
+			Return:
+			{
+				@UInt64 TypeID: 8980083472638940421;
+			};
+
+			Arguments:
+			[
+				{
+					@UInt64 TypeID: 13854888937195050245;
+
+					Name: "content";
+				},
+
+				{
+					IsRef: true;
+
+					@UInt64 TypeID: 8974655634704176389;
+
+					Name: "size";
+				},
+
+			];
+
+		},
+
+	];
+};
+
+25:
+{
+	Indexed: true;
+
+	@UInt32 Index: 25;
+
+	@UInt64 Symbol: 8972045093452125445;
+
+	Name: "Blur";
+
+	Category: "function";
+
+	Overloads:
+	[
+		{
+			Return:
+			{
+				@UInt64 TypeID: 8980083472638940421;
+			};
+
+			Arguments:
+			[
+				{
+					@UInt64 TypeID: 13854888937195050245;
+
+					Name: "content";
+				},
+
+				{
+					IsRef: true;
+
+					@UInt64 TypeID: 1452730837710673157;
+
+					Name: "radius";
+				},
+
+				{
+					IsRef: true;
+
+					@UInt64 TypeID: 1452730837710673157;
+
+					Name: "opacity";
+				},
+
+				{
+					IsRef: true;
+
+					@UInt64 TypeID: 1001298640683144453;
+
+					Name: "offset";
+				},
+
+			];
+
+		},
+
+	];
+};
+
+26:
+{
+	Indexed: true;
+
+	@UInt32 Index: 26;
+
+	@UInt64 Symbol: 1015067584279614725;
+
+	Name: "Sepia";
+
+	Category: "function";
+
+	Overloads:
+	[
+		{
+			Return:
+			{
+				@UInt64 TypeID: 8980083472638940421;
+			};
+
+			Arguments:
+			[
+				{
+					@UInt64 TypeID: 13854888937195050245;
+
+					Name: "content";
+				},
+
+				{
+					IsRef: true;
+
+					@UInt64 TypeID: 1452730837710673157;
+
+					Name: "amount";
+				},
+
+			];
+
+		},
+
+	];
+};
+
+27:
+{
+	Indexed: true;
+
+	@UInt32 Index: 27;
+
+	@UInt64 Symbol: 13436796608486315269;
+
+	Name: "Contrast";
+
+	Category: "function";
+
+	Overloads:
+	[
+		{
+			Return:
+			{
+				@UInt64 TypeID: 8980083472638940421;
+			};
+
+			Arguments:
+			[
+				{
+					@UInt64 TypeID: 13854888937195050245;
+
+					Name: "content";
+				},
+
+				{
+					IsRef: true;
+
+					@UInt64 TypeID: 1452730837710673157;
+
+					Name: "amount";
+				},
+
+			];
+
+		},
+
+	];
+};
+
+28:
+{
+	Indexed: true;
+
+	@UInt32 Index: 28;
+
+	@UInt64 Symbol: 18053251530965914885;
+
+	Name: "Brightness";
+
+	Category: "function";
+
+	Overloads:
+	[
+		{
+			Return:
+			{
+				@UInt64 TypeID: 8980083472638940421;
+			};
+
+			Arguments:
+			[
+				{
+					@UInt64 TypeID: 13854888937195050245;
+
+					Name: "content";
+				},
+
+				{
+					IsRef: true;
+
+					@UInt64 TypeID: 1452730837710673157;
+
+					Name: "amount";
+				},
+
+			];
+
+		},
+
+	];
+};
+
+29:
+{
+	Indexed: true;
+
+	@UInt32 Index: 29;
+
+	@UInt64 Symbol: 13416385592455861509;
+
+	Name: "Invert";
+
+	Category: "function";
+
+	Overloads:
+	[
+		{
+			Return:
+			{
+				@UInt64 TypeID: 8980083472638940421;
+			};
+
+			Arguments:
+			[
+				{
+					@UInt64 TypeID: 13854888937195050245;
+
+					Name: "content";
+				},
+
+				{
+					IsRef: true;
+
+					@UInt64 TypeID: 1452730837710673157;
+
+					Name: "amount";
+				},
+
+			];
+
+		},
+
+	];
+};
+
+30:
+{
+	Indexed: true;
+
+	@UInt32 Index: 30;
+
+	@UInt64 Symbol: 5483585407675274501;
+
+	Name: "Exposure";
+
+	Category: "function";
+
+	Overloads:
+	[
+		{
+			Return:
+			{
+				@UInt64 TypeID: 8980083472638940421;
+			};
+
+			Arguments:
+			[
+				{
+					@UInt64 TypeID: 13854888937195050245;
+
+					Name: "content";
+				},
+
+				{
+					IsRef: true;
+
+					@UInt64 TypeID: 12411471392468374789;
+
+					Name: "rgb";
+				},
+
+			];
+
+		},
+
+	];
+};
+
+31:
+{
+	Indexed: true;
+
+	@UInt32 Index: 31;
+
+	@UInt64 Symbol: 8974808346561352965;
+
+	Name: "Tint";
+
+	Category: "function";
+
+	Overloads:
+	[
+		{
+			Return:
+			{
+				@UInt64 TypeID: 8980083472638940421;
+			};
+
+			Arguments:
+			[
+				{
+					@UInt64 TypeID: 13854888937195050245;
+
+					Name: "content";
+				},
+
+				{
+					IsRef: true;
+
+					@UInt64 TypeID: 12411471392468374789;
+
+					Name: "rgb";
+				},
+
+			];
+
+		},
+
+	];
+};
+
+32:
+{
+	Indexed: true;
+
+	@UInt32 Index: 32;
+
+	@UInt64 Symbol: 17817314091039986949;
+
+	Name: "Greyscale";
+
+	Category: "function";
+
+	Overloads:
+	[
+		{
+			Return:
+			{
+				@UInt64 TypeID: 8980083472638940421;
+			};
+
+			Arguments:
+			[
+				{
+					@UInt64 TypeID: 13854888937195050245;
+
+					Name: "content";
+				},
+
+				{
+					IsRef: true;
+
+					@UInt64 TypeID: 1452730837710673157;
+
+					Name: "amount";
+				},
+
+			];
+
+		},
+
+	];
+};
+
+33:
+{
+	Indexed: true;
+
+	@UInt32 Index: 33;
+
+	@UInt64 Symbol: 14076807402003371269;
+
+	Name: "Grayscale";
+
+	Category: "function";
+
+	Overloads:
+	[
+		{
+			Return:
+			{
+				@UInt64 TypeID: 8980083472638940421;
+			};
+
+			Arguments:
+			[
+				{
+					@UInt64 TypeID: 13854888937195050245;
+
+					Name: "content";
+				},
+
+				{
+					IsRef: true;
+
+					@UInt64 TypeID: 1452730837710673157;
+
+					Name: "amount";
+				},
+
+			];
+
+		},
+
+	];
+};
+
+34:
+{
+	Indexed: true;
+
+	@UInt32 Index: 34;
+
+	@UInt64 Symbol: 6266793163915007237;
+
+	Name: "Saturate";
+
+	Category: "function";
+
+	Overloads:
+	[
+		{
+			Return:
+			{
+				@UInt64 TypeID: 8980083472638940421;
+			};
+
+			Arguments:
+			[
+				{
+					@UInt64 TypeID: 13854888937195050245;
+
+					Name: "content";
+				},
+
+				{
+					IsRef: true;
+
+					@UInt64 TypeID: 1452730837710673157;
+
+					Name: "amount";
+				},
+
+			];
+
+		},
+
+	];
+};
+
+35:
+{
+	Indexed: true;
+
+	@UInt32 Index: 35;
+
+	@UInt64 Symbol: 1014689171891033349;
+
+	Name: "Scale";
+
+	Category: "function";
+
+	Overloads:
+	[
+		{
+			Return:
+			{
+				@UInt64 TypeID: 8980083472638940421;
+			};
+
+			Arguments:
+			[
+				{
+					@UInt64 TypeID: 13854888937195050245;
+
+					Name: "content";
+				},
+
+				{
+					IsRef: true;
+
+					@UInt64 TypeID: 8974655634704176389;
+
+					Name: "scale";
+				},
+
+				{
+					IsRef: true;
+
+					@UInt64 TypeID: 8974655634704176389;
+
+					Name: "origin";
+				},
+
+			];
+
+		},
+
+	];
+};
+
+36:
+{
+	Indexed: true;
+
+	@UInt32 Index: 36;
+
+	@UInt64 Symbol: 10667000374281377029;
+
+	Name: "Translate";
+
+	Category: "function";
+
+	Overloads:
+	[
+		{
+			Return:
+			{
+				@UInt64 TypeID: 8980083472638940421;
+			};
+
+			Arguments:
+			[
+				{
+					@UInt64 TypeID: 13854888937195050245;
+
+					Name: "content";
+				},
+
+				{
+					@UInt64 TypeID: 974353888473781509;
+
+					Name: "unit";
+				},
+
+				{
+					IsRef: true;
+
+					@UInt64 TypeID: 1001298640683144453;
+
+					Name: "offset";
+				},
+
+			];
+
+		},
+
+	];
+};
+
+37:
+{
+	Indexed: true;
+
+	@UInt32 Index: 37;
+
+	@UInt64 Symbol: 14933918995512825093;
+
+	Name: "Rotate";
+
+	Category: "function";
+
+	Overloads:
+	[
+		{
+			Return:
+			{
+				@UInt64 TypeID: 8980083472638940421;
+			};
+
+			Arguments:
+			[
+				{
+					@UInt64 TypeID: 13854888937195050245;
+
+					Name: "content";
+				},
+
+				{
+					IsRef: true;
+
+					@UInt64 TypeID: 14021901789926790405;
+
+					Name: "indent";
+				},
+
+				{
+					IsRef: true;
+
+					@UInt64 TypeID: 1452730837710673157;
+
+					Name: "angle";
+				},
+
+			];
+
+		},
+
+	];
+};
+
+38:
+{
+	Indexed: true;
+
+	@UInt32 Index: 38;
+
+	@UInt64 Symbol: 25178902175421701;
+
+	Name: "If";
+
+	Category: "function";
+
+	Overloads:
+	[
+		{
+			Return:
+			{
+				@UInt64 TypeID: 8980083472638940421;
+			};
+
+			Arguments:
+			[
+				{
+					IsRef: true;
+
+					@UInt64 TypeID: 14021901789926790405;
+
+					Name: "indent";
+				},
+
+				{
+					@UInt64 TypeID: 13854888937195050245;
+
+					Name: "else";
+				},
+
+				{
+					@UInt64 TypeID: 13854888937195050245;
+
+					Name: "then";
+				},
+
+				{
+					IsRef: true;
+
+					@UInt64 TypeID: 1452730837710673157;
+
+					Name: "input";
+				},
+
+				{
+					IsRef: true;
+
+					@UInt64 TypeID: 1452730837710673157;
+
+					Name: "value";
+				},
+
+				{
+					IsRef: true;
+
+					@UInt64 TypeID: 974353888473781509;
+
+					Name: "op";
+				},
+
+			];
+
+		},
+
+	];
+};
+
+39:
+{
+	Indexed: true;
+
+	@UInt32 Index: 39;
+
+	@UInt64 Symbol: 830870812209714437;
+
+	Name: "Bar";
+
+	Category: "function";
+
+	Overloads:
+	[
+		{
+			Return:
+			{
+				@UInt64 TypeID: 8980083472638940421;
+			};
+
+			Arguments:
+			[
+				{
+					@UInt64 TypeID: 13854888937195050245;
+
+					Name: "content";
+				},
+
+				{
+					IsRef: true;
+
+					@UInt64 TypeID: 14021901789926790405;
+
+					Name: "indent";
+				},
+
+				{
+					IsRef: true;
+
+					@UInt64 TypeID: 1452730837710673157;
+
+					Name: "min_size";
+				},
+
+				{
+					IsRef: true;
+
+					@UInt64 TypeID: 1009347078683366661;
+
+					Name: "range";
+				},
+
+				{
+					IsRef: true;
+
+					@UInt64 TypeID: 1009347078683366661;
+
+					Name: "region";
+				},
+
+			];
+
+		},
+
+	];
+};
+
+40:
+{
+	Indexed: true;
+
+	@UInt32 Index: 40;
+
+	@UInt64 Symbol: 8974807998669001989;
+
+	Name: "Tile";
+
+	Category: "function";
+
+	Overloads:
+	[
+		{
+			Return:
+			{
+				@UInt64 TypeID: 8980083472638940421;
+			};
+
+			Arguments:
+			[
+				{
+					@UInt64 TypeID: 13854888937195050245;
+
+					Name: "content";
+				},
+
+				{
+					IsRef: true;
+
+					@UInt64 TypeID: 14021901789926790405;
+
+					Name: "indent";
+				},
+
+				{
+					@UInt64 TypeID: 974353888473781509;
+
+					Name: "axis";
+				},
+
+				{
+					IsRef: true;
+
+					@UInt64 TypeID: 8974655634704176389;
+
+					Name: "stride";
+				},
+
+			];
+
+		},
+
+	];
+};
+
+41:
+{
+	Indexed: true;
+
+	@UInt32 Index: 41;
+
+	@UInt64 Symbol: 1016746787643331845;
+
+	Name: "Split";
+
+	Category: "function";
+
+	Overloads:
+	[
+		{
+			Return:
+			{
+				@UInt64 TypeID: 8980083472638940421;
+			};
+
+			Arguments:
+			[
+				{
+					@UInt64 TypeID: 13854888937195050245;
+
+					Name: "content";
+				},
+
+				{
+					@UInt64 TypeID: 974353888473781509;
+
+					Name: "axis";
+				},
+
+				{
+					@UInt64 TypeID: 14050649298824074501;
+
+					Name: "ratio";
+				},
+
+			];
+
+		},
+
+	];
+};
+
+42:
+{
+	Indexed: true;
+
+	@UInt32 Index: 42;
+
+	@UInt64 Symbol: 13414860187576046853;
+
+	Name: "Inline";
+
+	Category: "function";
+
+	Overloads:
+	[
+		{
+			Return:
+			{
+				@UInt64 TypeID: 8980083472638940421;
+			};
+
+			Arguments:
+			[
+				{
+					@UInt64 TypeID: 13854888937195050245;
+
+					Name: "content";
+				},
+
+				{
+					IsRef: true;
+
+					@UInt64 TypeID: 14021901789926790405;
+
+					Name: "indent";
+				},
+
+				{
+					@UInt64 TypeID: 974353888473781509;
+
+					Name: "axis";
+				},
+
+			];
+
+		},
+
+	];
+};
+
+43:
+{
+	Indexed: true;
+
+	@UInt32 Index: 43;
+
+	@UInt64 Symbol: 955949296480425221;
+
+	Name: "Group";
+
+	Category: "function";
+
+	Overloads:
+	[
+		{
+			Return:
+			{
+				@UInt64 TypeID: 8980083472638940421;
+			};
+
+			Arguments:
+			[
+				{
+					@UInt64 TypeID: 13854888937195050245;
+
+					Name: "content";
+				},
+
+				{
+					IsRef: true;
+
+					@UInt64 TypeID: 14021901789926790405;
+
+					Name: "indent";
+				},
+
+				{
+					IsRef: true;
+
+					@UInt64 TypeID: 8974655634704176389;
+
+					Name: "size";
+				},
+
+				{
+					IsRef: true;
+
+					@UInt64 TypeID: 13575353151103440133;
+
+					Name: "position";
+				},
+
+			];
+
+		},
+
+	];
+};
+
+44:
+{
+	Indexed: true;
+
+	@UInt32 Index: 44;
+
+	@UInt64 Symbol: 924432199397152005;
+
+	Name: "Align";
+
+	Category: "function";
+
+	Overloads:
+	[
+		{
+			Return:
+			{
+				@UInt64 TypeID: 8980083472638940421;
+			};
+
+			Arguments:
+			[
+				{
+					@UInt64 TypeID: 13854888937195050245;
+
+					Name: "content";
+				},
+
+				{
+					IsRef: true;
+
+					@UInt64 TypeID: 14021901789926790405;
+
+					Name: "indent";
+				},
+
+				{
+					IsRef: true;
+
+					@UInt64 TypeID: 8974655634704176389;
+
+					Name: "size";
+				},
+
+				{
+					IsRef: true;
+
+					@UInt64 TypeID: 13575353151103440133;
+
+					Name: "position";
+				},
+
+			];
+
+		},
+
+	];
+};
+
+45:
+{
+	Indexed: true;
+
+	@UInt32 Index: 45;
+
+	@UInt64 Symbol: 9244992215028077829;
+
+	Name: "TextEdit";
+
+	Category: "function";
+
+	Overloads:
+	[
+		{
+			Return:
+			{
+				@UInt64 TypeID: 8980083472638940421;
+			};
+
+			Arguments:
+			[
+				{
+					IsRef: true;
+
+					@UInt64 TypeID: 14021901789926790405;
+
+					Name: "indent";
+				},
+
+				{
+					IsRef: true;
+
+					@UInt64 TypeID: 12411471392468374789;
+
+					Name: "color";
+				},
+
+				{
+					@UInt64 TypeID: 974353888473781509;
+
+					Name: "font";
+				},
+
+				{
+					IsRef: true;
+
+					@UInt64 TypeID: 15743009861060793605;
+
+					Name: "value";
+				},
+
+				{
+					@UInt64 TypeID: 13575353151103440133;
+
+					Name: "justify";
+				},
+
+				{
+					IsRef: true;
+
+					@UInt64 TypeID: 974353888473781509;
+
+					Name: "autofit";
+				},
+
+				{
+					IsRef: true;
+
+					@UInt64 TypeID: 1452730837710673157;
+
+					Name: "line_space";
+				},
+
+				{
+					IsRef: true;
+
+					@UInt64 TypeID: 1452730837710673157;
+
+					Name: "line_height";
+				},
+
+				{
+					IsRef: true;
+
+					@UInt64 TypeID: 974353888473781509;
+
+					Name: "transform";
+				},
+
+				{
+					IsRef: true;
+
+					@UInt64 TypeID: 12411471392468374789;
+
+					Name: "selection_color";
+				},
+
+				{
+					IsRef: true;
+
+					@UInt64 TypeID: 12411471392468374789;
+
+					Name: "selected_text_color";
+				},
+
+			];
+
+		},
+
+	];
+};
+
+46:
+{
+	Indexed: true;
+
+	@UInt32 Index: 46;
+
+	@UInt64 Symbol: 8974791055023019269;
+
+	Name: "Text";
+
+	Category: "function";
+
+	Overloads:
+	[
+		{
+			Return:
+			{
+				@UInt64 TypeID: 8980083472638940421;
+			};
+
+			Arguments:
+			[
+				{
+					IsRef: true;
+
+					@UInt64 TypeID: 14021901789926790405;
+
+					Name: "indent";
+				},
+
+				{
+					IsRef: true;
+
+					@UInt64 TypeID: 12411471392468374789;
+
+					Name: "color";
+				},
+
+				{
+					@UInt64 TypeID: 974353888473781509;
+
+					Name: "font";
+				},
+
+				{
+					IsRef: true;
+
+					@UInt64 TypeID: 15743009861060793605;
+
+					Name: "value";
+				},
+
+				{
+					@UInt64 TypeID: 13575353151103440133;
+
+					Name: "justify";
+				},
+
+				{
+					IsRef: true;
+
+					@UInt64 TypeID: 974353888473781509;
+
+					Name: "autofit";
+				},
+
+				{
+					IsRef: true;
+
+					@UInt64 TypeID: 1452730837710673157;
+
+					Name: "line_space";
+				},
+
+				{
+					IsRef: true;
+
+					@UInt64 TypeID: 1452730837710673157;
+
+					Name: "line_height";
+				},
+
+				{
+					IsRef: true;
+
+					@UInt64 TypeID: 974353888473781509;
+
+					Name: "transform";
+				},
+
+				{
+					@UInt64 TypeID: 17531698606942196997;
+
+					Name: "value";
+				},
+
+				{
+					IsRef: true;
+
+					@UInt64 TypeID: 974353888473781509;
+
+					Name: "overflow";
+				},
+
+			];
+
+		},
+
+	];
+};
+
+47:
+{
+	Indexed: true;
+
+	@UInt32 Index: 47;
+
+	@UInt64 Symbol: 16429307426932528389;
+
+	Name: "ImageFill";
+
+	Category: "function";
+
+	Overloads:
+	[
+		{
+			Return:
+			{
+				@UInt64 TypeID: 8980083472638940421;
+			};
+
+			Arguments:
+			[
+				{
+					IsRef: true;
+
+					@UInt64 TypeID: 14021901789926790405;
+
+					Name: "indent";
+				},
+
+				{
+					IsRef: true;
+
+					@UInt64 TypeID: 12411471392468374789;
+
+					Name: "color";
+				},
+
+				{
+					IsRef: true;
+
+					@UInt64 TypeID: 10000786217219659013;
+
+					Name: "source";
+				},
+
+			];
+
+		},
+
+	];
+};
+
+48:
+{
+	Indexed: true;
+
+	@UInt32 Index: 48;
+
+	@UInt64 Symbol: 18413114587156059397;
+
+	Name: "ImageSelector";
+
+	Category: "function";
+
+	Overloads:
+	[
+		{
+			Return:
+			{
+				@UInt64 TypeID: 8980083472638940421;
+			};
+
+			Arguments:
+			[
+				{
+					IsRef: true;
+
+					@UInt64 TypeID: 14021901789926790405;
+
+					Name: "indent";
+				},
+
+				{
+					IsRef: true;
+
+					@UInt64 TypeID: 12411471392468374789;
+
+					Name: "color";
+				},
+
+				{
+					IsRef: true;
+
+					@UInt64 TypeID: 10000786217219659013;
+
+					Name: "source";
+				},
+
+				{
+					IsRef: true;
+
+					@UInt64 TypeID: 1452730837710673157;
+
+					Name: "frame";
+				},
+
+				{
+					IsRef: true;
+
+					@UInt64 TypeID: 974353888473781509;
+
+					Name: "autofit";
+				},
+
+				{
+					@UInt64 TypeID: 13575353151103440133;
+
+					Name: "anchor";
+				},
+
+			];
+
+		},
+
+	];
+};
+
+49:
+{
+	Indexed: true;
+
+	@UInt32 Index: 49;
+
+	@UInt64 Symbol: 965297026512196869;
+
+	Name: "Image";
+
+	Category: "function";
+
+	Overloads:
+	[
+		{
+			Return:
+			{
+				@UInt64 TypeID: 8980083472638940421;
+			};
+
+			Arguments:
+			[
+				{
+					IsRef: true;
+
+					@UInt64 TypeID: 14021901789926790405;
+
+					Name: "indent";
+				},
+
+				{
+					IsRef: true;
+
+					@UInt64 TypeID: 12411471392468374789;
+
+					Name: "color";
+				},
+
+				{
+					IsRef: true;
+
+					@UInt64 TypeID: 10000786217219659013;
+
+					Name: "source";
+				},
+
+				{
+					IsRef: true;
+
+					@UInt64 TypeID: 974353888473781509;
+
+					Name: "autofit";
+				},
+
+				{
+					@UInt64 TypeID: 13575353151103440133;
+
+					Name: "anchor";
+				},
+
+				{
+					IsRef: true;
+
+					@UInt64 TypeID: 974353888473781509;
+
+					Name: "fit";
+				},
+
+			];
+
+		},
+
+	];
+};
+
+50:
+{
+	Indexed: true;
+
+	@UInt32 Index: 50;
+
+	@UInt64 Symbol: 3111336564773360901;
+
+	Name: "GraphicCanvas";
+
+	Category: "function";
+
+	Overloads:
+	[
+		{
+			Return:
+			{
+				@UInt64 TypeID: 8980083472638940421;
+			};
+
+			Arguments:
+			[
+				{
+					IsRef: true;
+
+					@UInt64 TypeID: 14021901789926790405;
+
+					Name: "indent";
+				},
+
+				{
+					IsRef: true;
+
+					@UInt64 TypeID: 12411471392468374789;
+
+					Name: "color";
+				},
+
+				{
+					IsRef: true;
+
+					@UInt64 TypeID: 974353888473781509;
+
+					Name: "id";
+				},
+
+			];
+
+		},
+
+	];
+};
+
+51:
+{
+	Indexed: true;
+
+	@UInt32 Index: 51;
+
+	@UInt64 Symbol: 1377939582888187141;
+
+	Name: "ColorCanvas";
+
+	Category: "function";
+
+	Overloads:
+	[
+		{
+			Return:
+			{
+				@UInt64 TypeID: 8980083472638940421;
+			};
+
+			Arguments:
+			[
+				{
+					IsRef: true;
+
+					@UInt64 TypeID: 14021901789926790405;
+
+					Name: "indent";
+				},
+
+				{
+					IsRef: true;
+
+					@UInt64 TypeID: 12411471392468374789;
+
+					Name: "color";
+				},
+
+				{
+					IsRef: true;
+
+					@UInt64 TypeID: 974353888473781509;
+
+					Name: "id";
+				},
+
+			];
+
+		},
+
+	];
+};
+
+52:
+{
+	Indexed: true;
+
+	@UInt32 Index: 52;
+
+	@UInt64 Symbol: 1646520676934227205;
+
+	Name: "ColourCanvas";
+
+	Category: "function";
+
+	Overloads:
+	[
+		{
+			Return:
+			{
+				@UInt64 TypeID: 8980083472638940421;
+			};
+
+			Arguments:
+			[
+				{
+					IsRef: true;
+
+					@UInt64 TypeID: 14021901789926790405;
+
+					Name: "indent";
+				},
+
+				{
+					IsRef: true;
+
+					@UInt64 TypeID: 12411471392468374789;
+
+					Name: "color";
+				},
+
+				{
+					IsRef: true;
+
+					@UInt64 TypeID: 974353888473781509;
+
+					Name: "id";
+				},
+
+			];
+
+		},
+
+	];
+};
+
+53:
+{
+	Indexed: true;
+
+	@UInt32 Index: 53;
+
+	@UInt64 Symbol: 12340501112351102213;
+
+	Name: "Canvas";
+
+	Category: "function";
+
+	Overloads:
+	[
+		{
+			Return:
+			{
+				@UInt64 TypeID: 8980083472638940421;
+			};
+
+			Arguments:
+			[
+				{
+					IsRef: true;
+
+					@UInt64 TypeID: 14021901789926790405;
+
+					Name: "indent";
+				},
+
+				{
+					IsRef: true;
+
+					@UInt64 TypeID: 12411471392468374789;
+
+					Name: "color";
+				},
+
+				{
+					IsRef: true;
+
+					@UInt64 TypeID: 974353888473781509;
+
+					Name: "id";
+				},
+
+			];
+
+		},
+
+	];
+};
+
+54:
+{
+	Indexed: true;
+
+	@UInt32 Index: 54;
+
+	@UInt64 Symbol: 248109501796848901;
+
+	Name: "InnerShadow";
+
+	Category: "function";
+
+	Overloads:
+	[
+		{
+			Return:
+			{
+				@UInt64 TypeID: 8980083472638940421;
+			};
+
+			Arguments:
+			[
+				{
+					IsRef: true;
+
+					@UInt64 TypeID: 14021901789926790405;
+
+					Name: "indent";
+				},
+
+				{
+					IsRef: true;
+
+					@UInt64 TypeID: 12411471392468374789;
+
+					Name: "color";
+				},
+
+				{
+					IsRef: true;
+
+					@UInt64 TypeID: 14021901789926790405;
+
+					Name: "width";
+				},
+
+				{
+					@UInt64 TypeID: 1452730837710673157;
+
+					Name: "dither";
+				},
+
+			];
+
+		},
+
+	];
+};
+
+55:
+{
+	Indexed: true;
+
+	@UInt32 Index: 55;
+
+	@UInt64 Symbol: 15063430568932807941;
+
+	Name: "Shadow";
+
+	Category: "function";
+
+	Overloads:
+	[
+		{
+			Return:
+			{
+				@UInt64 TypeID: 8980083472638940421;
+			};
+
+			Arguments:
+			[
+				{
+					IsRef: true;
+
+					@UInt64 TypeID: 14021901789926790405;
+
+					Name: "indent";
+				},
+
+				{
+					IsRef: true;
+
+					@UInt64 TypeID: 12411471392468374789;
+
+					Name: "color";
+				},
+
+				{
+					IsRef: true;
+
+					@UInt64 TypeID: 1452730837710673157;
+
+					Name: "blur";
+				},
+
+				{
+					IsRef: true;
+
+					@UInt64 TypeID: 1452730837710673157;
+
+					Name: "corner";
+				},
+
+				{
+					@UInt64 TypeID: 1452730837710673157;
+
+					Name: "dither";
+				},
+
+			];
+
+		},
+
+	];
+};
+
+56:
+{
+	Indexed: true;
+
+	@UInt32 Index: 56;
+
+	@UInt64 Symbol: 15868944856299607301;
+
+	Name: "CircleGradient";
+
+	Category: "function";
+
+	Overloads:
+	[
+		{
+			Return:
+			{
+				@UInt64 TypeID: 8980083472638940421;
+			};
+
+			Arguments:
+			[
+				{
+					IsRef: true;
+
+					@UInt64 TypeID: 14021901789926790405;
+
+					Name: "indent";
+				},
+
+				{
+					IsRef: true;
+
+					@UInt64 TypeID: 12411471392468374789;
+
+					Name: "from";
+				},
+
+				{
+					IsRef: true;
+
+					@UInt64 TypeID: 12411471392468374789;
+
+					Name: "to";
+				},
+
+				{
+					@UInt64 TypeID: 1452730837710673157;
+
+					Name: "dither";
+				},
+
+			];
+
+		},
+
+	];
+};
+
+57:
+{
+	Indexed: true;
+
+	@UInt32 Index: 57;
+
+	@UInt64 Symbol: 3672027794893706501;
+
+	Name: "Gradient";
+
+	Category: "function";
+
+	Overloads:
+	[
+		{
+			Return:
+			{
+				@UInt64 TypeID: 8980083472638940421;
+			};
+
+			Arguments:
+			[
+				{
+					IsRef: true;
+
+					@UInt64 TypeID: 14021901789926790405;
+
+					Name: "indent";
+				},
+
+				{
+					IsRef: true;
+
+					@UInt64 TypeID: 12411471392468374789;
+
+					Name: "from";
+				},
+
+				{
+					IsRef: true;
+
+					@UInt64 TypeID: 12411471392468374789;
+
+					Name: "to";
+				},
+
+				{
+					@UInt64 TypeID: 1452730837710673157;
+
+					Name: "dither";
+				},
+
+				{
+					IsRef: true;
+
+					@UInt64 TypeID: 1452730837710673157;
+
+					Name: "angle";
+				},
+
+			];
+
+		},
+
+	];
+};
+
+58:
+{
+	Indexed: true;
+
+	@UInt32 Index: 58;
+
+	@UInt64 Symbol: 11434150497636848901;
+
+	Name: "BarGraph";
+
+	Category: "function";
+
+	Overloads:
+	[
+		{
+			Return:
+			{
+				@UInt64 TypeID: 8980083472638940421;
+			};
+
+			Arguments:
+			[
+				{
+					IsRef: true;
+
+					@UInt64 TypeID: 14021901789926790405;
+
+					Name: "indent";
+				},
+
+				{
+					IsRef: true;
+
+					@UInt64 TypeID: 12411471392468374789;
+
+					Name: "color";
+				},
+
+				{
+					IsRef: true;
+
+					@UInt64 TypeID: 1009347078683366661;
+
+					Name: "range";
+				},
+
+				{
+					IsRef: true;
+
+					@UInt64 TypeID: 1452730837710673157;
+
+					Name: "gap";
+				},
+
+				{
+					IsRef: true;
+
+					@UInt64 TypeID: 14050649298824074501;
+
+					Name: "values";
+				},
+
+			];
+
+		},
+
+	];
+};
+
+59:
+{
+	Indexed: true;
+
+	@UInt32 Index: 59;
+
+	@UInt64 Symbol: 8974154334711321861;
+
+	Name: "Path";
+
+	Category: "function";
+
+	Overloads:
+	[
+		{
+			Return:
+			{
+				@UInt64 TypeID: 8980083472638940421;
+			};
+
+			Arguments:
+			[
+				{
+					IsRef: true;
+
+					@UInt64 TypeID: 14021901789926790405;
+
+					Name: "indent";
+				},
+
+				{
+					IsRef: true;
+
+					@UInt64 TypeID: 12411471392468374789;
+
+					Name: "color";
+				},
+
+				{
+					@UInt64 TypeID: 8976997392607876357;
+
+					Name: "normalized";
+				},
+
+				{
+					IsRef: true;
+
+					@UInt64 TypeID: 14050649298824074501;
+
+					Name: "points";
+				},
+
+				{
+					IsRef: true;
+
+					@UInt64 TypeID: 1452730837710673157;
+
+					Name: "width";
+				},
+
+				{
+					IsRef: true;
+
+					@UInt64 TypeID: 8976997392607876357;
+
+					Name: "closed";
+				},
+
+			];
+
+		},
+
+	];
+};
+
+60:
+{
+	Indexed: true;
+
+	@UInt32 Index: 60;
+
+	@UInt64 Symbol: 2073253062503306501;
+
+	Name: "Polygon";
+
+	Category: "function";
+
+	Overloads:
+	[
+		{
+			Return:
+			{
+				@UInt64 TypeID: 8980083472638940421;
+			};
+
+			Arguments:
+			[
+				{
+					IsRef: true;
+
+					@UInt64 TypeID: 14021901789926790405;
+
+					Name: "indent";
+				},
+
+				{
+					IsRef: true;
+
+					@UInt64 TypeID: 12411471392468374789;
+
+					Name: "color";
+				},
+
+				{
+					@UInt64 TypeID: 8976997392607876357;
+
+					Name: "normalized";
+				},
+
+				{
+					IsRef: true;
+
+					@UInt64 TypeID: 14050649298824074501;
+
+					Name: "points";
+				},
+
+			];
+
+		},
+
+	];
+};
+
+61:
+{
+	Indexed: true;
+
+	@UInt32 Index: 61;
+
+	@UInt64 Symbol: 8973573496219112709;
+
+	Name: "Line";
+
+	Category: "function";
+
+	Overloads:
+	[
+		{
+			Return:
+			{
+				@UInt64 TypeID: 8980083472638940421;
+			};
+
+			Arguments:
+			[
+				{
+					IsRef: true;
+
+					@UInt64 TypeID: 14021901789926790405;
+
+					Name: "indent";
+				},
+
+				{
+					IsRef: true;
+
+					@UInt64 TypeID: 12411471392468374789;
+
+					Name: "color";
+				},
+
+				{
+					IsRef: true;
+
+					@UInt64 TypeID: 13575353151103440133;
+
+					Name: "position";
+				},
+
+				{
+					IsRef: true;
+
+					@UInt64 TypeID: 1452730837710673157;
+
+					Name: "width";
+				},
+
+				{
+					IsRef: true;
+
+					@UInt64 TypeID: 14050649298824074501;
+
+					Name: "pattern";
+				},
+
+			];
+
+		},
+
+	];
+};
+
+62:
+{
+	Indexed: true;
+
+	@UInt32 Index: 62;
+
+	@UInt64 Symbol: 4954868727309931781;
+
+	Name: "Triangle";
+
+	Category: "function";
+
+	Overloads:
+	[
+		{
+			Return:
+			{
+				@UInt64 TypeID: 8980083472638940421;
+			};
+
+			Arguments:
+			[
+				{
+					IsRef: true;
+
+					@UInt64 TypeID: 14021901789926790405;
+
+					Name: "indent";
+				},
+
+				{
+					IsRef: true;
+
+					@UInt64 TypeID: 12411471392468374789;
+
+					Name: "color";
+				},
+
+				{
+					IsRef: true;
+
+					@UInt64 TypeID: 13575353151103440133;
+
+					Name: "direction";
+				},
+
+				{
+					IsRef: true;
+
+					@UInt64 TypeID: 1452730837710673157;
+
+					Name: "corner";
+				},
+
+				{
+					IsRef: true;
+
+					@UInt64 TypeID: 1452730837710673157;
+
+					Name: "width";
+				},
+
+			];
+
+		},
+
+	];
+};
+
+63:
+{
+	Indexed: true;
+
+	@UInt32 Index: 63;
+
+	@UInt64 Symbol: 1689799709461320965;
+
+	Name: "TriangleFill";
+
+	Category: "function";
+
+	Overloads:
+	[
+		{
+			Return:
+			{
+				@UInt64 TypeID: 8980083472638940421;
+			};
+
+			Arguments:
+			[
+				{
+					IsRef: true;
+
+					@UInt64 TypeID: 14021901789926790405;
+
+					Name: "indent";
+				},
+
+				{
+					IsRef: true;
+
+					@UInt64 TypeID: 12411471392468374789;
+
+					Name: "color";
+				},
+
+				{
+					IsRef: true;
+
+					@UInt64 TypeID: 13575353151103440133;
+
+					Name: "direction";
+				},
+
+				{
+					IsRef: true;
+
+					@UInt64 TypeID: 1452730837710673157;
+
+					Name: "corner";
+				},
+
+			];
+
+		},
+
+	];
+};
+
+64:
+{
+	Indexed: true;
+
+	@UInt32 Index: 64;
+
+	@UInt64 Symbol: 12381779072370349317;
+
+	Name: "Circle";
+
+	Category: "function";
+
+	Overloads:
+	[
+		{
+			Return:
+			{
+				@UInt64 TypeID: 8980083472638940421;
+			};
+
+			Arguments:
+			[
+				{
+					IsRef: true;
+
+					@UInt64 TypeID: 14021901789926790405;
+
+					Name: "indent";
+				},
+
+				{
+					IsRef: true;
+
+					@UInt64 TypeID: 12411471392468374789;
+
+					Name: "color";
+				},
+
+				{
+					IsRef: true;
+
+					@UInt64 TypeID: 1009347078683366661;
+
+					Name: "sweep";
+				},
+
+				{
+					IsRef: true;
+
+					@UInt64 TypeID: 1452730837710673157;
+
+					Name: "width";
+				},
+
+				{
+					@UInt64 TypeID: 8976997392607876357;
+
+					Name: "round_cap";
+				},
+
+			];
+
+		},
+
+	];
+};
+
+65:
+{
+	Indexed: true;
+
+	@UInt32 Index: 65;
+
+	@UInt64 Symbol: 633738152695043333;
+
+	Name: "CircleFill";
+
+	Category: "function";
+
+	Overloads:
+	[
+		{
+			Return:
+			{
+				@UInt64 TypeID: 8980083472638940421;
+			};
+
+			Arguments:
+			[
+				{
+					IsRef: true;
+
+					@UInt64 TypeID: 14021901789926790405;
+
+					Name: "indent";
+				},
+
+				{
+					IsRef: true;
+
+					@UInt64 TypeID: 12411471392468374789;
+
+					Name: "color";
+				},
+
+				{
+					IsRef: true;
+
+					@UInt64 TypeID: 1009347078683366661;
+
+					Name: "sweep";
+				},
+
+			];
+
+		},
+
+	];
+};
+
+66:
+{
+	Indexed: true;
+
+	@UInt32 Index: 66;
+
+	@UInt64 Symbol: 12244258531699594501;
+
+	Name: "Border";
+
+	Category: "function";
+
+	Overloads:
+	[
+		{
+			Return:
+			{
+				@UInt64 TypeID: 8980083472638940421;
+			};
+
+			Arguments:
+			[
+				{
+					IsRef: true;
+
+					@UInt64 TypeID: 14021901789926790405;
+
+					Name: "indent";
+				},
+
+				{
+					IsRef: true;
+
+					@UInt64 TypeID: 12411471392468374789;
+
+					Name: "color";
+				},
+
+				{
+					IsRef: true;
+
+					@UInt64 TypeID: 14021901789926790405;
+
+					Name: "width";
+				},
+
+				{
+					IsRef: true;
+
+					@UInt64 TypeID: 14021901789926790405;
+
+					Name: "corner";
+				},
+
+			];
+
+		},
+
+	];
+};
+
+67:
+{
+	Indexed: true;
+
+	@UInt32 Index: 67;
+
+	@UInt64 Symbol: 8972647153377744133;
+
+	Name: "Fill";
+
+	Category: "function";
+
+	Overloads:
+	[
+		{
+			Return:
+			{
+				@UInt64 TypeID: 8980083472638940421;
+			};
+
+			Arguments:
+			[
+				{
+					IsRef: true;
+
+					@UInt64 TypeID: 14021901789926790405;
+
+					Name: "indent";
+				},
+
+				{
+					IsRef: true;
+
+					@UInt64 TypeID: 12411471392468374789;
+
+					Name: "color";
+				},
+
+				{
+					IsRef: true;
+
+					@UInt64 TypeID: 14021901789926790405;
+
+					Name: "corner";
+				},
+
+			];
+
+		},
+
+	];
+};
+

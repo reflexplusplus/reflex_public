@@ -1,0 +1,163 @@
+include: "common.glx";
+
+@Font Medium:
+{
+	path: "fonts/Montserrat-Regular.ttf";
+	size: 12;
+};
+
+size: 512,384;
+
+bg_colour: 220;
+
+menu:
+{
+	margin: 4,0;
+	padding: 4;
+
+	render: x4;	
+	render_pad: 12;
+
+	animate: true;
+
+	bg:
+	Shadow(blur: 8; colour: 0,64; corner: 8),
+	Fill(colour: 255; corner: 8);
+	
+	item:
+	{
+		transition: 0.125;
+		
+		size: 26;
+
+		fg: Text(indent: 4,10; colour: 32; font: Medium; value: &value; justify: left);
+		
+		@State hover:
+		{
+			bg: Fill(indent: 1,0; corner: 4; colour: 244);			
+		};
+
+		@State focused:
+		{
+			bg: Border(indent: 1,0; corner: 4; colour: 220);
+			
+			@State hover:
+			{
+				bg: 
+				Fill(indent: 1,0; corner: 4; colour: 232),
+				Border(indent: 1,0; corner: 4; colour: 220);
+			};
+		};
+	};
+};
+
+Header:
+{
+	padding: 8,16;
+	
+	bg_colour: 255;
+
+	bg: Text(font: Medium; value: &value; justify: center; colour: 32);
+
+	size: 48;
+	
+	Popup:
+	{
+		render: x4;
+		
+		size: 24;
+		bg: TriangleFill(indent: 5,4; direction: bottom; colour: 192; corner: 3);
+		
+		@Alias menu;
+	};
+};
+
+Body:
+{
+	padding: 16;
+	
+	bg: InnerShadow(width: 3,0,0,0; colour: 0,32);
+};
+
+Control:
+{
+	margin: 10;
+	padding: 0,0,24,0;
+
+	bg: Text(font: Medium; value: &value; justify: bottom; colour: 96);
+
+	continuous:
+	{
+		transition: 0.25;
+		render: x4;
+
+		size: 64;
+		color: 128;
+		sweep_range: 0.375,0.75;							//custom property for RotaryDisplayPropertiesDelegate
+				
+		bg:
+		Rotate
+		(
+			angle: &indicator;
+			content:
+			Align
+			(
+				position: right;
+				size: 10,2;
+
+				content: Fill(corner: 1)
+			)
+		),
+		Circle(sweep: &sweep; width: 10; color: 255,32),	//note this color modulates the "pen" color
+		Circle(sweep: 0.375,0.75; width: 2);
+		
+		@State hover:
+		{
+			color: 108;
+		};
+	};
+
+	boolean:
+	{
+		transition: 0.25;
+
+		render: x4;
+		render_pad: 16;
+	
+		margin: 14,0;
+		size: 64,36;
+
+		bg: 
+		Border(colour: 128; width: 2; corner: 8),
+		Text(font: Medium; value: &value; justify: center; indent: 2,8; colour: 72);
+
+		@State hover:
+		{
+			bg:
+			Blur(radius: 16; opacity: 0.25; content: Fill(corner: 8)),
+			CircleGradient(from: 255,128; to: 255,0),
+			Border(colour: 128; width: 2; corner: 8),
+			Text(font: Medium; value: &value; justify: center; indent: 2,8; colour: 72);
+		};
+
+		@State selected:
+		{
+			bg:
+			Blur(radius: 16; opacity: 0.5; content: Fill(corner: 8)),
+			Fill(indent: 1; colour: 255,128; corner: 8),
+			CircleGradient(from: 255,128; to: 255,0),
+			Border(colour: 0,16; width: 3; corner: 8),
+			Border(colour: 128; width: 2; corner: 8),
+			Text(font: Medium; value: &value; justify: center; indent: 2,8; colour: 72);
+		};
+		
+		@State active: { inherit: hover; };
+	};
+
+	enumeration:
+	{
+		inherit: boolean;
+
+		@Alias menu;
+	};
+};
