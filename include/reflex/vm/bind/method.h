@@ -147,7 +147,7 @@ template <class TYPE> using ArgumentType = typename ArgumentTypeImpl<TYPE>::Type
 template <class CLASS, class RTN, class ARG1, class ARG2>
 struct MemberFunctionTraits <RTN(CLASS::*)(ARG1,ARG2)>
 {
-	inline static const UInt32 kNArg = 2;
+	static constexpr UInt32 kNArg = 2;
 	using Type = UnderlyingTypeOf<RTN>(Object::*)(UnderlyingTypeOf<ARG1>, UnderlyingTypeOf<ARG2>);
 	using Rtn = ArgumentType <RTN>;
 	using Arg1 = ArgumentType <ARG1>;
@@ -157,7 +157,7 @@ struct MemberFunctionTraits <RTN(CLASS::*)(ARG1,ARG2)>
 template <class CLASS, class RTN, class ARG1>
 struct MemberFunctionTraits <RTN(CLASS::*)(ARG1)>
 {
-	inline static const UInt32 kNArg = 1;
+	static constexpr UInt32 kNArg = 1;
 	using Type = UnderlyingTypeOf<RTN>(Object::*)(UnderlyingTypeOf<ARG1>);
 	using Rtn = ArgumentType <RTN>;
 	using Arg1 = ArgumentType <ARG1>;
@@ -166,7 +166,7 @@ struct MemberFunctionTraits <RTN(CLASS::*)(ARG1)>
 template <class CLASS, class RTN>
 struct MemberFunctionTraits <RTN(CLASS::*)()>
 {
-	inline static const UInt32 kNArg = 0;
+	static constexpr UInt32 kNArg = 0;
 	using Type = UnderlyingTypeOf<RTN>(Object::*)();
 	using Rtn = ArgumentType <RTN>;
 };
@@ -174,7 +174,7 @@ struct MemberFunctionTraits <RTN(CLASS::*)()>
 template <class CLASS, class RTN, class ARG1, class ARG2>
 struct MemberFunctionTraits <RTN(CLASS::*)(ARG1, ARG2) const>
 {
-	inline static const UInt32 kNArg = 2;
+	static constexpr UInt32 kNArg = 2;
 	using Type = UnderlyingTypeOf<RTN>(Object::*)(UnderlyingTypeOf<ARG1>, UnderlyingTypeOf<ARG2>);
 	using Rtn = ArgumentType <RTN>;
 	using Arg1 = ArgumentType <ARG1>;
@@ -184,7 +184,7 @@ struct MemberFunctionTraits <RTN(CLASS::*)(ARG1, ARG2) const>
 template <class CLASS, class RTN, class ARG1>
 struct MemberFunctionTraits <RTN(CLASS::*)(ARG1) const>
 {
-	inline static const UInt32 kNArg = 1;
+	static constexpr UInt32 kNArg = 1;
 	using Type = UnderlyingTypeOf<RTN>(Object::*)(UnderlyingTypeOf<ARG1>);
 	using Rtn = ArgumentType <RTN>;
 	using Arg1 = ArgumentType <ARG1>;
@@ -193,94 +193,94 @@ struct MemberFunctionTraits <RTN(CLASS::*)(ARG1) const>
 template <class CLASS, class RTN>
 struct MemberFunctionTraits <RTN(CLASS::*)() const>
 {
-	inline static const UInt32 kNArg = 0;
+	static constexpr UInt32 kNArg = 0;
 	using Type = UnderlyingTypeOf<RTN>(Object::*)();
 	using Rtn = ArgumentType <RTN>;
 };
 
 template <> struct MethodOpcode <void(Object::*)()>
 {
-	inline static const auto kOpcode = VM::kintrinsicObjectMethod_Void;
+	static constexpr auto kOpcode = VM::kintrinsicObjectMethod_Void;
 };
 
 template <> struct MethodOpcode <Value8(Object::*)()>
 {
-	inline static const auto kOpcode = VM::kintrinsicObjectMethod_Value8;
+	static constexpr auto kOpcode = VM::kintrinsicObjectMethod_Value8;
 };
 
 template <> struct MethodOpcode <Value32(Object::*)()>
 {
-	inline static const auto kOpcode = VM::kintrinsicObjectMethod_Value32;
+	static constexpr auto kOpcode = VM::kintrinsicObjectMethod_Value32;
 };
 
 template <> struct MethodOpcode <Float32(Object::*)()>
 {
-	inline static const auto kOpcode = VM::kintrinsicObjectMethod_Float32;
+	static constexpr auto kOpcode = VM::kintrinsicObjectMethod_Float32;
 };
 
 template <> struct MethodOpcode <Object*(Object::*)()>
 {
-	inline static const auto kOpcode = VM::kintrinsicObjectMethod_Object;
+	static constexpr auto kOpcode = VM::kintrinsicObjectMethod_Object;
 };
 
 template <> struct MethodOpcode <void(Object::*)(Object*)>
 {
-	inline static const auto kOpcode = VM::kintrinsicObjectMethod_Void_Object;
+	static constexpr auto kOpcode = VM::kintrinsicObjectMethod_Void_Object;
 };
 
 template <> struct MethodOpcode <Value8(Object::*)(Object*)>
 {
-	inline static const auto kOpcode = VM::kintrinsicObjectMethod_Value8_Object;
+	static constexpr auto kOpcode = VM::kintrinsicObjectMethod_Value8_Object;
 };
 
 template <> struct MethodOpcode <Value32(Object::*)(Object*)>
 {
-	inline static const auto kOpcode = VM::kintrinsicObjectMethod_Value32_Object;
+	static constexpr auto kOpcode = VM::kintrinsicObjectMethod_Value32_Object;
 };
 
 template <> struct MethodOpcode <void(Object::*)(Value8)>
 {
-	inline static const auto kOpcode = VM::kintrinsicObjectMethod_Void_Value8;
+	static constexpr auto kOpcode = VM::kintrinsicObjectMethod_Void_Value8;
 };
 
 template <> struct MethodOpcode <void(Object::*)(Value32)>
 {
-	inline static const auto kOpcode = VM::kintrinsicObjectMethod_Void_Value32;
+	static constexpr auto kOpcode = VM::kintrinsicObjectMethod_Void_Value32;
 };
 
 template <> struct MethodOpcode <void(Object::*)(Float32)>
 {
-	inline static const auto kOpcode = VM::kintrinsicObjectMethod_Void_Float32;
+	static constexpr auto kOpcode = VM::kintrinsicObjectMethod_Void_Float32;
 };
 
 template <> struct MethodOpcode <void(Object::*)(Value32,Object*)>
 {
-	inline static const auto kOpcode = VM::kintrinsicObjectMethod_Void_Value32_Object;
+	static constexpr auto kOpcode = VM::kintrinsicObjectMethod_Void_Value32_Object;
 };
 
 template <> struct MethodOpcode <Float32(Object::*)(Value32)>
 {
-	inline static const auto kOpcode = VM::kintrinsicObjectMethod_Float32_Value32;
+	static constexpr auto kOpcode = VM::kintrinsicObjectMethod_Float32_Value32;
 };
 
 template <> struct MethodOpcode <void(Object::*)(Value32,Value32)>
 {
-	inline static const auto kOpcode = VM::kintrinsicObjectMethod_Void_Value32_Value32;
+	static constexpr auto kOpcode = VM::kintrinsicObjectMethod_Void_Value32_Value32;
 };
 
 template <> struct MethodOpcode <Object*(Object::*)(Value32, Value32)>
 {
-	inline static const auto kOpcode = VM::kintrinsicObjectMethod_Object_Value32_Value32;
+	static constexpr auto kOpcode = VM::kintrinsicObjectMethod_Object_Value32_Value32;
 };
 
 template <> struct MethodOpcode <void(Object::*)(Float32, Float32)>
 {
-	inline static const auto kOpcode = VM::kintrinsicObjectMethod_Void_Float32_Float32;
+	static constexpr auto kOpcode = VM::kintrinsicObjectMethod_Void_Float32_Float32;
 };
 
 template <> struct MethodOpcode <Value8(Object::*)(Object*,Object*)>
 {
-	inline static const auto kOpcode = VM::kintrinsicObjectMethod_Value8_Object_Object;
+	static constexpr auto kOpcode = VM::kintrinsicObjectMethod_Value8_Object_Object;
 };
 
 template <auto FN> inline void BindObjectMethod(Bindings & bindings, TypeRef object_t, const StaticString & name)

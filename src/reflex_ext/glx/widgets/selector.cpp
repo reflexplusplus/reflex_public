@@ -9,8 +9,6 @@
 
 struct Reflex::GLX::Selector::LayoutModel : public Detail::StandardLayout
 {
-	using StandardLayout::StandardLayout;
-
 	Pair <AccommodateFn,AlignFn> OnRebuild(GLX::Object & object, UInt8 layout_flags) override
 	{
 		auto self = Cast<Selector>(object);
@@ -24,7 +22,7 @@ struct Reflex::GLX::Selector::LayoutModel : public Detail::StandardLayout
 };
 
 Reflex::GLX::Selector::Selector()
-	: GLX::Object(New<LayoutModel>(*this))
+	: GLX::Object(New<LayoutModel>())
 	, m_set_content(&Detail::SetContentNotAnimated)
 	, m_autofit(false)
 {

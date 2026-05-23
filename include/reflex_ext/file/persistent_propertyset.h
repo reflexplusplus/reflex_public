@@ -70,7 +70,7 @@ public:
 
 	void Reset(Key32 context = kNullKey);
 
-	void Deserialize(Data::Archive::View & stream, Key32 context = kContextSession);
+	Data::SerializableFormat::DeserializeError Deserialize(Data::Archive::View & stream, Key32 context = kContextSession);
 
 	void Serialize(Data::Archive & stream) const;
 

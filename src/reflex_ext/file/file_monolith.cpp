@@ -9,7 +9,7 @@
 
 REFLEX_BEGIN_INTERNAL(Reflex::File)
 
-UInt16 gIgnoreCount = 0;
+UInt16 g_ignore_count = 0;
 
 struct FileRegion : public System::FileHandle
 {
@@ -32,8 +32,6 @@ struct FileRegion : public System::FileHandle
 	{
 		count--;
 	}
-
-	bool Status() const override { return m_file->Status(); }
 
 	bool IsWriteable() const override { return false; }
 
@@ -75,7 +73,7 @@ struct FileRegion : public System::FileHandle
 		return 0;
 	}
 
-	void Flush() override { m_file->Flush(); }
+	bool Flush(bool commit) override { return m_file->Flush(commit); }
 
 	bool Truncate() override { return true; }
 
@@ -433,9 +431,9 @@ MonolithImpl::MonolithImpl(System::FileHandle & file, UInt32 clientheader)
 
 		if (filesize > end) m_deleted.Insert(filesize - end, end);
 
-		stream.Flush();
+		stream.Flush(false);
 
-		m_status = stream.Status();
+		m_status = IsValid(stream);
 
 		m_writeable = m_status;
 	}
@@ -524,7 +522,7 @@ void MonolithImpl::Commit()
 
 		WriteBytes(m_stream, archive);
 
-		m_stream->Flush();
+		m_stream->Flush(false);
 	}
 
 	Validate();
@@ -713,7 +711,7 @@ TRef <System::FileHandle> MonolithImpl::Write(Key64 partitionid, UInt size)
 
 UInt MonolithImpl::GetSize()
 {
-	m_stream->Flush();
+	m_stream->Flush(false);
 
 	return UInt32(m_stream->GetSize());
 }
@@ -797,5 +795,5 @@ Reflex::TRef <Reflex::File::Monolith> Reflex::File::Monolith::Create(const WStri
 
 Reflex::TRef <Reflex::System::FileHandle> Reflex::File::CreateRegionReader(System::FileHandle & file, UInt start, UInt range)
 {
-	return REFLEX_CREATE(FileRegion, file, gIgnoreCount, file, start, range);
+	return REFLEX_CREATE(FileRegion, file, g_ignore_count, file, start, range);
 }

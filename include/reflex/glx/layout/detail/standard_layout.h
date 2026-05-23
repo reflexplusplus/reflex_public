@@ -68,8 +68,6 @@ REFLEX_END
 
 struct Reflex::GLX::Detail::StandardLayout : public LayoutModel
 {
-	StandardLayout(GLX::Object & owner) {}
-
 	Pair <AccommodateFn,AlignFn> OnRebuild(GLX::Object & owner, UInt8 flags) override;
 
 	Float inline_size = 0.0f;

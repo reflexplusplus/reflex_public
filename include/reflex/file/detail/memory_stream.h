@@ -14,13 +14,11 @@ struct MemoryFile : public Reflex::System::FileHandle
 {
 	MemoryFile(bool writeable) : writeable(writeable) {}
 
-	virtual bool Status() const override { return true; }
+	bool IsWriteable() const override { return writeable; }
 
-	virtual bool IsWriteable() const override { return writeable; }
+	bool Flush(bool commit) override { return true; }
 
-	virtual void Flush() override {}
-
-	virtual bool Truncate() override { return true; } //{ REFLEX_ASSERT(false); }
+	bool Truncate() override { return true; }
 
 	const bool writeable;
 };
@@ -29,15 +27,15 @@ struct MemoryReader : public MemoryFile
 {
 	MemoryReader(const Data::Archive::View & data = {});
 
-	virtual UInt64 GetSize() const override;
+	UInt64 GetSize() const override;
 
-	virtual void SetPosition(UInt64 position) override;
+	void SetPosition(UInt64 position) override;
 
-	virtual UInt64 GetPosition() const override;
+	UInt64 GetPosition() const override;
 
-	virtual UInt Read(void * dest, UInt size) override;
+	UInt Read(void * dest, UInt size) override;
 
-	virtual UInt32 Write(const void * data, UInt size) override;
+	UInt32 Write(const void * data, UInt size) override;
 
 
 	const UInt8 * m_start;
@@ -51,17 +49,17 @@ struct MemoryWriter : public MemoryFile
 {
 	MemoryWriter(Data::Archive & data);
 
-	virtual UInt64 GetSize() const override;
+	UInt64 GetSize() const override;
 
-	virtual void SetPosition(UInt64 position) override;
+	void SetPosition(UInt64 position) override;
 
-	virtual UInt64 GetPosition() const override;
+	UInt64 GetPosition() const override;
 
-	virtual UInt32 Read(void * ptr, UInt32 size) override;
+	UInt32 Read(void * ptr, UInt32 size) override;
 
-	virtual UInt32 Write(const void * bytes, UInt num_bytes) override;
+	UInt32 Write(const void * bytes, UInt num_bytes) override;
 
-	virtual bool Truncate() override;
+	bool Truncate() override;
 
 
 	Data::Archive & m_dataref;

@@ -42,10 +42,10 @@ powershell -NoProfile -ExecutionPolicy Bypass -Command ^
 
 if errorlevel 1 exit /b %errorlevel%
 
-if exist "%TEMP_DIR%\reflex\bin" (
-	xcopy "%TEMP_DIR%\reflex\bin" "%ROOT%bin\" /E /I /Y >NUL
+if exist "%TEMP_DIR%\bin" (
+	xcopy "%TEMP_DIR%\bin" "%ROOT%bin\" /E /I /Y >NUL
 ) else (
-	echo Package does not contain reflex\bin folder.
+	echo Package does not contain bin folder.
 	exit /b 1
 )
 

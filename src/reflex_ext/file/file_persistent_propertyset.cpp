@@ -97,17 +97,21 @@ void Reflex::File::PersistentPropertySet::Reset(Key32 context)
 	m_signal.Notify(kNotificationReset, context);
 }
 
-void Reflex::File::PersistentPropertySet::Deserialize(Data::Archive::View & stream, Key32 context)
+Reflex::Data::SerializableFormat::DeserializeError Reflex::File::PersistentPropertySet::Deserialize(Data::Archive::View & stream, Key32 context)
 {
+	Reflex::Data::SerializableFormat::DeserializeError error;
+
 	{
 		SignalComponent<Notification,Key32>::Mute mute(m_signal);
 
-		format->Deserialize(stream, *this);
+		error = format->Deserialize(stream, *this);
 	}
 
 	State::Notify();
 
 	m_signal.Notify(kNotificationRestore, context);
+
+	return error;
 }
 
 void Reflex::File::PersistentPropertySet::Serialize(Data::Archive & stream) const
