@@ -6,9 +6,82 @@
 //
 //
 
-using namespace Reflex;
+namespace CustomDrawing { namespace {
 
-REFLEX_BEGIN_INTERNAL(CustomDrawing)
+struct ViewImpl : public View
+{
+public:
+
+	static constexpr UInt16 kChunkVersion = 0;
+
+	ViewImpl(App & app);
+
+
+	//Bootstrap::View callbacks
+
+	void OnResetState(Key32 context) override;
+
+	void OnRestoreState(Data::Archive::View & stream, Key32 context) override;
+
+	void OnStoreState(Data::Archive & stream) const override;
+
+	
+	//GLX::Object callbacks
+
+	bool OnEvent(GLX::Object & source, GLX::Event & e) override;
+
+	void OnSetStyle(const GLX::Style & style) override;
+
+	void OnUpdate() override;
+
+
+
+	const TRef <App> app;
+
+
+	//put your GLX::Object members here
+
+	Reference <GLX::Object> m_widget;
+
+};
+
+ViewImpl::ViewImpl(App & app)
+	: View(app, kChunkVersion, L":res:CustomDrawing/styles.glx")
+	, app(app)
+	, m_widget(CreateWidget())
+{
+	Data::SetBool(*this, GLX::kresize, true);
+
+	GLX::AddFloat(*this, m_widget, GLX::kAlignmentCenter);
+}
+
+void ViewImpl::OnResetState(Key32 context)
+{
+}
+
+void ViewImpl::OnRestoreState(Data::Archive::View & stream, Key32 context)
+{
+}
+
+void ViewImpl::OnStoreState(Data::Archive & stream) const
+{
+	//if you change/add data here, you will need to increment kChunkVersion, as previous chunks will be incompatible
+}
+
+bool ViewImpl::OnEvent(GLX::Object & src, GLX::Event & e)
+{
+	return Bootstrap::View::OnEvent(src, e);
+}
+
+void ViewImpl::OnSetStyle(const GLX::Style & style)
+{
+	m_widget->SetStyle(style["Display"]);
+}
+
+void ViewImpl::OnUpdate()
+{
+	//this is called automatically when app state changes
+}
 
 GLX::Colour Mul(const GLX::Colour & c, Float x)
 {
@@ -114,8 +187,7 @@ void WidgetImpl::OnSetStyle(const GLX::Style & style)
 
 			auto pb = Extend(b, a.GetSize()).data;
 
-			auto inv_w = 1.0f / size.w;
-			auto inv_h = 1.0f / size.h;
+			auto inv = MakeSize(1.0f) / size;
 
 			constexpr GLX::Colour tl = { 1.0f, 0.0f, 0.0f, 1.0f };
 			constexpr GLX::Colour tr = { 0.0f, 1.0f, 0.0f, 1.0f };
@@ -127,12 +199,11 @@ void WidgetImpl::OnSetStyle(const GLX::Style & style)
 
 			for (const auto & p : a)
 			{
-				auto x = p.x * inv_w;
-				auto y = p.y * inv_h;
+				auto rcp = p * inv;
 
-				GLX::Colour top = tl + Mul(dt, x);
-				GLX::Colour bot = bl + Mul(db, x);
-				GLX::Colour c = top + Mul((bot - top), y);
+				GLX::Colour top = tl + Mul(dt, rcp.x);
+				GLX::Colour bot = bl + Mul(db, rcp.x);
+				GLX::Colour c = top + Mul((bot - top), rcp.y);
 
 				*pb++ = { p, c };
 			}
@@ -153,9 +224,9 @@ void WidgetImpl::OnUpdate()
 	GLX::SetText(*this, Join(ToWString(m_value * 100.0f, 1), L'%'));
 }
 
-REFLEX_END_INTERNAL
+} }
 
-TRef <GLX::Object> CustomDrawing::CreateWidget()
+Reflex::TRef <Reflex::GLX::Object> CustomDrawing::CreateWidget()
 {
 	return New<WidgetImpl>();
 }

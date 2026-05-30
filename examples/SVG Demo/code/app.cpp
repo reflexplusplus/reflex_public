@@ -6,19 +6,14 @@
 //
 //SVGDemo::App implementation
 
-using namespace Reflex;
+namespace SVGDemo { namespace {
 
-REFLEX_BEGIN_INTERNAL(SVGDemo)
-
-struct AppImpl :
-	public App,
-	public Bootstrap::Streamable
+struct AppImpl : public App
 {
 	static constexpr UInt16 kChunkVersion = 1;
 
 	AppImpl()
-		: App(K32("SVGDemo"))
-		, Bootstrap::Streamable(session, K32("app"), kChunkVersion)
+		: App(MakeKey32("SVGDemo"), kChunkVersion)
 	{
 		output.Log("SVG Demo constructed");
 	}
@@ -74,9 +69,9 @@ struct AppImpl :
 
 };
 
-REFLEX_END_INTERNAL
+} }	//end internal namespace
 
-TRef <SVGDemo::App> SVGDemo::App::Create()
+Reflex::TRef <SVGDemo::App> SVGDemo::App::Create()
 {
 	return New<SVGDemo::AppImpl>();
 }

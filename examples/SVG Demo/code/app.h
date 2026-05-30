@@ -30,7 +30,7 @@ class SVGDemo::App : public Bootstrap::App
 {
 public:
 
-	static constexpr WString::View kFileExt = L"asterixtest";
+	static constexpr WString::View kFileExt = L"svg_demo";
 
 
 

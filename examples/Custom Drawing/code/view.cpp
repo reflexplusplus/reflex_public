@@ -7,9 +7,7 @@
 //
 //CustomDrawing::View implementation
 
-using namespace Reflex;
-
-REFLEX_BEGIN_INTERNAL(CustomDrawing)
+namespace CustomDrawing { namespace {
 
 struct ViewImpl : public View
 {
@@ -86,9 +84,9 @@ void ViewImpl::OnUpdate()
 	//this is called automatically when app state changes
 }
 
-REFLEX_END_INTERNAL
+} }
 
-TRef <CustomDrawing::View> CustomDrawing::View::Create(App & app)
+Reflex::TRef <CustomDrawing::View> CustomDrawing::View::Create(App & app)
 {
 	return New<ViewImpl>(app);
 }

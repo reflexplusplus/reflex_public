@@ -48,7 +48,7 @@
 			<GenerateDebugInformation>true</GenerateDebugInformation>
 		</Link>
 		<PreBuildEvent>
-			<Command>"$(REFLEX_PATH)/bin/tools/win/ReflexResourceBuilder.exe" "$(SolutionDir)\..\..\resources.xml"</Command>
+			<Command>"$(REFLEX_PATH)/bin/tools/win/reflex.exe" build-resources --path "$(SolutionDir)..\..\resources.xml"</Command>
 		</PreBuildEvent>
 	</ItemDefinitionGroup>
 	<ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">

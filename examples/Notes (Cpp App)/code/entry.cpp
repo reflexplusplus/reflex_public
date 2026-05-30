@@ -7,16 +7,16 @@
 //
 //entrypoint
 
-TRef <Object> System::App::OnStart(const ArrayView <CString::View> & cmdline, Configuration & config)
+Reflex::TRef <Reflex::Object> Reflex::System::App::OnStart(const ArrayView <CString::View> & cmdline, Configuration & config)
 {
 	Bootstrap::PublishAppView< ::NotesCppApp::App, ::NotesCppApp::View >(config);
 	
 	return Bootstrap::StartApp< ::NotesCppApp::App >
 	(
 		config,
-		"Reflex Multimedia",
+		"Reflex++",
 		"Notes (Cpp App)",
-		K32("NotesCppApp"),
+		MakeKey32("NotesCppApp"),
 		__FILE__
 	 );
 }

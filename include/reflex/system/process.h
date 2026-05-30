@@ -1,6 +1,7 @@
 #pragma once
 
 #include "thread.h"
+#include "file_handle.h"
 
 
 
@@ -30,10 +31,22 @@ public:
 	static Process & null;
 
 
+	struct Options
+	{
+		Priority priority = kPriorityNormal;
+
+		FileHandle * std_out = nullptr;
+
+		bool allow_window = true;
+	};
+
+
 
 	//lifetime
 
-	[[nodiscard]] static TRef <Process> Create(const WString & path, const ArrayView <WString::View> & args, Priority priority = kPriorityNormal, bool allow_window = true);
+	[[nodiscard]] static TRef <Process> Create(const WString & path, const ArrayView <WString> & args, const Options & options);
+
+	[[nodiscard]] static TRef <Process> Create(const WString & path, const ArrayView <WString> & args);	//clang workaroud
 
 
 
@@ -44,3 +57,15 @@ public:
 	virtual void Terminate() = 0;
 
 };
+
+
+
+
+//
+//impl
+
+inline Reflex::TRef <Reflex::System::Process> Reflex::System::Process::Create(const WString & path, const ArrayView <WString> & args)
+{
+	return Create(path, args, {});
+}
+

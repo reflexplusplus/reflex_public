@@ -1,0 +1,15 @@
+<resources output="code/resources.cpp">
+
+	<Config public="true">
+
+		<bool id="view.allow_init_animations" value="true"/>
+	
+	</Config>
+
+	<DragAndDrop>
+
+		<folder path="resources" public="true" compress="auto"/>
+
+	</DragAndDrop>
+
+</resources>

@@ -116,16 +116,18 @@ menu:
 	{
 		inherit: common;
 
+		@Margin text_indent: 10,0;
+		
 		bg: 
 		Line(position: bottom; indent: 8,-1; colour: 216), 
-		Text(value: &value; font: Small; indent: 10,0; colour: 51; overflow: &overflow|ellipsis);
+		Text(value: &value; font: Small; indent: text_indent; colour: 51; overflow: &overflow|ellipsis);
 
 		@State hover:
 		{
 			bg:
 			Fill(indent: 2,1; colour: 255,128),
 			Line(position: bottom; indent: 8,-1; colour: 216),
-			Text(value: &value; font: Small; indent: 10,0; colour: 40; overflow: &overflow|ellipsis);
+			Text(value: &value; font: Small; indent: text_indent; colour: 40; overflow: &overflow|ellipsis);
 		};
 
 		@State focused:
@@ -135,23 +137,24 @@ menu:
 
 		@State selected:
 		{
-			bg:
-			Line(position: bottom; indent: 8,-1; colour: 216),
-			Text(value: &value; font: Small; indent: 10,0,32,0; colour: 51; overflow: &overflow|ellipsis),
+			@Margin text_indent: 10,0,32,0;
+		
+			fg:
 			Align(indent: 10,3; position: right; size: 6; content: CircleFill(colour: 51));
 
 			@State hover:
 			{
-				bg:
-				Fill(indent: 2,1; colour: 255,128),
-				Line(position: bottom; indent: 8,-1; colour: 216),
-				Text(value: &value; font: Small; indent: 10,0,32,0; overflow: &overflow|ellipsis; colour: 40),
+				inherit: hover;
+				
+				fg:
 				Align(indent: 10,3; position: right; size: 6; content: CircleFill(colour: 40));
 			};
 
 			@State focused:
 			{
-				fg: Border(indent: 3; colour: 192; corner: 3);
+				fg: 
+				Align(indent: 10,3; position: right; size: 6; content: CircleFill(colour: 51)),
+				Border(indent: 3; colour: 192; corner: 3);
 			};
 		};
 
@@ -159,7 +162,7 @@ menu:
 		{
 			bg: 
 			Line(position: bottom; indent: 8,-1; colour: 216), 
-			Text(value: &value; font: Small; indent: 10,0; colour: 128; overflow: &overflow|ellipsis);
+			Text(value: &value; font: Small; indent: text_indent; colour: 128; overflow: &overflow|ellipsis);
 		};
 	};
 
@@ -167,17 +170,9 @@ menu:
 	{
 		inherit: item;
 
+		@Margin text_indent: 10,0,32,0;
+
 		fg: Align(indent: 10,3; position: right; size: 6; content: Circle(colour: 160));
-
-		@State selected:
-		{
-			fg: Align(indent: 10,3; position: right; size: 6; content: CircleFill(colour: 56));
-
-			@State hover:
-			{
-				fg: Align(indent: 10,3; position: right; size: 6; content: Circle(colour: 56));
-			};
-		};
 	};
 
 	folder:

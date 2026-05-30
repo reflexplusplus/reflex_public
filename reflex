@@ -1,0 +1,13 @@
+#!/bin/bash
+set -euo pipefail
+
+ROOT="$(cd "$(dirname "$0")" && pwd)"
+REFLEX_EXE="$ROOT/bin/tools/macos/reflex"
+
+if [[ ! -e "$REFLEX_EXE" ]]; then
+	echo "reflex was not found at \"$REFLEX_EXE\"" >&2
+	echo "Build or install the macOS tools first." >&2
+	exit 1
+fi
+
+exec "$REFLEX_EXE" "$@"

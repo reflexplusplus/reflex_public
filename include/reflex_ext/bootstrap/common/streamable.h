@@ -25,19 +25,20 @@ class Reflex::Bootstrap::Streamable : public Data::iStreamable
 {
 protected:
 
-	Streamable(File::PersistentPropertySet & propertyset, Key32 chunkid, UInt16 chunkversion);
+	Streamable(File::PersistentPropertySet & propertyset, Key32 chunk_id, UInt16 chunkversion);
 
 	void RestoreState(Key32 context = File::PersistentPropertySet::kContextSession);	//call post-constructor
 
 	void StoreState();	//call pre-destructor
 
 
+	const TRef <File::PersistentPropertySet> propertyset;
+
+	const Key32 chunkid;
+
+
 
 private:
-
-	File::PersistentPropertySet & propertyset;
-
-	Key32 m_chunkid;
 
 	Reference <Object> m_listener;
 

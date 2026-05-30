@@ -57,6 +57,8 @@ namespace Reflex::System
 
 	WString GetPath(Path path);
 
+	WString GetExecutablePath();
+
 
 	WString GetCurrentDirectory();
 

@@ -1,6 +1,26 @@
 #pragma once
 
-#include "parser.h"
+#include "reflex_ext.h"
+
+
+
+
+//
+//declarations
+
+namespace ResourceBuilder
+{
+
+	using namespace Reflex;
+
+
+	class App;
+
+	TRef <System::Task> Compile(const WString::View & path);
+
+	extern Output output;
+
+}
 
 
 
@@ -8,34 +28,27 @@
 //
 //App
 
-namespace ResourceBuilder
+class ResourceBuilder::App : public Bootstrap::App
 {
+public:
 
-	class App : public Bootstrap::App
-	{
-	public:
-
-		REFLEX_OBJECT(App, Bootstrap::App);
+	REFLEX_OBJECT(App, Bootstrap::App);
 
 
-		//reflex ctr for abstract class
+	//reflex ctr for abstract class
 
-		static TRef <App> Create();
+	static TRef <App> Create();
 
 
 
-		//compile .xml in bg thread
+	//compile .xml in bg thread
 
-		virtual TRef <System::Thread> Compile(const WString & path, ObjectOf <Float> & progress) = 0;
+	virtual TRef <System::Task> Compile(const WString & path, ObjectOf <Float> & progress) = 0;
 
 
 
-	protected:
+protected:
 
-		using Bootstrap::App::App;
+	using Bootstrap::App::App;
 
-	};
-
-	extern Output output;
-
-}
+};

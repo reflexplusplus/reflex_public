@@ -11,9 +11,9 @@ Reflex::TRef <Reflex::Object> Reflex::System::App::OnStart(const ArrayView <CStr
 	return Bootstrap::StartVmApp
 	(
 		config,
-		"Reflex Multimedia",
+		"Reflex++",
 		"Counter (ReflexVm App)",
-		K32("CounterReflexVmApp"),
+		MakeKey32("CounterReflexVmApp"),
 		__FILE__,
 		L":res:CounterReflexVmApp/main.c",
 		L":res:CounterReflexVmApp/view.c"

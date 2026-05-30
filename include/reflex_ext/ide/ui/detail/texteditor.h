@@ -52,33 +52,33 @@ public:
 
 	void ClearData();
 
-	void SetData(ConstTRef <Data::ArchiveObject> archive);
+	void SetData(ConstTRef <Data::ArchiveObject> archive, UInt8 tab_spaces);
 
 	ConstTRef <Data::ArchiveObject> GetData() const { return m_data; }
 
 
-	REFLEX_EXPOSE_MEMBER_METHOD(m_textedit, SetCaret);
+	//REFLEX_EXPOSE_MEMBER_METHOD(m_textedit, SetCaret);
 
-	REFLEX_EXPOSE_MEMBER_METHOD_CONST(m_textedit, GetCaret);
+	//REFLEX_EXPOSE_MEMBER_METHOD_CONST(m_textedit, GetCaret);
 
 
-	REFLEX_EXPOSE_MEMBER_METHOD(m_textedit, Reset);
+	//REFLEX_EXPOSE_MEMBER_METHOD(m_textedit, Reset);
 
-	REFLEX_EXPOSE_MEMBER_METHOD(m_textedit, Deserialize);
+	//REFLEX_EXPOSE_MEMBER_METHOD(m_textedit, Deserialize);
 
-	REFLEX_EXPOSE_MEMBER_METHOD_CONST(m_textedit, Serialize);
+	//REFLEX_EXPOSE_MEMBER_METHOD_CONST(m_textedit, Serialize);
 
 
 	void Reveal(UInt pos, UInt length);
-
-
-	//void SetCommentedLines(const ArrayView <UInt> & lines);
 
 
 	void ClearError();
 
 	void SetError(UInt idx);
 
+
+
+	const TRef <GLX::TextEditBehaviour> behaviour;
 
 
 private:
@@ -90,12 +90,9 @@ private:
 
 	const TRef <GLX::Text> m_text;
 
-	TRef <GLX::TextEditBehaviour> m_textedit;
-
 	ConstReference <Data::ArchiveObject> m_data;
 
 
 	Idx m_highlighted_line;
 
-	//Array <UInt32> m_commented_lines;
 };

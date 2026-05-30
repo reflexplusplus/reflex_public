@@ -10,9 +10,7 @@
 
 REFLEX_BEGIN_INTERNAL(Reflex::Bootstrap)
 
-struct VmAppDelegate : 
-	public App,
-	public Streamable
+struct VmAppDelegate : public App
 {
 	static const VM::Module g_bindings;
 
@@ -24,8 +22,7 @@ struct VmAppDelegate :
 	}
 
 	VmAppDelegate(UInt32 magicbytes, const WString::View & path)
-		: App(magicbytes),
-		Streamable(session, "app", 1),
+		: App(magicbytes, 1),
 		m_vm(VM::Start()),
 		m_compiler(VM::Compiler::Create()),
 		m_path(path),

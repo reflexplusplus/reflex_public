@@ -189,7 +189,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "\"$REFLEX_PATH/bin/tools/macos/ReflexResourceBuilder.app/Contents/MacOS/ReflexResourceBuilder\" \"$PROJECT_DIR/../../resources.xml\"";
+			shellScript = "\"$REFLEX_PATH/bin/tools/macos/reflex\" build-resources --path \"$PROJECT_DIR/../../resources.xml\"";
 			showEnvVarsInLog = 0;
 		};
 /* End PBXShellScriptBuildPhase section */

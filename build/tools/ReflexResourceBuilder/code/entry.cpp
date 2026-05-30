@@ -1,4 +1,3 @@
-#include "parser.h"
 #include "app.h"
 #include "view.h"
 
@@ -8,11 +7,11 @@
 //
 //
 
-REFLEX_BEGIN_INTERNAL(ResourceBuilder)
+namespace ResourceBuilder { namespace {	//begin internal namespace
 
 void CompileFromCmdLine(const ArrayView <CString::View> & cmds)
 {
-	auto global = AutoRelease(Bootstrap::Global::Acquire("Reflex Multimedia", "Resource Builder", Bootstrap::Detail::ExtractProjectDir(__FILE__), K32("ResourceBuilder")));
+	auto global = AutoRelease(Bootstrap::Global::Acquire("Reflex++", "Resource Builder", Bootstrap::Detail::ExtractProjectDir(__FILE__), K32("ResourceBuilder")));
 
 	CString cmdline = Merge(cmds, ' ');
 
@@ -29,14 +28,18 @@ void CompileFromCmdLine(const ArrayView <CString::View> & cmds)
 
 	path = File::ResolveRelativePath(path);
 
-	Float32 progress = 0.0f;
+	auto std_out = Make<System::FileHandle>(System::FileHandle::kStandardStreamOut);
 
-	Compile(path, progress);	//single threaded here so dont care about progress
+	File::WriteLine(std_out, Join("warning: ReflexResourceBuilder is deprecated. Use: reflex build-resources --path \"", ToCString(path), '"'));
+
+	auto task = AutoRelease(Compile(path));
+
+	task->Wait();
 }
 
-REFLEX_END_INTERNAL
+} }
 
-TRef <Object> System::App::OnStart(const ArrayView <CString::View> & cmdline, Configuration & config)
+Reflex::TRef <Reflex::Object> Reflex::System::App::OnStart(const ArrayView <CString::View> & cmdline, Configuration & config)
 {
 	if (cmdline)
 	{
@@ -53,9 +56,9 @@ TRef <Object> System::App::OnStart(const ArrayView <CString::View> & cmdline, Co
 		return Bootstrap::StartApp<ResourceBuilder::App>
 		(
 			config,
-			"Reflex Multimedia",
+			"Reflex++",
 			"Resource Builder",
-			K32("ResourceBuilder"),
+			MakeKey32("ResourceBuilder"),
 			__FILE__
 		);
 	}

@@ -70,6 +70,18 @@ namespace Reflex::File
 
 	WString ResolveIncludePath(const WString::View & base_dir, const WString::View & include_path);	//resolved path only, will ignore base if path begins with stroke or ':', and removes "./" from beginning of path
 
+
+
+	void RemoveTrailingStroke(WString &&) = delete;
+
+	void SplitFilename(WString &&) = delete;
+
+	void SplitExtension(WString &&) = delete;
+
+	void GetExtension(WString &&) = delete;
+
+	void RemoveExtension(WString &&) = delete;
+
 }
 
 

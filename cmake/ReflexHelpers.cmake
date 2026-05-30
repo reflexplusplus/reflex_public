@@ -405,9 +405,9 @@ endfunction()
 
 function(_reflex_generate_plist output_var target name vendor version bundle_type)
     # Optional AU parameters: pass as 7th, 8th, 9th args
-    set(_au_type "${ARGV6}")
-    set(_au_subtype "${ARGV7}")
-    set(_au_manufacturer "${ARGV8}")
+    set(_au_type_4cc "${ARGV6}")
+    set(_au_uid_4cc "${ARGV7}")
+    set(_au_vendor_4cc "${ARGV8}")
 
     # Map bundle_type to template file
     if(bundle_type STREQUAL "app")
@@ -435,10 +435,10 @@ function(_reflex_generate_plist output_var target name vendor version bundle_typ
     string(REPLACE ">1.0.0<" ">${version}<" _plist_content "${_plist_content}")
 
     # AU-specific variable replacement
-    if(_au_type AND _au_subtype AND _au_manufacturer)
-        string(REPLACE "$(AU_TYPE_4CC)" "${_au_type}" _plist_content "${_plist_content}")
-        string(REPLACE "$(AU_UID_4CC)" "${_au_subtype}" _plist_content "${_plist_content}")
-        string(REPLACE "$(AU_COMPANY_4CC)" "${_au_manufacturer}" _plist_content "${_plist_content}")
+    if(_au_type_4cc AND _au_uid_4cc AND _au_vendor_4cc)
+        string(REPLACE "$(AU_TYPE_4CC)" "${_au_type_4cc}" _plist_content "${_plist_content}")
+        string(REPLACE "$(AU_UID_4CC)" "${_au_uid_4cc}" _plist_content "${_plist_content}")
+        string(REPLACE "$(AU_VENDOR_4CC)" "${_au_vendor_4cc}" _plist_content "${_plist_content}")
         string(REPLACE "$(VENDOR_NAME)" "${vendor}" _plist_content "${_plist_content}")
         # Fix description to use product name instead of generic text
         string(REPLACE "Reflex AudioUnit Plugin" "${name}" _plist_content "${_plist_content}")
@@ -454,7 +454,7 @@ endfunction()
 # Internal: create one plugin format target
 # =========================================================
 
-function(_reflex_add_plugin_format base_target format sources name vendor version au_type au_subtype au_manufacturer)
+function(_reflex_add_plugin_format base_target format sources name vendor version au_type_4cc au_uid_4cc au_vendor_4cc)
 
     set(_t "${base_target}_${format}")
 
@@ -607,7 +607,7 @@ function(_reflex_add_plugin_format base_target format sources name vendor versio
 
         add_library(${_t} MODULE ${sources})
         _reflex_generate_plist(_plist ${_t} "${name}" "${vendor}" "${version}" "component"
-            "${au_type}" "${au_subtype}" "${au_manufacturer}")
+            "${au_type_4cc}" "${au_uid_4cc}" "${au_vendor_4cc}")
         set_target_properties(${_t} PROPERTIES
             OUTPUT_NAME              "${name}"
             PREFIX                   ""
@@ -700,14 +700,14 @@ endfunction()
 #       VENDOR   "My Company"
 #       VERSION  "1.0.0"
 #       # AU-specific (required for AUV2 format):
-#       AU_TYPE         "aumf"      # aumu=instrument, aumf=MIDI processor, aufx=effect
-#       AU_SUBTYPE      "ES2M"      # 4-char plugin code
-#       AU_MANUFACTURER "NdAu"      # 4-char manufacturer code
+#       AU_TYPE_4CC    "aumf"      # aumu=instrument, aumf=MIDI processor, aufx=effect
+#       AU_UID_4CC     "ES2M"      # 4-char plugin code
+#       AU_VENDOR_4CC  "NdAu"      # 4-char vendor code
 #   )
 
 function(reflex_add_audio_plugin target)
     cmake_parse_arguments(A ""
-        "NAME;VENDOR;VERSION;AU_TYPE;AU_SUBTYPE;AU_MANUFACTURER"
+        "NAME;VENDOR;VERSION;AU_TYPE_4CC;AU_UID_4CC;AU_VENDOR_4CC"
         "FORMATS;SOURCES" ${ARGN})
 
     if(NOT A_FORMATS)
@@ -719,7 +719,7 @@ function(reflex_add_audio_plugin target)
         _reflex_add_plugin_format(
             ${target} ${_fmt} "${A_SOURCES}"
             "${A_NAME}" "${A_VENDOR}" "${A_VERSION}"
-            "${A_AU_TYPE}" "${A_AU_SUBTYPE}" "${A_AU_MANUFACTURER}"
+            "${A_AU_TYPE_4CC}" "${A_AU_UID_4CC}" "${A_AU_VENDOR_4CC}"
         )
     endforeach()
 

@@ -5,7 +5,6 @@
     <ClCompile Include="..\..\..\code\entry.cpp" />
     <ClCompile Include="..\..\..\code\resources.cpp" />
     <ClCompile Include="..\..\..\code\view.cpp" />
-    <ClCompile Include="..\..\..\code\parser.cpp" />
     <ClCompile Include="..\..\..\..\..\..\src\reflex_ext.cpp">
       <Filter>Reflex</Filter>
     </ClCompile>

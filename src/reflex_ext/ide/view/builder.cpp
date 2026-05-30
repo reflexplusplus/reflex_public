@@ -17,8 +17,42 @@ static constexpr bool kApple = true;
 static constexpr bool kApple = false;
 #endif
 
-constexpr Key32 kSearchOptionCaseSensitive = "ide.search.case";
-constexpr Key32 kSearchOptionWholeWord = "ide.search.word";
+constexpr Pair <Key32,bool> kLineNumbers = { "ide.texteditor.line_numbers", false };
+constexpr Pair <Key32,UInt8> kTabSpaces = { "ide.texteditor.tab_spaces", 4 };
+constexpr Pair <Key32,bool> kSearchOptionCaseSensitive = { "ide.texteditor.search.case_sensitive", false };
+constexpr Pair <Key32,bool> kSearchOptionWholeWord = { "ide.texteditor.search.word", false };
+
+auto GetPreference(auto def)
+{
+	if constexpr (kIsType<decltype(def.b),bool>)
+	{
+		return Data::GetBool(TheGlobal::Get()->m_prefs, def.a, def.b);
+	}
+	else if constexpr (kIsType<decltype(def.b), UInt8>)
+	{
+		return Data::GetUInt8(TheGlobal::Get()->m_prefs, def.a, def.b);
+	}
+	else
+	{
+		static_assert(kIsType<decltype(def.b),void>);
+	}
+}
+
+void SetPreference(auto def, auto value)
+{
+	if constexpr (kIsType<decltype(def.b), bool>)
+	{
+		Data::SetBool(TheGlobal::Get()->m_prefs, def.a, True(value));
+	}
+	else if constexpr (kIsType<decltype(def.b), UInt8>)
+	{
+		Data::SetUInt8(TheGlobal::Get()->m_prefs, def.a, UInt8(value));
+	}
+	else
+	{
+		static_assert(kIsType<decltype(def.b), void>);
+	}
+}
 
 template <bool REVERSE, bool CASE_SENSITIVE, bool WHOLE_WORD> Idx TextSearch(const WString & haystack, const WString::View & needle, UInt pos)
 {
@@ -213,7 +247,7 @@ struct BuilderImpl : public Detail::BuilderPanel
 
 struct BuilderImpl::Interface : public GLX::Object
 {
-	static inline const Key32 kType = K32("");
+	static constexpr Key32 kType = K32("");
 
 
 	Interface(TRef <BuilderImpl> builder)
@@ -318,6 +352,7 @@ struct BuilderImpl::TextEditor : public Interface
 {
 	static constexpr UInt32 kType = K32("text");
 
+
 	TextEditor(TRef <BuilderImpl> builder);
 
 	Key32 GetType() const override { return kType; }
@@ -341,20 +376,20 @@ struct BuilderImpl::TextEditor : public Interface
 
 	void Reset() override
 	{
-		m_texteditor->Reset();
+		m_texteditor->behaviour->Reset();
 	}
 
 	void Deserialize(bool session, Data::Archive::View stream) override
 	{
 		if (session)
 		{
-			m_texteditor->Deserialize(stream);
+			m_texteditor->behaviour->Deserialize(stream);
 		}
 		else
 		{
 			auto [caret, selection_start, selection_length] = Data::Deserialize<UInt,UInt,UInt>(stream);
 			
-			m_texteditor->SetCaret(caret, selection_start, selection_length);
+			m_texteditor->behaviour->SetCaret(caret, selection_start, selection_length);
 
 			m_scroller.SetView({ Data::Deserialize<GLX::Point>(stream), {} });
 		}
@@ -364,13 +399,13 @@ struct BuilderImpl::TextEditor : public Interface
 	{
 		if (session)
 		{
-			m_texteditor->Serialize(stream);
+			m_texteditor->behaviour->Serialize(stream);
 		}
 		else
 		{
 			auto vo = m_scroller.GetView().origin;
 
-			Data::Serialize(stream, m_texteditor->GetCaret(), vo);
+			Data::Serialize(stream, m_texteditor->behaviour->GetCaret(), vo);
 		}
 	}
 
@@ -403,19 +438,17 @@ protected:
 			{
 				for (auto & i : items)
 				{
-					i = GLX::Init(REFLEX_CREATE(GLX::Label, ToWString(++line)), style);
+					i = GLX::Init(New<GLX::Label>(ToWString(++line)), style);
 				}
 			});
 
-			ShowLineNumbers(false);
+			ShowLineNumbers(GetPreference(kLineNumbers));
 
 			GLX::AddInlineFlex(*this, texteditor);
 		}
 
 		void ShowLineNumbers(bool enable)
 		{
-			m_showlinenumbers = enable;
-
 			if (enable)
 			{
 				auto data = texteditor.GetData();
@@ -454,8 +487,6 @@ protected:
 		}
 
 
-		bool m_showlinenumbers;
-
 		GLX::VirtualList linenumbers;
 
 		Detail::TextEditor texteditor;
@@ -476,18 +507,6 @@ struct BuilderImpl::PropertySheetEditor : public TextEditor
 
 	void OnSetContent(const Reflex::Object & data) override
 	{
-		//constexpr auto GetComments = [](const Data::PropertySet & propertyset)
-		//{
-		//	Array <UInt> comments;
-
-		//	for (auto & i : propertyset.Iterate<Data::Detail::PropertySheetInterface::CommentObject>())
-		//	{
-		//		comments.Push(i.key.id.value);
-		//	}
-
-		//	return comments;
-		//};
-
 		if (auto propertysheet = DynamicCast<Data::PropertySet>(data))
 		{
 			m_propertysheet = propertysheet;
@@ -505,8 +524,6 @@ struct BuilderImpl::PropertySheetEditor : public TextEditor
 			{
 				TextEditor::OnSetContent(New<Data::ArchiveObject>(File::Open(lock.lock, token->path)));
 
-				//TextEditor::SetCommentedLines(GetComments(m_propertysheet));
-
 				return;
 			}
 		}
@@ -514,8 +531,6 @@ struct BuilderImpl::PropertySheetEditor : public TextEditor
 		if (auto blob = DynamicCast<Data::ArchiveObject>(data))
 		{
 			TextEditor::OnSetContent(*blob);
-
-			//TextEditor::SetCommentedLines(GetComments(Data::DecodePropertySet(Data::kPropertySheetFormat, blob->value)));
 		}
 		else
 		{
@@ -527,7 +542,7 @@ struct BuilderImpl::PropertySheetEditor : public TextEditor
 };
 
 BuilderImpl::BuilderImpl()
-	: Detail::BuilderPanel(K32("Builder"), 1)
+	: Detail::BuilderPanel("Builder", 1)
 	, m_ide_global(TheGlobal::Get())
 	, m_monitor(m_ide_global)
 	, m_ide_styles(Detail::RetrieveStyleSheet())
@@ -1040,9 +1055,9 @@ void BuilderImpl::TextEditor::OnSetContent(const Reflex::Object & data)
 
 	auto blob = Cast<Data::ArchiveObject>(data);
 
-	m_texteditor->SetData(blob);
+	m_texteditor->SetData(blob, GetPreference(kTabSpaces));
 
-	view->ShowLineNumbers(view->m_showlinenumbers);
+	view->ShowLineNumbers(GetPreference(kLineNumbers));
 }
 
 Reflex::Data::Archive BuilderImpl::TextEditor::GetBlob()
@@ -1076,22 +1091,24 @@ bool BuilderImpl::TextEditor::OnEvent(GLX::Object & src, GLX::Event & e)
 	{
 		TRef prefs = TheGlobal::Get()->m_prefs;
 
-		auto bits = MakeBits(reverse, Data::GetBool(prefs, kSearchOptionCaseSensitive, true), Data::GetBool(prefs, kSearchOptionWholeWord, true));
+		auto bits = MakeBits(reverse, GetPreference(kSearchOptionCaseSensitive), GetPreference(kSearchOptionWholeWord));
 
 		auto fn = TextSearchBinder::Bind(bits);
 
 
 		auto texteditor = self.m_texteditor;
 
-		WString text = Data::DecodeUTF8(texteditor->GetData()->value);
+		// Search in the editor's displayed buffer so match offsets stay aligned
+		// with caret/reveal positions even when tabs are expanded or collapsed.
+		WString text = GLX::GetText(*texteditor);
 
 		auto needle = Data::GetWString(self, kSearch);
 
-		auto caret_pos = texteditor->GetCaret().a;
+		auto caret_pos = texteditor->behaviour->GetCaret().a;
 
 		if (caret_pos != Data::GetUInt32(self, kSearchCaret))
 		{
-			Data::SetUInt32(self, kSearch, caret_pos);
+			Data::SetUInt32(self, kSearchCaret, caret_pos);
 		}
 
 		REFLEX_LOOP(x, 2)
@@ -1136,12 +1153,7 @@ bool BuilderImpl::TextEditor::OnEvent(GLX::Object & src, GLX::Event & e)
 	}
 	else if (GLX::IsRightClick(e))
 	{
-		auto menu = GLX::OpenContextMenu(m_scroller);
-
-		//GLX::BindClick(GLX::AddMenuOption(menu, L"Show Line Numbers", view->m_showlinenumbers), [view]()
-		//{
-		//	view->ShowLineNumbers(!view->m_showlinenumbers);
-		//});
+		GLX::OpenContextMenu(m_scroller);
 
 		return true;
 	}
@@ -1149,10 +1161,33 @@ bool BuilderImpl::TextEditor::OnEvent(GLX::Object & src, GLX::Event & e)
 	{
 		auto view = m_scroller.GetContent();
 
-		GLX::BindClick(GLX::AddMenuOption(menu, L"Show Line Numbers", view->m_showlinenumbers), [view]()
+		auto line_numbers = GetPreference(kLineNumbers);
+
+		GLX::BindClick(GLX::AddMenuOption(menu, L"Show Line Numbers", line_numbers), [view, line_numbers]()
 		{
-			view->ShowLineNumbers(!view->m_showlinenumbers);
+			SetPreference(kLineNumbers, !line_numbers);
+
+			view->ShowLineNumbers(!line_numbers);
 		});
+
+		menu->AddSeparator();
+
+		auto set_tab_spaces = [](TextEditorWithLineNumbers & view, UInt8 tab_spaces)
+		{
+			SetPreference(kTabSpaces, tab_spaces);
+
+			auto current = AutoRelease(view.texteditor.GetData());
+
+			view.texteditor.SetData(Null<Data::ArchiveObject>(), tab_spaces);
+
+			view.texteditor.SetData(current, tab_spaces);
+		};
+
+		auto tab_spaces = GetPreference(kTabSpaces);
+
+		GLX::BindClick(GLX::AddMenuOption(menu, L"Tabs", tab_spaces == 0), Bind(set_tab_spaces, view, 0));
+		GLX::BindClick(GLX::AddMenuOption(menu, L"3 spaces", tab_spaces == 3), Bind(set_tab_spaces, view, 3));
+		GLX::BindClick(GLX::AddMenuOption(menu, L"4 spaces", tab_spaces == 4), Bind(set_tab_spaces, view, 4));
 
 		return true;
 	}
@@ -1174,22 +1209,22 @@ bool BuilderImpl::TextEditor::OnEvent(GLX::Object & src, GLX::Event & e)
 
 					TRef prefs = TheGlobal::Get()->m_prefs;
 
-					const Pair <WString::View, Key32> ids[] = { { L"Case", kSearchOptionCaseSensitive }, { L"Word", kSearchOptionWholeWord } };
+					const Pair <WString::View, Pair<Key32,bool>> options[] = { { L"Case", kSearchOptionCaseSensitive }, { L"Word", kSearchOptionWholeWord } };
 
-					for (auto & i : ids)
+					for (auto & i : options)
 					{
 						auto button = GLX::AddInline(bar, GLX::Init(New<GLX::Button>(i.a), option));
 
-						GLX::BindClick(button, [prefs, id = i.b, button]()
+						GLX::BindClick(button, [prefs, option = i.b, button]()
 						{
-							auto value = !Data::GetBool(prefs, id, true);
+							auto value = !GetPreference(option);
 
-							Data::SetBool(prefs, id, value);
+							SetPreference(option, value);
 
 							GLX::Select(button, value);
 						});
 
-						GLX::Select(button, Data::GetBool(prefs, i.b, true));
+						GLX::Select(button, GetPreference(i.b));
 					}
 
 					auto textedit = textarea->GetContent();
@@ -1239,12 +1274,6 @@ bool BuilderImpl::TextEditor::OnEvent(GLX::Object & src, GLX::Event & e)
 					});
 				});
 
-				//auto pos = m_texteditor->GetCaret().a;
-
-				//Data::SetUInt32(*this, "ide.search.caret", pos);
-
-				//Data::SetUInt32(*this, kSearch, pos);
-
 				Data::UnsetUInt32(*this, kSearchCaret);
 
 				auto textedit = Cast<GLX::TextArea>(item->value.GetFirst());
@@ -1254,8 +1283,6 @@ bool BuilderImpl::TextEditor::OnEvent(GLX::Object & src, GLX::Event & e)
 				auto string = textedit->GetText();
 
 				textedit->behaviour->SetCaret(string.size, 0, kMaxUInt32);
-
-				//item->value.t
 			}
 			return true;
 

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "[require].h"
+#include "streamable.h"
 
 
 
@@ -23,6 +23,7 @@ namespace Reflex::Bootstrap
 
 class Reflex::Bootstrap::App :
 	public Data::PropertySet,
+	public Streamable,
 	public State
 {
 public:
@@ -51,7 +52,7 @@ public:
 
 protected:
 
-	App(UInt32 magic);
+	App(UInt32 magic, UInt16 chunkversion);
 
 	void Notify(bool edited);
 

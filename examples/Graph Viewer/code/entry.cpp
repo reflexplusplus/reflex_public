@@ -14,9 +14,9 @@ TRef <Object> System::App::OnStart(const ArrayView <CString::View> & cmdline, Co
 	return Bootstrap::StartApp<::GraphViewer::App>
 	(
 		config,
-		"Reflex Multimedia",
+		"Reflex++",
 		"Graph Viewer",
-		K32("GraphViewer"),
+		MakeKey32("GraphViewer"),
 		__FILE__
 	 );
 }

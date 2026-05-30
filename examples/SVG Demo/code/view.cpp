@@ -6,9 +6,7 @@
 //
 //SVGDemo::View implementation
 
-using namespace Reflex;
-
-REFLEX_BEGIN_INTERNAL(SVGDemo)
+namespace SVGDemo { namespace {
 
 struct ViewImpl : public View
 {
@@ -123,7 +121,7 @@ void ViewImpl::OnUpdate()
 
 		GLX::SetColorCanvas(*this, {}, [this, xml, svg](GLX::ColorCanvasContext & ctx)	//!capture xml is critical to keep xml alive
 		{
-			GLX::Detail::DecodeSVG(ctx.output, svg, ctx.size);	//can also just decode once to kNormalSize but decoding to actual size is best for highest quality
+			GLX::Detail::DecodeSVG(ctx.output, svg, ctx.size);	//SVG decoding is expensive, so its recommending to decode once to kNormalSize, but for best quality decode to actual size
 		});
 
 		ClearState("empty");
@@ -136,9 +134,9 @@ void ViewImpl::OnUpdate()
 	}
 }
 
-REFLEX_END_INTERNAL
+} }	//end internal namespace
 
-TRef <SVGDemo::View> SVGDemo::View::Create(App & app)
+Reflex::TRef <SVGDemo::View> SVGDemo::View::Create(App & app)
 {
 	return New<ViewImpl>(app);
 }

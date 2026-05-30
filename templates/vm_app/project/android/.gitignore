@@ -1,0 +1,9 @@
+**/.idea
+/local.properties
+/.gradle
+.DS_Store
+/captures
+/build
+.externalNativeBuild
+/.kotlin
+/gradle/gradle-daemon-jvm.properties

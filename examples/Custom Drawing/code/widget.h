@@ -8,6 +8,6 @@
 namespace CustomDrawing
 {
 
-	Reflex::TRef <Reflex::GLX::Object> CreateWidget();
+	TRef <GLX::Object> CreateWidget();
 
 }

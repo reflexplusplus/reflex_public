@@ -40,8 +40,6 @@ public:
 
 	//lifetime
 
-	AudioPlugin(UInt32 magic, System::AudioPlugin & system);
-
 	~AudioPlugin();
 
 
@@ -67,6 +65,14 @@ public:
 	
 protected:
 	
+	//lifetime
+
+	AudioPlugin(System::AudioPlugin & owner, UInt32 magic, UInt16 chunkversion);
+
+
+	
+	//callbacks
+
 	virtual bool OnPrepareProcessing(UInt32 max_buffersize, Float32 samplerate, UInt num_input, UInt num_output) = 0;
 
 	virtual void OnProcessRt(UInt num_samples, const System::AudioPlugin::EventBuffer & events_in, Array <System::AudioPlugin::Event> & events_out, const ArrayView <const Float*> & inputs, const ArrayView <Float*> & outputs) = 0;

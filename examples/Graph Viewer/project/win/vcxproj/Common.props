@@ -47,6 +47,9 @@
 			<EnableCOMDATFolding>true</EnableCOMDATFolding>
 			<GenerateDebugInformation>true</GenerateDebugInformation>
 		</Link>
+		<PreBuildEvent>
+		  <Command>"$(REFLEX_PATH)/bin/tools/win/reflex.exe" build-resources --path "$(SolutionDir)..\..\resources.xml"</Command>
+		</PreBuildEvent>
 	</ItemDefinitionGroup>
 	<ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
 		<ClCompile>
@@ -63,9 +66,6 @@
 		<Link>
 			<GenerateDebugInformation>false</GenerateDebugInformation>
 		</Link>
-		<PreBuildEvent>
-		  <Command>"$(REFLEX_PATH)/bin/tools/win/ReflexResourceBuilder.exe" "$(SolutionDir)\..\..\resources.xml"</Command>
-		</PreBuildEvent>
 	</ItemDefinitionGroup>
 	<ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
 		<ClCompile>
@@ -81,8 +81,5 @@
 		<Link>
 			<GenerateDebugInformation>false</GenerateDebugInformation>
 		</Link>
-		<PreBuildEvent>
-		  <Command>"$(REFLEX_PATH)/bin/tools/win/ReflexResourceBuilder.exe" "$(SolutionDir)\..\..\resources.xml"</Command>
-		</PreBuildEvent>
 	</ItemDefinitionGroup>
 </Project>

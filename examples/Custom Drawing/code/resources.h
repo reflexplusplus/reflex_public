@@ -1,6 +1,6 @@
 #pragma once
 
-#include "reflex_ext/bootstrap/embedded_resource.h"
+#include "reflex_ext/file/embedded_resource.h"
 
 
 
@@ -11,14 +11,14 @@
 namespace Config
 {
 
-	extern const Reflex::Bootstrap::EnumerableEmbeddedResource view_allow_init_animations;
+	extern const Reflex::File::EnumerableEmbeddedResource view_allow_init_animations;
 
 }
 
 namespace CustomDrawing
 {
 
-	extern const Reflex::Bootstrap::EnumerableEmbeddedResource styles_txt;
+	extern const Reflex::File::EnumerableEmbeddedResource styles_glx;
 
 }
 

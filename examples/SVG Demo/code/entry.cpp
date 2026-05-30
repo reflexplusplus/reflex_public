@@ -14,9 +14,9 @@ Reflex::TRef <Reflex::Object> Reflex::System::App::OnStart(const ArrayView <CStr
 	return Bootstrap::StartApp<::SVGDemo::App>
 	(
 		config,
-		"Reflex Multimedia",
+		"Reflex++",
 		"SVG Demo",
-		K32("SVGDemo"),
+		MakeKey32("SVGDemo"),
 		__FILE__
 	);
 }

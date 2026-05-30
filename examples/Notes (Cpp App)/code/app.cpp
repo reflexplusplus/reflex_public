@@ -8,15 +8,12 @@
 
 namespace NotesCppApp { namespace {	//begin internal namespace
 
-struct AppImpl :
-	public App,
-	public Bootstrap::Streamable
+struct AppImpl : public App
 {
 	static constexpr UInt16 kChunkVersion = 1;
 
 	AppImpl()
-		: App(K32("NotesCppApp")),
-		Bootstrap::Streamable(session, K32("app"), kChunkVersion)
+		: App(MakeKey32("NotesCppApp"), kChunkVersion)
 	{
 		output.Log("Notes (Cpp App) constructed");
 	}
@@ -111,7 +108,7 @@ struct AppImpl :
 
 } }	//end internal namesapce
 
-TRef <NotesCppApp::App> NotesCppApp::App::Create()
+Reflex::TRef <NotesCppApp::App> NotesCppApp::App::Create()
 {
 	return New<NotesCppApp::AppImpl>();
 }

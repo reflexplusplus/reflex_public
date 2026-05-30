@@ -14,9 +14,9 @@ Reflex::TRef <Reflex::Object> Reflex::System::App::OnStart(const ArrayView <CStr
 	return Bootstrap::StartApp<::CustomDrawing::App>
 	(
 		config,
-		"Reflex Multimedia",
+		"Reflex++",
 		"Custom Drawing",
-		K32("CustomDrawing"),
+		MakeKey32("CustomDrawing"),
 		__FILE__
 	);
 }

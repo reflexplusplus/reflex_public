@@ -133,11 +133,10 @@ License text in this repository:
 - Pending / to be added alongside the vendored Open Sans font files.
 
 
-TODO / PENDING
+PENDING
 --------------
-The following items likely require separate SDK agreement or distribution
+The following items require separate SDK agreement or distribution
 clearance review beyond normal third-party notice handling:
 
 - ASIO
-- AAX
 - VST2
