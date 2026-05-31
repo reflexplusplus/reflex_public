@@ -21,7 +21,7 @@ find_package(Reflex REQUIRED CONFIG
 option(REFLEX_BUILD_APP  "Build standalone audio app" ON)
 option(REFLEX_BUILD_VST3 "Build VST3 plugin"          ON)
 option(REFLEX_BUILD_CLAP "Build CLAP plugin"          ON)
-option(REFLEX_BUILD_VST2 "Build VST2 plugin"          ON)
+option(REFLEX_BUILD_VST2 "Build VST2 plugin"          OFF)
 option(REFLEX_BUILD_AUV2 "Build AUV2 plugin"          ON)
 
 set(_FORMATS)

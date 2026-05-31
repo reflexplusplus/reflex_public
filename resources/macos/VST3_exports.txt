@@ -1,3 +1,0 @@
-_bundleEntry
-_bundleExit
-_GetPluginFactory

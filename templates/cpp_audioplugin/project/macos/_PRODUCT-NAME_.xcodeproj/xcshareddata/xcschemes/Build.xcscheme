@@ -56,20 +56,6 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "F79948721986455500B98BBE"
-               BuildableName = "_PRODUCT-NAME_.vst"
-               BlueprintName = "VST2"
-               ReferencedContainer = "container:_PRODUCT-NAME_.xcodeproj">
-            </BuildableReference>
-         </BuildActionEntry>
-         <BuildActionEntry
-            buildForTesting = "YES"
-            buildForRunning = "YES"
-            buildForProfiling = "YES"
-            buildForArchiving = "YES"
-            buildForAnalyzing = "YES">
-            <BuildableReference
-               BuildableIdentifier = "primary"
                BlueprintIdentifier = "1AA66B312F45E33B00163CAA"
                BuildableName = "_PRODUCT-NAME_.clap"
                BlueprintName = "CLAP"

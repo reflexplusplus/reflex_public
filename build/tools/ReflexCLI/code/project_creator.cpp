@@ -91,27 +91,20 @@ TemplateDefinitionEx OpenTemplateDefinitionEx(const WString::View & template_fol
 	return tmpl;
 }
 
-void AddTargetExcludes(TemplateDefinitionEx & tmpl, CString::View targets)
+void AddTargetExcludes(TemplateDefinitionEx & tmpl, ArrayView <CString> targets)
 {
-	Array <Key32> generators;
-
-	for (auto & raw : Split(targets, ','))
-	{
-		generators.Push(Trim(raw));
-	}
-
-	if (Search(generators, K32("all"))) return; 
+	if (!targets) Bootstrap::CLI::ThrowError("invalid --targets value");
 	
-	if (!Search(generators, K32("cmake")))
+	if (!Search<StringCompare>(targets, "cmake"))
 	{
 		tmpl.targets.exclude_files.Push(L"CMakeLists.txt");
 	}
 
-	if (!Search(generators, K32("visual_studio"))) tmpl.targets.exclude_folders.Push(Join(L"win", File::kStroke));
+	if (!Search<StringCompare>(targets, "visual_studio")) tmpl.targets.exclude_folders.Push(Join(L"win", File::kStroke));
 	
-	if (!Search(generators, K32("android_studio"))) tmpl.targets.exclude_folders.Push(Join(L"android", File::kStroke));
+	if (!Search<StringCompare>(targets, "android_studio")) tmpl.targets.exclude_folders.Push(Join(L"android", File::kStroke));
 
-	if (!Search(generators, K32("xcode")))
+	if (!Search<StringCompare>(targets, "xcode"))
 	{
 		tmpl.targets.exclude_folders.Push(Join(L"macos", File::kStroke));
 		tmpl.targets.exclude_folders.Push(Join(L"ios", File::kStroke));
@@ -136,7 +129,7 @@ WString::View FindVariable(const Array <Variable> & variables, CString::View tok
 	return {};
 }
 
-void StripInvalidCharacters(WString & value)
+WString StripValue(WString value)
 {
 	auto idx = value.GetSize();
 
@@ -156,21 +149,12 @@ void StripInvalidCharacters(WString & value)
 	}
 
 	if (value.Empty()) Bootstrap::CLI::ThrowError("strip characters resulting in empty string");
-}
-
-WString StripValue(const Array <Variable> & strings, CString::View token)
-{
-	WString value = FindVariable(strings, token);
-
-	StripInvalidCharacters(value);
 
 	return value;
 }
 
-WString Generate4CC(const Array <Variable> & strings, CString::View token)
+WString Generate4CC(const WString::View & value)
 {
-	auto value = FindVariable(strings, token);
-	
 	auto bytes = Data::Pack(Key32(value).value);
 	
 	UInt8 out[2] = { UInt8(bytes[0] ^ bytes[1]), UInt8(bytes[2] ^ bytes[3]) };
@@ -209,18 +193,20 @@ Array <Variable> ExpandStringVariables(const TemplateDefinitionEx & tmpl, ArrayV
 
 	for (auto & generator : tmpl.string_generators)
 	{
+		WString value = FindVariable(strings, generator.param);
+
 		switch (generator.op.value)
 		{
 		case K32("Strip"):
-			expanded.Push({ generator.token, StripValue(strings, generator.param) });
+			expanded.Push({ generator.token, StripValue(value) });
 			break;
 
 		case K32("StripLowercase"):
-			expanded.Push({ generator.token, Lowercase(StripValue(strings, generator.param)) });
+			expanded.Push({ generator.token, Lowercase(StripValue(Replace(value, L'_', L'-'))) });
 			break;
 
 		case K32("Generate4CC"):
-			expanded.Push({ generator.token, Generate4CC(strings, generator.param) });
+			expanded.Push({ generator.token, Generate4CC(value) });
 			break;
 
 		case K32("Constant"):
@@ -382,13 +368,34 @@ WString InstallFolder(const TemplateDefinitionEx & tmpl, const Array <Variable> 
 	return dst;
 }
 
+char Normalize(char c)
+{
+	if (c == '-') c = '_';
+
+	if (c >= 'A' && c <= 'Z') c = char(c - 'A' + 'a');
+
+	return c;
+}
+
 REFLEX_END_INTERNAL
 
-WString ReflexCLI::CreateProject(const TemplateDefinition & base_tmpl, ArrayView <Variable> string_inputs, ArrayView <Variable> path_inputs, CString::View generate, const WString::View & output_root, bool overwrite, System::FileHandle & std_out)
+bool ReflexCLI::StringCompare::eq(CString::View a, CString::View b)
+{
+	if (a.size != b.size) return false;
+
+	for (UInt i = 0; i < a.size; ++i)
+	{
+		if (Normalize(a[i]) != Normalize(b[i])) return false;
+	}
+
+	return true;
+}
+
+WString ReflexCLI::CreateProject(const TemplateDefinition & base_tmpl, ArrayView <Variable> string_inputs, ArrayView <Variable> path_inputs, ArrayView <CString> targets, const WString::View & output_root, bool overwrite, System::FileHandle & std_out)
 {
 	auto tmpl = OpenTemplateDefinitionEx(base_tmpl.folder);
 		
-	AddTargetExcludes(tmpl, generate);
+	AddTargetExcludes(tmpl, targets);
 
 	Array <Variable> expanded = Join(ExpandStringVariables(tmpl, string_inputs), ExpandPathVariables(tmpl, path_inputs));
 
@@ -398,7 +405,7 @@ WString ReflexCLI::CreateProject(const TemplateDefinition & base_tmpl, ArrayView
 
 	name = Replace(name, L' ', L'_');
 
-	StripInvalidCharacters(name);
+	name = StripValue(name);
 
 	auto repo_name = Lowercase(name);
 
