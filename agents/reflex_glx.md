@@ -1,6 +1,3 @@
-
-##### GLX Layers
-
 - [FX](#sym-25178416844117253)
 
 - [Image](#sym-965297026512196869)
@@ -11,68 +8,65 @@
 
 - [Vector](#sym-15552789302868972805)
 
----
-
-<a id="sym-23111219025157"></a>
 <a id="sym-25178416844117253"></a>
 
-#### FX
+##### FX
 
 
-## Functions
+### Functions
 
 [Blur](#sym-8972045093452125445), [Brightness](#sym-18053251530965914885), [Clip](#sym-8972197732294857989), [Contrast](#sym-13436796608486315269), [Exposure](#sym-5483585407675274501), [Grayscale](#sym-14076807402003371269), [Greyscale](#sym-17817314091039986949), [InnerShadow](#sym-248109501796848901), [Invert](#sym-13416385592455861509), [Mask](#sym-8973691161143153925), [Pixelate](#sym-158847273793492229), [Render](#sym-14882069948452050181), [Saturate](#sym-6266793163915007237), [Sepia](#sym-1015067584279614725), [Shadow](#sym-15063430568932807941), [Tint](#sym-8974808346561352965)
 ---
 
 <a id="sym-965297026512196869"></a>
 
-#### Image
+##### Image
 
 
-## Functions
+### Functions
 
 [Image](#sym-965297026512196869), [ImageFill](#sym-16429307426932528389), [ImageSelector](#sym-18413114587156059397)
 ---
 
 <a id="sym-13854936138885633285"></a>
 
-#### Layout
+##### Layout
 
 
-## Functions
+### Functions
 
 [Align](#sym-924432199397152005), [Group](#sym-955949296480425221), [If](#sym-25178902175421701), [Inline](#sym-13414860187576046853), [Split](#sym-1016746787643331845), [Tile](#sym-8974807998669001989), [ViewPortGrid](#sym-9424123253560972549)
 ---
 
 <a id="sym-8974791055023019269"></a>
 
-#### Text
+##### Text
 
 
-## Functions
+### Functions
 
 [Text](#sym-8974791055023019269), [TextEdit](#sym-9244992215028077829)
 ---
 
 <a id="sym-15552789302868972805"></a>
 
-#### Vector
+##### Vector
 
 
-## Functions
+### Functions
 
 [Bar](#sym-830870812209714437), [BarGraph](#sym-11434150497636848901), [Border](#sym-12244258531699594501), [Canvas](#sym-12340501112351102213), [Circle](#sym-12381779072370349317), [CircleFill](#sym-633738152695043333), [CircleGradient](#sym-15868944856299607301), [ColorCanvas](#sym-1377939582888187141), [ColourCanvas](#sym-1646520676934227205), [Fill](#sym-8972647153377744133), [Gradient](#sym-3672027794893706501), [GraphicCanvas](#sym-3111336564773360901), [Line](#sym-8973573496219112709), [Path](#sym-8974154334711321861), [Polygon](#sym-2073253062503306501), [Rotate](#sym-14933918995512825093), [Scale](#sym-1014689171891033349), [Translate](#sym-10667000374281377029), [Triangle](#sym-4954868727309931781), [TriangleFill](#sym-1689799709461320965)
 ---
 
 
-#### API Reference
+##### API Reference
 
 
-#### 
+##### 
 
 <a id="sym-924432199397152005"></a>
 
-### Align
+#### Align
 
 ```cpp
 void Align(Layers content, Margin& indent, Size& size, Alignment& position);
@@ -80,7 +74,7 @@ void Align(Layers content, Margin& indent, Size& size, Alignment& position);
 
 <a id="sym-830870812209714437"></a>
 
-### Bar
+#### Bar
 
 ```cpp
 void Bar(Layers content, Margin& indent, Float32& min_size, Range& range, Range& region);
@@ -88,7 +82,7 @@ void Bar(Layers content, Margin& indent, Float32& min_size, Range& range, Range&
 
 <a id="sym-11434150497636848901"></a>
 
-### BarGraph
+#### BarGraph
 
 ```cpp
 void BarGraph(Margin& indent, Colour& color, Range& range, Float32& gap, Float32[]& values);
@@ -96,7 +90,7 @@ void BarGraph(Margin& indent, Colour& color, Range& range, Float32& gap, Float32
 
 <a id="sym-8972045093452125445"></a>
 
-### Blur
+#### Blur
 
 ```cpp
 void Blur(Layers content, Float32& radius, Float32& opacity, Point& offset);
@@ -104,7 +98,7 @@ void Blur(Layers content, Float32& radius, Float32& opacity, Point& offset);
 
 <a id="sym-12244258531699594501"></a>
 
-### Border
+#### Border
 
 ```cpp
 void Border(Margin& indent, Colour& color, Margin& width, Margin& corner);
@@ -112,7 +106,7 @@ void Border(Margin& indent, Colour& color, Margin& width, Margin& corner);
 
 <a id="sym-18053251530965914885"></a>
 
-### Brightness
+#### Brightness
 
 ```cpp
 void Brightness(Layers content, Float32& amount);
@@ -120,7 +114,7 @@ void Brightness(Layers content, Float32& amount);
 
 <a id="sym-12340501112351102213"></a>
 
-### Canvas
+#### Canvas
 
 ```cpp
 void Canvas(Margin& indent, Colour& color, Key32& id);
@@ -128,7 +122,7 @@ void Canvas(Margin& indent, Colour& color, Key32& id);
 
 <a id="sym-12381779072370349317"></a>
 
-### Circle
+#### Circle
 
 ```cpp
 void Circle(Margin& indent, Colour& color, Range& sweep, Float32& width, bool round_cap);
@@ -136,7 +130,7 @@ void Circle(Margin& indent, Colour& color, Range& sweep, Float32& width, bool ro
 
 <a id="sym-633738152695043333"></a>
 
-### CircleFill
+#### CircleFill
 
 ```cpp
 void CircleFill(Margin& indent, Colour& color, Range& sweep);
@@ -144,7 +138,7 @@ void CircleFill(Margin& indent, Colour& color, Range& sweep);
 
 <a id="sym-15868944856299607301"></a>
 
-### CircleGradient
+#### CircleGradient
 
 ```cpp
 void CircleGradient(Margin& indent, Colour& from, Colour& to, Float32 dither);
@@ -152,7 +146,7 @@ void CircleGradient(Margin& indent, Colour& from, Colour& to, Float32 dither);
 
 <a id="sym-8972197732294857989"></a>
 
-### Clip
+#### Clip
 
 ```cpp
 void Clip(Layers content, Margin& indent);
@@ -160,7 +154,7 @@ void Clip(Layers content, Margin& indent);
 
 <a id="sym-1377939582888187141"></a>
 
-### ColorCanvas
+#### ColorCanvas
 
 ```cpp
 void ColorCanvas(Margin& indent, Colour& color, Key32& id);
@@ -168,7 +162,7 @@ void ColorCanvas(Margin& indent, Colour& color, Key32& id);
 
 <a id="sym-1646520676934227205"></a>
 
-### ColourCanvas
+#### ColourCanvas
 
 ```cpp
 void ColourCanvas(Margin& indent, Colour& color, Key32& id);
@@ -176,7 +170,7 @@ void ColourCanvas(Margin& indent, Colour& color, Key32& id);
 
 <a id="sym-13436796608486315269"></a>
 
-### Contrast
+#### Contrast
 
 ```cpp
 void Contrast(Layers content, Float32& amount);
@@ -184,7 +178,7 @@ void Contrast(Layers content, Float32& amount);
 
 <a id="sym-5483585407675274501"></a>
 
-### Exposure
+#### Exposure
 
 ```cpp
 void Exposure(Layers content, Colour& rgb);
@@ -192,7 +186,7 @@ void Exposure(Layers content, Colour& rgb);
 
 <a id="sym-8972647153377744133"></a>
 
-### Fill
+#### Fill
 
 ```cpp
 void Fill(Margin& indent, Colour& color, Margin& corner);
@@ -200,7 +194,7 @@ void Fill(Margin& indent, Colour& color, Margin& corner);
 
 <a id="sym-3672027794893706501"></a>
 
-### Gradient
+#### Gradient
 
 ```cpp
 void Gradient(Margin& indent, Colour& from, Colour& to, Float32 dither, Float32& angle);
@@ -208,7 +202,7 @@ void Gradient(Margin& indent, Colour& from, Colour& to, Float32 dither, Float32&
 
 <a id="sym-3111336564773360901"></a>
 
-### GraphicCanvas
+#### GraphicCanvas
 
 ```cpp
 void GraphicCanvas(Margin& indent, Colour& color, Key32& id);
@@ -216,7 +210,7 @@ void GraphicCanvas(Margin& indent, Colour& color, Key32& id);
 
 <a id="sym-14076807402003371269"></a>
 
-### Grayscale
+#### Grayscale
 
 ```cpp
 void Grayscale(Layers content, Float32& amount);
@@ -224,7 +218,7 @@ void Grayscale(Layers content, Float32& amount);
 
 <a id="sym-17817314091039986949"></a>
 
-### Greyscale
+#### Greyscale
 
 ```cpp
 void Greyscale(Layers content, Float32& amount);
@@ -232,7 +226,7 @@ void Greyscale(Layers content, Float32& amount);
 
 <a id="sym-955949296480425221"></a>
 
-### Group
+#### Group
 
 ```cpp
 void Group(Layers content, Margin& indent, Size& size, Alignment& position);
@@ -240,23 +234,23 @@ void Group(Layers content, Margin& indent, Size& size, Alignment& position);
 
 <a id="sym-25178902175421701"></a>
 
-### If
+#### If
 
 ```cpp
-void If(Margin& indent, Layers else, Layers then, Float32& input, Float32& value, Key32& op);
+void If(Margin& indent, Layers else, Layers then, Float32& input, Float32& value, Key32 op);
 ```
 
 <a id="sym-965297026512196869"></a>
 
-### Image
+#### Image
 
 ```cpp
-void Image(Margin& indent, Colour& color, ImageSet& source, Key32& autofit, Alignment anchor, Key32& fit);
+void Image(Margin& indent, Colour& color, ImageSet& source, Key32& autofit, Alignment anchor, Key32 fit);
 ```
 
 <a id="sym-16429307426932528389"></a>
 
-### ImageFill
+#### ImageFill
 
 ```cpp
 void ImageFill(Margin& indent, Colour& color, ImageSet& source);
@@ -264,7 +258,7 @@ void ImageFill(Margin& indent, Colour& color, ImageSet& source);
 
 <a id="sym-18413114587156059397"></a>
 
-### ImageSelector
+#### ImageSelector
 
 ```cpp
 void ImageSelector(Margin& indent, Colour& color, ImageSet& source, Float32& frame, Key32& autofit, Alignment anchor);
@@ -272,7 +266,7 @@ void ImageSelector(Margin& indent, Colour& color, ImageSet& source, Float32& fra
 
 <a id="sym-13414860187576046853"></a>
 
-### Inline
+#### Inline
 
 ```cpp
 void Inline(Layers content, Margin& indent, Key32 axis);
@@ -281,7 +275,7 @@ void Inline(Layers content, Margin& indent, Key32 axis);
 Experimental
 <a id="sym-248109501796848901"></a>
 
-### InnerShadow
+#### InnerShadow
 
 ```cpp
 void InnerShadow(Margin& indent, Colour& color, Margin& width, Float32 dither);
@@ -295,7 +289,7 @@ fg: InnerShadow(width: 8; color: 0,64);
 
 <a id="sym-13416385592455861509"></a>
 
-### Invert
+#### Invert
 
 ```cpp
 void Invert(Layers content, Float32& amount);
@@ -303,7 +297,7 @@ void Invert(Layers content, Float32& amount);
 
 <a id="sym-8973573496219112709"></a>
 
-### Line
+#### Line
 
 ```cpp
 void Line(Margin& indent, Colour& color, Alignment& position, Float32& width, Float32[]& pattern);
@@ -311,7 +305,7 @@ void Line(Margin& indent, Colour& color, Alignment& position, Float32& width, Fl
 
 <a id="sym-8973691161143153925"></a>
 
-### Mask
+#### Mask
 
 ```cpp
 void Mask(Layers content, Layers mask, bool& invert);
@@ -319,15 +313,15 @@ void Mask(Layers content, Layers mask, bool& invert);
 
 <a id="sym-8974154334711321861"></a>
 
-### Path
+#### Path
 
 ```cpp
-void Path(Margin& indent, Colour& color, bool normalized, Float32[]& points, Float32& width, bool& closed);
+void Path(Margin& indent, Colour& color, bool normalized, Float32[]& points, Float32& width, bool& closed, Key32 join, Key32 cap);
 ```
 
 <a id="sym-158847273793492229"></a>
 
-### Pixelate
+#### Pixelate
 
 ```cpp
 void Pixelate(Layers content, Size& size);
@@ -336,7 +330,7 @@ void Pixelate(Layers content, Size& size);
 Experimental
 <a id="sym-2073253062503306501"></a>
 
-### Polygon
+#### Polygon
 
 ```cpp
 void Polygon(Margin& indent, Colour& color, bool normalized, Float32[]& points);
@@ -344,7 +338,7 @@ void Polygon(Margin& indent, Colour& color, bool normalized, Float32[]& points);
 
 <a id="sym-14882069948452050181"></a>
 
-### Render
+#### Render
 
 ```cpp
 void Render(Layers content, Margin& pad, Float32& density);
@@ -352,7 +346,7 @@ void Render(Layers content, Margin& pad, Float32& density);
 
 <a id="sym-14933918995512825093"></a>
 
-### Rotate
+#### Rotate
 
 ```cpp
 void Rotate(Layers content, Margin& indent, Float32& angle);
@@ -360,7 +354,7 @@ void Rotate(Layers content, Margin& indent, Float32& angle);
 
 <a id="sym-6266793163915007237"></a>
 
-### Saturate
+#### Saturate
 
 ```cpp
 void Saturate(Layers content, Float32& amount);
@@ -368,7 +362,7 @@ void Saturate(Layers content, Float32& amount);
 
 <a id="sym-1014689171891033349"></a>
 
-### Scale
+#### Scale
 
 ```cpp
 void Scale(Layers content, Size& scale, Size& origin);
@@ -376,7 +370,7 @@ void Scale(Layers content, Size& scale, Size& origin);
 
 <a id="sym-1015067584279614725"></a>
 
-### Sepia
+#### Sepia
 
 ```cpp
 void Sepia(Layers content, Float32& amount);
@@ -384,7 +378,7 @@ void Sepia(Layers content, Float32& amount);
 
 <a id="sym-15063430568932807941"></a>
 
-### Shadow
+#### Shadow
 
 ```cpp
 void Shadow(Margin& indent, Colour& color, Float32& blur, Float32& corner, Float32 dither);
@@ -403,7 +397,7 @@ bg: Shadow(blur: 8; corner: 8; offset: 0,1; color: 0,64);Fill(corner: 8; color: 
 
 <a id="sym-1016746787643331845"></a>
 
-### Split
+#### Split
 
 ```cpp
 void Split(Layers content, Key32 axis, Float32[] ratio);
@@ -412,23 +406,23 @@ void Split(Layers content, Key32 axis, Float32[] ratio);
 Experimental
 <a id="sym-8974791055023019269"></a>
 
-### Text
+#### Text
 
 ```cpp
-void Text(Margin& indent, Colour& color, Key32 font, TextProperty& value, Alignment justify, Key32& autofit, Float32& line_space, Float32& line_height, Key32& transform, CString value, Key32& overflow);
+void Text(Margin& indent, Colour& color, Key32 font, TextProperty& value, Alignment justify, Key32& autofit, Float32& line_space, Float32& line_height, Key32 transform, CString value, Key32& overflow);
 ```
 
 <a id="sym-9244992215028077829"></a>
 
-### TextEdit
+#### TextEdit
 
 ```cpp
-void TextEdit(Margin& indent, Colour& color, Key32 font, TextProperty& value, Alignment justify, Key32& autofit, Float32& line_space, Float32& line_height, Key32& transform, Colour& selection_color, Colour& selected_text_color);
+void TextEdit(Margin& indent, Colour& color, Key32 font, TextProperty& value, Alignment justify, Key32& autofit, Float32& line_space, Float32& line_height, Key32 transform, Colour& selection_color, Colour& selected_text_color);
 ```
 
 <a id="sym-8974807998669001989"></a>
 
-### Tile
+#### Tile
 
 ```cpp
 void Tile(Layers content, Margin& indent, Key32 axis, Size& stride);
@@ -436,7 +430,7 @@ void Tile(Layers content, Margin& indent, Key32 axis, Size& stride);
 
 <a id="sym-8974808346561352965"></a>
 
-### Tint
+#### Tint
 
 ```cpp
 void Tint(Layers content, Colour& rgb);
@@ -444,7 +438,7 @@ void Tint(Layers content, Colour& rgb);
 
 <a id="sym-10667000374281377029"></a>
 
-### Translate
+#### Translate
 
 ```cpp
 void Translate(Layers content, Key32 unit, Point& offset);
@@ -452,7 +446,7 @@ void Translate(Layers content, Key32 unit, Point& offset);
 
 <a id="sym-4954868727309931781"></a>
 
-### Triangle
+#### Triangle
 
 ```cpp
 void Triangle(Margin& indent, Colour& color, Alignment& direction, Float32& corner, Float32& width);
@@ -460,7 +454,7 @@ void Triangle(Margin& indent, Colour& color, Alignment& direction, Float32& corn
 
 <a id="sym-1689799709461320965"></a>
 
-### TriangleFill
+#### TriangleFill
 
 ```cpp
 void TriangleFill(Margin& indent, Colour& color, Alignment& direction, Float32& corner);
@@ -468,7 +462,7 @@ void TriangleFill(Margin& indent, Colour& color, Alignment& direction, Float32& 
 
 <a id="sym-9424123253560972549"></a>
 
-### ViewPortGrid
+#### ViewPortGrid
 
 ```cpp
 void ViewPortGrid(Colour& color, Key32 axis, Float32& origin, Float32& unit, Float32 minpx, Float32 indent, bool dotted, Key32 font, Colour& text_color, Point text_offset, Float32[] text_offset, Function<WString(Float)>& label);

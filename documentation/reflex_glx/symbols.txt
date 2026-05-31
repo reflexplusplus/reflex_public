@@ -11,6 +11,8 @@
 	Name: "void";
 
 	Category: "type";
+
+	Namespace: "";
 };
 
 2:
@@ -26,6 +28,8 @@
 	Name: "bool";
 
 	Category: "type";
+
+	Namespace: "";
 };
 
 3:
@@ -41,6 +45,8 @@
 	Name: "CString";
 
 	Category: "type";
+
+	Namespace: "";
 };
 
 4:
@@ -56,6 +62,8 @@
 	Name: "Colour";
 
 	Category: "type";
+
+	Namespace: "";
 };
 
 5:
@@ -71,6 +79,8 @@
 	Name: "Margin";
 
 	Category: "type";
+
+	Namespace: "";
 };
 
 6:
@@ -86,6 +96,8 @@
 	Name: "Point";
 
 	Category: "type";
+
+	Namespace: "";
 };
 
 7:
@@ -101,6 +113,8 @@
 	Name: "Size";
 
 	Category: "type";
+
+	Namespace: "";
 };
 
 8:
@@ -116,6 +130,8 @@
 	Name: "Float32";
 
 	Category: "type";
+
+	Namespace: "";
 };
 
 9:
@@ -131,6 +147,8 @@
 	Name: "Float32[]";
 
 	Category: "type";
+
+	Namespace: "";
 };
 
 10:
@@ -146,6 +164,8 @@
 	Name: "Key32";
 
 	Category: "type";
+
+	Namespace: "";
 };
 
 11:
@@ -161,6 +181,8 @@
 	Name: "Key32[]";
 
 	Category: "type";
+
+	Namespace: "";
 };
 
 12:
@@ -176,6 +198,8 @@
 	Name: "Range";
 
 	Category: "type";
+
+	Namespace: "";
 };
 
 13:
@@ -191,6 +215,8 @@
 	Name: "Alignment";
 
 	Category: "type";
+
+	Namespace: "";
 };
 
 14:
@@ -206,6 +232,8 @@
 	Name: "Layers";
 
 	Category: "type";
+
+	Namespace: "";
 };
 
 15:
@@ -221,6 +249,8 @@
 	Name: "Font";
 
 	Category: "type";
+
+	Namespace: "";
 };
 
 16:
@@ -236,6 +266,8 @@
 	Name: "TextProperty";
 
 	Category: "type";
+
+	Namespace: "";
 };
 
 17:
@@ -251,6 +283,8 @@
 	Name: "ImageSet";
 
 	Category: "type";
+
+	Namespace: "";
 };
 
 18:
@@ -266,6 +300,8 @@
 	Name: "Function<WString(Float)>";
 
 	Category: "type";
+
+	Namespace: "";
 };
 
 19:
@@ -281,6 +317,8 @@
 	Name: "GraphicProperty";
 
 	Category: "type";
+
+	Namespace: "";
 };
 
 20:
@@ -295,12 +333,16 @@
 
 	Category: "function";
 
+	Namespace: "";
+
 	Overloads:
 	[
 		{
 			Return:
 			{
 				@UInt64 TypeID: 8980083472638940421;
+
+				Name: "";
 			};
 
 			Arguments:
@@ -406,12 +448,16 @@
 
 	Category: "function";
 
+	Namespace: "";
+
 	Overloads:
 	[
 		{
 			Return:
 			{
 				@UInt64 TypeID: 8980083472638940421;
+
+				Name: "";
 			};
 
 			Arguments:
@@ -457,12 +503,16 @@
 
 	Category: "function";
 
+	Namespace: "";
+
 	Overloads:
 	[
 		{
 			Return:
 			{
 				@UInt64 TypeID: 8980083472638940421;
+
+				Name: "";
 			};
 
 			Arguments:
@@ -506,12 +556,16 @@
 
 	Category: "function";
 
+	Namespace: "";
+
 	Overloads:
 	[
 		{
 			Return:
 			{
 				@UInt64 TypeID: 8980083472638940421;
+
+				Name: "";
 			};
 
 			Arguments:
@@ -549,12 +603,16 @@
 
 	Category: "function";
 
+	Namespace: "";
+
 	Overloads:
 	[
 		{
 			Return:
 			{
 				@UInt64 TypeID: 8980083472638940421;
+
+				Name: "";
 			};
 
 			Arguments:
@@ -592,12 +650,16 @@
 
 	Category: "function";
 
+	Namespace: "";
+
 	Overloads:
 	[
 		{
 			Return:
 			{
 				@UInt64 TypeID: 8980083472638940421;
+
+				Name: "";
 			};
 
 			Arguments:
@@ -651,12 +713,16 @@
 
 	Category: "function";
 
+	Namespace: "";
+
 	Overloads:
 	[
 		{
 			Return:
 			{
 				@UInt64 TypeID: 8980083472638940421;
+
+				Name: "";
 			};
 
 			Arguments:
@@ -694,12 +760,16 @@
 
 	Category: "function";
 
+	Namespace: "";
+
 	Overloads:
 	[
 		{
 			Return:
 			{
 				@UInt64 TypeID: 8980083472638940421;
+
+				Name: "";
 			};
 
 			Arguments:
@@ -737,12 +807,16 @@
 
 	Category: "function";
 
+	Namespace: "";
+
 	Overloads:
 	[
 		{
 			Return:
 			{
 				@UInt64 TypeID: 8980083472638940421;
+
+				Name: "";
 			};
 
 			Arguments:
@@ -780,12 +854,16 @@
 
 	Category: "function";
 
+	Namespace: "";
+
 	Overloads:
 	[
 		{
 			Return:
 			{
 				@UInt64 TypeID: 8980083472638940421;
+
+				Name: "";
 			};
 
 			Arguments:
@@ -823,12 +901,16 @@
 
 	Category: "function";
 
+	Namespace: "";
+
 	Overloads:
 	[
 		{
 			Return:
 			{
 				@UInt64 TypeID: 8980083472638940421;
+
+				Name: "";
 			};
 
 			Arguments:
@@ -866,12 +948,16 @@
 
 	Category: "function";
 
+	Namespace: "";
+
 	Overloads:
 	[
 		{
 			Return:
 			{
 				@UInt64 TypeID: 8980083472638940421;
+
+				Name: "";
 			};
 
 			Arguments:
@@ -909,12 +995,16 @@
 
 	Category: "function";
 
+	Namespace: "";
+
 	Overloads:
 	[
 		{
 			Return:
 			{
 				@UInt64 TypeID: 8980083472638940421;
+
+				Name: "";
 			};
 
 			Arguments:
@@ -952,12 +1042,16 @@
 
 	Category: "function";
 
+	Namespace: "";
+
 	Overloads:
 	[
 		{
 			Return:
 			{
 				@UInt64 TypeID: 8980083472638940421;
+
+				Name: "";
 			};
 
 			Arguments:
@@ -995,12 +1089,16 @@
 
 	Category: "function";
 
+	Namespace: "";
+
 	Overloads:
 	[
 		{
 			Return:
 			{
 				@UInt64 TypeID: 8980083472638940421;
+
+				Name: "";
 			};
 
 			Arguments:
@@ -1038,12 +1136,16 @@
 
 	Category: "function";
 
+	Namespace: "";
+
 	Overloads:
 	[
 		{
 			Return:
 			{
 				@UInt64 TypeID: 8980083472638940421;
+
+				Name: "";
 			};
 
 			Arguments:
@@ -1089,12 +1191,16 @@
 
 	Category: "function";
 
+	Namespace: "";
+
 	Overloads:
 	[
 		{
 			Return:
 			{
 				@UInt64 TypeID: 8980083472638940421;
+
+				Name: "";
 			};
 
 			Arguments:
@@ -1138,12 +1244,16 @@
 
 	Category: "function";
 
+	Namespace: "";
+
 	Overloads:
 	[
 		{
 			Return:
 			{
 				@UInt64 TypeID: 8980083472638940421;
+
+				Name: "";
 			};
 
 			Arguments:
@@ -1189,12 +1299,16 @@
 
 	Category: "function";
 
+	Namespace: "";
+
 	Overloads:
 	[
 		{
 			Return:
 			{
 				@UInt64 TypeID: 8980083472638940421;
+
+				Name: "";
 			};
 
 			Arguments:
@@ -1260,12 +1374,16 @@
 
 	Category: "function";
 
+	Namespace: "";
+
 	Overloads:
 	[
 		{
 			Return:
 			{
 				@UInt64 TypeID: 8980083472638940421;
+
+				Name: "";
 			};
 
 			Arguments:
@@ -1327,12 +1445,16 @@
 
 	Category: "function";
 
+	Namespace: "";
+
 	Overloads:
 	[
 		{
 			Return:
 			{
 				@UInt64 TypeID: 8980083472638940421;
+
+				Name: "";
 			};
 
 			Arguments:
@@ -1384,12 +1506,16 @@
 
 	Category: "function";
 
+	Namespace: "";
+
 	Overloads:
 	[
 		{
 			Return:
 			{
 				@UInt64 TypeID: 8980083472638940421;
+
+				Name: "";
 			};
 
 			Arguments:
@@ -1431,12 +1557,16 @@
 
 	Category: "function";
 
+	Namespace: "";
+
 	Overloads:
 	[
 		{
 			Return:
 			{
 				@UInt64 TypeID: 8980083472638940421;
+
+				Name: "";
 			};
 
 			Arguments:
@@ -1480,12 +1610,16 @@
 
 	Category: "function";
 
+	Namespace: "";
+
 	Overloads:
 	[
 		{
 			Return:
 			{
 				@UInt64 TypeID: 8980083472638940421;
+
+				Name: "";
 			};
 
 			Arguments:
@@ -1539,12 +1673,16 @@
 
 	Category: "function";
 
+	Namespace: "";
+
 	Overloads:
 	[
 		{
 			Return:
 			{
 				@UInt64 TypeID: 8980083472638940421;
+
+				Name: "";
 			};
 
 			Arguments:
@@ -1598,12 +1736,16 @@
 
 	Category: "function";
 
+	Namespace: "";
+
 	Overloads:
 	[
 		{
 			Return:
 			{
 				@UInt64 TypeID: 8980083472638940421;
+
+				Name: "";
 			};
 
 			Arguments:
@@ -1709,12 +1851,16 @@
 
 	Category: "function";
 
+	Namespace: "";
+
 	Overloads:
 	[
 		{
 			Return:
 			{
 				@UInt64 TypeID: 8980083472638940421;
+
+				Name: "";
 			};
 
 			Arguments:
@@ -1818,12 +1964,16 @@
 
 	Category: "function";
 
+	Namespace: "";
+
 	Overloads:
 	[
 		{
 			Return:
 			{
 				@UInt64 TypeID: 8980083472638940421;
+
+				Name: "";
 			};
 
 			Arguments:
@@ -1871,12 +2021,16 @@
 
 	Category: "function";
 
+	Namespace: "";
+
 	Overloads:
 	[
 		{
 			Return:
 			{
 				@UInt64 TypeID: 8980083472638940421;
+
+				Name: "";
 			};
 
 			Arguments:
@@ -1946,12 +2100,16 @@
 
 	Category: "function";
 
+	Namespace: "";
+
 	Overloads:
 	[
 		{
 			Return:
 			{
 				@UInt64 TypeID: 8980083472638940421;
+
+				Name: "";
 			};
 
 			Arguments:
@@ -2019,12 +2177,16 @@
 
 	Category: "function";
 
+	Namespace: "";
+
 	Overloads:
 	[
 		{
 			Return:
 			{
 				@UInt64 TypeID: 8980083472638940421;
+
+				Name: "";
 			};
 
 			Arguments:
@@ -2072,12 +2234,16 @@
 
 	Category: "function";
 
+	Namespace: "";
+
 	Overloads:
 	[
 		{
 			Return:
 			{
 				@UInt64 TypeID: 8980083472638940421;
+
+				Name: "";
 			};
 
 			Arguments:
@@ -2125,12 +2291,16 @@
 
 	Category: "function";
 
+	Namespace: "";
+
 	Overloads:
 	[
 		{
 			Return:
 			{
 				@UInt64 TypeID: 8980083472638940421;
+
+				Name: "";
 			};
 
 			Arguments:
@@ -2178,12 +2348,16 @@
 
 	Category: "function";
 
+	Namespace: "";
+
 	Overloads:
 	[
 		{
 			Return:
 			{
 				@UInt64 TypeID: 8980083472638940421;
+
+				Name: "";
 			};
 
 			Arguments:
@@ -2231,12 +2405,16 @@
 
 	Category: "function";
 
+	Namespace: "";
+
 	Overloads:
 	[
 		{
 			Return:
 			{
 				@UInt64 TypeID: 8980083472638940421;
+
+				Name: "";
 			};
 
 			Arguments:
@@ -2290,12 +2468,16 @@
 
 	Category: "function";
 
+	Namespace: "";
+
 	Overloads:
 	[
 		{
 			Return:
 			{
 				@UInt64 TypeID: 8980083472638940421;
+
+				Name: "";
 			};
 
 			Arguments:
@@ -2357,12 +2539,16 @@
 
 	Category: "function";
 
+	Namespace: "";
+
 	Overloads:
 	[
 		{
 			Return:
 			{
 				@UInt64 TypeID: 8980083472638940421;
+
+				Name: "";
 			};
 
 			Arguments:
@@ -2416,12 +2602,16 @@
 
 	Category: "function";
 
+	Namespace: "";
+
 	Overloads:
 	[
 		{
 			Return:
 			{
 				@UInt64 TypeID: 8980083472638940421;
+
+				Name: "";
 			};
 
 			Arguments:
@@ -2483,12 +2673,16 @@
 
 	Category: "function";
 
+	Namespace: "";
+
 	Overloads:
 	[
 		{
 			Return:
 			{
 				@UInt64 TypeID: 8980083472638940421;
+
+				Name: "";
 			};
 
 			Arguments:
@@ -2552,12 +2746,16 @@
 
 	Category: "function";
 
+	Namespace: "";
+
 	Overloads:
 	[
 		{
 			Return:
 			{
 				@UInt64 TypeID: 8980083472638940421;
+
+				Name: "";
 			};
 
 			Arguments:
@@ -2639,12 +2837,16 @@
 
 	Category: "function";
 
+	Namespace: "";
+
 	Overloads:
 	[
 		{
 			Return:
 			{
 				@UInt64 TypeID: 8980083472638940421;
+
+				Name: "";
 			};
 
 			Arguments:
@@ -2698,12 +2900,16 @@
 
 	Category: "function";
 
+	Namespace: "";
+
 	Overloads:
 	[
 		{
 			Return:
 			{
 				@UInt64 TypeID: 8980083472638940421;
+
+				Name: "";
 			};
 
 			Arguments:
@@ -2767,12 +2973,16 @@
 
 	Category: "function";
 
+	Namespace: "";
+
 	Overloads:
 	[
 		{
 			Return:
 			{
 				@UInt64 TypeID: 8980083472638940421;
+
+				Name: "";
 			};
 
 			Arguments:
@@ -2836,12 +3046,16 @@
 
 	Category: "function";
 
+	Namespace: "";
+
 	Overloads:
 	[
 		{
 			Return:
 			{
 				@UInt64 TypeID: 8980083472638940421;
+
+				Name: "";
 			};
 
 			Arguments:
@@ -2897,12 +3111,16 @@
 
 	Category: "function";
 
+	Namespace: "";
+
 	Overloads:
 	[
 		{
 			Return:
 			{
 				@UInt64 TypeID: 8980083472638940421;
+
+				Name: "";
 			};
 
 			Arguments:
@@ -2964,12 +3182,16 @@
 
 	Category: "function";
 
+	Namespace: "";
+
 	Overloads:
 	[
 		{
 			Return:
 			{
 				@UInt64 TypeID: 8980083472638940421;
+
+				Name: "";
 			};
 
 			Arguments:
@@ -3017,12 +3239,16 @@
 
 	Category: "function";
 
+	Namespace: "";
+
 	Overloads:
 	[
 		{
 			Return:
 			{
 				@UInt64 TypeID: 8980083472638940421;
+
+				Name: "";
 			};
 
 			Arguments:
@@ -3078,12 +3304,16 @@
 
 	Category: "function";
 
+	Namespace: "";
+
 	Overloads:
 	[
 		{
 			Return:
 			{
 				@UInt64 TypeID: 8980083472638940421;
+
+				Name: "";
 			};
 
 			Arguments:

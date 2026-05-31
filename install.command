@@ -52,15 +52,21 @@ if [[ -f "$INSTALLED_VERSION_FILE" ]]; then
 fi
 
 URL="https://reflexplusplus.b-cdn.net/download/sdk?platform=macos&version=$VERSION"
-ZIP="${TMPDIR:-/tmp}/reflex-sdk-${VERSION}-macos.zip"
-TEMP_DIR="${TMPDIR:-/tmp}/reflex-sdk-${VERSION}-macos"
+TMP_BASE="${TMPDIR:-/tmp}"
+ZIP="$(mktemp "$TMP_BASE/reflex-sdk-${VERSION}-macos.XXXXXX.zip")"
+TEMP_DIR="$(mktemp -d "$TMP_BASE/reflex-sdk-${VERSION}-macos.XXXXXX")"
+
+cleanup_temp_artifacts() {
+	chmod -R u+wX "$TEMP_DIR" 2>/dev/null || true
+	rm -rf "$TEMP_DIR"
+	rm -f "$ZIP"
+}
+
+trap cleanup_temp_artifacts EXIT
 
 echo "Downloading Reflex SDK $VERSION binaries..."
 
 curl -L --fail --output "$ZIP" "$URL"
-
-rm -rf "$TEMP_DIR"
-mkdir -p "$TEMP_DIR"
 
 echo "Extracting..."
 
@@ -89,8 +95,5 @@ verify_signed_tool "$ROOT/bin/tools/macos/ReflexProjectCreator.app"
 verify_signed_tool "$ROOT/bin/tools/macos/ReflexResourceBuilder.app"
 
 cp "$VERSION_FILE" "$ROOT/bin/version.txt"
-
-rm -f "$ZIP"
-rm -rf "$TEMP_DIR"
 
 echo "Reflex SDK $VERSION binaries installed."
