@@ -17,6 +17,11 @@ namespace Reflex::GLX
 
 	using ColourPoints = Array <ColourPoint>;
 
+	struct Corners
+	{
+		Size tl, tr, bl, br;
+	};
+
 	enum PathJoin : UInt8
 	{
 		kPathJoinMiter,
@@ -54,14 +59,14 @@ namespace Reflex::GLX
 	void AddRectOutline(ColourPoints & colour_points, const Colour & colour, const Rect & rect, const Margin & width, Size pixel_size);
 
 
-	void AddRoundedFill(Points & points, const Rect & rect, const Size tl_tr_bl_br[4], Float32 corner_step = Detail::kCornerStepRadians);
+	void AddRoundedFill(Points & points, const Rect & rect, const Corners & corners, Float32 corner_step = Detail::kCornerStepRadians);
 
-	void AddRoundedOutline(Points & points, const Rect & rect, const Margin & width, const Size tl_tr_bl_br[4], Float32 corner_step = Detail::kCornerStepRadians);
+	void AddRoundedFill(Points & points, const Rect & rect, Float corner, Float32 corner_step = Detail::kCornerStepRadians);
 
 
-	void AddRoundedFill(Points & points, const Rect & rect, const Margin & corners, Float32 corner_step = Detail::kCornerStepRadians);
+	void AddRoundedOutline(Points & points, const Rect & rect, const Margin & width, const Corners & corners, Float32 corner_step = Detail::kCornerStepRadians);
 
-	void AddRoundedOutline(Points & points, const Rect & rect, const Margin & width, const Margin & corners, Float32 corner_step = Detail::kCornerStepRadians);
+	void AddRoundedOutline(Points & points, const Rect & rect, const Margin & width, Float corner, Float32 corner_step = Detail::kCornerStepRadians);
 
 
 	void AddEllipseFill(Points & points, const Rect & rect, Float start = 0.0f, Float sweep = k2Pif);
@@ -162,6 +167,17 @@ namespace Reflex
 
 REFLEX_NS(Reflex::GLX::Detail)
 
+constexpr Corners MakeCorners(Size radius)
+{
+	return { radius, radius, radius, radius};
+}
+
+constexpr Corners MakeCorners(Float radius)
+{
+	return MakeCorners(Reflex::MakeSize(radius));
+}
+
+
 struct PathRescaler
 {
 	PathRescaler(Points & out, const Points::View & in, Size pixel_size);
@@ -198,24 +214,20 @@ REFLEX_INLINE void Reflex::GLX::AddRectOutline(ColourPoints & colourpoints, cons
 	AddRectOutline(colourpoints, colour, rect, { width.near * pixel_size, width.far * pixel_size });
 }
 
-REFLEX_INLINE void Reflex::GLX::AddRoundedFill(Points & points, const Rect & rect, const Margin & corners, Float32 corner_step)
+REFLEX_INLINE void Reflex::GLX::AddRoundedFill(Points & points, const Rect & rect, Float corner, Float32 corner_step)
 {
 	auto min = rect.size * 0.5f;
 
-	Size tl_tr_bl_br[4] = { Detail::TopLeft(corners, min), Detail::TopRight(corners, min), Detail::BottomLeft(corners, min), Detail::BottomRight(corners, min) };
-
-	AddRoundedFill(points, rect, tl_tr_bl_br, corner_step);
+	AddRoundedFill(points, rect, Detail::MakeCorners(Min(corner, Min(min.w, min.h))), corner_step);
 }
 
-REFLEX_INLINE void Reflex::GLX::AddRoundedOutline(Points & points, const Rect & rect, const Margin & width_in, const Margin & corners, Float32 corner_step)
+REFLEX_INLINE void Reflex::GLX::AddRoundedOutline(Points & points, const Rect & rect, const Margin & width_in, Float corner, Float32 corner_step)
 {
 	auto min = rect.size * 0.5f;
-
-	Size tl_tr_bl_br[4] = { Detail::TopLeft(corners, min), Detail::TopRight(corners, min), Detail::BottomLeft(corners, min), Detail::BottomRight(corners, min) };
 
 	Margin width = { Min(width_in.near, min), Min(width_in.far, min) };
 
-	AddRoundedOutline(points, rect, width, tl_tr_bl_br, corner_step);
+	AddRoundedOutline(points, rect, width, Detail::MakeCorners(Min(corner, Min(min.w, min.h))), corner_step);
 }
 
 REFLEX_INLINE void Reflex::GLX::AddPath(Points & output, const Points::View & path, bool closed, Float width, Size pixel_size)

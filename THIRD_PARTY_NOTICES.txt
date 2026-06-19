@@ -94,17 +94,88 @@ License text in this repository:
 - src/reflex/glx/ext/toojpeg/LICENSE.txt
 
 
-Roboto
-------
-Copyright Google
+LZ4
+---
+Copyright (c) 2011-2020 Yann Collet
 
-This repository includes Roboto font files used by project tooling.
+Vendored compression library source present in the repository.
+
+License:
+- BSD 2-Clause
+
+License text in this repository:
+- src/reflex/data/ext/lz4-dev/lib/LICENSE
+
+
+OpenGL Extension Headers
+------------------------
+Copyright (c) 2007 The Khronos Group Inc.
+Copyright (c) 1991-2004 Silicon Graphics, Inc.
+
+Vendored OpenGL extension header files present in the repository.
+
+License:
+- Khronos permissive license (`glext.h`)
+- SGI Free Software License B / notice (`wglext.h`)
+
+License text / notices in this repository:
+- src/reflex/system/win/ext/opengl/glext.h
+- src/reflex/system/win/ext/opengl/wglext.h
+
+
+SSE Math Function Code (`sse_mathfun.h`)
+----------------------------------------
+Copyright (C) 2007 Julien Pommier
+
+This repository includes a refactored SIMD exponential implementation derived
+from the `sse_mathfun.h` code lineage, itself described upstream as being based
+on corresponding algorithms from the Cephes math library.
+
+Used in:
+- include/reflex/simd/float_v4.h (`SIMD::Exp`)
+- src/reflex/vec/common.cpp (related constants)
+
+License:
+- zlib license
+
+License text in this repository:
+- licenses/sse_mathfun_LICENSE.txt
+
+
+Android / AOSP-Derived Files
+----------------------------
+Copyright 2017 The Android Open Source Project
+
+This repository includes Android support code derived from AOSP.
 
 License:
 - Apache License 2.0
 
-License text in this repository:
-- build/tools/ReflexProjectCreator/resources/fonts/Roboto/LICENSE.txt
+License text / notices in this repository:
+- resources/android/java/com/reflex_multimedia/reflex/sdk/AudioDeviceInfoConverter.kt
+
+
+Gradle Wrapper / Android Project Scaffolding
+--------------------------------------------
+Copyright 2015 the original author or authors.
+
+This repository includes Gradle wrapper scripts and Android project scaffolding
+used in shipped templates/examples.
+
+License:
+- Apache License 2.0
+
+License text / notices in this repository:
+- build/lib/android/gradlew
+- build/lib/android/gradlew.bat
+- templates/cpp_app/project/android/gradlew
+- templates/cpp_app/project/android/gradlew.bat
+- templates/cpp_audioplugin/project/android/gradlew
+- templates/cpp_audioplugin/project/android/gradlew.bat
+- templates/vm_app/project/android/gradlew
+- templates/vm_app/project/android/gradlew.bat
+- examples/International Meeting Planner/project/android/gradlew
+- examples/International Meeting Planner/project/android/gradlew.bat
 
 
 Roboto Mono
@@ -122,7 +193,7 @@ License text in this repository:
 
 Open Sans
 ---------
-Copyright Google
+Copyright 2020 The Open Sans Project Authors
 
 This repository includes Open Sans font files used by project tooling.
 
@@ -130,7 +201,34 @@ License:
 - SIL Open Font License 1.1
 
 License text in this repository:
-- Pending / to be added alongside the vendored Open Sans font files.
+- src/reflex_ext/ide/resources/fonts/OpenSans/OFL.txt
+
+
+SHA-1
+-----
+The SHA-1 implementation currently present in:
+- src/reflex/data/sha1.cpp
+
+Notes:
+- SHA-1 is attributed to the "smallsha1" code lineage by Micael Hildenborg.
+- License text in this repository:
+  - src/reflex/data/smallsha1_LICENSE.txt
+- This implementation has since been refactored within this repository.
+
+
+SHA-256
+-------
+The SHA-256 implementation currently present in:
+- src/reflex/data/sha256.cpp
+
+Notes:
+- SHA-256 is attributed to Brad Conte's "crypto-algorithms" SHA-256
+  implementation, or a close downstream copy of that implementation.
+- Upstream statement indicates the code was released into the public domain,
+  with acknowledgement requested but not required.
+- Notice text in this repository:
+  - licenses/Brad_Conte_crypto_algorithms_SHA256_NOTICE.txt
+- This implementation has since been refactored within this repository.
 
 
 PENDING

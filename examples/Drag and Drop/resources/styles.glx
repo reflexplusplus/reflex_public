@@ -2,7 +2,7 @@ include: "common.glx";
 
 @Font Code:
 {
-	path: ":res:IDE/mono";
+	path: "fonts/Roboto_Mono/static/RobotoMono-Regular.ttf";
 
 	size: 12;
 };

@@ -11,7 +11,6 @@
 		1A4EDD6D2C43675A0054FE64 /* reflex_ext.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1A4EDD6C2C43675A0054FE64 /* reflex_ext.cpp */; };
 		1A4EDD742C436E0D0054FE64 /* resources.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1A4EDD722C436E0D0054FE64 /* resources.cpp */; };
 		1A4EDD752C436E0D0054FE64 /* entry.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1A4EDD732C436E0D0054FE64 /* entry.cpp */; };
-		1A4EDD782C43703C0054FE64 /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1A4EDD772C43703C0054FE64 /* OpenGL.framework */; };
 		1A4EDD7A2C4370440054FE64 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1A4EDD792C4370440054FE64 /* Cocoa.framework */; };
 		1A4EDD7C2C4370480054FE64 /* DiskArbitration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1A4EDD7B2C4370480054FE64 /* DiskArbitration.framework */; };
 		1A5967442C4382A400D8A7E8 /* app.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1A5967422C4382A400D8A7E8 /* app.cpp */; };
@@ -29,7 +28,6 @@
 		1A4EDD6E2C4369270054FE64 /* HardenedRT.entitlements */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.entitlements; path = HardenedRT.entitlements; sourceTree = SOURCE_ROOT; };
 		1A4EDD722C436E0D0054FE64 /* resources.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = resources.cpp; path = ../../code/resources.cpp; sourceTree = SOURCE_ROOT; };
 		1A4EDD732C436E0D0054FE64 /* entry.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = entry.cpp; path = ../../code/entry.cpp; sourceTree = SOURCE_ROOT; };
-		1A4EDD772C43703C0054FE64 /* OpenGL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGL.framework; path = System/Library/Frameworks/OpenGL.framework; sourceTree = SDKROOT; };
 		1A4EDD792C4370440054FE64 /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
 		1A4EDD7B2C4370480054FE64 /* DiskArbitration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = DiskArbitration.framework; path = System/Library/Frameworks/DiskArbitration.framework; sourceTree = SDKROOT; };
 		1A5967422C4382A400D8A7E8 /* app.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = app.cpp; path = ../../code/app.cpp; sourceTree = SOURCE_ROOT; };
@@ -49,7 +47,6 @@
 				1A4EDD7C2C4370480054FE64 /* DiskArbitration.framework in Frameworks */,
 				1A91D0EF2D11A79400B547EE /* QuartzCore.framework in Frameworks */,
 				1A91D0ED2D11A78D00B547EE /* Metal.framework in Frameworks */,
-				1A4EDD782C43703C0054FE64 /* OpenGL.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -104,7 +101,6 @@
 				1A91D0EC2D11A78D00B547EE /* Metal.framework */,
 				1A4EDD7B2C4370480054FE64 /* DiskArbitration.framework */,
 				1A4EDD792C4370440054FE64 /* Cocoa.framework */,
-				1A4EDD772C43703C0054FE64 /* OpenGL.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";

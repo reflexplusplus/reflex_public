@@ -2162,10 +2162,6 @@
 			Arguments:
 			[
 				{
-					IsConst: true;
-
-					IsRef: true;
-
 					@UInt64 TypeID: 17111432006044187339;
 
 					Name: "view";
@@ -2209,10 +2205,6 @@
 			Arguments:
 			[
 				{
-					IsConst: true;
-
-					IsRef: true;
-
 					@UInt64 TypeID: 17111432006044187339;
 
 					Name: "view";
@@ -6453,9 +6445,201 @@
 
 176:
 {
-	Indexed: true;
+	Indexed: false;
 
 	@UInt32 Index: 176;
+
+	@UInt32 TypeFlags: 0;
+
+	@UInt64 TemplateSourceID: 15739513838455978699;
+
+	@UInt64 Symbol: 2459247660964739787;
+
+	Name: "ObjectOf";
+
+	Category: "type";
+
+	Namespace: "Reflex";
+
+	@UInt64 2709038510: [5470074934380427979];
+};
+
+177:
+{
+	Indexed: true;
+
+	@UInt32 Index: 177;
+
+	@UInt64 Symbol: 17855150454279994059;
+
+	Name: "SetFunctionProperty";
+
+	Category: "function";
+
+	Namespace: "Reflex";
+
+	Overloads:
+	[
+		{
+			Return:
+			{
+				@UInt64 TypeID: 8980083472638940421;
+			};
+
+			2709038510:
+			[
+				{
+					@UInt64 TypeID: 8974729057170101509;
+				},
+
+			];
+
+			Arguments:
+			[
+				{
+					IsRef: true;
+
+					@UInt64 TypeID: 14361920786414140107;
+
+					Name: "owner";
+				},
+
+				{
+					@UInt64 TypeID: 15745766443255560907;
+
+					Name: "id";
+				},
+
+				{
+					@UInt64 TypeID: 8974729057170101509;
+
+					Name: "fn";
+				},
+
+			];
+
+		},
+
+	];
+};
+
+178:
+{
+	Indexed: true;
+
+	@UInt32 Index: 178;
+
+	@UInt64 Symbol: 16223914878757468875;
+
+	Name: "UnsetFunctionProperty";
+
+	Category: "function";
+
+	Namespace: "Reflex";
+
+	Overloads:
+	[
+		{
+			Return:
+			{
+				@UInt64 TypeID: 8980083472638940421;
+			};
+
+			2709038510:
+			[
+				{
+					@UInt64 TypeID: 11488575133505819909;
+				},
+
+			];
+
+			Arguments:
+			[
+				{
+					IsRef: true;
+
+					@UInt64 TypeID: 14361920786414140107;
+
+					Name: "owner";
+				},
+
+				{
+					@UInt64 TypeID: 15745766443255560907;
+
+					Name: "id";
+				},
+
+			];
+
+		},
+
+	];
+};
+
+179:
+{
+	Indexed: true;
+
+	@UInt32 Index: 179;
+
+	@UInt64 Symbol: 8895969801491675851;
+
+	Name: "QueryFunctionProperty";
+
+	Category: "function";
+
+	Namespace: "Reflex";
+
+	Overloads:
+	[
+		{
+			Return:
+			{
+				IsConst: true;
+
+				IsPointer: true;
+
+				@UInt64 TypeID: 2459247660964739787;
+			};
+
+			2709038510:
+			[
+				{
+					@UInt64 TypeID: 11488575133505819909;
+				},
+
+			];
+
+			Arguments:
+			[
+				{
+					IsConst: true;
+
+					IsRef: true;
+
+					@UInt64 TypeID: 14361920786414140107;
+
+					Name: "owner";
+				},
+
+				{
+					@UInt64 TypeID: 15745766443255560907;
+
+					Name: "id";
+				},
+
+			];
+
+		},
+
+	];
+};
+
+180:
+{
+	Indexed: true;
+
+	@UInt32 Index: 180;
 
 	@UInt32 TypeFlags: 0;
 
@@ -6468,11 +6652,11 @@
 	Namespace: "Reflex";
 };
 
-177:
+181:
 {
 	Indexed: true;
 
-	@UInt32 Index: 177;
+	@UInt32 Index: 181;
 
 	@UInt64 ParentID: 14460294615737268939;
 
@@ -6515,11 +6699,11 @@
 	];
 };
 
-178:
+182:
 {
 	Indexed: true;
 
-	@UInt32 Index: 178;
+	@UInt32 Index: 182;
 
 	@UInt64 ParentID: 14460294615737268939;
 
@@ -6562,11 +6746,11 @@
 	];
 };
 
-179:
+183:
 {
 	Indexed: true;
 
-	@UInt32 Index: 179;
+	@UInt32 Index: 183;
 
 	@UInt64 ParentID: 14460294615737268939;
 
@@ -6609,11 +6793,11 @@
 	];
 };
 
-180:
+184:
 {
 	Indexed: true;
 
-	@UInt32 Index: 180;
+	@UInt32 Index: 184;
 
 	@UInt32 TypeFlags: 0;
 
@@ -6626,11 +6810,11 @@
 	Namespace: "Reflex";
 };
 
-181:
+185:
 {
 	Indexed: true;
 
-	@UInt32 Index: 181;
+	@UInt32 Index: 185;
 
 	@UInt32 TypeFlags: 0;
 
@@ -6645,11 +6829,11 @@
 	Namespace: "Reflex";
 };
 
-182:
+186:
 {
 	Indexed: true;
 
-	@UInt32 Index: 182;
+	@UInt32 Index: 186;
 
 	@UInt64 ParentID: 3887337300172356192;
 
@@ -6688,11 +6872,11 @@
 	];
 };
 
-183:
+187:
 {
 	Indexed: true;
 
-	@UInt32 Index: 183;
+	@UInt32 Index: 187;
 
 	@UInt64 ParentID: 3887337300172356192;
 
@@ -6717,11 +6901,11 @@
 	];
 };
 
-184:
+188:
 {
 	Indexed: true;
 
-	@UInt32 Index: 184;
+	@UInt32 Index: 188;
 
 	@UInt64 ParentID: 3887337300172356192;
 
@@ -6746,11 +6930,11 @@
 	];
 };
 
-185:
+189:
 {
 	Indexed: true;
 
-	@UInt32 Index: 185;
+	@UInt32 Index: 189;
 
 	@UInt64 ParentID: 3887337300172356192;
 
@@ -6776,13 +6960,13 @@
 	];
 };
 
-186:
+190:
 {
 	2737744806: true;
 
 	Indexed: true;
 
-	@UInt32 Index: 186;
+	@UInt32 Index: 190;
 
 	@UInt32 TypeFlags: 0;
 
@@ -6797,11 +6981,11 @@
 	@UInt64 2709038510: [3014129922877691141];
 };
 
-187:
+191:
 {
 	Indexed: true;
 
-	@UInt32 Index: 187;
+	@UInt32 Index: 191;
 
 	@UInt64 Symbol: 13467897282990039076;
 
@@ -6824,11 +7008,11 @@
 	];
 };
 
-188:
+192:
 {
 	Indexed: true;
 
-	@UInt32 Index: 188;
+	@UInt32 Index: 192;
 
 	@UInt64 Symbol: 6411672276618567716;
 
@@ -6851,11 +7035,11 @@
 	];
 };
 
-189:
+193:
 {
 	Indexed: true;
 
-	@UInt32 Index: 189;
+	@UInt32 Index: 193;
 
 	@UInt64 Symbol: 13432161900956868644;
 
@@ -6878,11 +7062,11 @@
 	];
 };
 
-190:
+194:
 {
 	Indexed: true;
 
-	@UInt32 Index: 190;
+	@UInt32 Index: 194;
 
 	@UInt64 Symbol: 5846364819943448612;
 
@@ -6905,11 +7089,11 @@
 	];
 };
 
-191:
+195:
 {
 	Indexed: true;
 
-	@UInt32 Index: 191;
+	@UInt32 Index: 195;
 
 	@UInt64 Symbol: 12080007777000480804;
 
@@ -6932,11 +7116,11 @@
 	];
 };
 
-192:
+196:
 {
 	Indexed: true;
 
-	@UInt32 Index: 192;
+	@UInt32 Index: 196;
 
 	@UInt64 Symbol: 12793038812755386404;
 
@@ -6973,11 +7157,11 @@
 	];
 };
 
-193:
+197:
 {
 	Indexed: true;
 
-	@UInt32 Index: 193;
+	@UInt32 Index: 197;
 
 	@UInt64 Symbol: 15415839623751000100;
 
@@ -7014,11 +7198,11 @@
 	];
 };
 
-194:
+198:
 {
 	Indexed: true;
 
-	@UInt32 Index: 194;
+	@UInt32 Index: 198;
 
 	@UInt64 Symbol: 14882056995100287012;
 
@@ -7065,11 +7249,11 @@
 	];
 };
 
-195:
+199:
 {
 	Indexed: true;
 
-	@UInt32 Index: 195;
+	@UInt32 Index: 199;
 
 	@UInt64 Symbol: 12528574736920338468;
 
@@ -7106,11 +7290,11 @@
 	];
 };
 
-196:
+200:
 {
 	Indexed: true;
 
-	@UInt32 Index: 196;
+	@UInt32 Index: 200;
 
 	@UInt64 Symbol: 4686556266557988900;
 
@@ -7147,11 +7331,11 @@
 	];
 };
 
-197:
+201:
 {
 	Indexed: true;
 
-	@UInt32 Index: 197;
+	@UInt32 Index: 201;
 
 	@UInt32 TypeFlags: 1;
 
@@ -7160,90 +7344,6 @@
 	Name: "Path";
 
 	Category: "type";
-
-	Namespace: "Reflex::System";
-};
-
-198:
-{
-	IsConst: true;
-
-	Indexed: true;
-
-	@UInt32 Index: 198;
-
-	@UInt64 ParentID: 8974154334980923428;
-
-	@UInt64 Symbol: 13232555178625644325;
-
-	@UInt64 TypeID: 8974154334980923428;
-
-	Name: "kPathTemp";
-
-	Category: "member";
-
-	Namespace: "Reflex::System";
-};
-
-199:
-{
-	IsConst: true;
-
-	Indexed: true;
-
-	@UInt32 Index: 199;
-
-	@UInt64 ParentID: 8974154334980923428;
-
-	@UInt64 Symbol: 3234977851731916581;
-
-	@UInt64 TypeID: 8974154334980923428;
-
-	Name: "kPathDesktop";
-
-	Category: "member";
-
-	Namespace: "Reflex::System";
-};
-
-200:
-{
-	IsConst: true;
-
-	Indexed: true;
-
-	@UInt32 Index: 200;
-
-	@UInt64 ParentID: 8974154334980923428;
-
-	@UInt64 Symbol: 14425858000109221669;
-
-	@UInt64 TypeID: 8974154334980923428;
-
-	Name: "kPathApplicationData";
-
-	Category: "member";
-
-	Namespace: "Reflex::System";
-};
-
-201:
-{
-	IsConst: true;
-
-	Indexed: true;
-
-	@UInt32 Index: 201;
-
-	@UInt64 ParentID: 8974154334980923428;
-
-	@UInt64 Symbol: 10326109040865490725;
-
-	@UInt64 TypeID: 8974154334980923428;
-
-	Name: "kPathUserData";
-
-	Category: "member";
 
 	Namespace: "Reflex::System";
 };
@@ -7258,6 +7358,90 @@
 
 	@UInt64 ParentID: 8974154334980923428;
 
+	@UInt64 Symbol: 13232555178625644325;
+
+	@UInt64 TypeID: 8974154334980923428;
+
+	Name: "kPathTemp";
+
+	Category: "member";
+
+	Namespace: "Reflex::System";
+};
+
+203:
+{
+	IsConst: true;
+
+	Indexed: true;
+
+	@UInt32 Index: 203;
+
+	@UInt64 ParentID: 8974154334980923428;
+
+	@UInt64 Symbol: 3234977851731916581;
+
+	@UInt64 TypeID: 8974154334980923428;
+
+	Name: "kPathDesktop";
+
+	Category: "member";
+
+	Namespace: "Reflex::System";
+};
+
+204:
+{
+	IsConst: true;
+
+	Indexed: true;
+
+	@UInt32 Index: 204;
+
+	@UInt64 ParentID: 8974154334980923428;
+
+	@UInt64 Symbol: 14425858000109221669;
+
+	@UInt64 TypeID: 8974154334980923428;
+
+	Name: "kPathApplicationData";
+
+	Category: "member";
+
+	Namespace: "Reflex::System";
+};
+
+205:
+{
+	IsConst: true;
+
+	Indexed: true;
+
+	@UInt32 Index: 205;
+
+	@UInt64 ParentID: 8974154334980923428;
+
+	@UInt64 Symbol: 10326109040865490725;
+
+	@UInt64 TypeID: 8974154334980923428;
+
+	Name: "kPathUserData";
+
+	Category: "member";
+
+	Namespace: "Reflex::System";
+};
+
+206:
+{
+	IsConst: true;
+
+	Indexed: true;
+
+	@UInt32 Index: 206;
+
+	@UInt64 ParentID: 8974154334980923428;
+
 	@UInt64 Symbol: 8500557277877286693;
 
 	@UInt64 TypeID: 8974154334980923428;
@@ -7269,11 +7453,11 @@
 	Namespace: "Reflex::System";
 };
 
-203:
+207:
 {
 	Indexed: true;
 
-	@UInt32 Index: 203;
+	@UInt32 Index: 207;
 
 	@UInt64 Symbol: 5845711014251847716;
 
@@ -7306,11 +7490,11 @@
 	];
 };
 
-204:
+208:
 {
 	Indexed: true;
 
-	@UInt32 Index: 204;
+	@UInt32 Index: 208;
 
 	@UInt64 Symbol: 8974068044792979492;
 
@@ -7347,11 +7531,11 @@
 	];
 };
 
-205:
+209:
 {
 	Indexed: true;
 
-	@UInt32 Index: 205;
+	@UInt32 Index: 209;
 
 	@UInt32 TypeFlags: 2;
 
@@ -7366,11 +7550,11 @@
 	Namespace: "Reflex::System";
 };
 
-206:
+210:
 {
 	Indexed: true;
 
-	@UInt32 Index: 206;
+	@UInt32 Index: 210;
 
 	@UInt32 TypeFlags: 2;
 
@@ -7385,11 +7569,11 @@
 	Namespace: "Reflex::System";
 };
 
-207:
+211:
 {
 	Indexed: true;
 
-	@UInt32 Index: 207;
+	@UInt32 Index: 211;
 
 	@UInt32 TypeFlags: 2;
 
@@ -7404,11 +7588,11 @@
 	Namespace: "Reflex::System";
 };
 
-208:
+212:
 {
 	Indexed: true;
 
-	@UInt32 Index: 208;
+	@UInt32 Index: 212;
 
 	@UInt64 ParentID: 15071417447436378148;
 
@@ -7434,11 +7618,11 @@
 	];
 };
 
-209:
+213:
 {
 	Indexed: true;
 
-	@UInt32 Index: 209;
+	@UInt32 Index: 213;
 
 	@UInt64 ParentID: 15071417447436378148;
 
@@ -7464,11 +7648,11 @@
 	];
 };
 
-210:
+214:
 {
 	Indexed: true;
 
-	@UInt32 Index: 210;
+	@UInt32 Index: 214;
 
 	@UInt64 ParentID: 15071417447436378148;
 
@@ -7503,11 +7687,11 @@
 	];
 };
 
-211:
+215:
 {
 	Indexed: true;
 
-	@UInt32 Index: 211;
+	@UInt32 Index: 215;
 
 	@UInt64 ParentID: 15071417447436378148;
 
@@ -7533,11 +7717,11 @@
 	];
 };
 
-212:
+216:
 {
 	Indexed: true;
 
-	@UInt32 Index: 212;
+	@UInt32 Index: 216;
 
 	@UInt64 ParentID: 15071417447436378148;
 
@@ -7580,11 +7764,11 @@
 	];
 };
 
-213:
+217:
 {
 	Indexed: true;
 
-	@UInt32 Index: 213;
+	@UInt32 Index: 217;
 
 	@UInt64 ParentID: 15071417447436378148;
 
@@ -7629,11 +7813,11 @@
 	];
 };
 
-214:
+218:
 {
 	Indexed: true;
 
-	@UInt32 Index: 214;
+	@UInt32 Index: 218;
 
 	@UInt64 ParentID: 15071417447436378148;
 
@@ -7658,11 +7842,11 @@
 	];
 };
 
-215:
+219:
 {
 	Indexed: true;
 
-	@UInt32 Index: 215;
+	@UInt32 Index: 219;
 
 	@UInt64 ParentID: 15071417447436378148;
 
@@ -7697,11 +7881,11 @@
 	];
 };
 
-216:
+220:
 {
 	Indexed: true;
 
-	@UInt32 Index: 216;
+	@UInt32 Index: 220;
 
 	@UInt32 TypeFlags: 2;
 
@@ -7716,11 +7900,11 @@
 	Namespace: "Reflex::System";
 };
 
-217:
+221:
 {
 	Indexed: true;
 
-	@UInt32 Index: 217;
+	@UInt32 Index: 221;
 
 	@UInt32 TypeFlags: 1;
 
@@ -7735,90 +7919,6 @@
 	Namespace: "Reflex::System";
 };
 
-218:
-{
-	IsConst: true;
-
-	Indexed: true;
-
-	@UInt32 Index: 218;
-
-	@UInt64 ParentID: 11235966723864114280;
-
-	@UInt64 Symbol: 2971570912168752203;
-
-	@UInt64 TypeID: 11235966723864114280;
-
-	Name: "kResponseAborted";
-
-	Category: "member";
-
-	Namespace: "Reflex::System";
-};
-
-219:
-{
-	IsConst: true;
-
-	Indexed: true;
-
-	@UInt32 Index: 219;
-
-	@UInt64 ParentID: 11235966723864114280;
-
-	@UInt64 Symbol: 15615531233716712523;
-
-	@UInt64 TypeID: 11235966723864114280;
-
-	Name: "kResponseNoConnection";
-
-	Category: "member";
-
-	Namespace: "Reflex::System";
-};
-
-220:
-{
-	IsConst: true;
-
-	Indexed: true;
-
-	@UInt32 Index: 220;
-
-	@UInt64 ParentID: 11235966723864114280;
-
-	@UInt64 Symbol: 14097883636069282891;
-
-	@UInt64 TypeID: 11235966723864114280;
-
-	Name: "kResponseOK";
-
-	Category: "member";
-
-	Namespace: "Reflex::System";
-};
-
-221:
-{
-	IsConst: true;
-
-	Indexed: true;
-
-	@UInt32 Index: 221;
-
-	@UInt64 ParentID: 11235966723864114280;
-
-	@UInt64 Symbol: 6890375656601007179;
-
-	@UInt64 TypeID: 11235966723864114280;
-
-	Name: "kResponsePartialContent";
-
-	Category: "member";
-
-	Namespace: "Reflex::System";
-};
-
 222:
 {
 	IsConst: true;
@@ -7829,11 +7929,11 @@
 
 	@UInt64 ParentID: 11235966723864114280;
 
-	@UInt64 Symbol: 8991536613434831947;
+	@UInt64 Symbol: 2971570912168752203;
 
 	@UInt64 TypeID: 11235966723864114280;
 
-	Name: "kResponseMovedPermanently";
+	Name: "kResponseAborted";
 
 	Category: "member";
 
@@ -7850,11 +7950,11 @@
 
 	@UInt64 ParentID: 11235966723864114280;
 
-	@UInt64 Symbol: 14225245299184743499;
+	@UInt64 Symbol: 15615531233716712523;
 
 	@UInt64 TypeID: 11235966723864114280;
 
-	Name: "kResponseFound";
+	Name: "kResponseNoConnection";
 
 	Category: "member";
 
@@ -7871,11 +7971,11 @@
 
 	@UInt64 ParentID: 11235966723864114280;
 
-	@UInt64 Symbol: 13201134966206084171;
+	@UInt64 Symbol: 14097883636069282891;
 
 	@UInt64 TypeID: 11235966723864114280;
 
-	Name: "kResponseBadRequest";
+	Name: "kResponseOK";
 
 	Category: "member";
 
@@ -7892,11 +7992,11 @@
 
 	@UInt64 ParentID: 11235966723864114280;
 
-	@UInt64 Symbol: 12840563674203796555;
+	@UInt64 Symbol: 6890375656601007179;
 
 	@UInt64 TypeID: 11235966723864114280;
 
-	Name: "kResponseUnauthorized";
+	Name: "kResponsePartialContent";
 
 	Category: "member";
 
@@ -7913,11 +8013,11 @@
 
 	@UInt64 ParentID: 11235966723864114280;
 
-	@UInt64 Symbol: 8336383002182661195;
+	@UInt64 Symbol: 8991536613434831947;
 
 	@UInt64 TypeID: 11235966723864114280;
 
-	Name: "kResponseForbidden";
+	Name: "kResponseMovedPermanently";
 
 	Category: "member";
 
@@ -7934,11 +8034,11 @@
 
 	@UInt64 ParentID: 11235966723864114280;
 
-	@UInt64 Symbol: 4717984655732880459;
+	@UInt64 Symbol: 14225245299184743499;
 
 	@UInt64 TypeID: 11235966723864114280;
 
-	Name: "kResponseNotFound";
+	Name: "kResponseFound";
 
 	Category: "member";
 
@@ -7955,11 +8055,11 @@
 
 	@UInt64 ParentID: 11235966723864114280;
 
-	@UInt64 Symbol: 14520584301477868619;
+	@UInt64 Symbol: 13201134966206084171;
 
 	@UInt64 TypeID: 11235966723864114280;
 
-	Name: "kResponseInternalServerError";
+	Name: "kResponseBadRequest";
 
 	Category: "member";
 
@@ -7976,6 +8076,90 @@
 
 	@UInt64 ParentID: 11235966723864114280;
 
+	@UInt64 Symbol: 12840563674203796555;
+
+	@UInt64 TypeID: 11235966723864114280;
+
+	Name: "kResponseUnauthorized";
+
+	Category: "member";
+
+	Namespace: "Reflex::System";
+};
+
+230:
+{
+	IsConst: true;
+
+	Indexed: true;
+
+	@UInt32 Index: 230;
+
+	@UInt64 ParentID: 11235966723864114280;
+
+	@UInt64 Symbol: 8336383002182661195;
+
+	@UInt64 TypeID: 11235966723864114280;
+
+	Name: "kResponseForbidden";
+
+	Category: "member";
+
+	Namespace: "Reflex::System";
+};
+
+231:
+{
+	IsConst: true;
+
+	Indexed: true;
+
+	@UInt32 Index: 231;
+
+	@UInt64 ParentID: 11235966723864114280;
+
+	@UInt64 Symbol: 4717984655732880459;
+
+	@UInt64 TypeID: 11235966723864114280;
+
+	Name: "kResponseNotFound";
+
+	Category: "member";
+
+	Namespace: "Reflex::System";
+};
+
+232:
+{
+	IsConst: true;
+
+	Indexed: true;
+
+	@UInt32 Index: 232;
+
+	@UInt64 ParentID: 11235966723864114280;
+
+	@UInt64 Symbol: 14520584301477868619;
+
+	@UInt64 TypeID: 11235966723864114280;
+
+	Name: "kResponseInternalServerError";
+
+	Category: "member";
+
+	Namespace: "Reflex::System";
+};
+
+233:
+{
+	IsConst: true;
+
+	Indexed: true;
+
+	@UInt32 Index: 233;
+
+	@UInt64 ParentID: 11235966723864114280;
+
 	@UInt64 Symbol: 7346508798413222987;
 
 	@UInt64 TypeID: 11235966723864114280;
@@ -7987,11 +8171,11 @@
 	Namespace: "Reflex::System";
 };
 
-230:
+234:
 {
 	Indexed: true;
 
-	@UInt32 Index: 230;
+	@UInt32 Index: 234;
 
 	@UInt32 TypeFlags: 0;
 
@@ -8006,11 +8190,11 @@
 	Namespace: "Reflex::System";
 };
 
-231:
+235:
 {
 	Indexed: true;
 
-	@UInt32 Index: 231;
+	@UInt32 Index: 235;
 
 	@UInt32 TypeFlags: 0;
 
@@ -8025,11 +8209,11 @@
 	Namespace: "Reflex::System";
 };
 
-232:
+236:
 {
 	Indexed: true;
 
-	@UInt32 Index: 232;
+	@UInt32 Index: 236;
 
 	@UInt64 ParentID: 5746192168122441764;
 
@@ -8070,11 +8254,11 @@
 	];
 };
 
-233:
+237:
 {
 	Indexed: true;
 
-	@UInt32 Index: 233;
+	@UInt32 Index: 237;
 
 	@UInt64 ParentID: 5746192168122441764;
 
@@ -8163,11 +8347,11 @@
 	];
 };
 
-234:
+238:
 {
 	Indexed: true;
 
-	@UInt32 Index: 234;
+	@UInt32 Index: 238;
 
 	@UInt32 TypeFlags: 2;
 
@@ -8182,11 +8366,11 @@
 	Namespace: "Reflex::System";
 };
 
-235:
+239:
 {
 	Indexed: true;
 
-	@UInt32 Index: 235;
+	@UInt32 Index: 239;
 
 	@UInt32 TypeFlags: 2;
 
@@ -8201,11 +8385,11 @@
 	Namespace: "Reflex::System";
 };
 
-236:
+240:
 {
 	Indexed: true;
 
-	@UInt32 Index: 236;
+	@UInt32 Index: 240;
 
 	@UInt32 TypeFlags: 2;
 
@@ -8220,11 +8404,11 @@
 	Namespace: "Reflex::System";
 };
 
-237:
+241:
 {
 	Indexed: true;
 
-	@UInt32 Index: 237;
+	@UInt32 Index: 241;
 
 	@UInt32 TypeFlags: 2;
 
@@ -8239,11 +8423,11 @@
 	Namespace: "Reflex::System";
 };
 
-238:
+242:
 {
 	Indexed: true;
 
-	@UInt32 Index: 238;
+	@UInt32 Index: 242;
 
 	@UInt32 TypeFlags: 2;
 
@@ -8258,11 +8442,11 @@
 	Namespace: "Reflex::System";
 };
 
-239:
+243:
 {
 	Indexed: true;
 
-	@UInt32 Index: 239;
+	@UInt32 Index: 243;
 
 	@UInt32 TypeFlags: 2;
 
@@ -8277,11 +8461,11 @@
 	Namespace: "Reflex::System";
 };
 
-240:
+244:
 {
 	Indexed: true;
 
-	@UInt32 Index: 240;
+	@UInt32 Index: 244;
 
 	@UInt32 TypeFlags: 2;
 
@@ -8296,11 +8480,11 @@
 	Namespace: "Reflex::System";
 };
 
-241:
+245:
 {
 	Indexed: false;
 
-	@UInt32 Index: 241;
+	@UInt32 Index: 245;
 
 	@UInt32 TypeFlags: 0;
 
@@ -8317,11 +8501,11 @@
 	@UInt64 2709038510: [8968105079702937636];
 };
 
-242:
+246:
 {
 	Indexed: true;
 
-	@UInt32 Index: 242;
+	@UInt32 Index: 246;
 
 	@UInt32 TypeFlags: 2;
 
@@ -8336,11 +8520,11 @@
 	Namespace: "Reflex::System";
 };
 
-243:
+247:
 {
 	Indexed: true;
 
-	@UInt32 Index: 243;
+	@UInt32 Index: 247;
 
 	@UInt32 TypeFlags: 1;
 
@@ -8349,90 +8533,6 @@
 	Name: "MouseCursor";
 
 	Category: "type";
-
-	Namespace: "Reflex::System";
-};
-
-244:
-{
-	IsConst: true;
-
-	Indexed: true;
-
-	@UInt32 Index: 244;
-
-	@UInt64 ParentID: 3088564085798854692;
-
-	@UInt64 Symbol: 16814981530350013087;
-
-	@UInt64 TypeID: 3088564085798854692;
-
-	Name: "kMouseCursorInvisible";
-
-	Category: "member";
-
-	Namespace: "Reflex::System";
-};
-
-245:
-{
-	IsConst: true;
-
-	Indexed: true;
-
-	@UInt32 Index: 245;
-
-	@UInt64 ParentID: 3088564085798854692;
-
-	@UInt64 Symbol: 10136224947467733663;
-
-	@UInt64 TypeID: 3088564085798854692;
-
-	Name: "kMouseCursorArrow";
-
-	Category: "member";
-
-	Namespace: "Reflex::System";
-};
-
-246:
-{
-	IsConst: true;
-
-	Indexed: true;
-
-	@UInt32 Index: 246;
-
-	@UInt64 ParentID: 3088564085798854692;
-
-	@UInt64 Symbol: 12049310351561607839;
-
-	@UInt64 TypeID: 3088564085798854692;
-
-	Name: "kMouseCursorWait";
-
-	Category: "member";
-
-	Namespace: "Reflex::System";
-};
-
-247:
-{
-	IsConst: true;
-
-	Indexed: true;
-
-	@UInt32 Index: 247;
-
-	@UInt64 ParentID: 3088564085798854692;
-
-	@UInt64 Symbol: 12047834128352299679;
-
-	@UInt64 TypeID: 3088564085798854692;
-
-	Name: "kMouseCursorMove";
-
-	Category: "member";
 
 	Namespace: "Reflex::System";
 };
@@ -8447,11 +8547,11 @@
 
 	@UInt64 ParentID: 3088564085798854692;
 
-	@UInt64 Symbol: 4625063504700000927;
+	@UInt64 Symbol: 16814981530350013087;
 
 	@UInt64 TypeID: 3088564085798854692;
 
-	Name: "kMouseCursorLeftRight";
+	Name: "kMouseCursorInvisible";
 
 	Category: "member";
 
@@ -8468,11 +8568,11 @@
 
 	@UInt64 ParentID: 3088564085798854692;
 
-	@UInt64 Symbol: 12528124245001390751;
+	@UInt64 Symbol: 10136224947467733663;
 
 	@UInt64 TypeID: 3088564085798854692;
 
-	Name: "kMouseCursorTopBottom";
+	Name: "kMouseCursorArrow";
 
 	Category: "member";
 
@@ -8489,11 +8589,11 @@
 
 	@UInt64 ParentID: 3088564085798854692;
 
-	@UInt64 Symbol: 16725809677048498847;
+	@UInt64 Symbol: 12049310351561607839;
 
 	@UInt64 TypeID: 3088564085798854692;
 
-	Name: "kMouseCursorTopLeftBottomRight";
+	Name: "kMouseCursorWait";
 
 	Category: "member";
 
@@ -8510,11 +8610,11 @@
 
 	@UInt64 ParentID: 3088564085798854692;
 
-	@UInt64 Symbol: 5383158114713619103;
+	@UInt64 Symbol: 12047834128352299679;
 
 	@UInt64 TypeID: 3088564085798854692;
 
-	Name: "kMouseCursorBottomLeftTopRight";
+	Name: "kMouseCursorMove";
 
 	Category: "member";
 
@@ -8531,11 +8631,11 @@
 
 	@UInt64 ParentID: 3088564085798854692;
 
-	@UInt64 Symbol: 16060971623213451935;
+	@UInt64 Symbol: 4625063504700000927;
 
 	@UInt64 TypeID: 3088564085798854692;
 
-	Name: "kMouseCursorPointer";
+	Name: "kMouseCursorLeftRight";
 
 	Category: "member";
 
@@ -8552,11 +8652,11 @@
 
 	@UInt64 ParentID: 3088564085798854692;
 
-	@UInt64 Symbol: 12046456058030607007;
+	@UInt64 Symbol: 12528124245001390751;
 
 	@UInt64 TypeID: 3088564085798854692;
 
-	Name: "kMouseCursorDrag";
+	Name: "kMouseCursorTopBottom";
 
 	Category: "member";
 
@@ -8573,11 +8673,11 @@
 
 	@UInt64 ParentID: 3088564085798854692;
 
-	@UInt64 Symbol: 12048868141728811679;
+	@UInt64 Symbol: 16725809677048498847;
 
 	@UInt64 TypeID: 3088564085798854692;
 
-	Name: "kMouseCursorText";
+	Name: "kMouseCursorTopLeftBottomRight";
 
 	Category: "member";
 
@@ -8594,11 +8694,11 @@
 
 	@UInt64 ParentID: 3088564085798854692;
 
-	@UInt64 Symbol: 10140376565935262367;
+	@UInt64 Symbol: 5383158114713619103;
 
 	@UInt64 TypeID: 3088564085798854692;
 
-	Name: "kMouseCursorBlock";
+	Name: "kMouseCursorBottomLeftTopRight";
 
 	Category: "member";
 
@@ -8615,11 +8715,11 @@
 
 	@UInt64 ParentID: 3088564085798854692;
 
-	@UInt64 Symbol: 12049839697690905247;
+	@UInt64 Symbol: 16060971623213451935;
 
 	@UInt64 TypeID: 3088564085798854692;
 
-	Name: "kMouseCursorZoom";
+	Name: "kMouseCursorPointer";
 
 	Category: "member";
 
@@ -8636,11 +8736,11 @@
 
 	@UInt64 ParentID: 3088564085798854692;
 
-	@UInt64 Symbol: 4833132228987079327;
+	@UInt64 Symbol: 12046456058030607007;
 
 	@UInt64 TypeID: 3088564085798854692;
 
-	Name: "kNumMouseCursor";
+	Name: "kMouseCursorDrag";
 
 	Category: "member";
 
@@ -8649,17 +8749,21 @@
 
 258:
 {
+	IsConst: true;
+
 	Indexed: true;
 
 	@UInt32 Index: 258;
 
-	@UInt32 TypeFlags: 1;
+	@UInt64 ParentID: 3088564085798854692;
 
-	@UInt64 Symbol: 9609741836169109540;
+	@UInt64 Symbol: 12048868141728811679;
 
-	Name: "KeyCode";
+	@UInt64 TypeID: 3088564085798854692;
 
-	Category: "type";
+	Name: "kMouseCursorText";
+
+	Category: "member";
 
 	Namespace: "Reflex::System";
 };
@@ -8672,13 +8776,13 @@
 
 	@UInt32 Index: 259;
 
-	@UInt64 ParentID: 9609741836169109540;
+	@UInt64 ParentID: 3088564085798854692;
 
-	@UInt64 Symbol: 12524492490233031100;
+	@UInt64 Symbol: 10140376565935262367;
 
-	@UInt64 TypeID: 9609741836169109540;
+	@UInt64 TypeID: 3088564085798854692;
 
-	Name: "kKeyCodeNull";
+	Name: "kMouseCursorBlock";
 
 	Category: "member";
 
@@ -8693,13 +8797,13 @@
 
 	@UInt32 Index: 260;
 
-	@UInt64 ParentID: 9609741836169109540;
+	@UInt64 ParentID: 3088564085798854692;
 
-	@UInt64 Symbol: 4839159769768077756;
+	@UInt64 Symbol: 12049839697690905247;
 
-	@UInt64 TypeID: 9609741836169109540;
+	@UInt64 TypeID: 3088564085798854692;
 
-	Name: "kKeyCodeF1";
+	Name: "kMouseCursorZoom";
 
 	Category: "member";
 
@@ -8714,13 +8818,13 @@
 
 	@UInt32 Index: 261;
 
-	@UInt64 ParentID: 9609741836169109540;
+	@UInt64 ParentID: 3088564085798854692;
 
-	@UInt64 Symbol: 12118319898361539004;
+	@UInt64 Symbol: 4833132228987079327;
 
-	@UInt64 TypeID: 9609741836169109540;
+	@UInt64 TypeID: 3088564085798854692;
 
-	Name: "kKeyCodeF12";
+	Name: "kNumMouseCursor";
 
 	Category: "member";
 
@@ -8729,21 +8833,17 @@
 
 262:
 {
-	IsConst: true;
-
 	Indexed: true;
 
 	@UInt32 Index: 262;
 
-	@UInt64 ParentID: 9609741836169109540;
+	@UInt32 TypeFlags: 1;
 
-	@UInt64 Symbol: 12118392388819560892;
+	@UInt64 Symbol: 9609741836169109540;
 
-	@UInt64 TypeID: 9609741836169109540;
+	Name: "KeyCode";
 
-	Name: "kKeyCodeTab";
-
-	Category: "member";
+	Category: "type";
 
 	Namespace: "Reflex::System";
 };
@@ -8758,11 +8858,11 @@
 
 	@UInt64 ParentID: 9609741836169109540;
 
-	@UInt64 Symbol: 7432997477393050044;
+	@UInt64 Symbol: 12524492490233031100;
 
 	@UInt64 TypeID: 9609741836169109540;
 
-	Name: "kKeyCodeEnter";
+	Name: "kKeyCodeNull";
 
 	Category: "member";
 
@@ -8779,11 +8879,11 @@
 
 	@UInt64 ParentID: 9609741836169109540;
 
-	@UInt64 Symbol: 5504068647613835708;
+	@UInt64 Symbol: 4839159769768077756;
 
 	@UInt64 TypeID: 9609741836169109540;
 
-	Name: "kKeyCodeEscape";
+	Name: "kKeyCodeF1";
 
 	Category: "member";
 
@@ -8800,11 +8900,11 @@
 
 	@UInt64 ParentID: 9609741836169109540;
 
-	@UInt64 Symbol: 7504525854150699452;
+	@UInt64 Symbol: 12118319898361539004;
 
 	@UInt64 TypeID: 9609741836169109540;
 
-	Name: "kKeyCodeSpace";
+	Name: "kKeyCodeF12";
 
 	Category: "member";
 
@@ -8821,11 +8921,11 @@
 
 	@UInt64 ParentID: 9609741836169109540;
 
-	@UInt64 Symbol: 15849255682275748284;
+	@UInt64 Symbol: 12118392388819560892;
 
 	@UInt64 TypeID: 9609741836169109540;
 
-	Name: "kKeyCodeBackspace";
+	Name: "kKeyCodeTab";
 
 	Category: "member";
 
@@ -8842,11 +8942,11 @@
 
 	@UInt64 ParentID: 9609741836169109540;
 
-	@UInt64 Symbol: 6153430748870420924;
+	@UInt64 Symbol: 7432997477393050044;
 
 	@UInt64 TypeID: 9609741836169109540;
 
-	Name: "kKeyCodeInsert";
+	Name: "kKeyCodeEnter";
 
 	Category: "member";
 
@@ -8863,11 +8963,11 @@
 
 	@UInt64 ParentID: 9609741836169109540;
 
-	@UInt64 Symbol: 5266082937784445372;
+	@UInt64 Symbol: 5504068647613835708;
 
 	@UInt64 TypeID: 9609741836169109540;
 
-	Name: "kKeyCodeDelete";
+	Name: "kKeyCodeEscape";
 
 	Category: "member";
 
@@ -8884,11 +8984,11 @@
 
 	@UInt64 ParentID: 9609741836169109540;
 
-	@UInt64 Symbol: 12523538449147570620;
+	@UInt64 Symbol: 7504525854150699452;
 
 	@UInt64 TypeID: 9609741836169109540;
 
-	Name: "kKeyCodeHome";
+	Name: "kKeyCodeSpace";
 
 	Category: "member";
 
@@ -8905,11 +9005,11 @@
 
 	@UInt64 ParentID: 9609741836169109540;
 
-	@UInt64 Symbol: 12118324081659685308;
+	@UInt64 Symbol: 15849255682275748284;
 
 	@UInt64 TypeID: 9609741836169109540;
 
-	Name: "kKeyCodeEnd";
+	Name: "kKeyCodeBackspace";
 
 	Category: "member";
 
@@ -8926,11 +9026,11 @@
 
 	@UInt64 ParentID: 9609741836169109540;
 
-	@UInt64 Symbol: 7261955679049689532;
+	@UInt64 Symbol: 6153430748870420924;
 
 	@UInt64 TypeID: 9609741836169109540;
 
-	Name: "kKeyCodePageUp";
+	Name: "kKeyCodeInsert";
 
 	Category: "member";
 
@@ -8947,11 +9047,11 @@
 
 	@UInt64 ParentID: 9609741836169109540;
 
-	@UInt64 Symbol: 13060655290974939580;
+	@UInt64 Symbol: 5266082937784445372;
 
 	@UInt64 TypeID: 9609741836169109540;
 
-	Name: "kKeyCodePageDown";
+	Name: "kKeyCodeDelete";
 
 	Category: "member";
 
@@ -8968,11 +9068,11 @@
 
 	@UInt64 ParentID: 9609741836169109540;
 
-	@UInt64 Symbol: 4839162166359828924;
+	@UInt64 Symbol: 12523538449147570620;
 
 	@UInt64 TypeID: 9609741836169109540;
 
-	Name: "kKeyCodeUp";
+	Name: "kKeyCodeHome";
 
 	Category: "member";
 
@@ -8989,11 +9089,11 @@
 
 	@UInt64 ParentID: 9609741836169109540;
 
-	@UInt64 Symbol: 12522922512182618556;
+	@UInt64 Symbol: 12118324081659685308;
 
 	@UInt64 TypeID: 9609741836169109540;
 
-	Name: "kKeyCodeDown";
+	Name: "kKeyCodeEnd";
 
 	Category: "member";
 
@@ -9010,11 +9110,11 @@
 
 	@UInt64 ParentID: 9609741836169109540;
 
-	@UInt64 Symbol: 12524108142199646652;
+	@UInt64 Symbol: 7261955679049689532;
 
 	@UInt64 TypeID: 9609741836169109540;
 
-	Name: "kKeyCodeLeft";
+	Name: "kKeyCodePageUp";
 
 	Category: "member";
 
@@ -9031,11 +9131,11 @@
 
 	@UInt64 ParentID: 9609741836169109540;
 
-	@UInt64 Symbol: 7498380760972470716;
+	@UInt64 Symbol: 13060655290974939580;
 
 	@UInt64 TypeID: 9609741836169109540;
 
-	Name: "kKeyCodeRight";
+	Name: "kKeyCodePageDown";
 
 	Category: "member";
 
@@ -9052,11 +9152,11 @@
 
 	@UInt64 ParentID: 9609741836169109540;
 
-	@UInt64 Symbol: 6963716749198043580;
+	@UInt64 Symbol: 4839162166359828924;
 
 	@UInt64 TypeID: 9609741836169109540;
 
-	Name: "kKeyCodeNumericDivide";
+	Name: "kKeyCodeUp";
 
 	Category: "member";
 
@@ -9073,11 +9173,11 @@
 
 	@UInt64 ParentID: 9609741836169109540;
 
-	@UInt64 Symbol: 17116402933041408444;
+	@UInt64 Symbol: 12522922512182618556;
 
 	@UInt64 TypeID: 9609741836169109540;
 
-	Name: "kKeyCodeNumericMultiply";
+	Name: "kKeyCodeDown";
 
 	Category: "member";
 
@@ -9094,11 +9194,11 @@
 
 	@UInt64 ParentID: 9609741836169109540;
 
-	@UInt64 Symbol: 15349618090872875452;
+	@UInt64 Symbol: 12524108142199646652;
 
 	@UInt64 TypeID: 9609741836169109540;
 
-	Name: "kKeyCodeNumericMinus";
+	Name: "kKeyCodeLeft";
 
 	Category: "member";
 
@@ -9115,11 +9215,11 @@
 
 	@UInt64 ParentID: 9609741836169109540;
 
-	@UInt64 Symbol: 16117400841436211644;
+	@UInt64 Symbol: 7498380760972470716;
 
 	@UInt64 TypeID: 9609741836169109540;
 
-	Name: "kKeyCodeNumericPlus";
+	Name: "kKeyCodeRight";
 
 	Category: "member";
 
@@ -9136,11 +9236,11 @@
 
 	@UInt64 ParentID: 9609741836169109540;
 
-	@UInt64 Symbol: 6295555803720133052;
+	@UInt64 Symbol: 6963716749198043580;
 
 	@UInt64 TypeID: 9609741836169109540;
 
-	Name: "kKeyCode1";
+	Name: "kKeyCodeNumericDivide";
 
 	Category: "member";
 
@@ -9157,11 +9257,11 @@
 
 	@UInt64 ParentID: 9609741836169109540;
 
-	@UInt64 Symbol: 6295555799425165756;
+	@UInt64 Symbol: 17116402933041408444;
 
 	@UInt64 TypeID: 9609741836169109540;
 
-	Name: "kKeyCode0";
+	Name: "kKeyCodeNumericMultiply";
 
 	Category: "member";
 
@@ -9178,11 +9278,11 @@
 
 	@UInt64 ParentID: 9609741836169109540;
 
-	@UInt64 Symbol: 7472947880200972732;
+	@UInt64 Symbol: 15349618090872875452;
 
 	@UInt64 TypeID: 9609741836169109540;
 
-	Name: "kKeyCodeMinus";
+	Name: "kKeyCodeNumericMinus";
 
 	Category: "member";
 
@@ -9199,11 +9299,11 @@
 
 	@UInt64 ParentID: 9609741836169109540;
 
-	@UInt64 Symbol: 12524760397408053692;
+	@UInt64 Symbol: 16117400841436211644;
 
 	@UInt64 TypeID: 9609741836169109540;
 
-	Name: "kKeyCodePlus";
+	Name: "kKeyCodeNumericPlus";
 
 	Category: "member";
 
@@ -9220,11 +9320,11 @@
 
 	@UInt64 ParentID: 9609741836169109540;
 
-	@UInt64 Symbol: 7503910741819468220;
+	@UInt64 Symbol: 6295555803720133052;
 
 	@UInt64 TypeID: 9609741836169109540;
 
-	Name: "kKeyCodeSlash";
+	Name: "kKeyCode1";
 
 	Category: "member";
 
@@ -9241,11 +9341,11 @@
 
 	@UInt64 ParentID: 9609741836169109540;
 
-	@UInt64 Symbol: 6295555872439609788;
+	@UInt64 Symbol: 6295555799425165756;
 
 	@UInt64 TypeID: 9609741836169109540;
 
-	Name: "kKeyCodeA";
+	Name: "kKeyCode0";
 
 	Category: "member";
 
@@ -9262,11 +9362,11 @@
 
 	@UInt64 ParentID: 9609741836169109540;
 
-	@UInt64 Symbol: 6295555979813792188;
+	@UInt64 Symbol: 7472947880200972732;
 
 	@UInt64 TypeID: 9609741836169109540;
 
-	Name: "kKeyCodeZ";
+	Name: "kKeyCodeMinus";
 
 	Category: "member";
 
@@ -9283,11 +9383,11 @@
 
 	@UInt64 ParentID: 9609741836169109540;
 
-	@UInt64 Symbol: 2441568661314677180;
+	@UInt64 Symbol: 12524760397408053692;
 
 	@UInt64 TypeID: 9609741836169109540;
 
-	Name: "kKeyCodeBracketOpen";
+	Name: "kKeyCodePlus";
 
 	Category: "member";
 
@@ -9304,11 +9404,11 @@
 
 	@UInt64 ParentID: 9609741836169109540;
 
-	@UInt64 Symbol: 6723098018257775036;
+	@UInt64 Symbol: 7503910741819468220;
 
 	@UInt64 TypeID: 9609741836169109540;
 
-	Name: "kKeyCodeBracketClose";
+	Name: "kKeyCodeSlash";
 
 	Category: "member";
 
@@ -9325,11 +9425,11 @@
 
 	@UInt64 ParentID: 9609741836169109540;
 
-	@UInt64 Symbol: 4244105283701516732;
+	@UInt64 Symbol: 6295555872439609788;
 
 	@UInt64 TypeID: 9609741836169109540;
 
-	Name: "kNumKeyCode";
+	Name: "kKeyCodeA";
 
 	Category: "member";
 
@@ -9338,17 +9438,21 @@
 
 291:
 {
+	IsConst: true;
+
 	Indexed: true;
 
 	@UInt32 Index: 291;
 
-	@UInt32 TypeFlags: 1;
+	@UInt64 ParentID: 9609741836169109540;
 
-	@UInt64 Symbol: 16781546976571416612;
+	@UInt64 Symbol: 6295555979813792188;
 
-	Name: "ModifierKeys";
+	@UInt64 TypeID: 9609741836169109540;
 
-	Category: "type";
+	Name: "kKeyCodeZ";
+
+	Category: "member";
 
 	Namespace: "Reflex::System";
 };
@@ -9361,13 +9465,13 @@
 
 	@UInt32 Index: 292;
 
-	@UInt64 ParentID: 16781546976571416612;
+	@UInt64 ParentID: 9609741836169109540;
 
-	@UInt64 Symbol: 7296581979594279011;
+	@UInt64 Symbol: 2441568661314677180;
 
-	@UInt64 TypeID: 16781546976571416612;
+	@UInt64 TypeID: 9609741836169109540;
 
-	Name: "kModifierKeyShift";
+	Name: "kKeyCodeBracketOpen";
 
 	Category: "member";
 
@@ -9382,13 +9486,13 @@
 
 	@UInt32 Index: 293;
 
-	@UInt64 ParentID: 16781546976571416612;
+	@UInt64 ParentID: 9609741836169109540;
 
-	@UInt64 Symbol: 3572649857115736163;
+	@UInt64 Symbol: 6723098018257775036;
 
-	@UInt64 TypeID: 16781546976571416612;
+	@UInt64 TypeID: 9609741836169109540;
 
-	Name: "kModifierKeyCtrl";
+	Name: "kKeyCodeBracketClose";
 
 	Category: "member";
 
@@ -9403,6 +9507,86 @@
 
 	@UInt32 Index: 294;
 
+	@UInt64 ParentID: 9609741836169109540;
+
+	@UInt64 Symbol: 4244105283701516732;
+
+	@UInt64 TypeID: 9609741836169109540;
+
+	Name: "kNumKeyCode";
+
+	Category: "member";
+
+	Namespace: "Reflex::System";
+};
+
+295:
+{
+	Indexed: true;
+
+	@UInt32 Index: 295;
+
+	@UInt32 TypeFlags: 1;
+
+	@UInt64 Symbol: 16781546976571416612;
+
+	Name: "ModifierKeys";
+
+	Category: "type";
+
+	Namespace: "Reflex::System";
+};
+
+296:
+{
+	IsConst: true;
+
+	Indexed: true;
+
+	@UInt32 Index: 296;
+
+	@UInt64 ParentID: 16781546976571416612;
+
+	@UInt64 Symbol: 7296581979594279011;
+
+	@UInt64 TypeID: 16781546976571416612;
+
+	Name: "kModifierKeyShift";
+
+	Category: "member";
+
+	Namespace: "Reflex::System";
+};
+
+297:
+{
+	IsConst: true;
+
+	Indexed: true;
+
+	@UInt32 Index: 297;
+
+	@UInt64 ParentID: 16781546976571416612;
+
+	@UInt64 Symbol: 3572649857115736163;
+
+	@UInt64 TypeID: 16781546976571416612;
+
+	Name: "kModifierKeyCtrl";
+
+	Category: "member";
+
+	Namespace: "Reflex::System";
+};
+
+298:
+{
+	IsConst: true;
+
+	Indexed: true;
+
+	@UInt32 Index: 298;
+
 	@UInt64 ParentID: 16781546976571416612;
 
 	@UInt64 Symbol: 9052127540889241699;
@@ -9416,13 +9600,13 @@
 	Namespace: "Reflex::System";
 };
 
-295:
+299:
 {
 	IsConst: true;
 
 	Indexed: true;
 
-	@UInt32 Index: 295;
+	@UInt32 Index: 299;
 
 	@UInt64 ParentID: 16781546976571416612;
 
@@ -9437,11 +9621,11 @@
 	Namespace: "Reflex::System";
 };
 
-296:
+300:
 {
 	Indexed: false;
 
-	@UInt32 Index: 296;
+	@UInt32 Index: 300;
 
 	@UInt32 TypeFlags: 0;
 
@@ -9458,11 +9642,11 @@
 	@UInt64 2709038510: [1452730841175390923];
 };
 
-297:
+301:
 {
 	Indexed: false;
 
-	@UInt32 Index: 297;
+	@UInt32 Index: 301;
 
 	@UInt32 TypeFlags: 0;
 
@@ -9479,11 +9663,11 @@
 	@UInt64 2709038510: [1452730841175390923];
 };
 
-298:
+302:
 {
 	Indexed: false;
 
-	@UInt32 Index: 298;
+	@UInt32 Index: 302;
 
 	@UInt32 TypeFlags: 0;
 
@@ -9500,11 +9684,11 @@
 	@UInt64 2709038510: [1452730841175390923];
 };
 
-299:
+303:
 {
 	Indexed: true;
 
-	@UInt32 Index: 299;
+	@UInt32 Index: 303;
 
 	@UInt64 Symbol: 18136990298152230948;
 
@@ -9517,11 +9701,11 @@
 	Namespace: "Reflex::System";
 };
 
-300:
+304:
 {
 	Indexed: true;
 
-	@UInt32 Index: 300;
+	@UInt32 Index: 304;
 
 	@UInt64 Symbol: 1109035348657299492;
 
@@ -9534,11 +9718,11 @@
 	Namespace: "Reflex::System";
 };
 
-301:
+305:
 {
 	Indexed: true;
 
-	@UInt32 Index: 301;
+	@UInt32 Index: 305;
 
 	@UInt64 Symbol: 1108859096084373540;
 
@@ -9551,11 +9735,11 @@
 	Namespace: "Reflex::System";
 };
 
-302:
+306:
 {
 	Indexed: true;
 
-	@UInt32 Index: 302;
+	@UInt32 Index: 306;
 
 	@UInt32 TypeFlags: 0;
 
@@ -9568,11 +9752,11 @@
 	Namespace: "Reflex::System";
 };
 
-303:
+307:
 {
 	Indexed: true;
 
-	@UInt32 Index: 303;
+	@UInt32 Index: 307;
 
 	@UInt64 ParentID: 12411471392737976356;
 
@@ -9587,11 +9771,11 @@
 	Namespace: "Reflex::System";
 };
 
-304:
+308:
 {
 	Indexed: true;
 
-	@UInt32 Index: 304;
+	@UInt32 Index: 308;
 
 	@UInt64 ParentID: 12411471392737976356;
 
@@ -9606,11 +9790,11 @@
 	Namespace: "Reflex::System";
 };
 
-305:
+309:
 {
 	Indexed: true;
 
-	@UInt32 Index: 305;
+	@UInt32 Index: 309;
 
 	@UInt64 ParentID: 12411471392737976356;
 
@@ -9625,11 +9809,11 @@
 	Namespace: "Reflex::System";
 };
 
-306:
+310:
 {
 	Indexed: true;
 
-	@UInt32 Index: 306;
+	@UInt32 Index: 310;
 
 	@UInt64 ParentID: 12411471392737976356;
 
@@ -9644,11 +9828,11 @@
 	Namespace: "Reflex::System";
 };
 
-307:
+311:
 {
 	Indexed: false;
 
-	@UInt32 Index: 307;
+	@UInt32 Index: 311;
 
 	@UInt32 TypeFlags: 0;
 
@@ -9665,11 +9849,11 @@
 	@UInt64 2709038510: [18165601556702132939, 12411471392737976356];
 };
 
-308:
+312:
 {
 	Indexed: true;
 
-	@UInt32 Index: 308;
+	@UInt32 Index: 312;
 
 	@UInt64 Symbol: 7385145563652677668;
 
@@ -9682,13 +9866,13 @@
 	Namespace: "Reflex::System";
 };
 
-309:
+313:
 {
 	2737744806: true;
 
 	Indexed: true;
 
-	@UInt32 Index: 309;
+	@UInt32 Index: 313;
 
 	@UInt32 TypeFlags: 0;
 
@@ -9703,11 +9887,11 @@
 	@UInt64 2709038510: [8974729057170101509];
 };
 
-310:
+314:
 {
 	Indexed: true;
 
-	@UInt32 Index: 310;
+	@UInt32 Index: 314;
 
 	@UInt64 ParentID: 15320421235171044588;
 
@@ -9722,11 +9906,11 @@
 	Namespace: "Reflex::SIMD";
 };
 
-311:
+315:
 {
 	Indexed: true;
 
-	@UInt32 Index: 311;
+	@UInt32 Index: 315;
 
 	@UInt64 ParentID: 15320421235171044588;
 
@@ -9787,11 +9971,11 @@
 	];
 };
 
-312:
+316:
 {
 	Indexed: true;
 
-	@UInt32 Index: 312;
+	@UInt32 Index: 316;
 
 	@UInt64 ParentID: 15320421235171044588;
 
@@ -9862,11 +10046,11 @@
 	];
 };
 
-313:
+317:
 {
 	Indexed: true;
 
-	@UInt32 Index: 313;
+	@UInt32 Index: 317;
 
 	@UInt64 ParentID: 15320421235171044588;
 
@@ -9907,11 +10091,11 @@
 	];
 };
 
-314:
+318:
 {
 	Indexed: true;
 
-	@UInt32 Index: 314;
+	@UInt32 Index: 318;
 
 	@UInt64 ParentID: 15320421235171044588;
 
@@ -9952,11 +10136,11 @@
 	];
 };
 
-315:
+319:
 {
 	Indexed: true;
 
-	@UInt32 Index: 315;
+	@UInt32 Index: 319;
 
 	@UInt64 ParentID: 15320421235171044588;
 
@@ -9997,11 +10181,11 @@
 	];
 };
 
-316:
+320:
 {
 	Indexed: true;
 
-	@UInt32 Index: 316;
+	@UInt32 Index: 320;
 
 	@UInt64 ParentID: 15320421235171044588;
 
@@ -10042,11 +10226,11 @@
 	];
 };
 
-317:
+321:
 {
 	Indexed: true;
 
-	@UInt32 Index: 317;
+	@UInt32 Index: 321;
 
 	@UInt64 ParentID: 15320421235171044588;
 
@@ -10106,11 +10290,11 @@
 	];
 };
 
-318:
+322:
 {
 	Indexed: true;
 
-	@UInt32 Index: 318;
+	@UInt32 Index: 322;
 
 	@UInt64 ParentID: 15320421235171044588;
 
@@ -10150,11 +10334,11 @@
 	];
 };
 
-319:
+323:
 {
 	Indexed: true;
 
-	@UInt32 Index: 319;
+	@UInt32 Index: 323;
 
 	@UInt64 ParentID: 15320421235171044588;
 
@@ -10180,11 +10364,11 @@
 	];
 };
 
-320:
+324:
 {
 	Indexed: false;
 
-	@UInt32 Index: 320;
+	@UInt32 Index: 324;
 
 	@UInt32 TypeFlags: 0;
 
@@ -10201,11 +10385,11 @@
 	@UInt64 2709038510: [8974729057170101509, 8974729057170101509, 8974729057170101509, 8974729057170101509];
 };
 
-321:
+325:
 {
 	Indexed: true;
 
-	@UInt32 Index: 321;
+	@UInt32 Index: 325;
 
 	@UInt32 TypeFlags: 1;
 
@@ -10218,13 +10402,13 @@
 	Namespace: "Reflex::SIMD";
 };
 
-322:
+326:
 {
 	IsConst: true;
 
 	Indexed: true;
 
-	@UInt32 Index: 322;
+	@UInt32 Index: 326;
 
 	@UInt64 ParentID: 16664858372343377132;
 
@@ -10239,13 +10423,13 @@
 	Namespace: "Reflex::SIMD";
 };
 
-323:
+327:
 {
 	IsConst: true;
 
 	Indexed: true;
 
-	@UInt32 Index: 323;
+	@UInt32 Index: 327;
 
 	@UInt64 ParentID: 16664858372343377132;
 
@@ -10260,11 +10444,11 @@
 	Namespace: "Reflex::SIMD";
 };
 
-324:
+328:
 {
 	Indexed: false;
 
-	@UInt32 Index: 324;
+	@UInt32 Index: 328;
 
 	@UInt32 TypeFlags: 0;
 
@@ -10281,11 +10465,11 @@
 	@UInt64 2709038510: [1452730841175390923];
 };
 
-325:
+329:
 {
 	Indexed: false;
 
-	@UInt32 Index: 325;
+	@UInt32 Index: 329;
 
 	@UInt32 TypeFlags: 0;
 
@@ -10302,11 +10486,11 @@
 	@UInt64 2709038510: [965532656177740491];
 };
 
-326:
+330:
 {
 	Indexed: false;
 
-	@UInt32 Index: 326;
+	@UInt32 Index: 330;
 
 	@UInt32 TypeFlags: 0;
 
@@ -10323,11 +10507,11 @@
 	@UInt64 2709038510: [16664858372343377132];
 };
 
-327:
+331:
 {
 	Indexed: true;
 
-	@UInt32 Index: 327;
+	@UInt32 Index: 331;
 
 	@UInt64 Symbol: 1452735807989787884;
 
@@ -10340,11 +10524,11 @@
 	Namespace: "Reflex::SIMD";
 };
 
-328:
+332:
 {
 	Indexed: true;
 
-	@UInt32 Index: 328;
+	@UInt32 Index: 332;
 
 	@UInt64 Symbol: 965537622992137452;
 
@@ -10357,11 +10541,11 @@
 	Namespace: "Reflex::SIMD";
 };
 
-329:
+333:
 {
 	Indexed: true;
 
-	@UInt32 Index: 329;
+	@UInt32 Index: 333;
 
 	@UInt64 Symbol: 12243830513440697580;
 
@@ -10374,11 +10558,11 @@
 	Namespace: "Reflex::SIMD";
 };
 
-330:
+334:
 {
 	Indexed: true;
 
-	@UInt32 Index: 330;
+	@UInt32 Index: 334;
 
 	@UInt64 Symbol: 6112108496117345516;
 
@@ -10489,11 +10673,11 @@
 	];
 };
 
-331:
+335:
 {
 	Indexed: true;
 
-	@UInt32 Index: 331;
+	@UInt32 Index: 335;
 
 	@UInt64 Symbol: 6112104527567564012;
 
@@ -10604,11 +10788,11 @@
 	];
 };
 
-332:
+336:
 {
 	Indexed: true;
 
-	@UInt32 Index: 332;
+	@UInt32 Index: 336;
 
 	@UInt64 Symbol: 4657153363563556076;
 
@@ -10687,11 +10871,11 @@
 	];
 };
 
-333:
+337:
 {
 	Indexed: true;
 
-	@UInt32 Index: 333;
+	@UInt32 Index: 337;
 
 	@UInt64 Symbol: 6112108637851266284;
 
@@ -10738,11 +10922,11 @@
 	];
 };
 
-334:
+338:
 {
 	Indexed: true;
 
-	@UInt32 Index: 334;
+	@UInt32 Index: 338;
 
 	@UInt64 Symbol: 4657153354973621484;
 
@@ -10821,11 +11005,11 @@
 	];
 };
 
-335:
+339:
 {
 	Indexed: true;
 
-	@UInt32 Index: 335;
+	@UInt32 Index: 339;
 
 	@UInt64 Symbol: 6112108354383424748;
 
@@ -10872,11 +11056,11 @@
 	];
 };
 
-336:
+340:
 {
 	Indexed: true;
 
-	@UInt32 Index: 336;
+	@UInt32 Index: 340;
 
 	@UInt64 Symbol: 4657153290549112044;
 
@@ -10977,11 +11161,11 @@
 	];
 };
 
-337:
+341:
 {
 	Indexed: true;
 
-	@UInt32 Index: 337;
+	@UInt32 Index: 341;
 
 	@UInt64 Symbol: 4657153281959177452;
 
@@ -11060,11 +11244,11 @@
 	];
 };
 
-338:
+342:
 {
 	Indexed: true;
 
-	@UInt32 Index: 338;
+	@UInt32 Index: 342;
 
 	@UInt64 Symbol: 4657153277664210156;
 
@@ -11143,11 +11327,11 @@
 	];
 };
 
-339:
+343:
 {
 	Indexed: true;
 
-	@UInt32 Index: 339;
+	@UInt32 Index: 343;
 
 	@UInt64 Symbol: 4657153299139046636;
 
@@ -11194,11 +11378,11 @@
 	];
 };
 
-340:
+344:
 {
 	Indexed: true;
 
-	@UInt32 Index: 340;
+	@UInt32 Index: 344;
 
 	@UInt64 Symbol: 830866282021170412;
 
@@ -11257,179 +11441,15 @@
 	];
 };
 
-341:
-{
-	Indexed: true;
-
-	@UInt32 Index: 341;
-
-	@UInt64 Symbol: 8974652981416340716;
-
-	Name: "Sign";
-
-	Category: "function";
-
-	Namespace: "Reflex::SIMD";
-
-	Overloads:
-	[
-		{
-			Return:
-			{
-				@UInt64 TypeID: 17579014720750922988;
-			};
-
-			Arguments:
-			[
-				{
-					IsConst: true;
-
-					IsRef: true;
-
-					@UInt64 TypeID: 17579014720750922988;
-
-					Name: "value";
-				},
-
-			];
-
-		},
-
-	];
-};
-
-342:
-{
-	Indexed: true;
-
-	@UInt32 Index: 342;
-
-	@UInt64 Symbol: 13416385593457814764;
-
-	Name: "Invert";
-
-	Category: "function";
-
-	Namespace: "Reflex::SIMD";
-
-	Overloads:
-	[
-		{
-			Return:
-			{
-				@UInt64 TypeID: 17579014720750922988;
-			};
-
-			Arguments:
-			[
-				{
-					IsConst: true;
-
-					IsRef: true;
-
-					@UInt64 TypeID: 17579014720750922988;
-
-					Name: "value";
-				},
-
-			];
-
-		},
-
-	];
-};
-
-343:
-{
-	Indexed: true;
-
-	@UInt32 Index: 343;
-
-	@UInt64 Symbol: 8124602026378702060;
-
-	Name: "RoundNearest";
-
-	Category: "function";
-
-	Namespace: "Reflex::SIMD";
-
-	Overloads:
-	[
-		{
-			Return:
-			{
-				@UInt64 TypeID: 17579014720750922988;
-			};
-
-			Arguments:
-			[
-				{
-					IsConst: true;
-
-					IsRef: true;
-
-					@UInt64 TypeID: 17579014720750922988;
-
-					Name: "value";
-				},
-
-			];
-
-		},
-
-	];
-};
-
-344:
-{
-	Indexed: true;
-
-	@UInt32 Index: 344;
-
-	@UInt64 Symbol: 16767473181223595244;
-
-	Name: "RoundDown";
-
-	Category: "function";
-
-	Namespace: "Reflex::SIMD";
-
-	Overloads:
-	[
-		{
-			Return:
-			{
-				@UInt64 TypeID: 17579014720750922988;
-			};
-
-			Arguments:
-			[
-				{
-					IsConst: true;
-
-					IsRef: true;
-
-					@UInt64 TypeID: 17579014720750922988;
-
-					Name: "value";
-				},
-
-			];
-
-		},
-
-	];
-};
-
 345:
 {
 	Indexed: true;
 
 	@UInt32 Index: 345;
 
-	@UInt64 Symbol: 8345292607281736940;
+	@UInt64 Symbol: 8974652981416340716;
 
-	Name: "Reciprocal";
+	Name: "Sign";
 
 	Category: "function";
 
@@ -11467,6 +11487,170 @@
 	Indexed: true;
 
 	@UInt32 Index: 346;
+
+	@UInt64 Symbol: 13416385593457814764;
+
+	Name: "Invert";
+
+	Category: "function";
+
+	Namespace: "Reflex::SIMD";
+
+	Overloads:
+	[
+		{
+			Return:
+			{
+				@UInt64 TypeID: 17579014720750922988;
+			};
+
+			Arguments:
+			[
+				{
+					IsConst: true;
+
+					IsRef: true;
+
+					@UInt64 TypeID: 17579014720750922988;
+
+					Name: "value";
+				},
+
+			];
+
+		},
+
+	];
+};
+
+347:
+{
+	Indexed: true;
+
+	@UInt32 Index: 347;
+
+	@UInt64 Symbol: 8124602026378702060;
+
+	Name: "RoundNearest";
+
+	Category: "function";
+
+	Namespace: "Reflex::SIMD";
+
+	Overloads:
+	[
+		{
+			Return:
+			{
+				@UInt64 TypeID: 17579014720750922988;
+			};
+
+			Arguments:
+			[
+				{
+					IsConst: true;
+
+					IsRef: true;
+
+					@UInt64 TypeID: 17579014720750922988;
+
+					Name: "value";
+				},
+
+			];
+
+		},
+
+	];
+};
+
+348:
+{
+	Indexed: true;
+
+	@UInt32 Index: 348;
+
+	@UInt64 Symbol: 16767473181223595244;
+
+	Name: "RoundDown";
+
+	Category: "function";
+
+	Namespace: "Reflex::SIMD";
+
+	Overloads:
+	[
+		{
+			Return:
+			{
+				@UInt64 TypeID: 17579014720750922988;
+			};
+
+			Arguments:
+			[
+				{
+					IsConst: true;
+
+					IsRef: true;
+
+					@UInt64 TypeID: 17579014720750922988;
+
+					Name: "value";
+				},
+
+			];
+
+		},
+
+	];
+};
+
+349:
+{
+	Indexed: true;
+
+	@UInt32 Index: 349;
+
+	@UInt64 Symbol: 8345292607281736940;
+
+	Name: "Reciprocal";
+
+	Category: "function";
+
+	Namespace: "Reflex::SIMD";
+
+	Overloads:
+	[
+		{
+			Return:
+			{
+				@UInt64 TypeID: 17579014720750922988;
+			};
+
+			Arguments:
+			[
+				{
+					IsConst: true;
+
+					IsRef: true;
+
+					@UInt64 TypeID: 17579014720750922988;
+
+					Name: "value";
+				},
+
+			];
+
+		},
+
+	];
+};
+
+350:
+{
+	Indexed: true;
+
+	@UInt32 Index: 350;
 
 	@UInt64 Symbol: 830923379316403436;
 
@@ -11545,11 +11729,11 @@
 	];
 };
 
-347:
+351:
 {
 	Indexed: true;
 
-	@UInt32 Index: 347;
+	@UInt32 Index: 351;
 
 	@UInt64 Symbol: 830922288394710252;
 
@@ -11628,11 +11812,11 @@
 	];
 };
 
-348:
+352:
 {
 	Indexed: true;
 
-	@UInt32 Index: 348;
+	@UInt32 Index: 352;
 
 	@UInt64 Symbol: 13508490827818118380;
 
@@ -11669,11 +11853,11 @@
 	];
 };
 
-349:
+353:
 {
 	Indexed: true;
 
-	@UInt32 Index: 349;
+	@UInt32 Index: 353;
 
 	@UInt64 Symbol: 14091115712889793772;
 
@@ -11720,11 +11904,11 @@
 	];
 };
 
-350:
+354:
 {
 	Indexed: true;
 
-	@UInt32 Index: 350;
+	@UInt32 Index: 354;
 
 	@UInt64 Symbol: 830888096160066796;
 
@@ -11761,11 +11945,11 @@
 	];
 };
 
-351:
+355:
 {
 	Indexed: true;
 
-	@UInt32 Index: 351;
+	@UInt32 Index: 355;
 
 	@UInt64 Symbol: 830919522435771628;
 
@@ -11802,11 +11986,11 @@
 	];
 };
 
-352:
+356:
 {
 	Indexed: true;
 
-	@UInt32 Index: 352;
+	@UInt32 Index: 356;
 
 	@UInt64 Symbol: 8972563282258341100;
 
@@ -11843,11 +12027,11 @@
 	];
 };
 
-353:
+357:
 {
 	Indexed: true;
 
-	@UInt32 Index: 353;
+	@UInt32 Index: 357;
 
 	@UInt64 Symbol: 8973600349356600556;
 
@@ -11884,11 +12068,11 @@
 	];
 };
 
-354:
+358:
 {
 	Indexed: true;
 
-	@UInt32 Index: 354;
+	@UInt32 Index: 358;
 
 	@UInt64 Symbol: 830938300032789740;
 
@@ -11935,11 +12119,11 @@
 	];
 };
 
-355:
+359:
 {
 	Indexed: true;
 
-	@UInt32 Index: 355;
+	@UInt32 Index: 359;
 
 	@UInt64 Symbol: 2751346404323011820;
 
@@ -11976,11 +12160,11 @@
 	];
 };
 
-356:
+360:
 {
 	Indexed: true;
 
-	@UInt32 Index: 356;
+	@UInt32 Index: 360;
 
 	@UInt64 Symbol: 4657153260484340972;
 
@@ -12027,11 +12211,11 @@
 	];
 };
 
-357:
+361:
 {
 	Indexed: true;
 
-	@UInt32 Index: 357;
+	@UInt32 Index: 361;
 
 	@UInt64 Symbol: 4657153629851528428;
 
@@ -12078,11 +12262,11 @@
 	];
 };
 
-358:
+362:
 {
 	Indexed: true;
 
-	@UInt32 Index: 358;
+	@UInt32 Index: 362;
 
 	@UInt64 Symbol: 8391697121869868268;
 
@@ -12119,11 +12303,11 @@
 	];
 };
 
-359:
+363:
 {
 	Indexed: true;
 
-	@UInt32 Index: 359;
+	@UInt32 Index: 363;
 
 	@UInt64 Symbol: 935139373479406828;
 
@@ -12160,11 +12344,11 @@
 	];
 };
 
-360:
+364:
 {
 	Indexed: true;
 
-	@UInt32 Index: 360;
+	@UInt32 Index: 364;
 
 	@UInt64 Symbol: 944995146602687724;
 
@@ -12201,11 +12385,11 @@
 	];
 };
 
-361:
+365:
 {
 	Indexed: true;
 
-	@UInt32 Index: 361;
+	@UInt32 Index: 365;
 
 	@UInt64 Symbol: 830868008598023404;
 
@@ -12242,11 +12426,11 @@
 	];
 };
 
-362:
+366:
 {
 	Indexed: true;
 
-	@UInt32 Index: 362;
+	@UInt32 Index: 366;
 
 	@UInt64 Symbol: 8972703281012321516;
 
@@ -12283,11 +12467,11 @@
 	];
 };
 
-363:
+367:
 {
 	Indexed: true;
 
-	@UInt32 Index: 363;
+	@UInt32 Index: 367;
 
 	@UInt64 Symbol: 5844244906422873324;
 
@@ -12324,11 +12508,11 @@
 	];
 };
 
-364:
+368:
 {
 	Indexed: true;
 
-	@UInt32 Index: 364;
+	@UInt32 Index: 368;
 
 	@UInt64 Symbol: 830928932709117164;
 
@@ -12365,11 +12549,11 @@
 	];
 };
 
-365:
+369:
 {
 	Indexed: true;
 
-	@UInt32 Index: 365;
+	@UInt32 Index: 369;
 
 	@UInt64 Symbol: 25179805120507116;
 
@@ -12416,11 +12600,11 @@
 	];
 };
 
-366:
+370:
 {
 	Indexed: true;
 
-	@UInt32 Index: 366;
+	@UInt32 Index: 370;
 
 	@UInt64 Symbol: 830867918403710188;
 
@@ -12467,11 +12651,11 @@
 	];
 };
 
-367:
+371:
 {
 	Indexed: true;
 
-	@UInt32 Index: 367;
+	@UInt32 Index: 371;
 
 	@UInt64 Symbol: 6402223207565798636;
 
@@ -12526,11 +12710,11 @@
 	];
 };
 
-368:
+372:
 {
 	Indexed: true;
 
-	@UInt32 Index: 368;
+	@UInt32 Index: 372;
 
 	@UInt64 Symbol: 15049850888367156460;
 
@@ -12635,11 +12819,11 @@
 	];
 };
 
-369:
+373:
 {
 	Indexed: false;
 
-	@UInt32 Index: 369;
+	@UInt32 Index: 373;
 
 	@UInt32 TypeFlags: 0;
 
@@ -12656,11 +12840,11 @@
 	@UInt64 2709038510: [1020924849394252491];
 };
 
-370:
+374:
 {
 	Indexed: true;
 
-	@UInt32 Index: 370;
+	@UInt32 Index: 374;
 
 	@UInt64 Symbol: 11560583731558276729;
 
@@ -12673,11 +12857,11 @@
 	Namespace: "Reflex::Data";
 };
 
-371:
+375:
 {
 	Indexed: true;
 
-	@UInt32 Index: 371;
+	@UInt32 Index: 375;
 
 	@UInt32 TypeFlags: 2;
 
@@ -12692,11 +12876,11 @@
 	Namespace: "Reflex::Data";
 };
 
-372:
+376:
 {
 	Indexed: true;
 
-	@UInt32 Index: 372;
+	@UInt32 Index: 376;
 
 	@UInt64 Symbol: 3410220346311237241;
 
@@ -12709,11 +12893,11 @@
 	Namespace: "Reflex::Data";
 };
 
-373:
+377:
 {
 	Indexed: true;
 
-	@UInt32 Index: 373;
+	@UInt32 Index: 377;
 
 	@UInt32 TypeFlags: 2;
 
@@ -12728,11 +12912,11 @@
 	Namespace: "Reflex::Data";
 };
 
-374:
+378:
 {
 	Indexed: true;
 
-	@UInt32 Index: 374;
+	@UInt32 Index: 378;
 
 	@UInt64 ParentID: 13039646562789154425;
 
@@ -12758,11 +12942,11 @@
 	];
 };
 
-375:
+379:
 {
 	Indexed: true;
 
-	@UInt32 Index: 375;
+	@UInt32 Index: 379;
 
 	@UInt64 ParentID: 13039646562789154425;
 
@@ -12788,13 +12972,13 @@
 	];
 };
 
-376:
+380:
 {
 	2737744806: true;
 
 	Indexed: true;
 
-	@UInt32 Index: 376;
+	@UInt32 Index: 380;
 
 	@UInt32 TypeFlags: 0;
 
@@ -12811,11 +12995,11 @@
 	@UInt64 2709038510: [8974729057170101509];
 };
 
-377:
+381:
 {
 	Indexed: true;
 
-	@UInt32 Index: 377;
+	@UInt32 Index: 381;
 
 	@UInt64 ParentID: 13039646562789154425;
 
@@ -12849,11 +13033,11 @@
 	];
 };
 
-378:
+382:
 {
 	Indexed: false;
 
-	@UInt32 Index: 378;
+	@UInt32 Index: 382;
 
 	@UInt32 TypeFlags: 0;
 
@@ -12870,11 +13054,11 @@
 	@UInt64 2709038510: [15745766443255560907, 17184279998618630859];
 };
 
-379:
+383:
 {
 	Indexed: false;
 
-	@UInt32 Index: 379;
+	@UInt32 Index: 383;
 
 	@UInt32 TypeFlags: 0;
 
@@ -12891,11 +13075,11 @@
 	@UInt64 2709038510: [10079008437116828363];
 };
 
-380:
+384:
 {
 	Indexed: true;
 
-	@UInt32 Index: 380;
+	@UInt32 Index: 384;
 
 	@UInt64 Symbol: 13707062997161139833;
 
@@ -12908,11 +13092,11 @@
 	Namespace: "Reflex::Data";
 };
 
-381:
+385:
 {
 	Indexed: false;
 
-	@UInt32 Index: 381;
+	@UInt32 Index: 385;
 
 	@UInt32 TypeFlags: 0;
 
@@ -12929,11 +13113,11 @@
 	@UInt64 2709038510: [7564314980913478347];
 };
 
-382:
+386:
 {
 	Indexed: false;
 
-	@UInt32 Index: 382;
+	@UInt32 Index: 386;
 
 	@UInt32 TypeFlags: 0;
 
@@ -12950,11 +13134,11 @@
 	@UInt64 2709038510: [7564314980913478347];
 };
 
-383:
+387:
 {
 	Indexed: false;
 
-	@UInt32 Index: 383;
+	@UInt32 Index: 387;
 
 	@UInt32 TypeFlags: 0;
 
@@ -12971,11 +13155,11 @@
 	@UInt64 2709038510: [13039646562789154425];
 };
 
-384:
+388:
 {
 	Indexed: false;
 
-	@UInt32 Index: 384;
+	@UInt32 Index: 388;
 
 	@UInt32 TypeFlags: 0;
 
@@ -12992,11 +13176,11 @@
 	@UInt64 2709038510: [13039646562789154425];
 };
 
-385:
+389:
 {
 	Indexed: false;
 
-	@UInt32 Index: 385;
+	@UInt32 Index: 389;
 
 	@UInt32 TypeFlags: 0;
 
@@ -13013,13 +13197,13 @@
 	@UInt64 2709038510: [15745766443255560907];
 };
 
-386:
+390:
 {
 	2737744806: true;
 
 	Indexed: true;
 
-	@UInt32 Index: 386;
+	@UInt32 Index: 390;
 
 	@UInt32 TypeFlags: 2;
 
@@ -13036,11 +13220,11 @@
 	@UInt64 2709038510: [8974729057170101509];
 };
 
-387:
+391:
 {
 	Indexed: false;
 
-	@UInt32 Index: 387;
+	@UInt32 Index: 391;
 
 	@UInt32 TypeFlags: 2;
 
@@ -13059,11 +13243,11 @@
 	@UInt64 2709038510: [13039646562789154425];
 };
 
-388:
+392:
 {
 	Indexed: false;
 
-	@UInt32 Index: 388;
+	@UInt32 Index: 392;
 
 	@UInt32 TypeFlags: 0;
 
@@ -13080,11 +13264,11 @@
 	@UInt64 2709038510: [17301958054206561913];
 };
 
-389:
+393:
 {
 	Indexed: false;
 
-	@UInt32 Index: 389;
+	@UInt32 Index: 393;
 
 	@UInt32 TypeFlags: 0;
 
@@ -13101,11 +13285,11 @@
 	@UInt64 2709038510: [13039646562789154425];
 };
 
-390:
+394:
 {
 	Indexed: false;
 
-	@UInt32 Index: 390;
+	@UInt32 Index: 394;
 
 	@UInt32 TypeFlags: 0;
 
@@ -13122,11 +13306,11 @@
 	@UInt64 2709038510: [7918913566839896779];
 };
 
-391:
+395:
 {
 	Indexed: false;
 
-	@UInt32 Index: 391;
+	@UInt32 Index: 395;
 
 	@UInt32 TypeFlags: 0;
 
@@ -13143,93 +13327,17 @@
 	@UInt64 2709038510: [965532656177740491];
 };
 
-392:
-{
-	Indexed: true;
-
-	@UInt32 Index: 392;
-
-	@UInt64 Symbol: 4261681755723980409;
-
-	@UInt64 TypeID: 11518696249423526603;
-
-	Name: "Int32Property";
-
-	Category: "typedef";
-
-	Namespace: "Reflex::Data";
-};
-
-393:
-{
-	Indexed: false;
-
-	@UInt32 Index: 393;
-
-	@UInt32 TypeFlags: 0;
-
-	@UInt64 TemplateSourceID: 15739513838455978699;
-
-	@UInt64 Symbol: 11518710564549524171;
-
-	Name: "ObjectOf";
-
-	Category: "type";
-
-	Namespace: "Reflex";
-
-	@UInt64 2709038510: [965533089969437387];
-};
-
-394:
-{
-	Indexed: true;
-
-	@UInt32 Index: 394;
-
-	@UInt64 Symbol: 3475967881772064377;
-
-	@UInt64 TypeID: 11518710564549524171;
-
-	Name: "Int64Property";
-
-	Category: "typedef";
-
-	Namespace: "Reflex::Data";
-};
-
-395:
-{
-	Indexed: false;
-
-	@UInt32 Index: 395;
-
-	@UInt32 TypeFlags: 0;
-
-	@UInt64 TemplateSourceID: 15739513838455978699;
-
-	@UInt64 Symbol: 16163936016951114443;
-
-	Name: "ObjectOf";
-
-	Category: "type";
-
-	Namespace: "Reflex";
-
-	@UInt64 2709038510: [15243775351508400843];
-};
-
 396:
 {
 	Indexed: true;
 
 	@UInt32 Index: 396;
 
-	@UInt64 Symbol: 9719418972175130233;
+	@UInt64 Symbol: 4261681755723980409;
 
-	@UInt64 TypeID: 16163936016951114443;
+	@UInt64 TypeID: 11518696249423526603;
 
-	Name: "UInt32Property";
+	Name: "Int32Property";
 
 	Category: "typedef";
 
@@ -13246,7 +13354,7 @@
 
 	@UInt64 TemplateSourceID: 15739513838455978699;
 
-	@UInt64 Symbol: 16163950332077112011;
+	@UInt64 Symbol: 11518710564549524171;
 
 	Name: "ObjectOf";
 
@@ -13254,7 +13362,7 @@
 
 	Namespace: "Reflex";
 
-	@UInt64 2709038510: [15243775785300097739];
+	@UInt64 2709038510: [965533089969437387];
 };
 
 398:
@@ -13263,11 +13371,11 @@
 
 	@UInt32 Index: 398;
 
-	@UInt64 Symbol: 8933705098223214201;
+	@UInt64 Symbol: 3475967881772064377;
 
-	@UInt64 TypeID: 16163950332077112011;
+	@UInt64 TypeID: 11518710564549524171;
 
-	Name: "UInt64Property";
+	Name: "Int64Property";
 
 	Category: "typedef";
 
@@ -13284,7 +13392,7 @@
 
 	@UInt64 TemplateSourceID: 15739513838455978699;
 
-	@UInt64 Symbol: 11099243605787900619;
+	@UInt64 Symbol: 16163936016951114443;
 
 	Name: "ObjectOf";
 
@@ -13292,7 +13400,7 @@
 
 	Namespace: "Reflex";
 
-	@UInt64 2709038510: [1452730841175390923];
+	@UInt64 2709038510: [15243775351508400843];
 };
 
 400:
@@ -13301,11 +13409,11 @@
 
 	@UInt32 Index: 400;
 
-	@UInt64 Symbol: 6318097438325399161;
+	@UInt64 Symbol: 9719418972175130233;
 
-	@UInt64 TypeID: 11099243605787900619;
+	@UInt64 TypeID: 16163936016951114443;
 
-	Name: "Float32Property";
+	Name: "UInt32Property";
 
 	Category: "typedef";
 
@@ -13322,6 +13430,82 @@
 
 	@UInt64 TemplateSourceID: 15739513838455978699;
 
+	@UInt64 Symbol: 16163950332077112011;
+
+	Name: "ObjectOf";
+
+	Category: "type";
+
+	Namespace: "Reflex";
+
+	@UInt64 2709038510: [15243775785300097739];
+};
+
+402:
+{
+	Indexed: true;
+
+	@UInt32 Index: 402;
+
+	@UInt64 Symbol: 8933705098223214201;
+
+	@UInt64 TypeID: 16163950332077112011;
+
+	Name: "UInt64Property";
+
+	Category: "typedef";
+
+	Namespace: "Reflex::Data";
+};
+
+403:
+{
+	Indexed: false;
+
+	@UInt32 Index: 403;
+
+	@UInt32 TypeFlags: 0;
+
+	@UInt64 TemplateSourceID: 15739513838455978699;
+
+	@UInt64 Symbol: 11099243605787900619;
+
+	Name: "ObjectOf";
+
+	Category: "type";
+
+	Namespace: "Reflex";
+
+	@UInt64 2709038510: [1452730841175390923];
+};
+
+404:
+{
+	Indexed: true;
+
+	@UInt32 Index: 404;
+
+	@UInt64 Symbol: 6318097438325399161;
+
+	@UInt64 TypeID: 11099243605787900619;
+
+	Name: "Float32Property";
+
+	Category: "typedef";
+
+	Namespace: "Reflex::Data";
+};
+
+405:
+{
+	Indexed: false;
+
+	@UInt32 Index: 405;
+
+	@UInt32 TypeFlags: 0;
+
+	@UInt64 TemplateSourceID: 15739513838455978699;
+
 	@UInt64 Symbol: 11099257920913898187;
 
 	Name: "ObjectOf";
@@ -13333,11 +13517,11 @@
 	@UInt64 2709038510: [1452731274967087819];
 };
 
-402:
+406:
 {
 	Indexed: true;
 
-	@UInt32 Index: 402;
+	@UInt32 Index: 406;
 
 	@UInt64 Symbol: 5532383564373483129;
 
@@ -13350,11 +13534,11 @@
 	Namespace: "Reflex::Data";
 };
 
-403:
+407:
 {
 	Indexed: true;
 
-	@UInt32 Index: 403;
+	@UInt32 Index: 407;
 
 	@UInt64 Symbol: 5361974431892692601;
 
@@ -13389,11 +13573,11 @@
 	];
 };
 
-404:
+408:
 {
 	Indexed: true;
 
-	@UInt32 Index: 404;
+	@UInt32 Index: 408;
 
 	@UInt64 Symbol: 12302724445032734329;
 
@@ -13438,11 +13622,11 @@
 	];
 };
 
-405:
+409:
 {
 	Indexed: true;
 
-	@UInt32 Index: 405;
+	@UInt32 Index: 409;
 
 	@UInt64 Symbol: 1033196285755186809;
 
@@ -13479,11 +13663,11 @@
 	];
 };
 
-406:
+410:
 {
 	Indexed: true;
 
-	@UInt32 Index: 406;
+	@UInt32 Index: 410;
 
 	@UInt64 Symbol: 13033941574909746809;
 
@@ -13526,11 +13710,11 @@
 	];
 };
 
-407:
+411:
 {
 	Indexed: true;
 
-	@UInt32 Index: 407;
+	@UInt32 Index: 411;
 
 	@UInt64 Symbol: 5360487183502335609;
 
@@ -13575,11 +13759,11 @@
 	];
 };
 
-408:
+412:
 {
 	Indexed: true;
 
-	@UInt32 Index: 408;
+	@UInt32 Index: 412;
 
 	@UInt64 Symbol: 984515721968017017;
 
@@ -13626,11 +13810,11 @@
 	];
 };
 
-409:
+413:
 {
 	Indexed: true;
 
-	@UInt32 Index: 409;
+	@UInt32 Index: 413;
 
 	@UInt64 Symbol: 15730379041849532025;
 
@@ -13671,11 +13855,11 @@
 	];
 };
 
-410:
+414:
 {
 	Indexed: true;
 
-	@UInt32 Index: 410;
+	@UInt32 Index: 414;
 
 	@UInt64 Symbol: 9982811737137667705;
 
@@ -13722,11 +13906,11 @@
 	];
 };
 
-411:
+415:
 {
 	Indexed: true;
 
-	@UInt32 Index: 411;
+	@UInt32 Index: 415;
 
 	@UInt64 Symbol: 14089334233469345401;
 
@@ -13801,11 +13985,11 @@
 	];
 };
 
-412:
+416:
 {
 	Indexed: true;
 
-	@UInt32 Index: 412;
+	@UInt32 Index: 416;
 
 	@UInt64 Symbol: 6835714230980763257;
 
@@ -13876,11 +14060,11 @@
 	];
 };
 
-413:
+417:
 {
 	Indexed: true;
 
-	@UInt32 Index: 413;
+	@UInt32 Index: 417;
 
 	@UInt64 Symbol: 9256090634860682873;
 
@@ -13921,11 +14105,11 @@
 	];
 };
 
-414:
+418:
 {
 	Indexed: true;
 
-	@UInt32 Index: 414;
+	@UInt32 Index: 418;
 
 	@UInt64 Symbol: 9716146481973485177;
 
@@ -13966,11 +14150,11 @@
 	];
 };
 
-415:
+419:
 {
 	Indexed: true;
 
-	@UInt32 Index: 415;
+	@UInt32 Index: 419;
 
 	@UInt64 Symbol: 103905494798753401;
 
@@ -14005,11 +14189,11 @@
 	];
 };
 
-416:
+420:
 {
 	Indexed: true;
 
-	@UInt32 Index: 416;
+	@UInt32 Index: 420;
 
 	@UInt64 Symbol: 5537952500573855353;
 
@@ -14052,11 +14236,11 @@
 	];
 };
 
-417:
+421:
 {
 	Indexed: true;
 
-	@UInt32 Index: 417;
+	@UInt32 Index: 421;
 
 	@UInt64 Symbol: 12399268768611622521;
 
@@ -14097,11 +14281,11 @@
 	];
 };
 
-418:
+422:
 {
 	Indexed: true;
 
-	@UInt32 Index: 418;
+	@UInt32 Index: 422;
 
 	@UInt64 Symbol: 17065134996319166073;
 
@@ -14148,11 +14332,11 @@
 	];
 };
 
-419:
+423:
 {
 	Indexed: true;
 
-	@UInt32 Index: 419;
+	@UInt32 Index: 423;
 
 	@UInt64 Symbol: 5843614929209319033;
 
@@ -14201,11 +14385,11 @@
 	];
 };
 
-420:
+424:
 {
 	Indexed: true;
 
-	@UInt32 Index: 420;
+	@UInt32 Index: 424;
 
 	@UInt64 Symbol: 3438407520890183289;
 
@@ -14246,11 +14430,11 @@
 	];
 };
 
-421:
+425:
 {
 	Indexed: true;
 
-	@UInt32 Index: 421;
+	@UInt32 Index: 425;
 
 	@UInt64 Symbol: 9838040445562707577;
 
@@ -14297,11 +14481,11 @@
 	];
 };
 
-422:
+426:
 {
 	Indexed: true;
 
-	@UInt32 Index: 422;
+	@UInt32 Index: 426;
 
 	@UInt64 Symbol: 8462759705128787577;
 
@@ -14350,11 +14534,11 @@
 	];
 };
 
-423:
+427:
 {
 	Indexed: true;
 
-	@UInt32 Index: 423;
+	@UInt32 Index: 427;
 
 	@UInt64 Symbol: 2786983221151194745;
 
@@ -14395,11 +14579,11 @@
 	];
 };
 
-424:
+428:
 {
 	Indexed: true;
 
-	@UInt32 Index: 424;
+	@UInt32 Index: 428;
 
 	@UInt64 Symbol: 11060684924539428473;
 
@@ -14446,11 +14630,11 @@
 	];
 };
 
-425:
+429:
 {
 	Indexed: true;
 
-	@UInt32 Index: 425;
+	@UInt32 Index: 429;
 
 	@UInt64 Symbol: 2569908637639171705;
 
@@ -14499,11 +14683,11 @@
 	];
 };
 
-426:
+430:
 {
 	Indexed: true;
 
-	@UInt32 Index: 426;
+	@UInt32 Index: 430;
 
 	@UInt64 Symbol: 2786983654942891641;
 
@@ -14544,11 +14728,11 @@
 	];
 };
 
-427:
+431:
 {
 	Indexed: true;
 
-	@UInt32 Index: 427;
+	@UInt32 Index: 431;
 
 	@UInt64 Symbol: 11060685358331125369;
 
@@ -14595,11 +14779,11 @@
 	];
 };
 
-428:
+432:
 {
 	Indexed: true;
 
-	@UInt32 Index: 428;
+	@UInt32 Index: 432;
 
 	@UInt64 Symbol: 2569909071430868601;
 
@@ -14648,11 +14832,11 @@
 	];
 };
 
-429:
+433:
 {
 	Indexed: true;
 
-	@UInt32 Index: 429;
+	@UInt32 Index: 433;
 
 	@UInt64 Symbol: 3383015327673671289;
 
@@ -14693,11 +14877,11 @@
 	];
 };
 
-430:
+434:
 {
 	Indexed: true;
 
-	@UInt32 Index: 430;
+	@UInt32 Index: 434;
 
 	@UInt64 Symbol: 9782648252346195577;
 
@@ -14744,11 +14928,11 @@
 	];
 };
 
-431:
+435:
 {
 	Indexed: true;
 
-	@UInt32 Index: 431;
+	@UInt32 Index: 435;
 
 	@UInt64 Symbol: 8407367511912275577;
 
@@ -14797,11 +14981,11 @@
 	];
 };
 
-432:
+436:
 {
 	Indexed: true;
 
-	@UInt32 Index: 432;
+	@UInt32 Index: 436;
 
 	@UInt64 Symbol: 3383015761465368185;
 
@@ -14842,11 +15026,11 @@
 	];
 };
 
-433:
+437:
 {
 	Indexed: true;
 
-	@UInt32 Index: 433;
+	@UInt32 Index: 437;
 
 	@UInt64 Symbol: 9782648686137892473;
 
@@ -14893,11 +15077,11 @@
 	];
 };
 
-434:
+438:
 {
 	Indexed: true;
 
-	@UInt32 Index: 434;
+	@UInt32 Index: 438;
 
 	@UInt64 Symbol: 8407367945703972473;
 
@@ -14946,11 +15130,11 @@
 	];
 };
 
-435:
+439:
 {
 	Indexed: true;
 
-	@UInt32 Index: 435;
+	@UInt32 Index: 439;
 
 	@UInt64 Symbol: 14653704313532112505;
 
@@ -14991,11 +15175,11 @@
 	];
 };
 
-436:
+440:
 {
 	Indexed: true;
 
-	@UInt32 Index: 436;
+	@UInt32 Index: 440;
 
 	@UInt64 Symbol: 10984699419700551289;
 
@@ -15042,11 +15226,11 @@
 	];
 };
 
-437:
+441:
 {
 	Indexed: true;
 
-	@UInt32 Index: 437;
+	@UInt32 Index: 441;
 
 	@UInt64 Symbol: 7490243057635352185;
 
@@ -15095,11 +15279,11 @@
 	];
 };
 
-438:
+442:
 {
 	Indexed: true;
 
-	@UInt32 Index: 438;
+	@UInt32 Index: 442;
 
 	@UInt64 Symbol: 14653704747323809401;
 
@@ -15140,11 +15324,11 @@
 	];
 };
 
-439:
+443:
 {
 	Indexed: true;
 
-	@UInt32 Index: 439;
+	@UInt32 Index: 443;
 
 	@UInt64 Symbol: 10984699853492248185;
 
@@ -15191,11 +15375,11 @@
 	];
 };
 
-440:
+444:
 {
 	Indexed: true;
 
-	@UInt32 Index: 440;
+	@UInt32 Index: 444;
 
 	@UInt64 Symbol: 7490243491427049081;
 
@@ -15244,11 +15428,11 @@
 	];
 };
 
-441:
+445:
 {
 	Indexed: true;
 
-	@UInt32 Index: 441;
+	@UInt32 Index: 445;
 
 	@UInt64 Symbol: 3391836563434430073;
 
@@ -15289,11 +15473,11 @@
 	];
 };
 
-442:
+446:
 {
 	Indexed: true;
 
-	@UInt32 Index: 442;
+	@UInt32 Index: 446;
 
 	@UInt64 Symbol: 9791469488106954361;
 
@@ -15340,11 +15524,11 @@
 	];
 };
 
-443:
+447:
 {
 	Indexed: true;
 
-	@UInt32 Index: 443;
+	@UInt32 Index: 447;
 
 	@UInt64 Symbol: 8416188747673034361;
 
@@ -15393,11 +15577,11 @@
 	];
 };
 
-444:
+448:
 {
 	Indexed: true;
 
-	@UInt32 Index: 444;
+	@UInt32 Index: 448;
 
 	@UInt64 Symbol: 12285928009054084729;
 
@@ -15438,11 +15622,11 @@
 	];
 };
 
-445:
+449:
 {
 	Indexed: true;
 
-	@UInt32 Index: 445;
+	@UInt32 Index: 449;
 
 	@UInt64 Symbol: 8616923115222523513;
 
@@ -15493,11 +15677,11 @@
 	];
 };
 
-446:
+450:
 {
 	Indexed: true;
 
-	@UInt32 Index: 446;
+	@UInt32 Index: 450;
 
 	@UInt64 Symbol: 12541717380527611513;
 
@@ -15538,11 +15722,11 @@
 	];
 };
 
-447:
+451:
 {
 	Indexed: true;
 
-	@UInt32 Index: 447;
+	@UInt32 Index: 451;
 
 	@UInt64 Symbol: 8872712486696050297;
 
@@ -15593,11 +15777,11 @@
 	];
 };
 
-448:
+452:
 {
 	Indexed: true;
 
-	@UInt32 Index: 448;
+	@UInt32 Index: 452;
 
 	@UInt64 Symbol: 18203019975041539705;
 
@@ -15638,11 +15822,11 @@
 	];
 };
 
-449:
+453:
 {
 	Indexed: true;
 
-	@UInt32 Index: 449;
+	@UInt32 Index: 453;
 
 	@UInt64 Symbol: 8029977604720221817;
 
@@ -15693,11 +15877,11 @@
 	];
 };
 
-450:
+454:
 {
 	Indexed: true;
 
-	@UInt32 Index: 450;
+	@UInt32 Index: 454;
 
 	@UInt64 Symbol: 6238121638285598329;
 
@@ -15734,11 +15918,11 @@
 	];
 };
 
-451:
+455:
 {
 	Indexed: true;
 
-	@UInt32 Index: 451;
+	@UInt32 Index: 455;
 
 	@UInt64 Symbol: 14859215565183049337;
 
@@ -15775,11 +15959,11 @@
 	];
 };
 
-452:
+456:
 {
 	Indexed: true;
 
-	@UInt32 Index: 452;
+	@UInt32 Index: 456;
 
 	@UInt64 Symbol: 616090287696043641;
 
@@ -15846,11 +16030,11 @@
 	];
 };
 
-453:
+457:
 {
 	Indexed: true;
 
-	@UInt32 Index: 453;
+	@UInt32 Index: 457;
 
 	@UInt64 Symbol: 17015233467819023993;
 
@@ -15917,11 +16101,11 @@
 	];
 };
 
-454:
+458:
 {
 	Indexed: true;
 
-	@UInt32 Index: 454;
+	@UInt32 Index: 458;
 
 	@UInt64 Symbol: 616012591737659001;
 
@@ -15988,11 +16172,11 @@
 	];
 };
 
-455:
+459:
 {
 	Indexed: true;
 
-	@UInt32 Index: 455;
+	@UInt32 Index: 459;
 
 	@UInt64 Symbol: 17015155771860639353;
 
@@ -16059,11 +16243,11 @@
 	];
 };
 
-456:
+460:
 {
 	Indexed: true;
 
-	@UInt32 Index: 456;
+	@UInt32 Index: 460;
 
 	@UInt64 Symbol: 7367949705037274745;
 
@@ -16138,11 +16322,11 @@
 	];
 };
 
-457:
+461:
 {
 	Indexed: true;
 
-	@UInt32 Index: 457;
+	@UInt32 Index: 461;
 
 	@UInt64 Symbol: 8143884342183124601;
 
@@ -16213,11 +16397,11 @@
 	];
 };
 
-458:
+462:
 {
 	Indexed: false;
 
-	@UInt32 Index: 458;
+	@UInt32 Index: 462;
 
 	@UInt32 TypeFlags: 0;
 
@@ -16234,11 +16418,11 @@
 	@UInt64 2709038510: [1319003387987196619, 1319003387987196619];
 };
 
-459:
+463:
 {
 	Indexed: true;
 
-	@UInt32 Index: 459;
+	@UInt32 Index: 463;
 
 	@UInt32 TypeFlags: 0;
 
@@ -16251,11 +16435,11 @@
 	Namespace: "Reflex::Data";
 };
 
-460:
+464:
 {
 	Indexed: true;
 
-	@UInt32 Index: 460;
+	@UInt32 Index: 464;
 
 	@UInt64 ParentID: 830962064086326905;
 
@@ -16270,11 +16454,11 @@
 	Namespace: "Reflex::Data";
 };
 
-461:
+465:
 {
 	Indexed: true;
 
-	@UInt32 Index: 461;
+	@UInt32 Index: 465;
 
 	@UInt64 ParentID: 830962064086326905;
 
@@ -16289,11 +16473,11 @@
 	Namespace: "Reflex::Data";
 };
 
-462:
+466:
 {
 	Indexed: true;
 
-	@UInt32 Index: 462;
+	@UInt32 Index: 466;
 
 	@UInt64 ParentID: 830962064086326905;
 
@@ -16308,11 +16492,11 @@
 	Namespace: "Reflex::Data";
 };
 
-463:
+467:
 {
 	Indexed: true;
 
-	@UInt32 Index: 463;
+	@UInt32 Index: 467;
 
 	@UInt64 ParentID: 830962064086326905;
 
@@ -16327,11 +16511,11 @@
 	Namespace: "Reflex::Data";
 };
 
-464:
+468:
 {
 	Indexed: true;
 
-	@UInt32 Index: 464;
+	@UInt32 Index: 468;
 
 	@UInt64 ParentID: 830962064086326905;
 
@@ -16346,11 +16530,11 @@
 	Namespace: "Reflex::Data";
 };
 
-465:
+469:
 {
 	Indexed: true;
 
-	@UInt32 Index: 465;
+	@UInt32 Index: 469;
 
 	@UInt64 ParentID: 830962064086326905;
 
@@ -16365,11 +16549,11 @@
 	Namespace: "Reflex::Data";
 };
 
-466:
+470:
 {
 	Indexed: true;
 
-	@UInt32 Index: 466;
+	@UInt32 Index: 470;
 
 	@UInt64 Symbol: 1518101572397096569;
 
@@ -16406,11 +16590,11 @@
 	];
 };
 
-467:
+471:
 {
 	Indexed: true;
 
-	@UInt32 Index: 467;
+	@UInt32 Index: 471;
 
 	@UInt64 Symbol: 14276455779483573881;
 
@@ -16447,11 +16631,11 @@
 	];
 };
 
-468:
+472:
 {
 	Indexed: true;
 
-	@UInt32 Index: 468;
+	@UInt32 Index: 472;
 
 	@UInt64 Symbol: 627316825401646713;
 
@@ -16488,11 +16672,11 @@
 	];
 };
 
-469:
+473:
 {
 	Indexed: true;
 
-	@UInt32 Index: 469;
+	@UInt32 Index: 473;
 
 	@UInt64 Symbol: 3947668733844053625;
 
@@ -16529,11 +16713,11 @@
 	];
 };
 
-470:
+474:
 {
 	Indexed: true;
 
-	@UInt32 Index: 470;
+	@UInt32 Index: 474;
 
 	@UInt64 Symbol: 896686063126371961;
 
@@ -16592,11 +16776,11 @@
 	];
 };
 
-471:
+475:
 {
 	Indexed: true;
 
-	@UInt32 Index: 471;
+	@UInt32 Index: 475;
 
 	@UInt64 Symbol: 4808060509841579641;
 
@@ -16633,11 +16817,11 @@
 	];
 };
 
-472:
+476:
 {
 	Indexed: true;
 
-	@UInt32 Index: 472;
+	@UInt32 Index: 476;
 
 	@UInt64 Symbol: 8974151939121012345;
 
@@ -16682,11 +16866,11 @@
 	];
 };
 
-473:
+477:
 {
 	Indexed: true;
 
-	@UInt32 Index: 473;
+	@UInt32 Index: 477;
 
 	@UInt64 Symbol: 15432461427091234425;
 
@@ -16769,11 +16953,11 @@
 	];
 };
 
-474:
+478:
 {
 	Indexed: true;
 
-	@UInt32 Index: 474;
+	@UInt32 Index: 478;
 
 	@UInt64 Symbol: 3450658146302877305;
 
@@ -16826,11 +17010,11 @@
 	];
 };
 
-475:
+479:
 {
 	Indexed: true;
 
-	@UInt32 Index: 475;
+	@UInt32 Index: 479;
 
 	@UInt64 Symbol: 13657719981913202297;
 
@@ -16937,11 +17121,11 @@
 	];
 };
 
-476:
+480:
 {
 	Indexed: true;
 
-	@UInt32 Index: 476;
+	@UInt32 Index: 480;
 
 	@UInt64 Symbol: 713211318008602233;
 
@@ -16986,11 +17170,11 @@
 	];
 };
 
-477:
+481:
 {
 	Indexed: true;
 
-	@UInt32 Index: 477;
+	@UInt32 Index: 481;
 
 	@UInt64 Symbol: 16231191942463020665;
 
@@ -17053,11 +17237,11 @@
 	];
 };
 
-478:
+482:
 {
 	Indexed: true;
 
-	@UInt32 Index: 478;
+	@UInt32 Index: 482;
 
 	@UInt64 Symbol: 713289013966986873;
 
@@ -17102,11 +17286,11 @@
 	];
 };
 
-479:
+483:
 {
 	Indexed: true;
 
-	@UInt32 Index: 479;
+	@UInt32 Index: 483;
 
 	@UInt64 Symbol: 16231269638421405305;
 
@@ -17169,11 +17353,11 @@
 	];
 };
 
-480:
+484:
 {
 	Indexed: true;
 
-	@UInt32 Index: 480;
+	@UInt32 Index: 484;
 
 	@UInt32 TypeFlags: 2;
 
@@ -17188,11 +17372,11 @@
 	Namespace: "Reflex::Data";
 };
 
-481:
+485:
 {
 	Indexed: true;
 
-	@UInt32 Index: 481;
+	@UInt32 Index: 485;
 
 	@UInt64 ParentID: 12916641001534185081;
 
@@ -17230,11 +17414,11 @@
 	];
 };
 
-482:
+486:
 {
 	Indexed: true;
 
-	@UInt32 Index: 482;
+	@UInt32 Index: 486;
 
 	@UInt64 ParentID: 12916641001534185081;
 
@@ -17282,11 +17466,11 @@
 	];
 };
 
-483:
+487:
 {
 	Indexed: true;
 
-	@UInt32 Index: 483;
+	@UInt32 Index: 487;
 
 	@UInt64 ParentID: 12916641001534185081;
 
@@ -17340,11 +17524,11 @@
 	];
 };
 
-484:
+488:
 {
 	Indexed: true;
 
-	@UInt32 Index: 484;
+	@UInt32 Index: 488;
 
 	@UInt32 TypeFlags: 2;
 
@@ -17359,11 +17543,11 @@
 	Namespace: "Reflex::Data";
 };
 
-485:
+489:
 {
 	Indexed: true;
 
-	@UInt32 Index: 485;
+	@UInt32 Index: 489;
 
 	@UInt32 TypeFlags: 0;
 
@@ -17378,11 +17562,11 @@
 	Namespace: "Reflex::Data";
 };
 
-486:
+490:
 {
 	Indexed: true;
 
-	@UInt32 Index: 486;
+	@UInt32 Index: 490;
 
 	@UInt64 ParentID: 5671468602716380793;
 
@@ -17430,11 +17614,11 @@
 	];
 };
 
-487:
+491:
 {
 	Indexed: true;
 
-	@UInt32 Index: 487;
+	@UInt32 Index: 491;
 
 	@UInt64 ParentID: 5671468602716380793;
 
@@ -17480,11 +17664,11 @@
 	];
 };
 
-488:
+492:
 {
 	Indexed: false;
 
-	@UInt32 Index: 488;
+	@UInt32 Index: 492;
 
 	@UInt32 TypeFlags: 0;
 
@@ -17501,11 +17685,11 @@
 	@UInt64 2709038510: [12916641001534185081];
 };
 
-489:
+493:
 {
 	Indexed: false;
 
-	@UInt32 Index: 489;
+	@UInt32 Index: 493;
 
 	@UInt32 TypeFlags: 0;
 
@@ -17522,11 +17706,11 @@
 	@UInt64 2709038510: [5671468602716380793];
 };
 
-490:
+494:
 {
 	Indexed: true;
 
-	@UInt32 Index: 490;
+	@UInt32 Index: 494;
 
 	@UInt64 Symbol: 17882451587527401081;
 
@@ -17571,11 +17755,11 @@
 	];
 };
 
-491:
+495:
 {
 	Indexed: true;
 
-	@UInt32 Index: 491;
+	@UInt32 Index: 495;
 
 	@UInt64 Symbol: 4247992054274121337;
 
@@ -17622,11 +17806,11 @@
 	];
 };
 
-492:
+496:
 {
 	Indexed: true;
 
-	@UInt32 Index: 492;
+	@UInt32 Index: 496;
 
 	@UInt64 Symbol: 4196140279909113465;
 
@@ -17679,11 +17863,11 @@
 	];
 };
 
-493:
+497:
 {
 	Indexed: true;
 
-	@UInt32 Index: 493;
+	@UInt32 Index: 497;
 
 	@UInt64 Symbol: 12382521355389689465;
 
@@ -17730,82 +17914,6 @@
 	];
 };
 
-494:
-{
-	IsConst: true;
-
-	Indexed: true;
-
-	@UInt32 Index: 494;
-
-	@UInt64 Symbol: 16767242442695040633;
-
-	@UInt64 TypeID: 17082288075960449739;
-
-	Name: "kPropertySetFormat";
-
-	Category: "global";
-
-	Namespace: "Reflex::Data";
-};
-
-495:
-{
-	IsConst: true;
-
-	Indexed: true;
-
-	@UInt32 Index: 495;
-
-	@UInt64 Symbol: 1018804717929684601;
-
-	@UInt64 TypeID: 17082288075960449739;
-
-	Name: "kBinaryFormat";
-
-	Category: "global";
-
-	Namespace: "Reflex::Data";
-};
-
-496:
-{
-	IsConst: true;
-
-	Indexed: true;
-
-	@UInt32 Index: 496;
-
-	@UInt64 Symbol: 14488901298783575673;
-
-	@UInt64 TypeID: 7496210281501260491;
-
-	Name: "kPropertySheetFormat";
-
-	Category: "global";
-
-	Namespace: "Reflex::Data";
-};
-
-497:
-{
-	IsConst: true;
-
-	Indexed: true;
-
-	@UInt32 Index: 497;
-
-	@UInt64 Symbol: 6310041514197180025;
-
-	@UInt64 TypeID: 7496210281501260491;
-
-	Name: "kJsonFormat";
-
-	Category: "global";
-
-	Namespace: "Reflex::Data";
-};
-
 498:
 {
 	IsConst: true;
@@ -17814,11 +17922,11 @@
 
 	@UInt32 Index: 498;
 
-	@UInt64 Symbol: 1588972630179896953;
+	@UInt64 Symbol: 16767242442695040633;
 
-	@UInt64 TypeID: 7496210281501260491;
+	@UInt64 TypeID: 17082288075960449739;
 
-	Name: "kReflexXmlFormat";
+	Name: "kPropertySetFormat";
 
 	Category: "global";
 
@@ -17833,6 +17941,82 @@
 
 	@UInt32 Index: 499;
 
+	@UInt64 Symbol: 1018804717929684601;
+
+	@UInt64 TypeID: 17082288075960449739;
+
+	Name: "kBinaryFormat";
+
+	Category: "global";
+
+	Namespace: "Reflex::Data";
+};
+
+500:
+{
+	IsConst: true;
+
+	Indexed: true;
+
+	@UInt32 Index: 500;
+
+	@UInt64 Symbol: 14488901298783575673;
+
+	@UInt64 TypeID: 7496210281501260491;
+
+	Name: "kPropertySheetFormat";
+
+	Category: "global";
+
+	Namespace: "Reflex::Data";
+};
+
+501:
+{
+	IsConst: true;
+
+	Indexed: true;
+
+	@UInt32 Index: 501;
+
+	@UInt64 Symbol: 6310041514197180025;
+
+	@UInt64 TypeID: 7496210281501260491;
+
+	Name: "kJsonFormat";
+
+	Category: "global";
+
+	Namespace: "Reflex::Data";
+};
+
+502:
+{
+	IsConst: true;
+
+	Indexed: true;
+
+	@UInt32 Index: 502;
+
+	@UInt64 Symbol: 1588972630179896953;
+
+	@UInt64 TypeID: 7496210281501260491;
+
+	Name: "kReflexXmlFormat";
+
+	Category: "global";
+
+	Namespace: "Reflex::Data";
+};
+
+503:
+{
+	IsConst: true;
+
+	Indexed: true;
+
+	@UInt32 Index: 503;
+
 	@UInt64 Symbol: 13193545862458957433;
 
 	@UInt64 TypeID: 7496210281501260491;
@@ -17844,11 +18028,11 @@
 	Namespace: "Reflex::Data";
 };
 
-500:
+504:
 {
 	Indexed: true;
 
-	@UInt32 Index: 500;
+	@UInt32 Index: 504;
 
 	@UInt64 Symbol: 11122979301999304313;
 
@@ -17903,11 +18087,11 @@
 	];
 };
 
-501:
+505:
 {
 	Indexed: true;
 
-	@UInt32 Index: 501;
+	@UInt32 Index: 505;
 
 	@UInt64 Symbol: 4064969010866871929;
 
@@ -17960,11 +18144,11 @@
 	];
 };
 
-502:
+506:
 {
 	Indexed: true;
 
-	@UInt32 Index: 502;
+	@UInt32 Index: 506;
 
 	@UInt64 Symbol: 8974492985294118521;
 
@@ -18001,11 +18185,11 @@
 	];
 };
 
-503:
+507:
 {
 	Indexed: true;
 
-	@UInt32 Index: 503;
+	@UInt32 Index: 507;
 
 	@UInt64 Symbol: 14895257324413312633;
 
@@ -18042,11 +18226,11 @@
 	];
 };
 
-504:
+508:
 {
 	Indexed: true;
 
-	@UInt32 Index: 504;
+	@UInt32 Index: 508;
 
 	@UInt64 Symbol: 930420767788686969;
 
@@ -18089,11 +18273,11 @@
 	];
 };
 
-505:
+509:
 {
 	Indexed: true;
 
-	@UInt32 Index: 505;
+	@UInt32 Index: 509;
 
 	@UInt64 Symbol: 14722083040447749753;
 
@@ -18136,11 +18320,11 @@
 	];
 };
 
-506:
+510:
 {
 	Indexed: true;
 
-	@UInt32 Index: 506;
+	@UInt32 Index: 510;
 
 	@UInt64 Symbol: 14722083474239446649;
 
@@ -18183,11 +18367,11 @@
 	];
 };
 
-507:
+511:
 {
 	Indexed: true;
 
-	@UInt32 Index: 507;
+	@UInt32 Index: 511;
 
 	@UInt32 TypeFlags: 2;
 
@@ -18202,11 +18386,11 @@
 	Namespace: "Reflex::Data";
 };
 
-508:
+512:
 {
 	Indexed: true;
 
-	@UInt32 Index: 508;
+	@UInt32 Index: 512;
 
 	@UInt64 ParentID: 487480056112799353;
 
@@ -18254,11 +18438,11 @@
 	];
 };
 
-509:
+513:
 {
 	Indexed: true;
 
-	@UInt32 Index: 509;
+	@UInt32 Index: 513;
 
 	@UInt32 TypeFlags: 2;
 
@@ -18273,11 +18457,11 @@
 	Namespace: "Reflex::Data";
 };
 
-510:
+514:
 {
 	Indexed: true;
 
-	@UInt32 Index: 510;
+	@UInt32 Index: 514;
 
 	@UInt64 ParentID: 7545490347245231737;
 
@@ -18313,11 +18497,11 @@
 	];
 };
 
-511:
+515:
 {
 	Indexed: true;
 
-	@UInt32 Index: 511;
+	@UInt32 Index: 515;
 
 	@UInt64 ParentID: 7545490347245231737;
 
@@ -18365,11 +18549,11 @@
 	];
 };
 
-512:
+516:
 {
 	Indexed: true;
 
-	@UInt32 Index: 512;
+	@UInt32 Index: 516;
 
 	@UInt64 Symbol: 13248356113376665209;
 
@@ -18416,11 +18600,11 @@
 	];
 };
 
-513:
+517:
 {
 	Indexed: true;
 
-	@UInt32 Index: 513;
+	@UInt32 Index: 517;
 
 	@UInt64 Symbol: 141847145697304185;
 
@@ -18467,19 +18651,38 @@
 	];
 };
 
-514:
+518:
+{
+	Indexed: false;
+
+	@UInt32 Index: 518;
+
+	@UInt32 TypeFlags: 0;
+
+	@UInt64 TemplateSourceID: 532369501975706315;
+
+	@UInt64 Symbol: 1548289912141478603;
+
+	Name: "ConstTRef";
+
+	Category: "type";
+
+	Namespace: "Reflex";
+
+	@UInt64 2709038510: [7545490347245231737];
+};
+
+519:
 {
 	IsConst: true;
 
-	IsRef: true;
-
 	Indexed: true;
 
-	@UInt32 Index: 514;
+	@UInt32 Index: 519;
 
 	@UInt64 Symbol: 8978219608157773433;
 
-	@UInt64 TypeID: 7545490347245231737;
+	@UInt64 TypeID: 1548289912141478603;
 
 	Name: "kLZ4";
 
@@ -18488,11 +18691,11 @@
 	Namespace: "Reflex::Data";
 };
 
-515:
+520:
 {
 	Indexed: true;
 
-	@UInt32 Index: 515;
+	@UInt32 Index: 520;
 
 	@UInt32 TypeFlags: 2;
 
@@ -18507,11 +18710,11 @@
 	Namespace: "Reflex::File";
 };
 
-516:
+521:
 {
 	Indexed: true;
 
-	@UInt32 Index: 516;
+	@UInt32 Index: 521;
 
 	@UInt32 TypeFlags: 2;
 
@@ -18526,13 +18729,13 @@
 	Namespace: "Reflex::File";
 };
 
-517:
+522:
 {
 	IsConst: true;
 
 	Indexed: true;
 
-	@UInt32 Index: 517;
+	@UInt32 Index: 522;
 
 	@UInt64 Symbol: 15702586372901705791;
 
@@ -18545,11 +18748,11 @@
 	Namespace: "Reflex::File";
 };
 
-518:
+523:
 {
 	Indexed: true;
 
-	@UInt32 Index: 518;
+	@UInt32 Index: 523;
 
 	@UInt64 Symbol: 8974068045524899903;
 
@@ -18586,11 +18789,11 @@
 	];
 };
 
-519:
+524:
 {
 	Indexed: true;
 
-	@UInt32 Index: 519;
+	@UInt32 Index: 524;
 
 	@UInt64 Symbol: 8974617651014932543;
 
@@ -18637,11 +18840,11 @@
 	];
 };
 
-520:
+525:
 {
 	Indexed: true;
 
-	@UInt32 Index: 520;
+	@UInt32 Index: 525;
 
 	@UInt64 Symbol: 10722639413154814015;
 
@@ -18678,11 +18881,11 @@
 	];
 };
 
-521:
+526:
 {
 	Indexed: true;
 
-	@UInt32 Index: 521;
+	@UInt32 Index: 526;
 
 	@UInt64 Symbol: 10445329438029781055;
 
@@ -18743,11 +18946,11 @@
 	];
 };
 
-522:
+527:
 {
 	Indexed: true;
 
-	@UInt32 Index: 522;
+	@UInt32 Index: 527;
 
 	@UInt64 Symbol: 3286230485926287423;
 
@@ -18792,11 +18995,11 @@
 	];
 };
 
-523:
+528:
 {
 	Indexed: true;
 
-	@UInt32 Index: 523;
+	@UInt32 Index: 528;
 
 	@UInt64 Symbol: 8974170931466475583;
 
@@ -18837,11 +19040,11 @@
 	];
 };
 
-524:
+529:
 {
 	Indexed: true;
 
-	@UInt32 Index: 524;
+	@UInt32 Index: 529;
 
 	@UInt64 Symbol: 10543459708347488319;
 
@@ -18920,11 +19123,11 @@
 	];
 };
 
-525:
+530:
 {
 	Indexed: true;
 
-	@UInt32 Index: 525;
+	@UInt32 Index: 530;
 
 	@UInt64 Symbol: 3384360756243994687;
 
@@ -18973,11 +19176,11 @@
 	];
 };
 
-526:
+531:
 {
 	Indexed: true;
 
-	@UInt32 Index: 526;
+	@UInt32 Index: 531;
 
 	@UInt64 Symbol: 8143884342183204927;
 
@@ -19048,11 +19251,11 @@
 	];
 };
 
-527:
+532:
 {
 	Indexed: true;
 
-	@UInt32 Index: 527;
+	@UInt32 Index: 532;
 
 	@UInt64 Symbol: 7367949705037355071;
 
@@ -19127,11 +19330,11 @@
 	];
 };
 
-528:
+533:
 {
 	Indexed: true;
 
-	@UInt32 Index: 528;
+	@UInt32 Index: 533;
 
 	@UInt64 Symbol: 8972212795746687039;
 
@@ -19212,11 +19415,11 @@
 	];
 };
 
-529:
+534:
 {
 	Indexed: true;
 
-	@UInt32 Index: 529;
+	@UInt32 Index: 534;
 
 	@UInt32 TypeFlags: 0;
 
@@ -19229,11 +19432,11 @@
 	Namespace: "Reflex";
 };
 
-530:
+535:
 {
 	Indexed: false;
 
-	@UInt32 Index: 530;
+	@UInt32 Index: 535;
 
 	@UInt32 TypeFlags: 0;
 
@@ -19250,11 +19453,11 @@
 	@UInt64 2709038510: [5520716365486586571, 5520716365486586571];
 };
 
-531:
+536:
 {
 	Indexed: false;
 
-	@UInt32 Index: 531;
+	@UInt32 Index: 536;
 
 	@UInt32 TypeFlags: 0;
 
@@ -19271,11 +19474,11 @@
 	@UInt64 2709038510: [18046280970012949195, 18046280970012949195];
 };
 
-532:
+537:
 {
 	Indexed: false;
 
-	@UInt32 Index: 532;
+	@UInt32 Index: 537;
 
 	@UInt32 TypeFlags: 0;
 
@@ -19292,11 +19495,11 @@
 	@UInt64 2709038510: [4637522925942176459];
 };
 
-533:
+538:
 {
 	Indexed: true;
 
-	@UInt32 Index: 533;
+	@UInt32 Index: 538;
 
 	@UInt64 Symbol: 12793038813487306815;
 
@@ -19333,11 +19536,11 @@
 	];
 };
 
-534:
+539:
 {
 	Indexed: true;
 
-	@UInt32 Index: 534;
+	@UInt32 Index: 539;
 
 	@UInt64 Symbol: 15415839624482920511;
 
@@ -19374,11 +19577,11 @@
 	];
 };
 
-535:
+540:
 {
 	Indexed: true;
 
-	@UInt32 Index: 535;
+	@UInt32 Index: 540;
 
 	@UInt64 Symbol: 14882056995832207423;
 
@@ -19425,11 +19628,11 @@
 	];
 };
 
-536:
+541:
 {
 	Indexed: true;
 
-	@UInt32 Index: 536;
+	@UInt32 Index: 541;
 
 	@UInt64 Symbol: 12528574737652258879;
 
@@ -19466,11 +19669,11 @@
 	];
 };
 
-537:
+542:
 {
 	Indexed: true;
 
-	@UInt32 Index: 537;
+	@UInt32 Index: 542;
 
 	@UInt64 Symbol: 4686556267289909311;
 
@@ -19507,11 +19710,11 @@
 	];
 };
 
-538:
+543:
 {
 	Indexed: true;
 
-	@UInt32 Index: 538;
+	@UInt32 Index: 543;
 
 	@UInt64 Symbol: 9443082047660890175;
 
@@ -19544,11 +19747,11 @@
 	];
 };
 
-539:
+544:
 {
 	Indexed: true;
 
-	@UInt32 Index: 539;
+	@UInt32 Index: 544;
 
 	@UInt64 Symbol: 4497562553621289023;
 
@@ -19571,11 +19774,11 @@
 	];
 };
 
-540:
+545:
 {
 	Indexed: true;
 
-	@UInt32 Index: 540;
+	@UInt32 Index: 545;
 
 	@UInt64 Symbol: 13203014036258691135;
 
@@ -19612,11 +19815,11 @@
 	];
 };
 
-541:
+546:
 {
 	Indexed: true;
 
-	@UInt32 Index: 541;
+	@UInt32 Index: 546;
 
 	@UInt64 Symbol: 6772400799515547711;
 
@@ -19653,11 +19856,11 @@
 	];
 };
 
-542:
+547:
 {
 	Indexed: true;
 
-	@UInt32 Index: 542;
+	@UInt32 Index: 547;
 
 	@UInt64 Symbol: 4095212319434479679;
 
@@ -19694,11 +19897,11 @@
 	];
 };
 
-543:
+548:
 {
 	Indexed: true;
 
-	@UInt32 Index: 543;
+	@UInt32 Index: 548;
 
 	@UInt64 Symbol: 16588900385359534143;
 
@@ -19735,11 +19938,11 @@
 	];
 };
 
-544:
+549:
 {
 	Indexed: true;
 
-	@UInt32 Index: 544;
+	@UInt32 Index: 549;
 
 	@UInt64 Symbol: 14766849600538155071;
 
@@ -19776,11 +19979,11 @@
 	];
 };
 
-545:
+550:
 {
 	Indexed: true;
 
-	@UInt32 Index: 545;
+	@UInt32 Index: 550;
 
 	@UInt64 Symbol: 5910597418091681855;
 
@@ -19817,11 +20020,11 @@
 	];
 };
 
-546:
+551:
 {
 	Indexed: true;
 
-	@UInt32 Index: 546;
+	@UInt32 Index: 551;
 
 	@UInt64 Symbol: 12916606465702238271;
 
@@ -19858,11 +20061,11 @@
 	];
 };
 
-547:
+552:
 {
 	Indexed: true;
 
-	@UInt32 Index: 547;
+	@UInt32 Index: 552;
 
 	@UInt64 Symbol: 8578058845219330111;
 
@@ -19899,11 +20102,11 @@
 	];
 };
 
-548:
+553:
 {
 	Indexed: true;
 
-	@UInt32 Index: 548;
+	@UInt32 Index: 553;
 
 	@UInt64 Symbol: 2572262434336282687;
 
@@ -19940,11 +20143,11 @@
 	];
 };
 
-549:
+554:
 {
 	Indexed: true;
 
-	@UInt32 Index: 549;
+	@UInt32 Index: 554;
 
 	@UInt64 Symbol: 6450198791125604415;
 
@@ -19991,11 +20194,11 @@
 	];
 };
 
-550:
+555:
 {
 	Indexed: true;
 
-	@UInt32 Index: 550;
+	@UInt32 Index: 555;
 
 	@UInt64 Symbol: 2858318139697010751;
 
@@ -20042,11 +20245,11 @@
 	];
 };
 
-551:
+556:
 {
 	Indexed: true;
 
-	@UInt32 Index: 551;
+	@UInt32 Index: 556;
 
 	@UInt64 Symbol: 8927668057832298559;
 
@@ -20083,11 +20286,11 @@
 	];
 };
 
-552:
+557:
 {
 	Indexed: true;
 
-	@UInt32 Index: 552;
+	@UInt32 Index: 557;
 
 	@UInt64 Symbol: 7752503441585477695;
 
@@ -20124,11 +20327,11 @@
 	];
 };
 
-553:
+558:
 {
 	Indexed: true;
 
-	@UInt32 Index: 553;
+	@UInt32 Index: 558;
 
 	@UInt64 Symbol: 4205262043121588287;
 
@@ -20175,11 +20378,11 @@
 	];
 };
 
-554:
+559:
 {
 	Indexed: false;
 
-	@UInt32 Index: 554;
+	@UInt32 Index: 559;
 
 	@UInt32 TypeFlags: 0;
 
@@ -20196,11 +20399,11 @@
 	@UInt64 2709038510: [15071417447436378148];
 };
 
-555:
+560:
 {
 	Indexed: false;
 
-	@UInt32 Index: 555;
+	@UInt32 Index: 560;
 
 	@UInt32 TypeFlags: 0;
 
@@ -20217,11 +20420,11 @@
 	@UInt64 2709038510: [7146817876374118009];
 };
 
-556:
+561:
 {
 	Indexed: false;
 
-	@UInt32 Index: 556;
+	@UInt32 Index: 561;
 
 	@UInt32 TypeFlags: 0;
 
@@ -20238,11 +20441,11 @@
 	@UInt64 2709038510: [7146817876374118009];
 };
 
-557:
+562:
 {
 	Indexed: true;
 
-	@UInt32 Index: 557;
+	@UInt32 Index: 562;
 
 	@UInt64 Symbol: 15820803427873724479;
 
@@ -20275,11 +20478,11 @@
 	];
 };
 
-558:
+563:
 {
 	Indexed: true;
 
-	@UInt32 Index: 558;
+	@UInt32 Index: 563;
 
 	@UInt64 Symbol: 16728754609395472447;
 
@@ -20312,11 +20515,11 @@
 	];
 };
 
-559:
+564:
 {
 	Indexed: true;
 
-	@UInt32 Index: 559;
+	@UInt32 Index: 564;
 
 	@UInt32 TypeFlags: 2;
 
@@ -20331,11 +20534,123 @@
 	Namespace: "Reflex::File";
 };
 
-560:
+565:
 {
 	Indexed: true;
 
-	@UInt32 Index: 560;
+	@UInt32 Index: 565;
+
+	@UInt32 TypeFlags: 0;
+
+	@UInt64 Symbol: 18219329847060207679;
+
+	Name: "EmbeddedResource";
+
+	Category: "type";
+
+	Namespace: "Reflex::File";
+};
+
+566:
+{
+	Indexed: true;
+
+	@UInt32 Index: 566;
+
+	@UInt64 ParentID: 18219329847060207679;
+
+	@UInt64 Symbol: 8977241271738614437;
+
+	@UInt64 TypeID: 5216113586887424715;
+
+	Name: "data";
+
+	Category: "member";
+
+	Namespace: "Reflex::File";
+};
+
+567:
+{
+	Indexed: true;
+
+	@UInt32 Index: 567;
+
+	@UInt64 ParentID: 18219329847060207679;
+
+	@UInt64 Symbol: 11453058848642089637;
+
+	@UInt64 TypeID: 15243775351508400843;
+
+	Name: "uncompressed_size";
+
+	Category: "member";
+
+	Namespace: "Reflex::File";
+};
+
+568:
+{
+	Indexed: true;
+
+	@UInt32 Index: 568;
+
+	@UInt32 TypeFlags: 0;
+
+	@UInt64 BaseID: 18219329847060207679;
+
+	@UInt64 Symbol: 14639373313335498815;
+
+	Name: "EnumerableEmbeddedResource";
+
+	Category: "type";
+
+	Namespace: "Reflex::File";
+};
+
+569:
+{
+	Indexed: true;
+
+	@UInt32 Index: 569;
+
+	@UInt64 ParentID: 14639373313335498815;
+
+	@UInt64 Symbol: 1118941038783751333;
+
+	@UInt64 TypeID: 15745766443255560907;
+
+	Name: "group";
+
+	Category: "member";
+
+	Namespace: "Reflex::File";
+};
+
+570:
+{
+	Indexed: true;
+
+	@UInt32 Index: 570;
+
+	@UInt64 ParentID: 14639373313335498815;
+
+	@UInt64 Symbol: 25183430233810085;
+
+	@UInt64 TypeID: 15745766443255560907;
+
+	Name: "id";
+
+	Category: "member";
+
+	Namespace: "Reflex::File";
+};
+
+571:
+{
+	Indexed: true;
+
+	@UInt32 Index: 571;
 
 	@UInt64 Symbol: 3088564088943510794;
 
@@ -20348,11 +20663,11 @@
 	Namespace: "Reflex::GLX";
 };
 
-561:
+572:
 {
 	Indexed: true;
 
-	@UInt32 Index: 561;
+	@UInt32 Index: 572;
 
 	@UInt32 TypeFlags: 2;
 
@@ -20367,11 +20682,11 @@
 	Namespace: "Reflex::GLX";
 };
 
-562:
+573:
 {
 	Indexed: true;
 
-	@UInt32 Index: 562;
+	@UInt32 Index: 573;
 
 	@UInt32 TypeFlags: 2;
 
@@ -20386,11 +20701,11 @@
 	Namespace: "Reflex::GLX";
 };
 
-563:
+574:
 {
 	Indexed: true;
 
-	@UInt32 Index: 563;
+	@UInt32 Index: 574;
 
 	@UInt32 TypeFlags: 2;
 
@@ -20405,11 +20720,11 @@
 	Namespace: "Reflex::GLX";
 };
 
-564:
+575:
 {
 	Indexed: true;
 
-	@UInt32 Index: 564;
+	@UInt32 Index: 575;
 
 	@UInt32 TypeFlags: 2;
 
@@ -20424,11 +20739,11 @@
 	Namespace: "Reflex::GLX";
 };
 
-565:
+576:
 {
 	Indexed: true;
 
-	@UInt32 Index: 565;
+	@UInt32 Index: 576;
 
 	@UInt32 TypeFlags: 2;
 
@@ -20443,11 +20758,11 @@
 	Namespace: "Reflex::GLX";
 };
 
-566:
+577:
 {
 	Indexed: false;
 
-	@UInt32 Index: 566;
+	@UInt32 Index: 577;
 
 	@UInt32 TypeFlags: 0;
 
@@ -20464,11 +20779,11 @@
 	@UInt64 2709038510: [14361920786363680010];
 };
 
-567:
+578:
 {
 	Indexed: false;
 
-	@UInt32 Index: 567;
+	@UInt32 Index: 578;
 
 	@UInt32 TypeFlags: 0;
 
@@ -20485,11 +20800,11 @@
 	@UInt64 2709038510: [14361920786363680010];
 };
 
-568:
+579:
 {
 	Indexed: false;
 
-	@UInt32 Index: 568;
+	@UInt32 Index: 579;
 
 	@UInt32 TypeFlags: 0;
 
@@ -20506,11 +20821,11 @@
 	@UInt64 2709038510: [1017425348645717258];
 };
 
-569:
+580:
 {
 	Indexed: false;
 
-	@UInt32 Index: 569;
+	@UInt32 Index: 580;
 
 	@UInt32 TypeFlags: 0;
 
@@ -20527,11 +20842,11 @@
 	@UInt64 2709038510: [1017425348645717258];
 };
 
-570:
+581:
 {
 	Indexed: false;
 
-	@UInt32 Index: 570;
+	@UInt32 Index: 581;
 
 	@UInt32 TypeFlags: 0;
 
@@ -20548,11 +20863,11 @@
 	@UInt64 2709038510: [7196502683237319946];
 };
 
-571:
+582:
 {
 	Indexed: false;
 
-	@UInt32 Index: 571;
+	@UInt32 Index: 582;
 
 	@UInt32 TypeFlags: 0;
 
@@ -20569,11 +20884,11 @@
 	@UInt64 2709038510: [946331961880839434];
 };
 
-572:
+583:
 {
 	Indexed: false;
 
-	@UInt32 Index: 572;
+	@UInt32 Index: 583;
 
 	@UInt32 TypeFlags: 0;
 
@@ -20590,11 +20905,32 @@
 	@UInt64 2709038510: [12696206381670431435, 12696206381670431435];
 };
 
-573:
+584:
+{
+	Indexed: false;
+
+	@UInt32 Index: 584;
+
+	@UInt32 TypeFlags: 0;
+
+	@UInt64 TemplateSourceID: 8974152822052584139;
+
+	@UInt64 Symbol: 1499392529815272139;
+
+	Name: "Pair";
+
+	Category: "type";
+
+	Namespace: "Reflex";
+
+	@UInt64 2709038510: [8976997392607876357, 8976997392607876357];
+};
+
+585:
 {
 	Indexed: true;
 
-	@UInt32 Index: 573;
+	@UInt32 Index: 585;
 
 	@UInt64 Symbol: 12411471395882632458;
 
@@ -20607,11 +20943,11 @@
 	Namespace: "Reflex::GLX";
 };
 
-574:
+586:
 {
 	Indexed: true;
 
-	@UInt32 Index: 574;
+	@UInt32 Index: 586;
 
 	@UInt64 Symbol: 1001298644097402122;
 
@@ -20624,11 +20960,11 @@
 	Namespace: "Reflex::GLX";
 };
 
-575:
+587:
 {
 	Indexed: true;
 
-	@UInt32 Index: 575;
+	@UInt32 Index: 587;
 
 	@UInt64 Symbol: 8974655638118434058;
 
@@ -20641,11 +20977,11 @@
 	Namespace: "Reflex::GLX";
 };
 
-576:
+588:
 {
 	Indexed: true;
 
-	@UInt32 Index: 576;
+	@UInt32 Index: 588;
 
 	@UInt64 Symbol: 8974479385545508106;
 
@@ -20658,11 +20994,11 @@
 	Namespace: "Reflex::GLX";
 };
 
-577:
+589:
 {
 	Indexed: true;
 
-	@UInt32 Index: 577;
+	@UInt32 Index: 589;
 
 	@UInt32 TypeFlags: 0;
 
@@ -20675,11 +21011,11 @@
 	Namespace: "Reflex::GLX";
 };
 
-578:
+590:
 {
 	Indexed: true;
 
-	@UInt32 Index: 578;
+	@UInt32 Index: 590;
 
 	@UInt64 ParentID: 1009347082097624330;
 
@@ -20694,11 +21030,11 @@
 	Namespace: "Reflex::GLX";
 };
 
-579:
+591:
 {
 	Indexed: true;
 
-	@UInt32 Index: 579;
+	@UInt32 Index: 591;
 
 	@UInt64 ParentID: 1009347082097624330;
 
@@ -20713,11 +21049,11 @@
 	Namespace: "Reflex::GLX";
 };
 
-580:
+592:
 {
 	Indexed: true;
 
-	@UInt32 Index: 580;
+	@UInt32 Index: 592;
 
 	@UInt32 TypeFlags: 0;
 
@@ -20730,11 +21066,28 @@
 	Namespace: "Reflex::GLX";
 };
 
-581:
+593:
 {
 	Indexed: true;
 
-	@UInt32 Index: 581;
+	@UInt32 Index: 593;
+
+	@UInt32 TypeFlags: 0;
+
+	@UInt64 Symbol: 3780518594895512842;
+
+	Name: "Corners";
+
+	Category: "type";
+
+	Namespace: "Reflex::GLX";
+};
+
+594:
+{
+	Indexed: true;
+
+	@UInt32 Index: 594;
 
 	@UInt64 ParentID: 14021901793341048074;
 
@@ -20749,11 +21102,11 @@
 	Namespace: "Reflex::GLX";
 };
 
-582:
+595:
 {
 	Indexed: true;
 
-	@UInt32 Index: 582;
+	@UInt32 Index: 595;
 
 	@UInt64 ParentID: 14021901793341048074;
 
@@ -20768,11 +21121,11 @@
 	Namespace: "Reflex::GLX";
 };
 
-583:
+596:
 {
 	Indexed: true;
 
-	@UInt32 Index: 583;
+	@UInt32 Index: 596;
 
 	@UInt64 ParentID: 946331961880839434;
 
@@ -20787,11 +21140,11 @@
 	Namespace: "Reflex::GLX";
 };
 
-584:
+597:
 {
 	Indexed: true;
 
-	@UInt32 Index: 584;
+	@UInt32 Index: 597;
 
 	@UInt64 ParentID: 946331961880839434;
 
@@ -20817,11 +21170,11 @@
 	];
 };
 
-585:
+598:
 {
 	Indexed: true;
 
-	@UInt32 Index: 585;
+	@UInt32 Index: 598;
 
 	@UInt64 ParentID: 14361920786363680010;
 
@@ -20858,11 +21211,11 @@
 	];
 };
 
-586:
+599:
 {
 	Indexed: true;
 
-	@UInt32 Index: 586;
+	@UInt32 Index: 599;
 
 	@UInt64 ParentID: 14361920786363680010;
 
@@ -20887,11 +21240,11 @@
 	];
 };
 
-587:
+600:
 {
 	Indexed: true;
 
-	@UInt32 Index: 587;
+	@UInt32 Index: 600;
 
 	@UInt64 ParentID: 14361920786363680010;
 
@@ -20928,11 +21281,11 @@
 	];
 };
 
-588:
+601:
 {
 	Indexed: true;
 
-	@UInt32 Index: 588;
+	@UInt32 Index: 601;
 
 	@UInt64 ParentID: 14361920786363680010;
 
@@ -20969,11 +21322,11 @@
 	];
 };
 
-589:
+602:
 {
 	Indexed: true;
 
-	@UInt32 Index: 589;
+	@UInt32 Index: 602;
 
 	@UInt64 ParentID: 14361920786363680010;
 
@@ -20998,11 +21351,11 @@
 	];
 };
 
-590:
+603:
 {
 	Indexed: true;
 
-	@UInt32 Index: 590;
+	@UInt32 Index: 603;
 
 	@UInt64 ParentID: 1017425348645717258;
 
@@ -21039,11 +21392,11 @@
 	];
 };
 
-591:
+604:
 {
 	Indexed: true;
 
-	@UInt32 Index: 591;
+	@UInt32 Index: 604;
 
 	@UInt64 ParentID: 1017425348645717258;
 
@@ -21068,11 +21421,11 @@
 	];
 };
 
-592:
+605:
 {
 	Indexed: true;
 
-	@UInt32 Index: 592;
+	@UInt32 Index: 605;
 
 	@UInt64 ParentID: 1017425348645717258;
 
@@ -21109,11 +21462,11 @@
 	];
 };
 
-593:
+606:
 {
 	Indexed: true;
 
-	@UInt32 Index: 593;
+	@UInt32 Index: 606;
 
 	@UInt64 ParentID: 1017425348645717258;
 
@@ -21150,11 +21503,11 @@
 	];
 };
 
-594:
+607:
 {
 	Indexed: true;
 
-	@UInt32 Index: 594;
+	@UInt32 Index: 607;
 
 	@UInt64 ParentID: 1017425348645717258;
 
@@ -21179,11 +21532,11 @@
 	];
 };
 
-595:
+608:
 {
 	Indexed: true;
 
-	@UInt32 Index: 595;
+	@UInt32 Index: 608;
 
 	@UInt64 ParentID: 14361920786363680010;
 
@@ -21208,11 +21561,11 @@
 	];
 };
 
-596:
+609:
 {
 	Indexed: true;
 
-	@UInt32 Index: 596;
+	@UInt32 Index: 609;
 
 	@UInt64 ParentID: 14361920786363680010;
 
@@ -21237,11 +21590,11 @@
 	];
 };
 
-597:
+610:
 {
 	Indexed: true;
 
-	@UInt32 Index: 597;
+	@UInt32 Index: 610;
 
 	@UInt64 ParentID: 14361920786363680010;
 
@@ -21276,11 +21629,11 @@
 	];
 };
 
-598:
+611:
 {
 	Indexed: true;
 
-	@UInt32 Index: 598;
+	@UInt32 Index: 611;
 
 	@UInt64 ParentID: 14361920786363680010;
 
@@ -21306,11 +21659,11 @@
 	];
 };
 
-599:
+612:
 {
 	Indexed: true;
 
-	@UInt32 Index: 599;
+	@UInt32 Index: 612;
 
 	@UInt64 ParentID: 14361920786363680010;
 
@@ -21349,11 +21702,11 @@
 	];
 };
 
-600:
+613:
 {
 	Indexed: true;
 
-	@UInt32 Index: 600;
+	@UInt32 Index: 613;
 
 	@UInt64 ParentID: 14361920786363680010;
 
@@ -21379,11 +21732,11 @@
 	];
 };
 
-601:
+614:
 {
 	Indexed: true;
 
-	@UInt32 Index: 601;
+	@UInt32 Index: 614;
 
 	@UInt64 ParentID: 14361920786363680010;
 
@@ -21418,11 +21771,11 @@
 	];
 };
 
-602:
+615:
 {
 	Indexed: true;
 
-	@UInt32 Index: 602;
+	@UInt32 Index: 615;
 
 	@UInt64 ParentID: 14361920786363680010;
 
@@ -21457,11 +21810,11 @@
 	];
 };
 
-603:
+616:
 {
 	Indexed: true;
 
-	@UInt32 Index: 603;
+	@UInt32 Index: 616;
 
 	@UInt64 ParentID: 14361920786363680010;
 
@@ -21497,11 +21850,155 @@
 	];
 };
 
-604:
+617:
 {
 	Indexed: true;
 
-	@UInt32 Index: 604;
+	@UInt32 Index: 617;
+
+	@UInt64 ParentID: 14361920786363680010;
+
+	@UInt64 Symbol: 7032896031018693589;
+
+	Name: "EnablePointer";
+
+	Category: "method";
+
+	Namespace: "Reflex::GLX";
+
+	Overloads:
+	[
+		{
+			Return:
+			{
+				@UInt64 TypeID: 8980083472638940421;
+			};
+
+			Arguments:
+			[
+				{
+					@UInt64 TypeID: 8976997392607876357;
+
+					Name: "enable";
+				},
+
+				{
+					@UInt64 TypeID: 8976997392607876357;
+
+					Name: "active";
+				},
+
+			];
+
+		},
+
+	];
+};
+
+618:
+{
+	Indexed: true;
+
+	@UInt32 Index: 618;
+
+	@UInt64 ParentID: 14361920786363680010;
+
+	@UInt64 Symbol: 2496157827561665493;
+
+	Name: "PointerEnabled";
+
+	Category: "method";
+
+	Namespace: "Reflex::GLX";
+
+	Overloads:
+	[
+		{
+			IsConst: true;
+
+			Return:
+			{
+				@UInt64 TypeID: 1499392529815272139;
+			};
+		},
+
+	];
+};
+
+619:
+{
+	Indexed: true;
+
+	@UInt32 Index: 619;
+
+	@UInt64 ParentID: 14361920786363680010;
+
+	@UInt64 Symbol: 5123252059665052629;
+
+	Name: "EnableMultiTouch";
+
+	Category: "method";
+
+	Namespace: "Reflex::GLX";
+
+	Overloads:
+	[
+		{
+			Return:
+			{
+				@UInt64 TypeID: 8980083472638940421;
+			};
+
+			Arguments:
+			[
+				{
+					@UInt64 TypeID: 8976997392607876357;
+
+					Name: "enable";
+				},
+
+			];
+
+		},
+
+	];
+};
+
+620:
+{
+	Indexed: true;
+
+	@UInt32 Index: 620;
+
+	@UInt64 ParentID: 14361920786363680010;
+
+	@UInt64 Symbol: 730264831057179605;
+
+	Name: "MultiTouchEnabled";
+
+	Category: "method";
+
+	Namespace: "Reflex::GLX";
+
+	Overloads:
+	[
+		{
+			IsConst: true;
+
+			Return:
+			{
+				@UInt64 TypeID: 8976997392607876357;
+			};
+		},
+
+	];
+};
+
+621:
+{
+	Indexed: true;
+
+	@UInt32 Index: 621;
 
 	@UInt64 ParentID: 14361920786363680010;
 
@@ -21526,11 +22023,11 @@
 	];
 };
 
-605:
+622:
 {
 	Indexed: true;
 
-	@UInt32 Index: 605;
+	@UInt32 Index: 622;
 
 	@UInt64 ParentID: 14361920786363680010;
 
@@ -21575,11 +22072,11 @@
 	];
 };
 
-606:
+623:
 {
 	Indexed: true;
 
-	@UInt32 Index: 606;
+	@UInt32 Index: 623;
 
 	@UInt64 ParentID: 14361920786363680010;
 
@@ -21616,11 +22113,11 @@
 	];
 };
 
-607:
+624:
 {
 	Indexed: true;
 
-	@UInt32 Index: 607;
+	@UInt32 Index: 624;
 
 	@UInt64 Symbol: 8972511126587802890;
 
@@ -21675,11 +22172,11 @@
 	];
 };
 
-608:
+625:
 {
 	Indexed: true;
 
-	@UInt32 Index: 608;
+	@UInt32 Index: 625;
 
 	@UInt64 Symbol: 8974635224138876170;
 
@@ -21734,11 +22231,11 @@
 	];
 };
 
-609:
+626:
 {
 	Indexed: true;
 
-	@UInt32 Index: 609;
+	@UInt32 Index: 626;
 
 	@UInt64 ParentID: 14361920786363680010;
 
@@ -21763,11 +22260,11 @@
 	];
 };
 
-610:
+627:
 {
 	Indexed: true;
 
-	@UInt32 Index: 610;
+	@UInt32 Index: 627;
 
 	@UInt64 ParentID: 14361920786363680010;
 
@@ -21792,11 +22289,11 @@
 	];
 };
 
-611:
+628:
 {
 	Indexed: true;
 
-	@UInt32 Index: 611;
+	@UInt32 Index: 628;
 
 	@UInt64 ParentID: 14361920786363680010;
 
@@ -21821,11 +22318,11 @@
 	];
 };
 
-612:
+629:
 {
 	Indexed: true;
 
-	@UInt32 Index: 612;
+	@UInt32 Index: 629;
 
 	@UInt64 ParentID: 14361920786363680010;
 
@@ -21850,11 +22347,11 @@
 	];
 };
 
-613:
+630:
 {
 	Indexed: true;
 
-	@UInt32 Index: 613;
+	@UInt32 Index: 630;
 
 	@UInt64 ParentID: 14361920786363680010;
 
@@ -21879,11 +22376,11 @@
 	];
 };
 
-614:
+631:
 {
 	Indexed: true;
 
-	@UInt32 Index: 614;
+	@UInt32 Index: 631;
 
 	@UInt64 ParentID: 14361920786363680010;
 
@@ -21918,11 +22415,11 @@
 	];
 };
 
-615:
+632:
 {
 	Indexed: true;
 
-	@UInt32 Index: 615;
+	@UInt32 Index: 632;
 
 	@UInt64 ParentID: 14361920786363680010;
 
@@ -21947,11 +22444,11 @@
 	];
 };
 
-616:
+633:
 {
 	Indexed: true;
 
-	@UInt32 Index: 616;
+	@UInt32 Index: 633;
 
 	@UInt64 ParentID: 14361920786363680010;
 
@@ -21991,11 +22488,11 @@
 	];
 };
 
-617:
+634:
 {
 	Indexed: true;
 
-	@UInt32 Index: 617;
+	@UInt32 Index: 634;
 
 	@UInt64 ParentID: 14361920786363680010;
 
@@ -22041,11 +22538,11 @@
 	];
 };
 
-618:
+635:
 {
 	Indexed: true;
 
-	@UInt32 Index: 618;
+	@UInt32 Index: 635;
 
 	@UInt64 Symbol: 11035566029764920586;
 
@@ -22092,66 +22589,15 @@
 	];
 };
 
-619:
+636:
 {
 	Indexed: true;
 
-	@UInt32 Index: 619;
+	@UInt32 Index: 636;
 
-	@UInt64 Symbol: 1466049126687933706;
+	@UInt64 Symbol: 6568421973133722890;
 
-	Name: "EnableMouseCapture";
-
-	Category: "function";
-
-	Namespace: "Reflex::GLX";
-
-	Overloads:
-	[
-		{
-			Return:
-			{
-				@UInt64 TypeID: 8980083472638940421;
-			};
-
-			Arguments:
-			[
-				{
-					IsRef: true;
-
-					@UInt64 TypeID: 14361920786363680010;
-
-					Name: "object";
-				},
-
-				{
-					@UInt64 TypeID: 8976997392607876357;
-
-					Name: "enable";
-				},
-
-				{
-					@UInt64 TypeID: 8976997392607876357;
-
-					Name: "incremental";
-				},
-
-			];
-
-		},
-
-	];
-};
-
-620:
-{
-	Indexed: true;
-
-	@UInt32 Index: 620;
-
-	@UInt64 Symbol: 9233775494737003786;
-
-	Name: "GetMousePosition";
+	Name: "GetPointerPosition";
 
 	Category: "function";
 
@@ -22177,6 +22623,38 @@
 					Name: "object";
 				},
 
+				{
+					IsConst: true;
+
+					IsRef: true;
+
+					@UInt64 TypeID: 946331961880839434;
+
+					Name: "e";
+				},
+
+			];
+
+		},
+
+		{
+			Return:
+			{
+				@UInt64 TypeID: 18165601556702132939;
+			};
+
+			Arguments:
+			[
+				{
+					IsConst: true;
+
+					IsRef: true;
+
+					@UInt64 TypeID: 14450129931335730442;
+
+					Name: "window";
+				},
+
 			];
 
 		},
@@ -22184,11 +22662,11 @@
 	];
 };
 
-621:
+637:
 {
 	Indexed: true;
 
-	@UInt32 Index: 621;
+	@UInt32 Index: 637;
 
 	@UInt64 Symbol: 1484818945520272650;
 
@@ -22231,11 +22709,11 @@
 	];
 };
 
-622:
+638:
 {
 	Indexed: true;
 
-	@UInt32 Index: 622;
+	@UInt32 Index: 638;
 
 	@UInt64 Symbol: 9250026225055925514;
 
@@ -22278,11 +22756,11 @@
 	];
 };
 
-623:
+639:
 {
 	Indexed: true;
 
-	@UInt32 Index: 623;
+	@UInt32 Index: 639;
 
 	@UInt64 Symbol: 4967958786020050186;
 
@@ -22321,11 +22799,11 @@
 	];
 };
 
-624:
+640:
 {
 	Indexed: false;
 
-	@UInt32 Index: 624;
+	@UInt32 Index: 640;
 
 	@UInt32 TypeFlags: 4;
 
@@ -22336,11 +22814,11 @@
 	Category: "type";
 };
 
-625:
+641:
 {
 	Indexed: false;
 
-	@UInt32 Index: 625;
+	@UInt32 Index: 641;
 
 	@UInt32 TypeFlags: 0;
 
@@ -22357,11 +22835,11 @@
 	@UInt64 2709038510: [3378625505023497477];
 };
 
-626:
+642:
 {
 	Indexed: true;
 
-	@UInt32 Index: 626;
+	@UInt32 Index: 642;
 
 	@UInt64 Symbol: 14510779649853850890;
 
@@ -22408,11 +22886,11 @@
 	];
 };
 
-627:
+643:
 {
 	Indexed: true;
 
-	@UInt32 Index: 627;
+	@UInt32 Index: 643;
 
 	@UInt64 Symbol: 5762298410296247562;
 
@@ -22463,11 +22941,11 @@
 	];
 };
 
-628:
+644:
 {
 	Indexed: true;
 
-	@UInt32 Index: 628;
+	@UInt32 Index: 644;
 
 	@UInt64 Symbol: 13118240072967226634;
 
@@ -22538,13 +23016,13 @@
 	];
 };
 
-629:
+645:
 {
 	IsConst: true;
 
 	Indexed: true;
 
-	@UInt32 Index: 629;
+	@UInt32 Index: 645;
 
 	@UInt64 ParentID: 1017425348645717258;
 
@@ -22559,13 +23037,13 @@
 	Namespace: "Reflex::GLX";
 };
 
-630:
+646:
 {
 	IsConst: true;
 
 	Indexed: true;
 
-	@UInt32 Index: 630;
+	@UInt32 Index: 646;
 
 	@UInt64 ParentID: 7196502683237319946;
 
@@ -22580,11 +23058,11 @@
 	Namespace: "Reflex::GLX";
 };
 
-631:
+647:
 {
 	Indexed: true;
 
-	@UInt32 Index: 631;
+	@UInt32 Index: 647;
 
 	@UInt64 ParentID: 1017425348645717258;
 
@@ -22621,11 +23099,11 @@
 	];
 };
 
-632:
+648:
 {
 	Indexed: true;
 
-	@UInt32 Index: 632;
+	@UInt32 Index: 648;
 
 	@UInt64 Symbol: 7183523781695079690;
 
@@ -22666,11 +23144,11 @@
 	];
 };
 
-633:
+649:
 {
 	Indexed: true;
 
-	@UInt32 Index: 633;
+	@UInt32 Index: 649;
 
 	@UInt64 Symbol: 17067867804818048266;
 
@@ -22721,11 +23199,11 @@
 	];
 };
 
-634:
+650:
 {
 	Indexed: true;
 
-	@UInt32 Index: 634;
+	@UInt32 Index: 650;
 
 	@UInt64 Symbol: 5846347737708201226;
 
@@ -22768,11 +23246,11 @@
 	];
 };
 
-635:
+651:
 {
 	Indexed: true;
 
-	@UInt32 Index: 635;
+	@UInt32 Index: 651;
 
 	@UInt32 TypeFlags: 1;
 
@@ -22785,13 +23263,13 @@
 	Namespace: "Reflex::GLX";
 };
 
-636:
+652:
 {
 	IsConst: true;
 
 	Indexed: true;
 
-	@UInt32 Index: 636;
+	@UInt32 Index: 652;
 
 	@UInt64 ParentID: 17523243275744544010;
 
@@ -22806,13 +23284,13 @@
 	Namespace: "Reflex::GLX";
 };
 
-637:
+653:
 {
 	IsConst: true;
 
 	Indexed: true;
 
-	@UInt32 Index: 637;
+	@UInt32 Index: 653;
 
 	@UInt64 ParentID: 17523243275744544010;
 
@@ -22827,13 +23305,13 @@
 	Namespace: "Reflex::GLX";
 };
 
-638:
+654:
 {
 	IsConst: true;
 
 	Indexed: true;
 
-	@UInt32 Index: 638;
+	@UInt32 Index: 654;
 
 	@UInt64 ParentID: 17523243275744544010;
 
@@ -22848,13 +23326,13 @@
 	Namespace: "Reflex::GLX";
 };
 
-639:
+655:
 {
 	IsConst: true;
 
 	Indexed: true;
 
-	@UInt32 Index: 639;
+	@UInt32 Index: 655;
 
 	@UInt64 ParentID: 17523243275744544010;
 
@@ -22869,11 +23347,11 @@
 	Namespace: "Reflex::GLX";
 };
 
-640:
+656:
 {
 	Indexed: true;
 
-	@UInt32 Index: 640;
+	@UInt32 Index: 656;
 
 	@UInt32 TypeFlags: 1;
 
@@ -22886,13 +23364,13 @@
 	Namespace: "Reflex::GLX";
 };
 
-641:
+657:
 {
 	IsConst: true;
 
 	Indexed: true;
 
-	@UInt32 Index: 641;
+	@UInt32 Index: 657;
 
 	@UInt64 ParentID: 429781442101347594;
 
@@ -22907,13 +23385,13 @@
 	Namespace: "Reflex::GLX";
 };
 
-642:
+658:
 {
 	IsConst: true;
 
 	Indexed: true;
 
-	@UInt32 Index: 642;
+	@UInt32 Index: 658;
 
 	@UInt64 ParentID: 429781442101347594;
 
@@ -22928,13 +23406,13 @@
 	Namespace: "Reflex::GLX";
 };
 
-643:
+659:
 {
 	IsConst: true;
 
 	Indexed: true;
 
-	@UInt32 Index: 643;
+	@UInt32 Index: 659;
 
 	@UInt64 ParentID: 429781442101347594;
 
@@ -22949,13 +23427,13 @@
 	Namespace: "Reflex::GLX";
 };
 
-644:
+660:
 {
 	IsConst: true;
 
 	Indexed: true;
 
-	@UInt32 Index: 644;
+	@UInt32 Index: 660;
 
 	@UInt64 ParentID: 429781442101347594;
 
@@ -22970,11 +23448,11 @@
 	Namespace: "Reflex::GLX";
 };
 
-645:
+661:
 {
 	Indexed: true;
 
-	@UInt32 Index: 645;
+	@UInt32 Index: 661;
 
 	@UInt32 TypeFlags: 1;
 
@@ -22987,13 +23465,13 @@
 	Namespace: "Reflex::GLX";
 };
 
-646:
+662:
 {
 	IsConst: true;
 
 	Indexed: true;
 
-	@UInt32 Index: 646;
+	@UInt32 Index: 662;
 
 	@UInt64 ParentID: 13575353154517697802;
 
@@ -23008,13 +23486,13 @@
 	Namespace: "Reflex::GLX";
 };
 
-647:
+663:
 {
 	IsConst: true;
 
 	Indexed: true;
 
-	@UInt32 Index: 647;
+	@UInt32 Index: 663;
 
 	@UInt64 ParentID: 13575353154517697802;
 
@@ -23029,13 +23507,13 @@
 	Namespace: "Reflex::GLX";
 };
 
-648:
+664:
 {
 	IsConst: true;
 
 	Indexed: true;
 
-	@UInt32 Index: 648;
+	@UInt32 Index: 664;
 
 	@UInt64 ParentID: 13575353154517697802;
 
@@ -23050,13 +23528,13 @@
 	Namespace: "Reflex::GLX";
 };
 
-649:
+665:
 {
 	IsConst: true;
 
 	Indexed: true;
 
-	@UInt32 Index: 649;
+	@UInt32 Index: 665;
 
 	@UInt64 ParentID: 13575353154517697802;
 
@@ -23071,13 +23549,13 @@
 	Namespace: "Reflex::GLX";
 };
 
-650:
+666:
 {
 	IsConst: true;
 
 	Indexed: true;
 
-	@UInt32 Index: 650;
+	@UInt32 Index: 666;
 
 	@UInt64 ParentID: 13575353154517697802;
 
@@ -23092,13 +23570,13 @@
 	Namespace: "Reflex::GLX";
 };
 
-651:
+667:
 {
 	IsConst: true;
 
 	Indexed: true;
 
-	@UInt32 Index: 651;
+	@UInt32 Index: 667;
 
 	@UInt64 ParentID: 13575353154517697802;
 
@@ -23113,13 +23591,13 @@
 	Namespace: "Reflex::GLX";
 };
 
-652:
+668:
 {
 	IsConst: true;
 
 	Indexed: true;
 
-	@UInt32 Index: 652;
+	@UInt32 Index: 668;
 
 	@UInt64 ParentID: 13575353154517697802;
 
@@ -23134,13 +23612,13 @@
 	Namespace: "Reflex::GLX";
 };
 
-653:
+669:
 {
 	IsConst: true;
 
 	Indexed: true;
 
-	@UInt32 Index: 653;
+	@UInt32 Index: 669;
 
 	@UInt64 ParentID: 13575353154517697802;
 
@@ -23155,13 +23633,13 @@
 	Namespace: "Reflex::GLX";
 };
 
-654:
+670:
 {
 	IsConst: true;
 
 	Indexed: true;
 
-	@UInt32 Index: 654;
+	@UInt32 Index: 670;
 
 	@UInt64 ParentID: 13575353154517697802;
 
@@ -23176,11 +23654,11 @@
 	Namespace: "Reflex::GLX";
 };
 
-655:
+671:
 {
 	Indexed: true;
 
-	@UInt32 Index: 655;
+	@UInt32 Index: 671;
 
 	@UInt64 Symbol: 10626316634991723786;
 
@@ -23229,11 +23707,11 @@
 	];
 };
 
-656:
+672:
 {
 	Indexed: true;
 
-	@UInt32 Index: 656;
+	@UInt32 Index: 672;
 
 	@UInt64 Symbol: 5056430349198918922;
 
@@ -23282,11 +23760,11 @@
 	];
 };
 
-657:
+673:
 {
 	Indexed: true;
 
-	@UInt32 Index: 657;
+	@UInt32 Index: 673;
 
 	@UInt64 Symbol: 8691317006378566922;
 
@@ -23375,11 +23853,11 @@
 	];
 };
 
-658:
+674:
 {
 	Indexed: true;
 
-	@UInt32 Index: 658;
+	@UInt32 Index: 674;
 
 	@UInt64 Symbol: 1346689314062435594;
 
@@ -23422,11 +23900,11 @@
 	];
 };
 
-659:
+675:
 {
 	Indexed: true;
 
-	@UInt32 Index: 659;
+	@UInt32 Index: 675;
 
 	@UInt64 Symbol: 7316673660566209802;
 
@@ -23503,11 +23981,11 @@
 	];
 };
 
-660:
+676:
 {
 	Indexed: true;
 
-	@UInt32 Index: 660;
+	@UInt32 Index: 676;
 
 	@UInt64 Symbol: 17065738407277331722;
 
@@ -23548,11 +24026,11 @@
 	];
 };
 
-661:
+677:
 {
 	Indexed: true;
 
-	@UInt32 Index: 661;
+	@UInt32 Index: 677;
 
 	@UInt64 Symbol: 17128905620876002570;
 
@@ -23599,11 +24077,11 @@
 	];
 };
 
-662:
+678:
 {
 	Indexed: false;
 
-	@UInt32 Index: 662;
+	@UInt32 Index: 678;
 
 	@UInt32 TypeFlags: 4;
 
@@ -23614,11 +24092,11 @@
 	Category: "type";
 };
 
-663:
+679:
 {
 	Indexed: false;
 
-	@UInt32 Index: 663;
+	@UInt32 Index: 679;
 
 	@UInt32 TypeFlags: 0;
 
@@ -23635,11 +24113,11 @@
 	@UInt64 2709038510: [2536548483188397317];
 };
 
-664:
+680:
 {
 	Indexed: false;
 
-	@UInt32 Index: 664;
+	@UInt32 Index: 680;
 
 	@UInt32 TypeFlags: 4;
 
@@ -23650,11 +24128,11 @@
 	Category: "type";
 };
 
-665:
+681:
 {
 	Indexed: false;
 
-	@UInt32 Index: 665;
+	@UInt32 Index: 681;
 
 	@UInt32 TypeFlags: 0;
 
@@ -23671,11 +24149,11 @@
 	@UInt64 2709038510: [15312834131491034373];
 };
 
-666:
+682:
 {
 	Indexed: false;
 
-	@UInt32 Index: 666;
+	@UInt32 Index: 682;
 
 	@UInt32 TypeFlags: 4;
 
@@ -23686,11 +24164,11 @@
 	Category: "type";
 };
 
-667:
+683:
 {
 	Indexed: false;
 
-	@UInt32 Index: 667;
+	@UInt32 Index: 683;
 
 	@UInt32 TypeFlags: 0;
 
@@ -23707,11 +24185,11 @@
 	@UInt64 2709038510: [12206779736541631749];
 };
 
-668:
+684:
 {
 	Indexed: false;
 
-	@UInt32 Index: 668;
+	@UInt32 Index: 684;
 
 	@UInt32 TypeFlags: 4;
 
@@ -23722,11 +24200,11 @@
 	Category: "type";
 };
 
-669:
+685:
 {
 	Indexed: false;
 
-	@UInt32 Index: 669;
+	@UInt32 Index: 685;
 
 	@UInt32 TypeFlags: 0;
 
@@ -23743,11 +24221,11 @@
 	@UInt64 2709038510: [13059207212948264197];
 };
 
-670:
+686:
 {
 	Indexed: false;
 
-	@UInt32 Index: 670;
+	@UInt32 Index: 686;
 
 	@UInt32 TypeFlags: 4;
 
@@ -23758,11 +24236,11 @@
 	Category: "type";
 };
 
-671:
+687:
 {
 	Indexed: false;
 
-	@UInt32 Index: 671;
+	@UInt32 Index: 687;
 
 	@UInt32 TypeFlags: 0;
 
@@ -23779,11 +24257,11 @@
 	@UInt64 2709038510: [3805294011543983365];
 };
 
-672:
+688:
 {
 	Indexed: true;
 
-	@UInt32 Index: 672;
+	@UInt32 Index: 688;
 
 	@UInt64 Symbol: 9609741839313765642;
 
@@ -23796,11 +24274,11 @@
 	Namespace: "Reflex::GLX";
 };
 
-673:
+689:
 {
 	Indexed: true;
 
-	@UInt32 Index: 673;
+	@UInt32 Index: 689;
 
 	@UInt64 Symbol: 16781546979716072714;
 
@@ -23813,36 +24291,99 @@
 	Namespace: "Reflex::GLX";
 };
 
-674:
+690:
 {
 	Indexed: true;
 
-	@UInt32 Index: 674;
+	@UInt32 Index: 690;
 
 	@UInt32 TypeFlags: 1;
 
-	@UInt64 Symbol: 1404815326977295626;
+	@UInt64 Symbol: 12203272108884722954;
 
-	Name: "ClickFlags";
+	Name: "PointerFlags";
 
 	Category: "type";
 
 	Namespace: "Reflex::GLX";
 };
 
-675:
+691:
 {
 	IsConst: true;
 
 	Indexed: true;
 
-	@UInt32 Index: 675;
+	@UInt32 Index: 691;
 
-	@UInt64 ParentID: 1404815326977295626;
+	@UInt64 ParentID: 12203272108884722954;
 
-	@UInt64 Symbol: 3452670684207818129;
+	@UInt64 Symbol: 10162374236595665676;
 
-	@UInt64 TypeID: 1404815326977295626;
+	@UInt64 TypeID: 12203272108884722954;
+
+	Name: "kPointerFlagDouble";
+
+	Category: "member";
+
+	Namespace: "Reflex::GLX";
+};
+
+692:
+{
+	IsConst: true;
+
+	Indexed: true;
+
+	@UInt32 Index: 692;
+
+	@UInt64 ParentID: 12203272108884722954;
+
+	@UInt64 Symbol: 4565823801691847436;
+
+	@UInt64 TypeID: 12203272108884722954;
+
+	Name: "kPointerFlagRightMouseButton";
+
+	Category: "member";
+
+	Namespace: "Reflex::GLX";
+};
+
+693:
+{
+	IsConst: true;
+
+	Indexed: true;
+
+	@UInt32 Index: 693;
+
+	@UInt64 ParentID: 12203272108884722954;
+
+	@UInt64 Symbol: 2031655417580206860;
+
+	@UInt64 TypeID: 12203272108884722954;
+
+	Name: "kPointerFlagMulti";
+
+	Category: "member";
+
+	Namespace: "Reflex::GLX";
+};
+
+694:
+{
+	IsConst: true;
+
+	Indexed: true;
+
+	@UInt32 Index: 694;
+
+	@UInt64 ParentID: 12203272108884722954;
+
+	@UInt64 Symbol: 3452670683473885964;
+
+	@UInt64 TypeID: 12203272108884722954;
 
 	Name: "kClickFlagRmb";
 
@@ -23851,19 +24392,19 @@
 	Namespace: "Reflex::GLX";
 };
 
-676:
+695:
 {
 	IsConst: true;
 
 	Indexed: true;
 
-	@UInt32 Index: 676;
+	@UInt32 Index: 695;
 
-	@UInt64 ParentID: 1404815326977295626;
+	@UInt64 ParentID: 12203272108884722954;
 
-	@UInt64 Symbol: 3452603687012967825;
+	@UInt64 Symbol: 3452603686279035660;
 
-	@UInt64 TypeID: 1404815326977295626;
+	@UInt64 TypeID: 12203272108884722954;
 
 	Name: "kClickFlagDbl";
 
@@ -23872,11 +24413,11 @@
 	Namespace: "Reflex::GLX";
 };
 
-677:
+696:
 {
 	Indexed: true;
 
-	@UInt32 Index: 677;
+	@UInt32 Index: 696;
 
 	@UInt64 Symbol: 3610858371567158538;
 
@@ -23927,11 +24468,11 @@
 	];
 };
 
-678:
+697:
 {
 	Indexed: true;
 
-	@UInt32 Index: 678;
+	@UInt32 Index: 697;
 
 	@UInt64 Symbol: 16365802615138780426;
 
@@ -23982,11 +24523,11 @@
 	];
 };
 
-679:
+698:
 {
 	Indexed: true;
 
-	@UInt32 Index: 679;
+	@UInt32 Index: 698;
 
 	@UInt64 Symbol: 10149938692383409418;
 
@@ -24037,11 +24578,11 @@
 	];
 };
 
-680:
+699:
 {
 	Indexed: true;
 
-	@UInt32 Index: 680;
+	@UInt32 Index: 699;
 
 	@UInt64 Symbol: 8092100911750546698;
 
@@ -24082,11 +24623,11 @@
 	];
 };
 
-681:
+700:
 {
 	Indexed: true;
 
-	@UInt32 Index: 681;
+	@UInt32 Index: 700;
 
 	@UInt64 Symbol: 16354089260070044938;
 
@@ -24131,11 +24672,134 @@
 	];
 };
 
-682:
+701:
 {
 	Indexed: true;
 
-	@UInt32 Index: 682;
+	@UInt32 Index: 701;
+
+	@UInt64 Symbol: 4097012707713189130;
+
+	Name: "GetTimestamp";
+
+	Category: "function";
+
+	Namespace: "Reflex::GLX";
+
+	Overloads:
+	[
+		{
+			Return:
+			{
+				@UInt64 TypeID: 1452731274967087819;
+			};
+
+			Arguments:
+			[
+				{
+					IsConst: true;
+
+					IsRef: true;
+
+					@UInt64 TypeID: 946331961880839434;
+
+					Name: "e";
+				},
+
+			];
+
+		},
+
+	];
+};
+
+702:
+{
+	Indexed: true;
+
+	@UInt32 Index: 702;
+
+	@UInt64 Symbol: 9806376020629095690;
+
+	Name: "GetPointerSlot";
+
+	Category: "function";
+
+	Namespace: "Reflex::GLX";
+
+	Overloads:
+	[
+		{
+			Return:
+			{
+				@UInt64 TypeID: 1020924849394252491;
+			};
+
+			Arguments:
+			[
+				{
+					IsConst: true;
+
+					IsRef: true;
+
+					@UInt64 TypeID: 946331961880839434;
+
+					Name: "e";
+				},
+
+			];
+
+		},
+
+	];
+};
+
+703:
+{
+	Indexed: true;
+
+	@UInt32 Index: 703;
+
+	@UInt64 Symbol: 9949477093911921930;
+
+	Name: "GetPointerFlags";
+
+	Category: "function";
+
+	Namespace: "Reflex::GLX";
+
+	Overloads:
+	[
+		{
+			Return:
+			{
+				@UInt64 TypeID: 1020924849394252491;
+			};
+
+			Arguments:
+			[
+				{
+					IsConst: true;
+
+					IsRef: true;
+
+					@UInt64 TypeID: 946331961880839434;
+
+					Name: "e";
+				},
+
+			];
+
+		},
+
+	];
+};
+
+704:
+{
+	Indexed: true;
+
+	@UInt32 Index: 704;
 
 	@UInt64 Symbol: 877631799612769546;
 
@@ -24172,11 +24836,93 @@
 	];
 };
 
-683:
+705:
 {
 	Indexed: true;
 
-	@UInt32 Index: 683;
+	@UInt32 Index: 705;
+
+	@UInt64 Symbol: 10497917097324152074;
+
+	Name: "GetPosition";
+
+	Category: "function";
+
+	Namespace: "Reflex::GLX";
+
+	Overloads:
+	[
+		{
+			Return:
+			{
+				@UInt64 TypeID: 18165601556702132939;
+			};
+
+			Arguments:
+			[
+				{
+					IsConst: true;
+
+					IsRef: true;
+
+					@UInt64 TypeID: 946331961880839434;
+
+					Name: "e";
+				},
+
+			];
+
+		},
+
+	];
+};
+
+706:
+{
+	Indexed: true;
+
+	@UInt32 Index: 706;
+
+	@UInt64 Symbol: 8380482917427676426;
+
+	Name: "GetDelta";
+
+	Category: "function";
+
+	Namespace: "Reflex::GLX";
+
+	Overloads:
+	[
+		{
+			Return:
+			{
+				@UInt64 TypeID: 18165601556702132939;
+			};
+
+			Arguments:
+			[
+				{
+					IsConst: true;
+
+					IsRef: true;
+
+					@UInt64 TypeID: 946331961880839434;
+
+					Name: "e";
+				},
+
+			];
+
+		},
+
+	];
+};
+
+707:
+{
+	Indexed: true;
+
+	@UInt32 Index: 707;
 
 	@UInt64 Symbol: 5604517198925235466;
 
@@ -24213,11 +24959,11 @@
 	];
 };
 
-684:
+708:
 {
 	Indexed: true;
 
-	@UInt32 Index: 684;
+	@UInt32 Index: 708;
 
 	@UInt64 Symbol: 12740634717330703626;
 
@@ -24254,11 +25000,11 @@
 	];
 };
 
-685:
+709:
 {
 	Indexed: true;
 
-	@UInt32 Index: 685;
+	@UInt32 Index: 709;
 
 	@UInt64 Symbol: 5896420424950056202;
 
@@ -24295,11 +25041,62 @@
 	];
 };
 
-686:
+710:
 {
 	Indexed: true;
 
-	@UInt32 Index: 686;
+	@UInt32 Index: 710;
+
+	@UInt64 Symbol: 624515740338324746;
+
+	Name: "EnablePointerCapture";
+
+	Category: "function";
+
+	Namespace: "Reflex::GLX";
+
+	Overloads:
+	[
+		{
+			Return:
+			{
+				@UInt64 TypeID: 8980083472638940421;
+			};
+
+			Arguments:
+			[
+				{
+					IsRef: true;
+
+					@UInt64 TypeID: 946331961880839434;
+
+					Name: "e";
+				},
+
+				{
+					@UInt64 TypeID: 8976997392607876357;
+
+					Name: "enable";
+				},
+
+				{
+					@UInt64 TypeID: 8976997392607876357;
+
+					Name: "incremental";
+				},
+
+			];
+
+		},
+
+	];
+};
+
+711:
+{
+	Indexed: true;
+
+	@UInt32 Index: 711;
 
 	@UInt64 Symbol: 16990406935763322122;
 
@@ -24356,11 +25153,11 @@
 	];
 };
 
-687:
+712:
 {
 	Indexed: true;
 
-	@UInt32 Index: 687;
+	@UInt32 Index: 712;
 
 	@UInt64 Symbol: 15647254058237003018;
 
@@ -24397,11 +25194,11 @@
 	];
 };
 
-688:
+713:
 {
 	Indexed: true;
 
-	@UInt32 Index: 688;
+	@UInt32 Index: 713;
 
 	@UInt64 Symbol: 14581210129891427594;
 
@@ -24438,11 +25235,11 @@
 	];
 };
 
-689:
+714:
 {
 	Indexed: true;
 
-	@UInt32 Index: 689;
+	@UInt32 Index: 714;
 
 	@UInt64 Symbol: 14527751964743271690;
 
@@ -24479,11 +25276,11 @@
 	];
 };
 
-690:
+715:
 {
 	Indexed: true;
 
-	@UInt32 Index: 690;
+	@UInt32 Index: 715;
 
 	@UInt64 Symbol: 1676901685567522058;
 
@@ -24518,11 +25315,11 @@
 	];
 };
 
-691:
+716:
 {
 	Indexed: true;
 
-	@UInt32 Index: 691;
+	@UInt32 Index: 716;
 
 	@UInt64 Symbol: 12831746998201845002;
 
@@ -24567,13 +25364,70 @@
 	];
 };
 
-692:
+717:
 {
 	IsConst: true;
 
 	Indexed: true;
 
-	@UInt32 Index: 692;
+	@UInt32 Index: 717;
+
+	@UInt64 Symbol: 6660500497092412682;
+
+	@UInt64 TypeID: 15243775351508400843;
+
+	Name: "kPointerDown";
+
+	Category: "global";
+
+	Namespace: "Reflex::GLX";
+};
+
+718:
+{
+	IsConst: true;
+
+	Indexed: true;
+
+	@UInt32 Index: 718;
+
+	@UInt64 Symbol: 6660511380539540746;
+
+	@UInt64 TypeID: 15243775351508400843;
+
+	Name: "kPointerDrag";
+
+	Category: "global";
+
+	Namespace: "Reflex::GLX";
+};
+
+719:
+{
+	IsConst: true;
+
+	Indexed: true;
+
+	@UInt32 Index: 719;
+
+	@UInt64 Symbol: 6426059797434565898;
+
+	@UInt64 TypeID: 15243775351508400843;
+
+	Name: "kPointerUp";
+
+	Category: "global";
+
+	Namespace: "Reflex::GLX";
+};
+
+720:
+{
+	IsConst: true;
+
+	Indexed: true;
+
+	@UInt32 Index: 720;
 
 	@UInt64 Symbol: 16250030719408112906;
 
@@ -24586,13 +25440,13 @@
 	Namespace: "Reflex::GLX";
 };
 
-693:
+721:
 {
 	IsConst: true;
 
 	Indexed: true;
 
-	@UInt32 Index: 693;
+	@UInt32 Index: 721;
 
 	@UInt64 Symbol: 16284209515098899722;
 
@@ -24605,13 +25459,13 @@
 	Namespace: "Reflex::GLX";
 };
 
-694:
+722:
 {
 	IsConst: true;
 
 	Indexed: true;
 
-	@UInt32 Index: 694;
+	@UInt32 Index: 722;
 
 	@UInt64 Symbol: 11672120847782479114;
 
@@ -24624,13 +25478,13 @@
 	Namespace: "Reflex::GLX";
 };
 
-695:
+723:
 {
 	IsConst: true;
 
 	Indexed: true;
 
-	@UInt32 Index: 695;
+	@UInt32 Index: 723;
 
 	@UInt64 Symbol: 11672131731229607178;
 
@@ -24643,13 +25497,13 @@
 	Namespace: "Reflex::GLX";
 };
 
-696:
+724:
 {
 	IsConst: true;
 
 	Indexed: true;
 
-	@UInt32 Index: 696;
+	@UInt32 Index: 724;
 
 	@UInt64 Symbol: 7921307822078395658;
 
@@ -24662,13 +25516,13 @@
 	Namespace: "Reflex::GLX";
 };
 
-697:
+725:
 {
 	IsConst: true;
 
 	Indexed: true;
 
-	@UInt32 Index: 697;
+	@UInt32 Index: 725;
 
 	@UInt64 Symbol: 16340717300300743946;
 
@@ -24681,13 +25535,13 @@
 	Namespace: "Reflex::GLX";
 };
 
-698:
+726:
 {
 	IsConst: true;
 
 	Indexed: true;
 
-	@UInt32 Index: 698;
+	@UInt32 Index: 726;
 
 	@UInt64 Symbol: 479710398262641930;
 
@@ -24700,13 +25554,13 @@
 	Namespace: "Reflex::GLX";
 };
 
-699:
+727:
 {
 	IsConst: true;
 
 	Indexed: true;
 
-	@UInt32 Index: 699;
+	@UInt32 Index: 727;
 
 	@UInt64 Symbol: 8127020559235122442;
 
@@ -24719,13 +25573,13 @@
 	Namespace: "Reflex::GLX";
 };
 
-700:
+728:
 {
 	IsConst: true;
 
 	Indexed: true;
 
-	@UInt32 Index: 700;
+	@UInt32 Index: 728;
 
 	@UInt64 Symbol: 13606745366836905226;
 
@@ -24738,13 +25592,13 @@
 	Namespace: "Reflex::GLX";
 };
 
-701:
+729:
 {
 	IsConst: true;
 
 	Indexed: true;
 
-	@UInt32 Index: 701;
+	@UInt32 Index: 729;
 
 	@UInt64 Symbol: 503732725874787594;
 
@@ -24757,13 +25611,13 @@
 	Namespace: "Reflex::GLX";
 };
 
-702:
+730:
 {
 	IsConst: true;
 
 	Indexed: true;
 
-	@UInt32 Index: 702;
+	@UInt32 Index: 730;
 
 	@UInt64 Symbol: 11040927282821694730;
 
@@ -24776,13 +25630,13 @@
 	Namespace: "Reflex::GLX";
 };
 
-703:
+731:
 {
 	IsConst: true;
 
 	Indexed: true;
 
-	@UInt32 Index: 703;
+	@UInt32 Index: 731;
 
 	@UInt64 Symbol: 18263983963024491786;
 
@@ -24795,13 +25649,13 @@
 	Namespace: "Reflex::GLX";
 };
 
-704:
+732:
 {
 	IsConst: true;
 
 	Indexed: true;
 
-	@UInt32 Index: 704;
+	@UInt32 Index: 732;
 
 	@UInt64 Symbol: 7745368244894139658;
 
@@ -24814,13 +25668,13 @@
 	Namespace: "Reflex::GLX";
 };
 
-705:
+733:
 {
 	IsConst: true;
 
 	Indexed: true;
 
-	@UInt32 Index: 705;
+	@UInt32 Index: 733;
 
 	@UInt64 Symbol: 7779547040584926474;
 
@@ -24833,13 +25687,13 @@
 	Namespace: "Reflex::GLX";
 };
 
-706:
+734:
 {
 	IsConst: true;
 
 	Indexed: true;
 
-	@UInt32 Index: 706;
+	@UInt32 Index: 734;
 
 	@UInt64 Symbol: 1266180577300677898;
 
@@ -24852,13 +25706,13 @@
 	Namespace: "Reflex::GLX";
 };
 
-707:
+735:
 {
 	IsConst: true;
 
 	Indexed: true;
 
-	@UInt32 Index: 707;
+	@UInt32 Index: 735;
 
 	@UInt64 Symbol: 7557535242487050;
 
@@ -24871,13 +25725,13 @@
 	Namespace: "Reflex::GLX";
 };
 
-708:
+736:
 {
 	IsConst: true;
 
 	Indexed: true;
 
-	@UInt32 Index: 708;
+	@UInt32 Index: 736;
 
 	@UInt64 Symbol: 9428781797547803914;
 
@@ -24890,11 +25744,11 @@
 	Namespace: "Reflex::GLX";
 };
 
-709:
+737:
 {
 	Indexed: true;
 
-	@UInt32 Index: 709;
+	@UInt32 Index: 737;
 
 	@UInt64 Symbol: 7415551474236753162;
 
@@ -24939,11 +25793,11 @@
 	];
 };
 
-710:
+738:
 {
 	Indexed: true;
 
-	@UInt32 Index: 710;
+	@UInt32 Index: 738;
 
 	@UInt64 Symbol: 17000498287842788618;
 
@@ -24966,11 +25820,11 @@
 	];
 };
 
-711:
+739:
 {
 	Indexed: true;
 
-	@UInt32 Index: 711;
+	@UInt32 Index: 739;
 
 	@UInt64 Symbol: 656786913419691274;
 
@@ -25007,11 +25861,11 @@
 	];
 };
 
-712:
+740:
 {
 	Indexed: true;
 
-	@UInt32 Index: 712;
+	@UInt32 Index: 740;
 
 	@UInt64 Symbol: 14306163233164199178;
 
@@ -25048,11 +25902,11 @@
 	];
 };
 
-713:
+741:
 {
 	Indexed: true;
 
-	@UInt32 Index: 713;
+	@UInt32 Index: 741;
 
 	@UInt64 Symbol: 8221730798634632458;
 
@@ -25089,11 +25943,11 @@
 	];
 };
 
-714:
+742:
 {
 	Indexed: true;
 
-	@UInt32 Index: 714;
+	@UInt32 Index: 742;
 
 	@UInt64 Symbol: 9834429827883566346;
 
@@ -25140,11 +25994,11 @@
 	];
 };
 
-715:
+743:
 {
 	Indexed: true;
 
-	@UInt32 Index: 715;
+	@UInt32 Index: 743;
 
 	@UInt64 Symbol: 14286032820232094986;
 
@@ -25185,11 +26039,11 @@
 	];
 };
 
-716:
+744:
 {
 	Indexed: true;
 
-	@UInt32 Index: 716;
+	@UInt32 Index: 744;
 
 	@UInt64 Symbol: 15049850890779460874;
 
@@ -25230,11 +26084,11 @@
 	];
 };
 
-717:
+745:
 {
 	Indexed: true;
 
-	@UInt32 Index: 717;
+	@UInt32 Index: 745;
 
 	@UInt64 Symbol: 12390270548251346186;
 
@@ -25271,11 +26125,11 @@
 	];
 };
 
-718:
+746:
 {
 	Indexed: true;
 
-	@UInt32 Index: 718;
+	@UInt32 Index: 746;
 
 	@UInt64 Symbol: 5123920649244476682;
 
@@ -25316,11 +26170,11 @@
 	];
 };
 
-719:
+747:
 {
 	Indexed: true;
 
-	@UInt32 Index: 719;
+	@UInt32 Index: 747;
 
 	@UInt64 Symbol: 6899141017635751178;
 
@@ -25361,11 +26215,11 @@
 	];
 };
 
-720:
+748:
 {
 	Indexed: true;
 
-	@UInt32 Index: 720;
+	@UInt32 Index: 748;
 
 	@UInt64 Symbol: 6013620891227882762;
 
@@ -25406,11 +26260,11 @@
 	];
 };
 
-721:
+749:
 {
 	Indexed: true;
 
-	@UInt32 Index: 721;
+	@UInt32 Index: 749;
 
 	@UInt64 Symbol: 13371338634544907530;
 
@@ -25451,11 +26305,11 @@
 	];
 };
 
-722:
+750:
 {
 	Indexed: true;
 
-	@UInt32 Index: 722;
+	@UInt32 Index: 750;
 
 	@UInt64 Symbol: 991493259530437898;
 
@@ -25492,32 +26346,11 @@
 	];
 };
 
-723:
-{
-	Indexed: false;
-
-	@UInt32 Index: 723;
-
-	@UInt32 TypeFlags: 0;
-
-	@UInt64 TemplateSourceID: 8974152822052584139;
-
-	@UInt64 Symbol: 1499392529815272139;
-
-	Name: "Pair";
-
-	Category: "type";
-
-	Namespace: "Reflex";
-
-	@UInt64 2709038510: [8976997392607876357, 8976997392607876357];
-};
-
-724:
+751:
 {
 	Indexed: true;
 
-	@UInt32 Index: 724;
+	@UInt32 Index: 751;
 
 	@UInt64 Symbol: 12399408254382343434;
 
@@ -25558,11 +26391,11 @@
 	];
 };
 
-725:
+752:
 {
 	Indexed: true;
 
-	@UInt32 Index: 725;
+	@UInt32 Index: 752;
 
 	@UInt64 Symbol: 17065274482089886986;
 
@@ -25615,11 +26448,11 @@
 	];
 };
 
-726:
+753:
 {
 	Indexed: true;
 
-	@UInt32 Index: 726;
+	@UInt32 Index: 753;
 
 	@UInt64 Symbol: 5843754414980039946;
 
@@ -25662,11 +26495,11 @@
 	];
 };
 
-727:
+754:
 {
 	Indexed: true;
 
-	@UInt32 Index: 727;
+	@UInt32 Index: 754;
 
 	@UInt64 Symbol: 18234720160403522826;
 
@@ -25707,11 +26540,11 @@
 	];
 };
 
-728:
+755:
 {
 	Indexed: true;
 
-	@UInt32 Index: 728;
+	@UInt32 Index: 755;
 
 	@UInt64 Symbol: 8061677790082204938;
 
@@ -25772,11 +26605,11 @@
 	];
 };
 
-729:
+756:
 {
 	Indexed: true;
 
-	@UInt32 Index: 729;
+	@UInt32 Index: 756;
 
 	@UInt64 Symbol: 18017645576891499786;
 
@@ -25823,11 +26656,11 @@
 	];
 };
 
-730:
+757:
 {
 	Indexed: true;
 
-	@UInt32 Index: 730;
+	@UInt32 Index: 757;
 
 	@UInt64 Symbol: 9836085121164346634;
 
@@ -25868,11 +26701,11 @@
 	];
 };
 
-731:
+758:
 {
 	Indexed: true;
 
-	@UInt32 Index: 731;
+	@UInt32 Index: 758;
 
 	@UInt64 Symbol: 6167080227332785418;
 
@@ -25919,11 +26752,11 @@
 	];
 };
 
-732:
+759:
 {
 	Indexed: true;
 
-	@UInt32 Index: 732;
+	@UInt32 Index: 759;
 
 	@UInt64 Symbol: 2672623865267586314;
 
@@ -25966,11 +26799,11 @@
 	];
 };
 
-733:
+760:
 {
 	Indexed: true;
 
-	@UInt32 Index: 733;
+	@UInt32 Index: 760;
 
 	@UInt64 Symbol: 13513791923680281866;
 
@@ -26021,11 +26854,11 @@
 	];
 };
 
-734:
+761:
 {
 	Indexed: true;
 
-	@UInt32 Index: 734;
+	@UInt32 Index: 761;
 
 	@UInt64 Symbol: 12767373087771559178;
 
@@ -26076,11 +26909,11 @@
 	];
 };
 
-735:
+762:
 {
 	Indexed: true;
 
-	@UInt32 Index: 735;
+	@UInt32 Index: 762;
 
 	@UInt64 Symbol: 14192400093637870858;
 
@@ -26121,11 +26954,11 @@
 	];
 };
 
-736:
+763:
 {
 	Indexed: true;
 
-	@UInt32 Index: 736;
+	@UInt32 Index: 763;
 
 	@UInt64 Symbol: 13692084125035496714;
 
@@ -26162,11 +26995,11 @@
 	];
 };
 
-737:
+764:
 {
 	Indexed: true;
 
-	@UInt32 Index: 737;
+	@UInt32 Index: 764;
 
 	@UInt64 Symbol: 12012218215368328458;
 
@@ -26213,11 +27046,11 @@
 	];
 };
 
-738:
+765:
 {
 	Indexed: true;
 
-	@UInt32 Index: 738;
+	@UInt32 Index: 765;
 
 	@UInt64 Symbol: 3350518443588814090;
 
@@ -26264,11 +27097,11 @@
 	];
 };
 
-739:
+766:
 {
 	Indexed: false;
 
-	@UInt32 Index: 739;
+	@UInt32 Index: 766;
 
 	@UInt32 TypeFlags: 0;
 
@@ -26285,11 +27118,11 @@
 	@UInt64 2709038510: [18165601556702132939, 12696206381670431435];
 };
 
-740:
+767:
 {
 	Indexed: true;
 
-	@UInt32 Index: 740;
+	@UInt32 Index: 767;
 
 	@UInt64 Symbol: 14943435499698750730;
 
@@ -26358,11 +27191,11 @@
 	];
 };
 
-741:
+768:
 {
 	Indexed: true;
 
-	@UInt32 Index: 741;
+	@UInt32 Index: 768;
 
 	@UInt64 Symbol: 12186597521128260874;
 
@@ -26399,11 +27232,11 @@
 	];
 };
 
-742:
+769:
 {
 	Indexed: true;
 
-	@UInt32 Index: 742;
+	@UInt32 Index: 769;
 
 	@UInt64 Symbol: 14502939204234872074;
 
@@ -26450,11 +27283,11 @@
 	];
 };
 
-743:
+770:
 {
 	Indexed: true;
 
-	@UInt32 Index: 743;
+	@UInt32 Index: 770;
 
 	@UInt64 Symbol: 18141271455978063114;
 
@@ -26491,11 +27324,11 @@
 	];
 };
 
-744:
+771:
 {
 	Indexed: true;
 
-	@UInt32 Index: 744;
+	@UInt32 Index: 771;
 
 	@UInt64 Symbol: 16352619814319129866;
 
@@ -26538,11 +27371,11 @@
 	];
 };
 
-745:
+772:
 {
 	Indexed: true;
 
-	@UInt32 Index: 745;
+	@UInt32 Index: 772;
 
 	@UInt64 Symbol: 15187249853810967818;
 
@@ -26593,11 +27426,11 @@
 	];
 };
 
-746:
+773:
 {
 	Indexed: true;
 
-	@UInt32 Index: 746;
+	@UInt32 Index: 773;
 
 	@UInt64 Symbol: 15145119518877123850;
 
@@ -26654,11 +27487,11 @@
 	];
 };
 
-747:
+774:
 {
 	Indexed: true;
 
-	@UInt32 Index: 747;
+	@UInt32 Index: 774;
 
 	@UInt64 Symbol: 18005836590080951562;
 
@@ -26699,11 +27532,38 @@
 	];
 };
 
-748:
+775:
 {
 	Indexed: true;
 
-	@UInt32 Index: 748;
+	@UInt32 Index: 775;
+
+	@UInt64 Symbol: 8392171507714983178;
+
+	Name: "GetFocus";
+
+	Category: "function";
+
+	Namespace: "Reflex::GLX";
+
+	Overloads:
+	[
+		{
+			Return:
+			{
+				@UInt64 TypeID: 1532154888241511115;
+			};
+
+		},
+
+	];
+};
+
+776:
+{
+	Indexed: true;
+
+	@UInt32 Index: 776;
 
 	@UInt64 Symbol: 6931605747713279242;
 
@@ -26738,11 +27598,11 @@
 	];
 };
 
-749:
+777:
 {
 	Indexed: true;
 
-	@UInt32 Index: 749;
+	@UInt32 Index: 777;
 
 	@UInt64 Symbol: 15559101598243325194;
 
@@ -26785,11 +27645,11 @@
 	];
 };
 
-750:
+778:
 {
 	Indexed: false;
 
-	@UInt32 Index: 750;
+	@UInt32 Index: 778;
 
 	@UInt32 TypeFlags: 4;
 
@@ -26800,11 +27660,11 @@
 	Category: "type";
 };
 
-751:
+779:
 {
 	Indexed: false;
 
-	@UInt32 Index: 751;
+	@UInt32 Index: 779;
 
 	@UInt32 TypeFlags: 0;
 
@@ -26821,11 +27681,11 @@
 	@UInt64 2709038510: [7649297304901391621];
 };
 
-752:
+780:
 {
 	Indexed: true;
 
-	@UInt32 Index: 752;
+	@UInt32 Index: 780;
 
 	@UInt32 TypeFlags: 2;
 
@@ -26840,11 +27700,11 @@
 	Namespace: "Reflex::GLX";
 };
 
-753:
+781:
 {
 	Indexed: true;
 
-	@UInt32 Index: 753;
+	@UInt32 Index: 781;
 
 	@UInt64 ParentID: 11673504531626427658;
 
@@ -26879,11 +27739,11 @@
 	];
 };
 
-754:
+782:
 {
 	Indexed: true;
 
-	@UInt32 Index: 754;
+	@UInt32 Index: 782;
 
 	@UInt64 ParentID: 11673504531626427658;
 
@@ -26920,11 +27780,11 @@
 	];
 };
 
-755:
+783:
 {
 	Indexed: true;
 
-	@UInt32 Index: 755;
+	@UInt32 Index: 783;
 
 	@UInt64 ParentID: 11673504531626427658;
 
@@ -26949,11 +27809,11 @@
 	];
 };
 
-756:
+784:
 {
 	Indexed: true;
 
-	@UInt32 Index: 756;
+	@UInt32 Index: 784;
 
 	@UInt32 TypeFlags: 2;
 
@@ -26968,11 +27828,11 @@
 	Namespace: "Reflex::GLX";
 };
 
-757:
+785:
 {
 	Indexed: true;
 
-	@UInt32 Index: 757;
+	@UInt32 Index: 785;
 
 	@UInt64 ParentID: 13415755210635183370;
 
@@ -26997,11 +27857,11 @@
 	];
 };
 
-758:
+786:
 {
 	Indexed: true;
 
-	@UInt32 Index: 758;
+	@UInt32 Index: 786;
 
 	@UInt64 ParentID: 13415755210635183370;
 
@@ -27038,11 +27898,11 @@
 	];
 };
 
-759:
+787:
 {
 	Indexed: true;
 
-	@UInt32 Index: 759;
+	@UInt32 Index: 787;
 
 	@UInt32 TypeFlags: 2;
 
@@ -27057,11 +27917,11 @@
 	Namespace: "Reflex::GLX";
 };
 
-760:
+788:
 {
 	Indexed: true;
 
-	@UInt32 Index: 760;
+	@UInt32 Index: 788;
 
 	@UInt64 ParentID: 13030293024079447306;
 
@@ -27096,11 +27956,11 @@
 	];
 };
 
-761:
+789:
 {
 	Indexed: true;
 
-	@UInt32 Index: 761;
+	@UInt32 Index: 789;
 
 	@UInt32 TypeFlags: 2;
 
@@ -27115,11 +27975,11 @@
 	Namespace: "Reflex::GLX";
 };
 
-762:
+790:
 {
 	Indexed: true;
 
-	@UInt32 Index: 762;
+	@UInt32 Index: 790;
 
 	@UInt32 TypeFlags: 2;
 
@@ -27134,11 +27994,11 @@
 	Namespace: "Reflex::GLX";
 };
 
-763:
+791:
 {
 	Indexed: true;
 
-	@UInt32 Index: 763;
+	@UInt32 Index: 791;
 
 	@UInt32 TypeFlags: 1;
 
@@ -27153,13 +28013,13 @@
 	Namespace: "Reflex::GLX";
 };
 
-764:
+792:
 {
 	IsConst: true;
 
 	Indexed: true;
 
-	@UInt32 Index: 764;
+	@UInt32 Index: 792;
 
 	@UInt64 ParentID: 12677384309400002985;
 
@@ -27174,13 +28034,13 @@
 	Namespace: "Reflex::GLX";
 };
 
-765:
+793:
 {
 	IsConst: true;
 
 	Indexed: true;
 
-	@UInt32 Index: 765;
+	@UInt32 Index: 793;
 
 	@UInt64 ParentID: 12677384309400002985;
 
@@ -27195,13 +28055,13 @@
 	Namespace: "Reflex::GLX";
 };
 
-766:
+794:
 {
 	IsConst: true;
 
 	Indexed: true;
 
-	@UInt32 Index: 766;
+	@UInt32 Index: 794;
 
 	@UInt64 ParentID: 12677384309400002985;
 
@@ -27216,13 +28076,13 @@
 	Namespace: "Reflex::GLX";
 };
 
-767:
+795:
 {
 	IsConst: true;
 
 	Indexed: true;
 
-	@UInt32 Index: 767;
+	@UInt32 Index: 795;
 
 	@UInt64 ParentID: 12677384309400002985;
 
@@ -27237,13 +28097,13 @@
 	Namespace: "Reflex::GLX";
 };
 
-768:
+796:
 {
 	IsConst: true;
 
 	Indexed: true;
 
-	@UInt32 Index: 768;
+	@UInt32 Index: 796;
 
 	@UInt64 ParentID: 12677384309400002985;
 
@@ -27258,13 +28118,13 @@
 	Namespace: "Reflex::GLX";
 };
 
-769:
+797:
 {
 	IsConst: true;
 
 	Indexed: true;
 
-	@UInt32 Index: 769;
+	@UInt32 Index: 797;
 
 	@UInt64 ParentID: 12677384309400002985;
 
@@ -27279,13 +28139,13 @@
 	Namespace: "Reflex::GLX";
 };
 
-770:
+798:
 {
 	IsConst: true;
 
 	Indexed: true;
 
-	@UInt32 Index: 770;
+	@UInt32 Index: 798;
 
 	@UInt64 ParentID: 12677384309400002985;
 
@@ -27300,11 +28160,11 @@
 	Namespace: "Reflex::GLX";
 };
 
-771:
+799:
 {
 	Indexed: false;
 
-	@UInt32 Index: 771;
+	@UInt32 Index: 799;
 
 	@UInt32 TypeFlags: 0;
 
@@ -27321,11 +28181,11 @@
 	@UInt64 2709038510: [11673504531626427658];
 };
 
-772:
+800:
 {
 	Indexed: false;
 
-	@UInt32 Index: 772;
+	@UInt32 Index: 800;
 
 	@UInt32 TypeFlags: 0;
 
@@ -27342,11 +28202,11 @@
 	@UInt64 2709038510: [17361695219141149962];
 };
 
-773:
+801:
 {
 	Indexed: true;
 
-	@UInt32 Index: 773;
+	@UInt32 Index: 801;
 
 	@UInt64 Symbol: 945166050058667274;
 
@@ -27387,11 +28247,11 @@
 	];
 };
 
-774:
+802:
 {
 	Indexed: true;
 
-	@UInt32 Index: 774;
+	@UInt32 Index: 802;
 
 	@UInt64 Symbol: 8972562576001041674;
 
@@ -27438,11 +28298,11 @@
 	];
 };
 
-775:
+803:
 {
 	Indexed: true;
 
-	@UInt32 Index: 775;
+	@UInt32 Index: 803;
 
 	@UInt64 Symbol: 4438300812032181514;
 
@@ -27495,11 +28355,11 @@
 	];
 };
 
-776:
+804:
 {
 	Indexed: true;
 
-	@UInt32 Index: 776;
+	@UInt32 Index: 804;
 
 	@UInt64 Symbol: 14630098535735985418;
 
@@ -27532,11 +28392,11 @@
 	];
 };
 
-777:
+805:
 {
 	Indexed: true;
 
-	@UInt32 Index: 777;
+	@UInt32 Index: 805;
 
 	@UInt64 Symbol: 16203876171916608778;
 
@@ -27573,11 +28433,11 @@
 	];
 };
 
-778:
+806:
 {
 	Indexed: true;
 
-	@UInt32 Index: 778;
+	@UInt32 Index: 806;
 
 	@UInt64 Symbol: 3214050947294659850;
 
@@ -27600,11 +28460,11 @@
 	];
 };
 
-779:
+807:
 {
 	Indexed: true;
 
-	@UInt32 Index: 779;
+	@UInt32 Index: 807;
 
 	@UInt64 Symbol: 3372461435799045386;
 
@@ -27649,11 +28509,11 @@
 	];
 };
 
-780:
+808:
 {
 	Indexed: true;
 
-	@UInt32 Index: 780;
+	@UInt32 Index: 808;
 
 	@UInt64 Symbol: 461854346607428874;
 
@@ -27698,11 +28558,11 @@
 	];
 };
 
-781:
+809:
 {
 	Indexed: true;
 
-	@UInt32 Index: 781;
+	@UInt32 Index: 809;
 
 	@UInt64 Symbol: 11994997758743381258;
 
@@ -27747,11 +28607,11 @@
 	];
 };
 
-782:
+810:
 {
 	Indexed: true;
 
-	@UInt32 Index: 782;
+	@UInt32 Index: 810;
 
 	@UInt64 Symbol: 1956205431755998474;
 
@@ -27796,11 +28656,11 @@
 	];
 };
 
-783:
+811:
 {
 	Indexed: true;
 
-	@UInt32 Index: 783;
+	@UInt32 Index: 811;
 
 	@UInt64 Symbol: 14829502906532726026;
 
@@ -27853,11 +28713,11 @@
 	];
 };
 
-784:
+812:
 {
 	Indexed: true;
 
-	@UInt32 Index: 784;
+	@UInt32 Index: 812;
 
 	@UInt64 Symbol: 15922530894628357386;
 
@@ -27910,11 +28770,11 @@
 	];
 };
 
-785:
+813:
 {
 	Indexed: true;
 
-	@UInt32 Index: 785;
+	@UInt32 Index: 813;
 
 	@UInt64 Symbol: 4822352329464448266;
 
@@ -27951,11 +28811,11 @@
 	];
 };
 
-786:
+814:
 {
 	Indexed: true;
 
-	@UInt32 Index: 786;
+	@UInt32 Index: 814;
 
 	@UInt64 Symbol: 10471632103631062282;
 
@@ -28006,11 +28866,11 @@
 	];
 };
 
-787:
+815:
 {
 	Indexed: true;
 
-	@UInt32 Index: 787;
+	@UInt32 Index: 815;
 
 	@UInt64 Symbol: 13538936539131774218;
 
@@ -28065,11 +28925,11 @@
 	];
 };
 
-788:
+816:
 {
 	Indexed: true;
 
-	@UInt32 Index: 788;
+	@UInt32 Index: 816;
 
 	@UInt64 Symbol: 830948468632683786;
 
@@ -28198,11 +29058,11 @@
 	];
 };
 
-789:
+817:
 {
 	Indexed: true;
 
-	@UInt32 Index: 789;
+	@UInt32 Index: 817;
 
 	@UInt64 Symbol: 8974705575703184650;
 
@@ -28243,11 +29103,11 @@
 	];
 };
 
-790:
+818:
 {
 	Indexed: true;
 
-	@UInt32 Index: 790;
+	@UInt32 Index: 818;
 
 	@UInt64 Symbol: 830941759893767434;
 
@@ -28370,11 +29230,11 @@
 	];
 };
 
-791:
+819:
 {
 	Indexed: false;
 
-	@UInt32 Index: 791;
+	@UInt32 Index: 819;
 
 	@UInt32 TypeFlags: 0;
 
@@ -28391,11 +29251,11 @@
 	@UInt64 2709038510: [18165601556702132939];
 };
 
-792:
+820:
 {
 	Indexed: false;
 
-	@UInt32 Index: 792;
+	@UInt32 Index: 820;
 
 	@UInt32 TypeFlags: 0;
 
@@ -28412,11 +29272,11 @@
 	@UInt64 2709038510: [18165601556702132939];
 };
 
-793:
+821:
 {
 	Indexed: false;
 
-	@UInt32 Index: 793;
+	@UInt32 Index: 821;
 
 	@UInt32 TypeFlags: 0;
 
@@ -28433,11 +29293,11 @@
 	@UInt64 2709038510: [18165601556702132939];
 };
 
-794:
+822:
 {
 	Indexed: false;
 
-	@UInt32 Index: 794;
+	@UInt32 Index: 822;
 
 	@UInt32 TypeFlags: 0;
 
@@ -28454,11 +29314,11 @@
 	@UInt64 2709038510: [10622789066732829387];
 };
 
-795:
+823:
 {
 	Indexed: false;
 
-	@UInt32 Index: 795;
+	@UInt32 Index: 823;
 
 	@UInt32 TypeFlags: 0;
 
@@ -28475,11 +29335,11 @@
 	@UInt64 2709038510: [10622789066732829387];
 };
 
-796:
+824:
 {
 	Indexed: false;
 
-	@UInt32 Index: 796;
+	@UInt32 Index: 824;
 
 	@UInt32 TypeFlags: 0;
 
@@ -28496,11 +29356,11 @@
 	@UInt64 2709038510: [10622789066732829387];
 };
 
-797:
+825:
 {
 	Indexed: true;
 
-	@UInt32 Index: 797;
+	@UInt32 Index: 825;
 
 	@UInt64 Symbol: 14596111566169539850;
 
@@ -28513,11 +29373,11 @@
 	Namespace: "Reflex::GLX";
 };
 
-798:
+826:
 {
 	Indexed: true;
 
-	@UInt32 Index: 798;
+	@UInt32 Index: 826;
 
 	@UInt64 Symbol: 3902131130752664842;
 
@@ -28530,11 +29390,11 @@
 	Namespace: "Reflex::GLX";
 };
 
-799:
+827:
 {
 	Indexed: true;
 
-	@UInt32 Index: 799;
+	@UInt32 Index: 827;
 
 	@UInt32 TypeFlags: 0;
 
@@ -28547,11 +29407,11 @@
 	Namespace: "Reflex::GLX";
 };
 
-800:
+828:
 {
 	Indexed: true;
 
-	@UInt32 Index: 800;
+	@UInt32 Index: 828;
 
 	@UInt32 TypeFlags: 0;
 
@@ -28564,11 +29424,11 @@
 	Namespace: "Reflex::GLX";
 };
 
-801:
+829:
 {
 	Indexed: true;
 
-	@UInt32 Index: 801;
+	@UInt32 Index: 829;
 
 	@UInt32 TypeFlags: 0;
 
@@ -28581,11 +29441,11 @@
 	Namespace: "Reflex::GLX";
 };
 
-802:
+830:
 {
 	Indexed: false;
 
-	@UInt32 Index: 802;
+	@UInt32 Index: 830;
 
 	@UInt32 TypeFlags: 4;
 
@@ -28596,11 +29456,11 @@
 	Category: "type";
 };
 
-803:
+831:
 {
 	Indexed: false;
 
-	@UInt32 Index: 803;
+	@UInt32 Index: 831;
 
 	@UInt32 TypeFlags: 0;
 
@@ -28617,11 +29477,11 @@
 	@UInt64 2709038510: [12422482816736957701];
 };
 
-804:
+832:
 {
 	Indexed: false;
 
-	@UInt32 Index: 804;
+	@UInt32 Index: 832;
 
 	@UInt32 TypeFlags: 4;
 
@@ -28632,11 +29492,11 @@
 	Category: "type";
 };
 
-805:
+833:
 {
 	Indexed: false;
 
-	@UInt32 Index: 805;
+	@UInt32 Index: 833;
 
 	@UInt32 TypeFlags: 0;
 
@@ -28653,11 +29513,11 @@
 	@UInt64 2709038510: [12246986140875232517];
 };
 
-806:
+834:
 {
 	Indexed: false;
 
-	@UInt32 Index: 806;
+	@UInt32 Index: 834;
 
 	@UInt32 TypeFlags: 4;
 
@@ -28668,11 +29528,11 @@
 	Category: "type";
 };
 
-807:
+835:
 {
 	Indexed: false;
 
-	@UInt32 Index: 807;
+	@UInt32 Index: 835;
 
 	@UInt32 TypeFlags: 0;
 
@@ -28689,11 +29549,11 @@
 	@UInt64 2709038510: [15570014475368011013];
 };
 
-808:
+836:
 {
 	Indexed: true;
 
-	@UInt32 Index: 808;
+	@UInt32 Index: 836;
 
 	@UInt64 Symbol: 8157410691259663626;
 
@@ -28744,11 +29604,11 @@
 	];
 };
 
-809:
+837:
 {
 	Indexed: true;
 
-	@UInt32 Index: 809;
+	@UInt32 Index: 837;
 
 	@UInt64 Symbol: 11451435876106732810;
 
@@ -28799,11 +29659,11 @@
 	];
 };
 
-810:
+838:
 {
 	Indexed: true;
 
-	@UInt32 Index: 810;
+	@UInt32 Index: 838;
 
 	@UInt64 Symbol: 13078888775147422986;
 
@@ -28854,11 +29714,11 @@
 	];
 };
 
-811:
+839:
 {
 	Indexed: true;
 
-	@UInt32 Index: 811;
+	@UInt32 Index: 839;
 
 	@UInt64 Symbol: 18330453061580981514;
 
@@ -28899,11 +29759,11 @@
 	];
 };
 
-812:
+840:
 {
 	Indexed: true;
 
-	@UInt32 Index: 812;
+	@UInt32 Index: 840;
 
 	@UInt64 Symbol: 15549464018048615690;
 
@@ -28988,11 +29848,11 @@
 	];
 };
 
-813:
+841:
 {
 	Indexed: true;
 
-	@UInt32 Index: 813;
+	@UInt32 Index: 841;
 
 	@UInt64 Symbol: 8956172967914603786;
 
@@ -29109,11 +29969,11 @@
 	];
 };
 
-814:
+842:
 {
 	Indexed: true;
 
-	@UInt32 Index: 814;
+	@UInt32 Index: 842;
 
 	@UInt64 Symbol: 8495876898985968906;
 
@@ -29154,11 +30014,11 @@
 				{
 					IsConst: true;
 
-					IsPointer: true;
+					IsRef: true;
 
-					@UInt64 TypeID: 12696206381670431435;
+					@UInt64 TypeID: 3780518594895512842;
 
-					Name: "corners[4]";
+					Name: "corners";
 				},
 
 				{
@@ -29198,13 +30058,9 @@
 				},
 
 				{
-					IsConst: true;
+					@UInt64 TypeID: 1452730841175390923;
 
-					IsRef: true;
-
-					@UInt64 TypeID: 14021901793341048074;
-
-					Name: "corners";
+					Name: "corner";
 				},
 
 				{
@@ -29220,11 +30076,11 @@
 	];
 };
 
-815:
+843:
 {
 	Indexed: true;
 
-	@UInt32 Index: 815;
+	@UInt32 Index: 843;
 
 	@UInt64 Symbol: 906192056525882634;
 
@@ -29275,11 +30131,11 @@
 				{
 					IsConst: true;
 
-					IsPointer: true;
+					IsRef: true;
 
-					@UInt64 TypeID: 12696206381670431435;
+					@UInt64 TypeID: 3780518594895512842;
 
-					Name: "corners[4]";
+					Name: "corners";
 				},
 
 				{
@@ -29329,13 +30185,9 @@
 				},
 
 				{
-					IsConst: true;
+					@UInt64 TypeID: 1452730841175390923;
 
-					IsRef: true;
-
-					@UInt64 TypeID: 14021901793341048074;
-
-					Name: "corners";
+					Name: "corner";
 				},
 
 				{
@@ -29351,11 +30203,11 @@
 	];
 };
 
-816:
+844:
 {
 	Indexed: true;
 
-	@UInt32 Index: 816;
+	@UInt32 Index: 844;
 
 	@UInt64 Symbol: 12312432654082475274;
 
@@ -29412,11 +30264,11 @@
 	];
 };
 
-817:
+845:
 {
 	Indexed: true;
 
-	@UInt32 Index: 817;
+	@UInt32 Index: 845;
 
 	@UInt64 Symbol: 4928174929158964490;
 
@@ -29479,11 +30331,11 @@
 	];
 };
 
-818:
+846:
 {
 	Indexed: true;
 
-	@UInt32 Index: 818;
+	@UInt32 Index: 846;
 
 	@UInt64 Symbol: 17532202238221583626;
 
@@ -29534,11 +30386,11 @@
 	];
 };
 
-819:
+847:
 {
 	Indexed: true;
 
-	@UInt32 Index: 819;
+	@UInt32 Index: 847;
 
 	@UInt64 Symbol: 2847234583865427210;
 
@@ -29601,11 +30453,11 @@
 	];
 };
 
-820:
+848:
 {
 	Indexed: true;
 
-	@UInt32 Index: 820;
+	@UInt32 Index: 848;
 
 	@UInt64 Symbol: 18110915687986857226;
 
@@ -29668,11 +30520,11 @@
 	];
 };
 
-821:
+849:
 {
 	Indexed: true;
 
-	@UInt32 Index: 821;
+	@UInt32 Index: 849;
 
 	@UInt64 Symbol: 10591907727838119178;
 
@@ -29741,11 +30593,11 @@
 	];
 };
 
-822:
+850:
 {
 	Indexed: true;
 
-	@UInt32 Index: 822;
+	@UInt32 Index: 850;
 
 	@UInt64 Symbol: 8690098717430220042;
 
@@ -29790,11 +30642,11 @@
 	];
 };
 
-823:
+851:
 {
 	Indexed: true;
 
-	@UInt32 Index: 823;
+	@UInt32 Index: 851;
 
 	@UInt64 Symbol: 9208741917075014922;
 
@@ -29847,11 +30699,11 @@
 	];
 };
 
-824:
+852:
 {
 	Indexed: true;
 
-	@UInt32 Index: 824;
+	@UInt32 Index: 852;
 
 	@UInt64 Symbol: 4770899402942416138;
 
@@ -29904,11 +30756,11 @@
 	];
 };
 
-825:
+853:
 {
 	Indexed: true;
 
-	@UInt32 Index: 825;
+	@UInt32 Index: 853;
 
 	@UInt64 Symbol: 12894796375077782794;
 
@@ -29963,11 +30815,11 @@
 	];
 };
 
-826:
+854:
 {
 	Indexed: true;
 
-	@UInt32 Index: 826;
+	@UInt32 Index: 854;
 
 	@UInt64 Symbol: 11518256371707512074;
 
@@ -30038,11 +30890,11 @@
 	];
 };
 
-827:
+855:
 {
 	Indexed: true;
 
-	@UInt32 Index: 827;
+	@UInt32 Index: 855;
 
 	@UInt64 Symbol: 10667000377695634698;
 
@@ -30113,11 +30965,11 @@
 	];
 };
 
-828:
+856:
 {
 	Indexed: true;
 
-	@UInt32 Index: 828;
+	@UInt32 Index: 856;
 
 	@UInt64 Symbol: 14933918998927082762;
 
@@ -30200,11 +31052,11 @@
 	];
 };
 
-829:
+857:
 {
 	Indexed: true;
 
-	@UInt32 Index: 829;
+	@UInt32 Index: 857;
 
 	@UInt32 TypeFlags: 1;
 
@@ -30217,13 +31069,13 @@
 	Namespace: "Reflex::GLX";
 };
 
-830:
+858:
 {
 	IsConst: true;
 
 	Indexed: true;
 
-	@UInt32 Index: 830;
+	@UInt32 Index: 858;
 
 	@UInt64 ParentID: 3412323203366880522;
 
@@ -30238,13 +31090,13 @@
 	Namespace: "Reflex::GLX";
 };
 
-831:
+859:
 {
 	IsConst: true;
 
 	Indexed: true;
 
-	@UInt32 Index: 831;
+	@UInt32 Index: 859;
 
 	@UInt64 ParentID: 3412323203366880522;
 
@@ -30259,13 +31111,13 @@
 	Namespace: "Reflex::GLX";
 };
 
-832:
+860:
 {
 	IsConst: true;
 
 	Indexed: true;
 
-	@UInt32 Index: 832;
+	@UInt32 Index: 860;
 
 	@UInt64 ParentID: 3412323203366880522;
 
@@ -30280,13 +31132,13 @@
 	Namespace: "Reflex::GLX";
 };
 
-833:
+861:
 {
 	IsConst: true;
 
 	Indexed: true;
 
-	@UInt32 Index: 833;
+	@UInt32 Index: 861;
 
 	@UInt64 ParentID: 3412323203366880522;
 
@@ -30301,13 +31153,13 @@
 	Namespace: "Reflex::GLX";
 };
 
-834:
+862:
 {
 	IsConst: true;
 
 	Indexed: true;
 
-	@UInt32 Index: 834;
+	@UInt32 Index: 862;
 
 	@UInt64 ParentID: 3412323203366880522;
 
@@ -30322,11 +31174,11 @@
 	Namespace: "Reflex::GLX";
 };
 
-835:
+863:
 {
 	Indexed: true;
 
-	@UInt32 Index: 835;
+	@UInt32 Index: 863;
 
 	@UInt32 TypeFlags: 2;
 
@@ -30341,11 +31193,11 @@
 	Namespace: "Reflex::GLX";
 };
 
-836:
+864:
 {
 	Indexed: true;
 
-	@UInt32 Index: 836;
+	@UInt32 Index: 864;
 
 	@UInt32 TypeFlags: 2;
 
@@ -30360,11 +31212,11 @@
 	Namespace: "Reflex::GLX";
 };
 
-837:
+865:
 {
 	Indexed: true;
 
-	@UInt32 Index: 837;
+	@UInt32 Index: 865;
 
 	@UInt64 ParentID: 8578895112124335370;
 
@@ -30399,11 +31251,11 @@
 	];
 };
 
-838:
+866:
 {
 	Indexed: true;
 
-	@UInt32 Index: 838;
+	@UInt32 Index: 866;
 
 	@UInt64 ParentID: 8578895112124335370;
 
@@ -30428,11 +31280,11 @@
 	];
 };
 
-839:
+867:
 {
 	Indexed: true;
 
-	@UInt32 Index: 839;
+	@UInt32 Index: 867;
 
 	@UInt64 ParentID: 8578895112124335370;
 
@@ -30473,11 +31325,11 @@
 	];
 };
 
-840:
+868:
 {
 	Indexed: true;
 
-	@UInt32 Index: 840;
+	@UInt32 Index: 868;
 
 	@UInt64 ParentID: 8578895112124335370;
 
@@ -30512,11 +31364,11 @@
 	];
 };
 
-841:
+869:
 {
 	Indexed: true;
 
-	@UInt32 Index: 841;
+	@UInt32 Index: 869;
 
 	@UInt64 ParentID: 8578895112124335370;
 
@@ -30542,11 +31394,11 @@
 	];
 };
 
-842:
+870:
 {
 	Indexed: true;
 
-	@UInt32 Index: 842;
+	@UInt32 Index: 870;
 
 	@UInt64 ParentID: 8578895112124335370;
 
@@ -30582,11 +31434,11 @@
 	];
 };
 
-843:
+871:
 {
 	Indexed: true;
 
-	@UInt32 Index: 843;
+	@UInt32 Index: 871;
 
 	@UInt64 ParentID: 8578895112124335370;
 
@@ -30621,11 +31473,11 @@
 	];
 };
 
-844:
+872:
 {
 	Indexed: true;
 
-	@UInt32 Index: 844;
+	@UInt32 Index: 872;
 
 	@UInt64 ParentID: 8578895112124335370;
 
@@ -30651,11 +31503,30 @@
 	];
 };
 
-845:
+873:
 {
 	Indexed: true;
 
-	@UInt32 Index: 845;
+	@UInt32 Index: 873;
+
+	@UInt32 TypeFlags: 2;
+
+	@UInt64 BaseID: 14361920786363680010;
+
+	@UInt64 Symbol: 12275204418726626570;
+
+	Name: "Button";
+
+	Category: "type";
+
+	Namespace: "Reflex::GLX";
+};
+
+874:
+{
+	Indexed: true;
+
+	@UInt32 Index: 874;
 
 	@UInt32 TypeFlags: 2;
 
@@ -30670,11 +31541,11 @@
 	Namespace: "Reflex::GLX";
 };
 
-846:
+875:
 {
 	Indexed: false;
 
-	@UInt32 Index: 846;
+	@UInt32 Index: 875;
 
 	@UInt32 TypeFlags: 0;
 
@@ -30691,11 +31562,11 @@
 	@UInt64 2709038510: [978729750598092042];
 };
 
-847:
+876:
 {
 	Indexed: true;
 
-	@UInt32 Index: 847;
+	@UInt32 Index: 876;
 
 	@UInt32 TypeFlags: 2;
 
@@ -30710,13 +31581,13 @@
 	Namespace: "Reflex::GLX";
 };
 
-848:
+877:
 {
 	IsConst: true;
 
 	Indexed: true;
 
-	@UInt32 Index: 848;
+	@UInt32 Index: 877;
 
 	@UInt64 ParentID: 8972676074806805770;
 
@@ -30731,13 +31602,13 @@
 	Namespace: "Reflex::GLX";
 };
 
-849:
+878:
 {
 	IsConst: true;
 
 	Indexed: true;
 
-	@UInt32 Index: 849;
+	@UInt32 Index: 878;
 
 	@UInt64 ParentID: 8972676074806805770;
 
@@ -30752,11 +31623,11 @@
 	Namespace: "Reflex::GLX";
 };
 
-850:
+879:
 {
 	Indexed: true;
 
-	@UInt32 Index: 850;
+	@UInt32 Index: 879;
 
 	@UInt32 TypeFlags: 2;
 
@@ -30771,11 +31642,11 @@
 	Namespace: "Reflex::GLX";
 };
 
-851:
+880:
 {
 	Indexed: true;
 
-	@UInt32 Index: 851;
+	@UInt32 Index: 880;
 
 	@UInt64 ParentID: 1584402070130230538;
 
@@ -30800,11 +31671,11 @@
 	];
 };
 
-852:
+881:
 {
 	Indexed: true;
 
-	@UInt32 Index: 852;
+	@UInt32 Index: 881;
 
 	@UInt64 ParentID: 1584402070130230538;
 
@@ -30861,11 +31732,11 @@
 	];
 };
 
-853:
+882:
 {
 	Indexed: true;
 
-	@UInt32 Index: 853;
+	@UInt32 Index: 882;
 
 	@UInt64 ParentID: 1584402070130230538;
 
@@ -30900,11 +31771,11 @@
 	];
 };
 
-854:
+883:
 {
 	Indexed: false;
 
-	@UInt32 Index: 854;
+	@UInt32 Index: 883;
 
 	@UInt32 TypeFlags: 0;
 
@@ -30921,11 +31792,11 @@
 	@UInt64 2709038510: [8578895112124335370];
 };
 
-855:
+884:
 {
 	Indexed: false;
 
-	@UInt32 Index: 855;
+	@UInt32 Index: 884;
 
 	@UInt32 TypeFlags: 0;
 
@@ -30942,11 +31813,11 @@
 	@UInt64 2709038510: [8578895112124335370];
 };
 
-856:
+885:
 {
 	Indexed: true;
 
-	@UInt32 Index: 856;
+	@UInt32 Index: 885;
 
 	@UInt64 ParentID: 1584402070130230538;
 
@@ -30980,11 +31851,11 @@
 	];
 };
 
-857:
+886:
 {
 	Indexed: true;
 
-	@UInt32 Index: 857;
+	@UInt32 Index: 886;
 
 	@UInt32 TypeFlags: 2;
 
@@ -30999,11 +31870,11 @@
 	Namespace: "Reflex::GLX";
 };
 
-858:
+887:
 {
 	Indexed: false;
 
-	@UInt32 Index: 858;
+	@UInt32 Index: 887;
 
 	@UInt32 TypeFlags: 0;
 
@@ -31020,11 +31891,11 @@
 	@UInt64 2709038510: [8104147582051255562];
 };
 
-859:
+888:
 {
 	Indexed: true;
 
-	@UInt32 Index: 859;
+	@UInt32 Index: 888;
 
 	@UInt32 TypeFlags: 2;
 
@@ -31039,11 +31910,11 @@
 	Namespace: "Reflex::GLX";
 };
 
-860:
+889:
 {
 	Indexed: true;
 
-	@UInt32 Index: 860;
+	@UInt32 Index: 889;
 
 	@UInt64 ParentID: 9184679921144923402;
 
@@ -31084,11 +31955,11 @@
 	];
 };
 
-861:
+890:
 {
 	Indexed: true;
 
-	@UInt32 Index: 861;
+	@UInt32 Index: 890;
 
 	@UInt64 ParentID: 9184679921144923402;
 
@@ -31122,11 +31993,11 @@
 	];
 };
 
-862:
+891:
 {
 	Indexed: true;
 
-	@UInt32 Index: 862;
+	@UInt32 Index: 891;
 
 	@UInt64 ParentID: 9184679921144923402;
 
@@ -31161,11 +32032,11 @@
 	];
 };
 
-863:
+892:
 {
 	Indexed: true;
 
-	@UInt32 Index: 863;
+	@UInt32 Index: 892;
 
 	@UInt64 ParentID: 9184679921144923402;
 
@@ -31204,11 +32075,11 @@
 	];
 };
 
-864:
+893:
 {
 	Indexed: true;
 
-	@UInt32 Index: 864;
+	@UInt32 Index: 893;
 
 	@UInt64 ParentID: 9184679921144923402;
 
@@ -31243,11 +32114,11 @@
 	];
 };
 
-865:
+894:
 {
 	Indexed: true;
 
-	@UInt32 Index: 865;
+	@UInt32 Index: 894;
 
 	@UInt64 ParentID: 9184679921144923402;
 
@@ -31273,11 +32144,11 @@
 	];
 };
 
-866:
+895:
 {
 	Indexed: true;
 
-	@UInt32 Index: 866;
+	@UInt32 Index: 895;
 
 	@UInt64 ParentID: 9184679921144923402;
 
@@ -31303,11 +32174,11 @@
 	];
 };
 
-867:
+896:
 {
 	Indexed: true;
 
-	@UInt32 Index: 867;
+	@UInt32 Index: 896;
 
 	@UInt64 ParentID: 9184679921144923402;
 
@@ -31346,11 +32217,11 @@
 	];
 };
 
-868:
+897:
 {
 	Indexed: true;
 
-	@UInt32 Index: 868;
+	@UInt32 Index: 897;
 
 	@UInt64 ParentID: 9184679921144923402;
 
@@ -31380,11 +32251,11 @@
 	];
 };
 
-869:
+898:
 {
 	Indexed: true;
 
-	@UInt32 Index: 869;
+	@UInt32 Index: 898;
 
 	@UInt64 ParentID: 9184679921144923402;
 
@@ -31410,11 +32281,11 @@
 	];
 };
 
-870:
+899:
 {
 	Indexed: true;
 
-	@UInt32 Index: 870;
+	@UInt32 Index: 899;
 
 	@UInt64 ParentID: 9184679921144923402;
 
@@ -31455,11 +32326,11 @@
 	];
 };
 
-871:
+900:
 {
 	Indexed: true;
 
-	@UInt32 Index: 871;
+	@UInt32 Index: 900;
 
 	@UInt64 ParentID: 9184679921144923402;
 
@@ -31494,11 +32365,11 @@
 	];
 };
 
-872:
+901:
 {
 	Indexed: true;
 
-	@UInt32 Index: 872;
+	@UInt32 Index: 901;
 
 	@UInt64 ParentID: 9184679921144923402;
 
@@ -31557,11 +32428,11 @@
 	];
 };
 
-873:
+902:
 {
 	Indexed: true;
 
-	@UInt32 Index: 873;
+	@UInt32 Index: 902;
 
 	@UInt64 ParentID: 9184679921144923402;
 
@@ -31602,11 +32473,11 @@
 	];
 };
 
-874:
+903:
 {
 	Indexed: true;
 
-	@UInt32 Index: 874;
+	@UInt32 Index: 903;
 
 	@UInt64 ParentID: 9184679921144923402;
 
@@ -31631,11 +32502,11 @@
 	];
 };
 
-875:
+904:
 {
 	Indexed: true;
 
-	@UInt32 Index: 875;
+	@UInt32 Index: 904;
 
 	@UInt64 ParentID: 9184679921144923402;
 
@@ -31661,11 +32532,11 @@
 	];
 };
 
-876:
+905:
 {
 	Indexed: true;
 
-	@UInt32 Index: 876;
+	@UInt32 Index: 905;
 
 	@UInt64 ParentID: 9184679921144923402;
 
@@ -31700,11 +32571,11 @@
 	];
 };
 
-877:
+906:
 {
 	Indexed: true;
 
-	@UInt32 Index: 877;
+	@UInt32 Index: 906;
 
 	@UInt32 TypeFlags: 2;
 
@@ -31719,11 +32590,11 @@
 	Namespace: "Reflex::GLX";
 };
 
-878:
+907:
 {
 	Indexed: true;
 
-	@UInt32 Index: 878;
+	@UInt32 Index: 907;
 
 	@UInt32 TypeFlags: 2;
 
@@ -31738,11 +32609,11 @@
 	Namespace: "Reflex::GLX";
 };
 
-879:
+908:
 {
 	Indexed: true;
 
-	@UInt32 Index: 879;
+	@UInt32 Index: 908;
 
 	@UInt32 TypeFlags: 2;
 
@@ -31757,11 +32628,11 @@
 	Namespace: "Reflex::GLX";
 };
 
-880:
+909:
 {
 	Indexed: false;
 
-	@UInt32 Index: 880;
+	@UInt32 Index: 909;
 
 	@UInt32 TypeFlags: 4;
 
@@ -31772,11 +32643,11 @@
 	Category: "type";
 };
 
-881:
+910:
 {
 	Indexed: false;
 
-	@UInt32 Index: 881;
+	@UInt32 Index: 910;
 
 	@UInt32 TypeFlags: 0;
 
@@ -31793,11 +32664,11 @@
 	@UInt64 2709038510: [6854534188259874053];
 };
 
-882:
+911:
 {
 	Indexed: true;
 
-	@UInt32 Index: 882;
+	@UInt32 Index: 911;
 
 	@UInt32 TypeFlags: 1;
 
@@ -31812,13 +32683,13 @@
 	Namespace: "Reflex::GLX";
 };
 
-883:
+912:
 {
 	IsConst: true;
 
 	Indexed: true;
 
-	@UInt32 Index: 883;
+	@UInt32 Index: 912;
 
 	@UInt64 ParentID: 832412837035859918;
 
@@ -31833,13 +32704,13 @@
 	Namespace: "Reflex::GLX";
 };
 
-884:
+913:
 {
 	IsConst: true;
 
 	Indexed: true;
 
-	@UInt32 Index: 884;
+	@UInt32 Index: 913;
 
 	@UInt64 ParentID: 832412837035859918;
 
@@ -31854,13 +32725,13 @@
 	Namespace: "Reflex::GLX";
 };
 
-885:
+914:
 {
 	IsConst: true;
 
 	Indexed: true;
 
-	@UInt32 Index: 885;
+	@UInt32 Index: 914;
 
 	@UInt64 ParentID: 832412837035859918;
 
@@ -31875,11 +32746,11 @@
 	Namespace: "Reflex::GLX";
 };
 
-886:
+915:
 {
 	Indexed: true;
 
-	@UInt32 Index: 886;
+	@UInt32 Index: 915;
 
 	@UInt64 ParentID: 13581836222967416074;
 
@@ -31914,11 +32785,11 @@
 	];
 };
 
-887:
+916:
 {
 	Indexed: true;
 
-	@UInt32 Index: 887;
+	@UInt32 Index: 916;
 
 	@UInt64 ParentID: 13581836222967416074;
 
@@ -31944,11 +32815,11 @@
 	];
 };
 
-888:
+917:
 {
 	Indexed: true;
 
-	@UInt32 Index: 888;
+	@UInt32 Index: 917;
 
 	@UInt64 ParentID: 13581836222967416074;
 
@@ -31973,11 +32844,11 @@
 	];
 };
 
-889:
+918:
 {
 	Indexed: true;
 
-	@UInt32 Index: 889;
+	@UInt32 Index: 918;
 
 	@UInt64 ParentID: 13581836222967416074;
 
@@ -32002,11 +32873,11 @@
 	];
 };
 
-890:
+919:
 {
 	Indexed: true;
 
-	@UInt32 Index: 890;
+	@UInt32 Index: 919;
 
 	@UInt64 ParentID: 13581836222967416074;
 
@@ -32047,11 +32918,11 @@
 	];
 };
 
-891:
+920:
 {
 	Indexed: true;
 
-	@UInt32 Index: 891;
+	@UInt32 Index: 920;
 
 	@UInt64 ParentID: 13581836222967416074;
 
@@ -32086,11 +32957,11 @@
 	];
 };
 
-892:
+921:
 {
 	Indexed: true;
 
-	@UInt32 Index: 892;
+	@UInt32 Index: 921;
 
 	@UInt64 ParentID: 13581836222967416074;
 
@@ -32125,11 +32996,11 @@
 	];
 };
 
-893:
+922:
 {
 	Indexed: true;
 
-	@UInt32 Index: 893;
+	@UInt32 Index: 922;
 
 	@UInt64 ParentID: 13581836222967416074;
 
@@ -32164,11 +33035,11 @@
 	];
 };
 
-894:
+923:
 {
 	Indexed: true;
 
-	@UInt32 Index: 894;
+	@UInt32 Index: 923;
 
 	@UInt64 ParentID: 13581836222967416074;
 
@@ -32220,11 +33091,11 @@
 	];
 };
 
-895:
+924:
 {
 	Indexed: true;
 
-	@UInt32 Index: 895;
+	@UInt32 Index: 924;
 
 	@UInt64 ParentID: 13581836222967416074;
 
@@ -32259,11 +33130,11 @@
 	];
 };
 
-896:
+925:
 {
 	Indexed: true;
 
-	@UInt32 Index: 896;
+	@UInt32 Index: 925;
 
 	@UInt32 TypeFlags: 2;
 
@@ -32278,11 +33149,11 @@
 	Namespace: "Reflex::GLX";
 };
 
-897:
+926:
 {
 	Indexed: true;
 
-	@UInt32 Index: 897;
+	@UInt32 Index: 926;
 
 	@UInt32 TypeFlags: 2;
 
@@ -32297,11 +33168,11 @@
 	Namespace: "Reflex::GLX";
 };
 
-898:
+927:
 {
 	Indexed: false;
 
-	@UInt32 Index: 898;
+	@UInt32 Index: 927;
 
 	@UInt32 TypeFlags: 4;
 
@@ -32312,11 +33183,11 @@
 	Category: "type";
 };
 
-899:
+928:
 {
 	Indexed: false;
 
-	@UInt32 Index: 899;
+	@UInt32 Index: 928;
 
 	@UInt32 TypeFlags: 0;
 
@@ -32333,11 +33204,11 @@
 	@UInt64 2709038510: [12707277270591476997];
 };
 
-900:
+929:
 {
 	Indexed: true;
 
-	@UInt32 Index: 900;
+	@UInt32 Index: 929;
 
 	@UInt64 ParentID: 7391239356591211786;
 
@@ -32376,11 +33247,11 @@
 	];
 };
 
-901:
+930:
 {
 	Indexed: true;
 
-	@UInt32 Index: 901;
+	@UInt32 Index: 930;
 
 	@UInt64 ParentID: 7391239356591211786;
 
@@ -32405,11 +33276,11 @@
 	];
 };
 
-902:
+931:
 {
 	Indexed: true;
 
-	@UInt32 Index: 902;
+	@UInt32 Index: 931;
 
 	@UInt64 ParentID: 7391239356591211786;
 
@@ -32450,11 +33321,11 @@
 	];
 };
 
-903:
+932:
 {
 	Indexed: true;
 
-	@UInt32 Index: 903;
+	@UInt32 Index: 932;
 
 	@UInt64 ParentID: 7391239356591211786;
 
@@ -32479,11 +33350,11 @@
 	];
 };
 
-904:
+933:
 {
 	Indexed: true;
 
-	@UInt32 Index: 904;
+	@UInt32 Index: 933;
 
 	@UInt64 ParentID: 7391239356591211786;
 
@@ -32518,11 +33389,11 @@
 	];
 };
 
-905:
+934:
 {
 	Indexed: true;
 
-	@UInt32 Index: 905;
+	@UInt32 Index: 934;
 
 	@UInt32 TypeFlags: 2;
 
@@ -32537,11 +33408,11 @@
 	Namespace: "Reflex::GLX";
 };
 
-906:
+935:
 {
 	Indexed: true;
 
-	@UInt32 Index: 906;
+	@UInt32 Index: 935;
 
 	@UInt32 TypeFlags: 2;
 
@@ -32556,11 +33427,11 @@
 	Namespace: "Reflex::GLX";
 };
 
-907:
+936:
 {
 	Indexed: true;
 
-	@UInt32 Index: 907;
+	@UInt32 Index: 936;
 
 	@UInt64 ParentID: 8973709207715022090;
 
@@ -32585,11 +33456,11 @@
 	];
 };
 
-908:
+937:
 {
 	Indexed: true;
 
-	@UInt32 Index: 908;
+	@UInt32 Index: 937;
 
 	@UInt64 ParentID: 8973709207715022090;
 
@@ -32646,11 +33517,11 @@
 	];
 };
 
-909:
+938:
 {
 	Indexed: true;
 
-	@UInt32 Index: 909;
+	@UInt32 Index: 938;
 
 	@UInt64 ParentID: 8973709207715022090;
 
@@ -32693,11 +33564,11 @@
 	];
 };
 
-910:
+939:
 {
 	Indexed: true;
 
-	@UInt32 Index: 910;
+	@UInt32 Index: 939;
 
 	@UInt64 ParentID: 8973709207715022090;
 
@@ -32754,11 +33625,11 @@
 	];
 };
 
-911:
+940:
 {
 	Indexed: true;
 
-	@UInt32 Index: 911;
+	@UInt32 Index: 940;
 
 	@UInt64 ParentID: 8973709207715022090;
 
@@ -32784,11 +33655,11 @@
 	];
 };
 
-912:
+941:
 {
 	Indexed: true;
 
-	@UInt32 Index: 912;
+	@UInt32 Index: 941;
 
 	@UInt64 ParentID: 8973709207715022090;
 
@@ -32825,11 +33696,11 @@
 	];
 };
 
-913:
+942:
 {
 	Indexed: false;
 
-	@UInt32 Index: 913;
+	@UInt32 Index: 942;
 
 	@UInt32 TypeFlags: 0;
 
@@ -32846,11 +33717,11 @@
 	@UInt64 2709038510: [8973709207715022090];
 };
 
-914:
+943:
 {
 	Indexed: true;
 
-	@UInt32 Index: 914;
+	@UInt32 Index: 943;
 
 	@UInt64 Symbol: 9476589778599249162;
 
@@ -32897,11 +33768,11 @@
 	];
 };
 
-915:
+944:
 {
 	Indexed: true;
 
-	@UInt32 Index: 915;
+	@UInt32 Index: 944;
 
 	@UInt64 Symbol: 13586872535978444042;
 
@@ -32924,11 +33795,11 @@
 	];
 };
 
-916:
+945:
 {
 	Indexed: true;
 
-	@UInt32 Index: 916;
+	@UInt32 Index: 945;
 
 	@UInt32 TypeFlags: 2;
 
@@ -32943,11 +33814,11 @@
 	Namespace: "Reflex::GLX";
 };
 
-917:
+946:
 {
 	Indexed: false;
 
-	@UInt32 Index: 917;
+	@UInt32 Index: 946;
 
 	@UInt32 TypeFlags: 0;
 
@@ -32964,11 +33835,11 @@
 	@UInt64 2709038510: [1009347082097624330, 1452730841175390923];
 };
 
-918:
+947:
 {
 	Indexed: true;
 
-	@UInt32 Index: 918;
+	@UInt32 Index: 947;
 
 	@UInt32 TypeFlags: 2;
 
@@ -32983,11 +33854,11 @@
 	Namespace: "Reflex::GLX";
 };
 
-919:
+948:
 {
 	Indexed: true;
 
-	@UInt32 Index: 919;
+	@UInt32 Index: 948;
 
 	@UInt64 ParentID: 3660065068848088330;
 
@@ -33022,11 +33893,11 @@
 	];
 };
 
-920:
+949:
 {
 	Indexed: true;
 
-	@UInt32 Index: 920;
+	@UInt32 Index: 949;
 
 	@UInt64 ParentID: 3660065068848088330;
 
@@ -33073,11 +33944,11 @@
 	];
 };
 
-921:
+950:
 {
 	Indexed: true;
 
-	@UInt32 Index: 921;
+	@UInt32 Index: 950;
 
 	@UInt64 ParentID: 3660065068848088330;
 
@@ -33103,11 +33974,11 @@
 	];
 };
 
-922:
+951:
 {
 	Indexed: true;
 
-	@UInt32 Index: 922;
+	@UInt32 Index: 951;
 
 	@UInt64 ParentID: 3660065068848088330;
 
@@ -33142,11 +34013,11 @@
 	];
 };
 
-923:
+952:
 {
 	Indexed: true;
 
-	@UInt32 Index: 923;
+	@UInt32 Index: 952;
 
 	@UInt64 ParentID: 3660065068848088330;
 
@@ -33172,11 +34043,11 @@
 	];
 };
 
-924:
+953:
 {
 	Indexed: true;
 
-	@UInt32 Index: 924;
+	@UInt32 Index: 953;
 
 	@UInt64 ParentID: 3660065068848088330;
 
@@ -33201,11 +34072,11 @@
 	];
 };
 
-925:
+954:
 {
 	Indexed: true;
 
-	@UInt32 Index: 925;
+	@UInt32 Index: 954;
 
 	@UInt64 ParentID: 3660065068848088330;
 
@@ -33240,11 +34111,11 @@
 	];
 };
 
-926:
+955:
 {
 	Indexed: true;
 
-	@UInt32 Index: 926;
+	@UInt32 Index: 955;
 
 	@UInt64 ParentID: 3660065068848088330;
 
@@ -33270,11 +34141,11 @@
 	];
 };
 
-927:
+956:
 {
 	Indexed: true;
 
-	@UInt32 Index: 927;
+	@UInt32 Index: 956;
 
 	@UInt32 TypeFlags: 2;
 
@@ -33289,11 +34160,11 @@
 	Namespace: "Reflex::GLX";
 };
 
-928:
+957:
 {
 	Indexed: true;
 
-	@UInt32 Index: 928;
+	@UInt32 Index: 957;
 
 	@UInt64 ParentID: 9244439658014803210;
 
@@ -33318,11 +34189,11 @@
 	];
 };
 
-929:
+958:
 {
 	Indexed: true;
 
-	@UInt32 Index: 929;
+	@UInt32 Index: 958;
 
 	@UInt64 ParentID: 9244439658014803210;
 
@@ -33361,11 +34232,11 @@
 	];
 };
 
-930:
+959:
 {
 	Indexed: true;
 
-	@UInt32 Index: 930;
+	@UInt32 Index: 959;
 
 	@UInt64 ParentID: 9244439658014803210;
 
@@ -33391,11 +34262,11 @@
 	];
 };
 
-931:
+960:
 {
 	Indexed: true;
 
-	@UInt32 Index: 931;
+	@UInt32 Index: 960;
 
 	@UInt32 TypeFlags: 2;
 
@@ -33410,11 +34281,11 @@
 	Namespace: "Reflex::Async";
 };
 
-932:
+961:
 {
 	Indexed: true;
 
-	@UInt32 Index: 932;
+	@UInt32 Index: 961;
 
 	@UInt32 TypeFlags: 1;
 
@@ -33429,13 +34300,13 @@
 	Namespace: "Reflex::Async";
 };
 
-933:
+962:
 {
 	IsConst: true;
 
 	Indexed: true;
 
-	@UInt32 Index: 933;
+	@UInt32 Index: 962;
 
 	@UInt64 ParentID: 15124628141771903332;
 
@@ -33450,13 +34321,13 @@
 	Namespace: "Reflex::Async";
 };
 
-934:
+963:
 {
 	IsConst: true;
 
 	Indexed: true;
 
-	@UInt32 Index: 934;
+	@UInt32 Index: 963;
 
 	@UInt64 ParentID: 15124628141771903332;
 
@@ -33471,13 +34342,13 @@
 	Namespace: "Reflex::Async";
 };
 
-935:
+964:
 {
 	IsConst: true;
 
 	Indexed: true;
 
-	@UInt32 Index: 935;
+	@UInt32 Index: 964;
 
 	@UInt64 ParentID: 15124628141771903332;
 
@@ -33492,11 +34363,11 @@
 	Namespace: "Reflex::Async";
 };
 
-936:
+965:
 {
 	Indexed: true;
 
-	@UInt32 Index: 936;
+	@UInt32 Index: 965;
 
 	@UInt32 TypeFlags: 2;
 
@@ -33511,11 +34382,11 @@
 	Namespace: "Reflex::Async";
 };
 
-937:
+966:
 {
 	Indexed: true;
 
-	@UInt32 Index: 937;
+	@UInt32 Index: 966;
 
 	@UInt32 TypeFlags: 0;
 
@@ -33530,11 +34401,11 @@
 	Namespace: "Reflex::Async";
 };
 
-938:
+967:
 {
 	Indexed: true;
 
-	@UInt32 Index: 938;
+	@UInt32 Index: 967;
 
 	@UInt64 ParentID: 8974771601801239101;
 
@@ -33559,11 +34430,11 @@
 	];
 };
 
-939:
+968:
 {
 	Indexed: false;
 
-	@UInt32 Index: 939;
+	@UInt32 Index: 968;
 
 	@UInt32 TypeFlags: 0;
 
@@ -33580,11 +34451,11 @@
 	@UInt64 2709038510: [11099243605787900619];
 };
 
-940:
+969:
 {
 	Indexed: true;
 
-	@UInt32 Index: 940;
+	@UInt32 Index: 969;
 
 	@UInt64 ParentID: 8974771601801239101;
 
@@ -33610,11 +34481,11 @@
 	];
 };
 
-941:
+970:
 {
 	Indexed: true;
 
-	@UInt32 Index: 941;
+	@UInt32 Index: 970;
 
 	@UInt64 ParentID: 8974771601801239101;
 
@@ -33640,11 +34511,11 @@
 	];
 };
 
-942:
+971:
 {
 	Indexed: true;
 
-	@UInt32 Index: 942;
+	@UInt32 Index: 971;
 
 	@UInt64 ParentID: 8974771601801239101;
 
@@ -33669,11 +34540,11 @@
 	];
 };
 
-943:
+972:
 {
 	Indexed: true;
 
-	@UInt32 Index: 943;
+	@UInt32 Index: 972;
 
 	@UInt64 ParentID: 3761071570620451947;
 
@@ -33699,11 +34570,11 @@
 	];
 };
 
-944:
+973:
 {
 	Indexed: true;
 
-	@UInt32 Index: 944;
+	@UInt32 Index: 973;
 
 	@UInt64 ParentID: 3761071570620451947;
 
@@ -33738,11 +34609,11 @@
 	];
 };
 
-945:
+974:
 {
 	Indexed: true;
 
-	@UInt32 Index: 945;
+	@UInt32 Index: 974;
 
 	@UInt64 ParentID: 3761071570620451947;
 
@@ -33783,11 +34654,11 @@
 	];
 };
 
-946:
+975:
 {
 	Indexed: true;
 
-	@UInt32 Index: 946;
+	@UInt32 Index: 975;
 
 	@UInt64 Symbol: 16961170023498406461;
 
@@ -33824,11 +34695,11 @@
 	];
 };
 
-947:
+976:
 {
 	Indexed: true;
 
-	@UInt32 Index: 947;
+	@UInt32 Index: 976;
 
 	@UInt64 Symbol: 16352619813884942909;
 
@@ -33871,11 +34742,11 @@
 	];
 };
 
-948:
+977:
 {
 	Indexed: false;
 
-	@UInt32 Index: 948;
+	@UInt32 Index: 977;
 
 	@UInt32 TypeFlags: 0;
 
@@ -33892,11 +34763,11 @@
 	@UInt64 2709038510: [8974771601801239101];
 };
 
-949:
+978:
 {
 	Indexed: false;
 
-	@UInt32 Index: 949;
+	@UInt32 Index: 978;
 
 	@UInt32 TypeFlags: 4;
 
@@ -33907,11 +34778,11 @@
 	Category: "type";
 };
 
-950:
+979:
 {
 	Indexed: false;
 
-	@UInt32 Index: 950;
+	@UInt32 Index: 979;
 
 	@UInt32 TypeFlags: 0;
 
@@ -33928,11 +34799,11 @@
 	@UInt64 2709038510: [5658388888700327173];
 };
 
-951:
+980:
 {
 	Indexed: true;
 
-	@UInt32 Index: 951;
+	@UInt32 Index: 980;
 
 	@UInt64 Symbol: 11982832383702358589;
 
@@ -34031,11 +34902,11 @@
 	];
 };
 
-952:
+981:
 {
 	Indexed: true;
 
-	@UInt32 Index: 952;
+	@UInt32 Index: 981;
 
 	@UInt64 Symbol: 2674671305808173629;
 
@@ -34074,5 +34945,977 @@
 		},
 
 	];
+};
+
+982:
+{
+	Indexed: false;
+
+	@UInt32 Index: 982;
+
+	@UInt32 TypeFlags: 0;
+
+	@UInt64 TemplateSourceID: 925399584115751627;
+
+	@UInt64 Symbol: 9483934520618220235;
+
+	Name: "Array";
+
+	Category: "type";
+
+	Namespace: "Reflex";
+
+	@UInt64 2709038510: [11599547917849033419];
+};
+
+983:
+{
+	Indexed: true;
+
+	@UInt32 Index: 983;
+
+	@UInt64 Symbol: 37389312494426685;
+
+	@UInt64 TypeID: 9483934520618220235;
+
+	Name: "HttpHeaders";
+
+	Category: "typedef";
+
+	Namespace: "Reflex::Async";
+};
+
+984:
+{
+	Indexed: true;
+
+	@UInt32 Index: 984;
+
+	@UInt64 Symbol: 10633267699823696445;
+
+	Name: "CreateHttpRequest";
+
+	Category: "function";
+
+	Namespace: "Reflex::Async";
+
+	Overloads:
+	[
+		{
+			Return:
+			{
+				@UInt64 TypeID: 10842449293571488459;
+			};
+
+			Arguments:
+			[
+				{
+					IsConst: true;
+
+					IsRef: true;
+
+					@UInt64 TypeID: 1319003387987196619;
+
+					Name: "method";
+				},
+
+				{
+					IsConst: true;
+
+					IsRef: true;
+
+					@UInt64 TypeID: 1319003387987196619;
+
+					Name: "url";
+				},
+
+				{
+					IsConst: true;
+
+					IsRef: true;
+
+					@UInt64 TypeID: 9483934520618220235;
+
+					Name: "headers";
+				},
+
+				{
+					IsConst: true;
+
+					IsRef: true;
+
+					@UInt64 TypeID: 5216113586887424715;
+
+					Name: "body";
+				},
+
+				{
+					IsRef: true;
+
+					@UInt64 TypeID: 14460294615737268939;
+
+					Name: "debug_output_opt";
+				},
+
+			];
+
+		},
+
+	];
+};
+
+985:
+{
+	Indexed: false;
+
+	@UInt32 Index: 985;
+
+	@UInt32 TypeFlags: 4;
+
+	@UInt64 Symbol: 640883822929384709;
+
+	Name: "void(CString::View)";
+
+	Category: "type";
+};
+
+986:
+{
+	Indexed: false;
+
+	@UInt32 Index: 986;
+
+	@UInt32 TypeFlags: 0;
+
+	@UInt64 TemplateSourceID: 5470074934380427979;
+
+	@UInt64 Symbol: 15470375519647922891;
+
+	Name: "Function";
+
+	Category: "type";
+
+	Namespace: "Reflex";
+
+	@UInt64 2709038510: [640883822929384709];
+};
+
+987:
+{
+	Indexed: false;
+
+	@UInt32 Index: 987;
+
+	@UInt32 TypeFlags: 0;
+
+	@UInt64 TemplateSourceID: 8974699438245378763;
+
+	@UInt64 Symbol: 9670950831343762123;
+
+	Name: "TRef";
+
+	Category: "type";
+
+	Namespace: "Reflex";
+
+	@UInt64 2709038510: [3007734335323379775];
+};
+
+988:
+{
+	Indexed: false;
+
+	@UInt32 Index: 988;
+
+	@UInt32 TypeFlags: 0;
+
+	@UInt64 TemplateSourceID: 8974699438245378763;
+
+	@UInt64 Symbol: 1618171744466729675;
+
+	Name: "TRef";
+
+	Category: "type";
+
+	Namespace: "Reflex";
+
+	@UInt64 2709038510: [2784316003510786111];
+};
+
+989:
+{
+	Indexed: false;
+
+	@UInt32 Index: 989;
+
+	@UInt32 TypeFlags: 0;
+
+	@UInt64 TemplateSourceID: 8974699438245378763;
+
+	@UInt64 Symbol: 16968541128460827339;
+
+	Name: "TRef";
+
+	Category: "type";
+
+	Namespace: "Reflex";
+
+	@UInt64 2709038510: [1931492178932144191];
+};
+
+990:
+{
+	Indexed: true;
+
+	@UInt32 Index: 990;
+
+	@UInt32 TypeFlags: 2;
+
+	@UInt64 BaseID: 13039646562789154425;
+
+	@UInt64 Symbol: 13068931232373274717;
+
+	Name: "Global";
+
+	Category: "type";
+
+	Namespace: "Reflex::Bootstrap";
+};
+
+991:
+{
+	Indexed: true;
+
+	@UInt32 Index: 991;
+
+	@UInt64 ParentID: 13068931232373274717;
+
+	@UInt64 Symbol: 3191794282408706;
+
+	Name: "CreateDeepLinkListener";
+
+	Category: "method";
+
+	Namespace: "Reflex::Bootstrap";
+
+	Overloads:
+	[
+		{
+			Return:
+			{
+				@UInt64 TypeID: 11928858393466600139;
+			};
+
+			Arguments:
+			[
+				{
+					IsConst: true;
+
+					IsRef: true;
+
+					@UInt64 TypeID: 15470375519647922891;
+
+					Name: "callback";
+				},
+
+			];
+
+		},
+
+	];
+};
+
+992:
+{
+	Indexed: true;
+
+	@UInt32 Index: 992;
+
+	@UInt64 ParentID: 13068931232373274717;
+
+	@UInt64 Symbol: 17525203652244286210;
+
+	Name: "EnableIde";
+
+	Category: "method";
+
+	Namespace: "Reflex::Bootstrap";
+
+	Overloads:
+	[
+		{
+			Return:
+			{
+				@UInt64 TypeID: 11928858393466600139;
+			};
+
+			Arguments:
+			[
+				{
+					@UInt64 TypeID: 8976997392607876357;
+
+					Name: "enable";
+				},
+
+			];
+
+		},
+
+	];
+};
+
+993:
+{
+	Indexed: true;
+
+	@UInt32 Index: 993;
+
+	@UInt64 ParentID: 13068931232373274717;
+
+	@UInt64 Symbol: 15736446685102353154;
+
+	Name: "IdeEnabled";
+
+	Category: "method";
+
+	Namespace: "Reflex::Bootstrap";
+
+	Overloads:
+	[
+		{
+			IsConst: true;
+
+			Return:
+			{
+				@UInt64 TypeID: 8976997392607876357;
+			};
+		},
+
+	];
+};
+
+994:
+{
+	Indexed: true;
+
+	@UInt32 Index: 994;
+
+	@UInt64 ParentID: 13068931232373274717;
+
+	@UInt64 Symbol: 12563028794721839874;
+
+	Name: "CommitPreferences";
+
+	Category: "method";
+
+	Namespace: "Reflex::Bootstrap";
+
+	Overloads:
+	[
+		{
+			Return:
+			{
+				@UInt64 TypeID: 8980083472638940421;
+			};
+
+		},
+
+	];
+};
+
+995:
+{
+	IsConst: true;
+
+	Indexed: true;
+
+	@UInt32 Index: 995;
+
+	@UInt64 ParentID: 13068931232373274717;
+
+	@UInt64 Symbol: 13293978120503044866;
+
+	@UInt64 TypeID: 9670950831343762123;
+
+	Name: "filesystem";
+
+	Category: "member";
+
+	Namespace: "Reflex::Bootstrap";
+};
+
+996:
+{
+	IsConst: true;
+
+	Indexed: true;
+
+	@UInt32 Index: 996;
+
+	@UInt64 ParentID: 13068931232373274717;
+
+	@UInt64 Symbol: 4981290045486279426;
+
+	@UInt64 TypeID: 1618171744466729675;
+
+	Name: "resourcepool";
+
+	Category: "member";
+
+	Namespace: "Reflex::Bootstrap";
+};
+
+997:
+{
+	IsConst: true;
+
+	Indexed: true;
+
+	@UInt32 Index: 997;
+
+	@UInt64 ParentID: 13068931232373274717;
+
+	@UInt64 Symbol: 1164733581720169218;
+
+	@UInt64 TypeID: 16968541128460827339;
+
+	Name: "prefs";
+
+	Category: "member";
+
+	Namespace: "Reflex::Bootstrap";
+};
+
+998:
+{
+	IsConst: true;
+
+	Indexed: true;
+
+	@UInt32 Index: 998;
+
+	@UInt64 ParentID: 13068931232373274717;
+
+	@UInt64 Symbol: 2486395684142852866;
+
+	@UInt64 TypeID: 17184279998618630859;
+
+	Name: "vendor";
+
+	Category: "member";
+
+	Namespace: "Reflex::Bootstrap";
+};
+
+999:
+{
+	IsConst: true;
+
+	Indexed: true;
+
+	@UInt32 Index: 999;
+
+	@UInt64 ParentID: 13068931232373274717;
+
+	@UInt64 Symbol: 14066921171193309954;
+
+	@UInt64 TypeID: 17184279998618630859;
+
+	Name: "product";
+
+	Category: "member";
+
+	Namespace: "Reflex::Bootstrap";
+};
+
+1000:
+{
+	Indexed: true;
+
+	@UInt32 Index: 1000;
+
+	@UInt32 TypeFlags: 0;
+
+	@UInt64 Symbol: 14679651922376259677;
+
+	Name: "Streamable";
+
+	Category: "type";
+
+	Namespace: "Reflex::Bootstrap";
+};
+
+1001:
+{
+	Indexed: true;
+
+	@UInt32 Index: 1001;
+
+	@UInt32 TypeFlags: 2;
+
+	@UInt64 BaseID: 14361920786414140107;
+
+	@UInt64 Symbol: 830868255422675037;
+
+	Name: "App";
+
+	Category: "type";
+
+	Namespace: "Reflex::Bootstrap";
+};
+
+1002:
+{
+	Indexed: true;
+
+	@UInt32 Index: 1002;
+
+	@UInt64 ParentID: 830868255422675037;
+
+	@UInt64 Symbol: 1009987642357659922;
+
+	Name: "Reset";
+
+	Category: "method";
+
+	Namespace: "Reflex::Bootstrap";
+
+	Overloads:
+	[
+		{
+			Return:
+			{
+				@UInt64 TypeID: 8980083472638940421;
+			};
+
+		},
+
+	];
+};
+
+1003:
+{
+	Indexed: true;
+
+	@UInt32 Index: 1003;
+
+	@UInt64 ParentID: 830868255422675037;
+
+	@UInt64 Symbol: 8974068048185211154;
+
+	Name: "Open";
+
+	Category: "method";
+
+	Namespace: "Reflex::Bootstrap";
+
+	Overloads:
+	[
+		{
+			Return:
+			{
+				@UInt64 TypeID: 8976997392607876357;
+			};
+
+			Arguments:
+			[
+				{
+					IsConst: true;
+
+					IsRef: true;
+
+					@UInt64 TypeID: 18046280970012949195;
+
+					Name: "path";
+				},
+
+			];
+
+		},
+
+	];
+};
+
+1004:
+{
+	Indexed: true;
+
+	@UInt32 Index: 1004;
+
+	@UInt64 ParentID: 830868255422675037;
+
+	@UInt64 Symbol: 8974617653675243794;
+
+	Name: "Save";
+
+	Category: "method";
+
+	Namespace: "Reflex::Bootstrap";
+
+	Overloads:
+	[
+		{
+			Return:
+			{
+				@UInt64 TypeID: 8976997392607876357;
+			};
+
+			Arguments:
+			[
+				{
+					IsConst: true;
+
+					IsRef: true;
+
+					@UInt64 TypeID: 18046280970012949195;
+
+					Name: "path";
+				},
+
+			];
+
+		},
+
+	];
+};
+
+1005:
+{
+	Indexed: true;
+
+	@UInt32 Index: 1005;
+
+	@UInt64 ParentID: 830868255422675037;
+
+	@UInt64 Symbol: 8692070043242150162;
+
+	Name: "GetFilename";
+
+	Category: "method";
+
+	Namespace: "Reflex::Bootstrap";
+
+	Overloads:
+	[
+		{
+			IsConst: true;
+
+			Return:
+			{
+				@UInt64 TypeID: 5520716365486586571;
+			};
+		},
+
+	];
+};
+
+1006:
+{
+	Indexed: true;
+
+	@UInt32 Index: 1006;
+
+	@UInt64 ParentID: 830868255422675037;
+
+	@UInt64 Symbol: 1667278888897820946;
+
+	Name: "IsEdited";
+
+	Category: "method";
+
+	Namespace: "Reflex::Bootstrap";
+
+	Overloads:
+	[
+		{
+			IsConst: true;
+
+			Return:
+			{
+				@UInt64 TypeID: 8976997392607876357;
+			};
+		},
+
+	];
+};
+
+1007:
+{
+	IsConst: true;
+
+	Indexed: true;
+
+	@UInt32 Index: 1007;
+
+	@UInt64 ParentID: 830868255422675037;
+
+	@UInt64 Symbol: 1146838898274679058;
+
+	@UInt64 TypeID: 15243775351508400843;
+
+	Name: "magic";
+
+	Category: "member";
+
+	Namespace: "Reflex::Bootstrap";
+};
+
+1008:
+{
+	IsConst: true;
+
+	Indexed: true;
+
+	@UInt32 Index: 1008;
+
+	@UInt64 ParentID: 830868255422675037;
+
+	@UInt64 Symbol: 10098141880962464018;
+
+	@UInt64 TypeID: 16968541128460827339;
+
+	Name: "session";
+
+	Category: "member";
+
+	Namespace: "Reflex::Bootstrap";
+};
+
+1009:
+{
+	Indexed: true;
+
+	@UInt32 Index: 1009;
+
+	@UInt32 TypeFlags: 2;
+
+	@UInt64 BaseID: 830868255422675037;
+
+	@UInt64 Symbol: 3127155134201460829;
+
+	Name: "AudioPlugin";
+
+	Category: "type";
+
+	Namespace: "Reflex::Bootstrap";
+};
+
+1010:
+{
+	Indexed: true;
+
+	@UInt32 Index: 1010;
+
+	@UInt32 TypeFlags: 2;
+
+	@UInt64 BaseID: 14361920786363680010;
+
+	@UInt64 Symbol: 8975115783333869661;
+
+	Name: "View";
+
+	Category: "type";
+
+	Namespace: "Reflex::Bootstrap";
+};
+
+1011:
+{
+	Indexed: true;
+
+	@UInt32 Index: 1011;
+
+	@UInt64 Symbol: 3558756372006697053;
+
+	Name: "IsPlugin";
+
+	Category: "function";
+
+	Namespace: "Reflex::Bootstrap";
+
+	Overloads:
+	[
+		{
+			Return:
+			{
+				@UInt64 TypeID: 8976997392607876357;
+			};
+
+		},
+
+	];
+};
+
+1012:
+{
+	Indexed: true;
+
+	@UInt32 Index: 1012;
+
+	@UInt64 Symbol: 1513948877904803933;
+
+	Name: "SetStyleSheet";
+
+	Category: "function";
+
+	Namespace: "Reflex::Bootstrap";
+
+	Overloads:
+	[
+		{
+			Return:
+			{
+				@UInt64 TypeID: 8980083472638940421;
+			};
+
+			Arguments:
+			[
+				{
+					IsRef: true;
+
+					@UInt64 TypeID: 14361920786363680010;
+
+					Name: "view";
+				},
+
+				{
+					IsConst: true;
+
+					IsRef: true;
+
+					@UInt64 TypeID: 5520716365486586571;
+
+					Name: "path";
+				},
+
+			];
+
+		},
+
+	];
+};
+
+1013:
+{
+	Indexed: true;
+
+	@UInt32 Index: 1013;
+
+	@UInt64 Symbol: 8164832067928848477;
+
+	Name: "SetClipboard";
+
+	Category: "function";
+
+	Namespace: "Reflex::Bootstrap";
+
+	Overloads:
+	[
+		{
+			Return:
+			{
+				@UInt64 TypeID: 8980083472638940421;
+			};
+
+			Arguments:
+			[
+				{
+					@UInt64 TypeID: 15745766443255560907;
+
+					Name: "type";
+				},
+
+				{
+					IsConst: true;
+
+					IsRef: true;
+
+					@UInt64 TypeID: 5216113586887424715;
+
+					Name: "data";
+				},
+
+			];
+
+		},
+
+	];
+};
+
+1014:
+{
+	Indexed: true;
+
+	@UInt32 Index: 1014;
+
+	@UInt64 Symbol: 2731132963094657117;
+
+	Name: "GetClipboard";
+
+	Category: "function";
+
+	Namespace: "Reflex::Bootstrap";
+
+	Overloads:
+	[
+		{
+			Return:
+			{
+				@UInt64 TypeID: 5216113586887424715;
+			};
+
+			Arguments:
+			[
+				{
+					@UInt64 TypeID: 15745766443255560907;
+
+					Name: "type";
+				},
+
+			];
+
+		},
+
+	];
+};
+
+1015:
+{
+	Indexed: false;
+
+	@UInt32 Index: 1015;
+
+	@UInt32 TypeFlags: 0;
+
+	@UInt64 TemplateSourceID: 8974699438245378763;
+
+	@UInt64 Symbol: 17970982428013198027;
+
+	Name: "TRef";
+
+	Category: "type";
+
+	Namespace: "Reflex";
+
+	@UInt64 2709038510: [13068931232373274717];
+};
+
+1016:
+{
+	IsConst: true;
+
+	Indexed: true;
+
+	@UInt32 Index: 1016;
+
+	@UInt64 Symbol: 914616299157597;
+
+	@UInt64 TypeID: 17970982428013198027;
+
+	Name: "global";
+
+	Category: "global";
+
+	Namespace: "Reflex::Bootstrap";
 };
 

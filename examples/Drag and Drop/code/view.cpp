@@ -77,8 +77,6 @@ ViewImpl::ViewImpl(App & app)
 	{
 		GLX::SetText(i, ToWString(idx++ + 1));
 
-		GLX::EnableMouseCapture(i, true);
-
 		GLX::AddInline(m_rows[0], i);
 	}
 
@@ -86,7 +84,8 @@ ViewImpl::ViewImpl(App & app)
 
 	m_drag_drop_visualiser = GLX::CreateDragDropBeginListener([this](Reflex::Object & drag_data)
 	{
-		auto origin = GLX::Core::desktop->GetMouseOver();
+		auto origin = GLX::GetFocus();
+		
 		TRef <GLX::WindowClient> window = origin->GetWindow();
 
 		//create drag cursor
@@ -95,12 +94,12 @@ ViewImpl::ViewImpl(App & app)
 		cursor->SetStyle(GLX::FindStyle(origin, "DragCursor"));
 		GLX::EnableMouse(cursor, false, true);	//ensure doesnt intercept mouse
 		GLX::Enter(cursor, GLX::kEnterAnimationFade);
-		GLX::AddAbsolute(window->GetForeground(), cursor, window->GetMousePosition());
+		GLX::AddAbsolute(window->GetForeground(), cursor, GLX::GetPointerPosition(window));
 
 		//attach callbacks to window, so if window is destroyed they wont be called
 		SetAbstractProperty(window, "dragdrop_clock", GLX::CreateAnimationClock([window, cursor](Float)
 		{
-			cursor->SetPosition(window->GetMousePosition());
+			cursor->SetPosition(GLX::GetPointerPosition(window));
 		}));
 
 		auto run_opacity_animation = [cursor](GLX::Object & drop_target)
@@ -151,18 +150,28 @@ bool ViewImpl::OnEvent(GLX::Object & src, GLX::Event & e)
 {
 	if (e.id == GLX::kMouseDown)
 	{
-		if constexpr (REFLEX_DEBUG)
+		for (auto & i : m_boxes)
 		{
-			if (src == m_ide) Bootstrap::global->EnableIde(!Bootstrap::global->IdeEnabled());
+			if (src == i) return true;
 		}
 
-		return true;
+		if constexpr (REFLEX_DEBUG)
+		{
+			if (src == m_ide)
+			{
+				Bootstrap::global->EnableIde(!Bootstrap::global->IdeEnabled());
+
+				GLX::EnablePointerCapture(e, false);	//we dont want drag events for this case
+
+				return true;
+			}
+		}
 	}
 	else if (e.id == GLX::kMouseDrag)
 	{
 		if (auto row_idx = Search(m_rows, src.GetParent()))
 		{
-			if (GLX::ExceedsDragThreshold(GLX::GetMouseDelta(e)))
+			if (GLX::ExceedsDragThreshold(GLX::GetDelta(e)))
 			{
 				TRef src_row = m_rows[row_idx.value];
 

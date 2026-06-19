@@ -43,7 +43,7 @@ protected:
 
 	virtual void OnUpdate() override;
 
-	virtual Trap OnMouseOver(Core::MouseAction mouseaction, UInt8 flags) override;
+	virtual Core::Trap OnPointerTender(Core::PointerAction action, const Core::Pointer & pointer, UInt8 flags) override;
 
 
 	bool m_show[2] = { false, false };

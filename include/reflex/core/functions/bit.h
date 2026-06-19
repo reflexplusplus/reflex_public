@@ -42,7 +42,7 @@ namespace Reflex
 	UInt BitCount(UInt64 flags);
 
 
-	Idx GetFirstBit(UInt8 value);
+	constexpr Idx GetFirstBit(UInt8 value);
 
 	Idx GetFirstBit(UInt16 value);
 
@@ -185,9 +185,24 @@ REFLEX_INLINE Reflex::UInt Reflex::BitCount(UInt64 value)
 	return BitCount(values[0]) + BitCount(values[1]);
 }
 
-REFLEX_INLINE Reflex::Idx Reflex::GetFirstBit(UInt8 value)
+constexpr REFLEX_INLINE Reflex::Idx Reflex::GetFirstBit(UInt8 value)
 {
-	return Detail::kBitFirst[value];
+	if (std::is_constant_evaluated())
+	{
+		UInt idx = 0;
+
+		while ((value & 1) == 0)
+		{
+			value >>= 1;
+			++idx;
+		}
+
+		return idx;
+	}
+	else
+	{
+		return Detail::kBitFirst[value];
+	}
 }
 
 REFLEX_INLINE Reflex::Idx Reflex::GetFirstBit(UInt16 value)

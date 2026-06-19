@@ -1,5 +1,17 @@
 # Release Notes
 
+## v0.2.02
+
+### GLX multi-touch support
+
+- GLX pointer input now supports optional multi-touch delivery. The `kMouseXXX` event IDs are aliases of the `kPointerXXX` IDs, and `GetClickFlags(...)` remains available as an alias over the pointer flags path.
+- Added `kPointerFlagMulti` to mark non-primary simultaneous touches, along with `Object::EnableMultiTouch()` to opt objects into receiving second, third, and later touches.
+- For implementation guidance and event-handling details, see the `GLX > Events > MultiTouch` guide in the Reflex C++ documentation.
+
+### Bootstrap mobile emulation
+
+- Improved mobile emulation in the Bootstrap main window, including tighter device-size handling for emulated mobile previews.
+
 
 ## v0.2.004
 

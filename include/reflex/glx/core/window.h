@@ -12,12 +12,6 @@ class Reflex::GLX::Core::WindowClient : public Reflex::Item <GLX::WindowClient,f
 {
 public:
 
-	//global
-
-	static TRef <GLX::WindowClient> GetCurrent_DEPRECATED();	//TODO remove, only needed by drag and drop
-
-
-
 	//lifetime
 
 	WindowClient(bool profile);
@@ -56,11 +50,6 @@ public:
 
 	//mouse
 
-	void SetMousePosition(System::fPoint position);
-
-	System::fPoint GetMousePosition() const;
-
-
 	System::MouseCursor GetMouseCursor() const;
 
 
@@ -73,7 +62,7 @@ public:
 
 	//force redraw
 
-	void Refresh();
+	void Refresh(Context & ctx);
 
 
 
@@ -81,7 +70,6 @@ public:
 
 	enum DebugCounters
 	{
-		kDebugCounterClock,
 		kDebugCounterUpdate,
 		kDebugCounterRebuild,
 		kDebugCounterAccommodate,
@@ -137,13 +125,13 @@ protected:
 	virtual void OnMouseWheel(System::fPoint delta, bool high_res, bool inverted) final;
 
 
-	virtual void OnTouchBegin(UIntNative touch_id, System::fPoint position) final;
+	virtual void OnTouchBegin(UIntNative touch_id, Float64 timestamp, System::fPoint position) final;
 
-	virtual void OnTouchMove(UIntNative touch_id, System::fPoint position) final;
+	virtual void OnTouchMove(UIntNative touch_id, Float64 timestamp, System::fPoint position) final;
 
-	virtual void OnTouchEnd(UIntNative touch_id) final;
+	virtual void OnTouchEnd(UIntNative touch_id, Float64 timestamp) final;
 
-	virtual void OnTouchCancel(UIntNative touch_id) final;
+	virtual void OnTouchCancel(UIntNative touch_id, Float64 timestamp) final;
 
 
 	virtual bool OnKeyPress(System::KeyCode keycode, bool repeat) final;
@@ -214,8 +202,6 @@ private:
 
 	//mouse & key
 
-	UIntNative m_current_touchid;	//todo multi-touch support
-
 	System::fPoint m_mousepos;
 
 	System::MouseCursor m_mousecursor;
@@ -269,11 +255,6 @@ inline Reflex::Float32 Reflex::GLX::Core::WindowClient::GetPixelDensity() const
 inline Reflex::System::MouseCursor Reflex::GLX::Core::WindowClient::GetMouseCursor() const
 {
 	return m_mousecursor;
-}
-
-inline Reflex::System::fPoint Reflex::GLX::Core::WindowClient::GetMousePosition() const
-{
-	return m_mousepos;
 }
 
 inline Reflex::TRef <Reflex::GLX::Object> Reflex::GLX::Core::WindowClient::GetContent()

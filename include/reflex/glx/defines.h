@@ -35,8 +35,6 @@ namespace Reflex::GLX
 
 	REFLEX_USE_ENUM(System,MouseCursor);
 
-	REFLEX_USE_ENUM(Core,Trap);
-
 	enum Alignment : UInt8
 	{
 		kAlignmentTopLeft,
@@ -54,10 +52,16 @@ namespace Reflex::GLX
 		kNumAlignment,
 	};
 
-	enum ClickFlags : UInt8
+	enum PointerFlags : UInt8
 	{
-		kClickFlagRmb = 1,
-		kClickFlagDbl = 2,
+		kPointerFlagRightMouseButton = 1,
+		kPointerFlagDouble = 2,
+		kPointerFlagMulti = 4,
+		//constexpr PointerFlags kPointerFlagEmulated = PointerFlags(kPointerFlagMulti << 1);
+		kPointerFlagEmulated = 8,
+
+		kClickFlagRmb = kPointerFlagRightMouseButton,
+		kClickFlagDbl = kPointerFlagDouble,
 	};
 
 	enum TransactionStage : UInt8
@@ -68,13 +72,6 @@ namespace Reflex::GLX
 		kTransactionStagePerform,
 		kTransactionStageEnd,
 		kTransactionStageCancel,
-
-		//deprecated aliases
-		kTransactionNull = kTransactionStageNull,
-		kTransactionBegin = kTransactionStageBegin,
-		kTransactionPerform = kTransactionStagePerform,
-		kTransactionEnd = kTransactionStageEnd,
-		kTransactionCancel = kTransactionStageCancel,
 	};
 
 
@@ -144,6 +141,12 @@ namespace Reflex::GLX
 //impl
 
 REFLEX_NS(Reflex::GLX)
+
+[[deprecated("Use kTransactionStageNull")]] constexpr auto kTransactionNull = kTransactionStageNull;
+[[deprecated("Use kTransactionStageBegin")]] constexpr auto kTransactionBegin = kTransactionStageBegin;
+[[deprecated("Use kTransactionStagePerform")]] constexpr auto kTransactionPerform = kTransactionStagePerform;
+[[deprecated("Use kTransactionStageEnd")]] constexpr auto kTransactionEnd = kTransactionStageEnd;
+[[deprecated("Use kTransactionStageCancel")]] constexpr auto kTransactionCancel = kTransactionStageCancel;
 
 REFLEX_DECLARE_KEY32(id);
 REFLEX_DECLARE_KEY32(data);

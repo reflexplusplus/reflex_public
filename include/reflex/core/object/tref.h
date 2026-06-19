@@ -61,7 +61,7 @@ public:
 
 	TRef(std::nullptr_t) = delete;
 
-	constexpr TRef(NoValue special_zero_initalise);	//!advanced, special case for deferred init -> TRef MUST be logically non null
+	constexpr TRef(NoValue special_uninitialized);	//!advanced, special case for deferred init -> TRef MUST be logically non null
 
 
 
@@ -129,8 +129,8 @@ template <class TYPE> REFLEX_INLINE Reflex::TRef<TYPE>::TRef(TYPE & object)
 {
 }
 
-template <class TYPE> REFLEX_INLINE constexpr Reflex::TRef<TYPE>::TRef(NoValue special_zero_initalise)
-	: CommonReference<TYPE>(special_zero_initalise)
+template <class TYPE> REFLEX_INLINE constexpr Reflex::TRef<TYPE>::TRef(NoValue special_uninitialized)
+	: CommonReference<TYPE>(special_uninitialized)
 {
 }
 

@@ -1,0 +1,19 @@
+Brad Conte crypto-algorithms SHA-256 Notice
+===========================================
+
+Source:
+- Brad Conte
+- crypto-algorithms
+
+Upstream README last modified:
+- 2012-09-13
+
+Statement copied into this repository:
+- 2026-06-04
+
+Upstream statement:
+
+"This code is released into the public domain free of any restrictions.
+The author requests acknowledgement if the code is used, but does not
+require it. This code is provided free of any liability and without any
+quality claims by the author."

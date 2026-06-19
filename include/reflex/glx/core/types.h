@@ -25,15 +25,21 @@ struct Accessor;
 using WeakReference = Reflex::Detail::LegacyWeakReference <GLX::Object>;
 
 
-enum MouseAction : UInt8
+enum PointerAction : UInt8
 {
-	kMouseActionMove,
-	kMouseActionClick,
-	kMouseActionWheel,
-	kMouseActionDragAndDrop,
+	kPointerActionMouseMove,
+	kPointerActionPress,
+	kPointerActionMouseWheel,
+	kPointerActionDragAndDrop,
 
-	kNumMouseAction
+	kNumPointerAction
 };
+
+[[deprecated("use PointerAction")]] typedef PointerAction MouseAction;
+[[deprecated("use kPointerActionMouseMove")]] constexpr auto kMouseActionMove = kPointerActionMouseMove;
+[[deprecated("use kPointerActionPress")]] constexpr auto kMouseActionClick = kPointerActionPress;
+[[deprecated("use kPointerActionMouseWheel")]] constexpr auto kMouseActionWheel = kPointerActionMouseWheel;
+[[deprecated("use kPointerActionDragAndDrop")]] constexpr auto kMouseActionDragAndDrop = kPointerActionDragAndDrop;
 
 enum Trap : UInt8
 {

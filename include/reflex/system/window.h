@@ -233,13 +233,13 @@ public:
 	virtual void OnMouseWheel(fPoint delta, bool high_res, bool inverted) = 0;
 
 
-	virtual void OnTouchBegin(UIntNative finger_id, fPoint position) = 0;
+	virtual void OnTouchBegin(UIntNative finger_id, Float64 timestamp, fPoint position) = 0;
 
-	virtual void OnTouchMove(UIntNative finger_id, fPoint position) = 0;
+	virtual void OnTouchMove(UIntNative finger_id, Float64 timestamp, fPoint position) = 0;
 
-	virtual void OnTouchEnd(UIntNative finger_id) = 0;
+	virtual void OnTouchEnd(UIntNative finger_id, Float64 timestamp) = 0;
 
-	virtual void OnTouchCancel(UIntNative finger_id) = 0;
+	virtual void OnTouchCancel(UIntNative finger_id, Float64 timestamp) = 0;
 
 
 	virtual bool OnKeyPress(KeyCode keycode, bool repeat) = 0;

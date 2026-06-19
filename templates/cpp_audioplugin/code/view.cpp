@@ -152,7 +152,7 @@ void ViewImpl::OnSetStyle(const GLX::Style & style)
 
 	for (auto & i : m_controls) i.SetStyle(control_style);
 
-	m_ide.SetStyle(style["Button"]);
+	m_ide.SetStyle(header_style["Button"]);
 }
 
 void ViewImpl::OnUpdate()

@@ -13,7 +13,7 @@ const Reflex::UInt64 k_PRODUCT-NAME-SYMBOL__interface_h[18] =
 	0x0d3b6c6c756e203dull, 0x000a0d0a0d3b7d0aull, 
 };
 
-const Reflex::Bootstrap::EnumerableEmbeddedResource _PRODUCT-NAME-SYMBOL_::interface_h(K32("_PRODUCT-NAME-SYMBOL_"), K32("interface.h"), reinterpret_cast<const Reflex::UInt8*>(&k_PRODUCT-NAME-SYMBOL__interface_h), 143u, 0u);
+const Reflex::File::EnumerableEmbeddedResource _PRODUCT-NAME-SYMBOL_::interface_h(K32("_PRODUCT-NAME-SYMBOL_"), K32("interface.h"), reinterpret_cast<const Reflex::UInt8*>(&k_PRODUCT-NAME-SYMBOL__interface_h), 143u, 0u);
 
 
 
@@ -33,7 +33,7 @@ const Reflex::UInt64 k_PRODUCT-NAME-SYMBOL__main_c[58] =
 	0x0d3b7d0a0d7d202full, 0x00000000000a0d0aull, 
 };
 
-const Reflex::Bootstrap::EnumerableEmbeddedResource _PRODUCT-NAME-SYMBOL_::main_c(K32("_PRODUCT-NAME-SYMBOL_"), K32("main.c"), reinterpret_cast<const Reflex::UInt8*>(&k_PRODUCT-NAME-SYMBOL__main_c), 459u, 0u);
+const Reflex::File::EnumerableEmbeddedResource _PRODUCT-NAME-SYMBOL_::main_c(K32("_PRODUCT-NAME-SYMBOL_"), K32("main.c"), reinterpret_cast<const Reflex::UInt8*>(&k_PRODUCT-NAME-SYMBOL__main_c), 459u, 0u);
 
 
 
@@ -47,7 +47,7 @@ const Reflex::UInt64 k_PRODUCT-NAME-SYMBOL__styles_txt[13] =
 	0x3532203a657a6973ull, 0x0a0d3b3438332c36ull, 0x6c6f635f67620a0dull, 0x353532203a72756full, 0x00000000000a0d3bull, 
 };
 
-const Reflex::Bootstrap::EnumerableEmbeddedResource _PRODUCT-NAME-SYMBOL_::styles_txt(K32("_PRODUCT-NAME-SYMBOL_"), K32("styles.txt"), reinterpret_cast<const Reflex::UInt8*>(&k_PRODUCT-NAME-SYMBOL__styles_txt), 99u, 0u);
+const Reflex::File::EnumerableEmbeddedResource _PRODUCT-NAME-SYMBOL_::styles_txt(K32("_PRODUCT-NAME-SYMBOL_"), K32("styles.txt"), reinterpret_cast<const Reflex::UInt8*>(&k_PRODUCT-NAME-SYMBOL__styles_txt), 99u, 0u);
 
 
 
@@ -65,7 +65,7 @@ const Reflex::UInt64 k_PRODUCT-NAME-SYMBOL__view_c[42] =
 	0x0d3b297d0a0d7765ull, 0x000000000000000aull, 
 };
 
-const Reflex::Bootstrap::EnumerableEmbeddedResource _PRODUCT-NAME-SYMBOL_::view_c(K32("_PRODUCT-NAME-SYMBOL_"), K32("view.c"), reinterpret_cast<const Reflex::UInt8*>(&k_PRODUCT-NAME-SYMBOL__view_c), 329u, 0u);
+const Reflex::File::EnumerableEmbeddedResource _PRODUCT-NAME-SYMBOL_::view_c(K32("_PRODUCT-NAME-SYMBOL_"), K32("view.c"), reinterpret_cast<const Reflex::UInt8*>(&k_PRODUCT-NAME-SYMBOL__view_c), 329u, 0u);
 
 
 

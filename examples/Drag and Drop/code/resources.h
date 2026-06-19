@@ -18,7 +18,11 @@ namespace Config
 namespace DragAndDrop
 {
 
-	extern const Reflex::File::EnumerableEmbeddedResource fonts_Montserrat_Regular_ttf;
+	extern const Reflex::File::EnumerableEmbeddedResource fonts_Roboto_Mono_static_RobotoMono_Regular_ttf;
+
+	extern const Reflex::File::EnumerableEmbeddedResource fonts_Roboto_Mono_OFL_txt;
+
+	extern const Reflex::File::EnumerableEmbeddedResource fonts_Roboto_Mono_README_txt;
 
 	extern const Reflex::File::EnumerableEmbeddedResource common_glx;
 

@@ -1,5 +1,37 @@
 # Breaking Changes
 
+## v0.2.02
+
+### Pointer capture now defaults to linked drag/up after trapped `kMouseDown`
+
+If an object traps `kMouseDown`, it now receives linked `kMouseDrag` / `kMouseUp` by default.
+
+Previously, many call sites used `EnableMouseCapture(...)` only to opt into drag/up delivery. That opt-in is no longer needed, so migration is not a mechanical rename to `EnablePointerCapture(...)`.
+
+When updating existing code:
+
+- remove the old capture call entirely if it only existed to enable normal drag/up delivery
+- use `EnablePointerCapture(e, false)` on press paths that should remain click-only
+- use `EnablePointerCapture(e, true, true)` only for sites that require incremental capture
+
+Review conditional press-path handlers carefully, especially:
+
+- RMB vs LMB flows
+- modifier-dependent modes
+- early-return or no-op click paths
+- any `kMouseDrag` logic that assumes `kMouseDown` initialized drag state
+
+### `GetMousePosition(...)` and `GetMouseDelta(...)` are deprecated
+
+GLX pointer helpers now use pointer-oriented names and event-carried position data.
+
+When updating existing code:
+
+- replace `GetMousePosition(...)` with `GetPointerPosition(...)`
+- replace `GetMouseDelta(...)` with `GetDelta(...)`
+
+See documentation/glx-pointer-events-migration-guide.md
+
 
 ## v0.2.004
 

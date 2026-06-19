@@ -1,20 +1,37 @@
 #!/bin/bash
 set -euo pipefail
 
+# Installs the prebuilt Reflex SDK (libs + tools + docs) for macOS from the
+# repo's GitHub Release. The git tag is the version; version.txt (baked into the
+# distributed tree by CI) selects it, falling back to the latest release.
+#
+# Environment overrides:
+#   REFLEX_GITHUB_REPO   owner/name (default: derived from the git origin remote)
+#   REFLEX_GITHUB_TOKEN  required only for the private/licensed repo
+
 ROOT="$(cd "$(dirname "$0")" && pwd)"
-VERSION_FILE="$ROOT/version.txt"
+PLATFORM="macos"
 INSTALLED_VERSION_FILE="$ROOT/bin/version.txt"
 
-find_reflex_tool() {
-	local candidate="$ROOT/bin/tools/macos/reflex"
+# --- resolve version --------------------------------------------------------
+if [[ -f "$ROOT/version.txt" ]]; then
+	VERSION="$(tr -d '[:space:]' < "$ROOT/version.txt")"
+else
+	VERSION="latest"
+fi
 
-	if [[ -x "$candidate" ]]; then
-		printf '%s\n' "$candidate"
-		return 0
-	fi
+# --- resolve repo -----------------------------------------------------------
+REPO="${REFLEX_GITHUB_REPO:-}"
+if [[ -z "$REPO" ]]; then
+	origin="$(git -C "$ROOT" remote get-url origin 2>/dev/null || true)"
+	REPO="$(printf '%s' "$origin" | sed -E 's#\.git$##; s#.*[/:]([^/]+/[^/]+)$#\1#')"
+fi
+if [[ -z "$REPO" ]]; then
+	echo "Cannot determine GitHub repo. Set REFLEX_GITHUB_REPO=owner/name." >&2
+	exit 1
+fi
 
-	return 1
-}
+TOKEN="${REFLEX_GITHUB_TOKEN:-}"
 
 verify_signed_tool() {
 	local tool_path="$1"
@@ -35,58 +52,64 @@ verify_signed_tool() {
 	fi
 }
 
-if [[ ! -f "$VERSION_FILE" ]]; then
-	echo "Missing version.txt"
-	exit 1
-fi
-
-VERSION="$(<"$VERSION_FILE")"
-
-if [[ -f "$INSTALLED_VERSION_FILE" ]]; then
-	INSTALLED_VERSION="$(<"$INSTALLED_VERSION_FILE")"
-
-	if [[ "$INSTALLED_VERSION" == "$VERSION" ]] && find_reflex_tool > /dev/null; then
+# --- skip if already current ------------------------------------------------
+if [[ -f "$INSTALLED_VERSION_FILE" && "$VERSION" != "latest" ]]; then
+	if [[ "$(tr -d '[:space:]' < "$INSTALLED_VERSION_FILE")" == "$VERSION" \
+		&& -x "$ROOT/bin/tools/$PLATFORM/reflex" ]]; then
 		echo "Reflex SDK $VERSION binaries already installed."
 		exit 0
 	fi
 fi
 
-URL="https://reflexplusplus.b-cdn.net/download/sdk?platform=macos&version=$VERSION"
-TMP_BASE="${TMPDIR:-/tmp}"
-ZIP="$(mktemp "$TMP_BASE/reflex-sdk-${VERSION}-macos.XXXXXX.zip")"
-TEMP_DIR="$(mktemp -d "$TMP_BASE/reflex-sdk-${VERSION}-macos.XXXXXX")"
+TMP="$(mktemp -d "${TMPDIR:-/tmp}/reflex-sdk.XXXXXX")"
+trap 'rm -rf "$TMP"' EXIT
 
-cleanup_temp_artifacts() {
-	chmod -R u+wX "$TEMP_DIR" 2>/dev/null || true
-	rm -rf "$TEMP_DIR"
-	rm -f "$ZIP"
+# Download a single release asset and extract it into a destination directory.
+download_asset() {
+	local name="$1" dest="$2" out="$TMP/$1"
+
+	if [[ -n "$TOKEN" ]]; then
+		# Private repo: resolve the asset id from the release JSON, then fetch
+		# it via the asset API endpoint (octet-stream).
+		if ! command -v python3 >/dev/null 2>&1; then
+			echo "REFLEX_GITHUB_TOKEN is set but python3 is required to install from a private repo." >&2
+			exit 1
+		fi
+		local api
+		if [[ "$VERSION" == "latest" ]]; then
+			api="https://api.github.com/repos/$REPO/releases/latest"
+		else
+			api="https://api.github.com/repos/$REPO/releases/tags/$VERSION"
+		fi
+		local id
+		id="$(curl -sSL --fail -H "Authorization: Bearer $TOKEN" -H "Accept: application/vnd.github+json" "$api" \
+			| python3 -c 'import json,sys; d=json.load(sys.stdin); print(next((a["id"] for a in d.get("assets",[]) if a["name"]==sys.argv[1]), ""))' "$name")"
+		if [[ -z "$id" ]]; then
+			echo "Release asset not found: $name" >&2
+			exit 1
+		fi
+		curl -sSL --fail -H "Authorization: Bearer $TOKEN" -H "Accept: application/octet-stream" \
+			"https://api.github.com/repos/$REPO/releases/assets/$id" -o "$out"
+	else
+		# Public repo: anonymous download via the stable release URL.
+		local url
+		if [[ "$VERSION" == "latest" ]]; then
+			url="https://github.com/$REPO/releases/latest/download/$name"
+		else
+			url="https://github.com/$REPO/releases/download/$VERSION/$name"
+		fi
+		curl -sSL --fail "$url" -o "$out"
+	fi
+
+	mkdir -p "$dest"
+	unzip -q -o "$out" -d "$dest"
 }
 
-trap cleanup_temp_artifacts EXIT
+echo "Installing Reflex SDK $VERSION ($PLATFORM) from $REPO ..."
 
-echo "Downloading Reflex SDK $VERSION binaries..."
-
-curl -L --fail --output "$ZIP" "$URL"
-
-echo "Extracting..."
-
-unzip -q -o "$ZIP" -d "$TEMP_DIR"
-
-if [[ -d "$TEMP_DIR/bin" ]]; then
-	mkdir -p "$ROOT/bin"
-	cp -R "$TEMP_DIR/bin/." "$ROOT/bin/"
-else
-	echo "Package does not contain bin folder."
-	exit 1
-fi
-
-EXTRACT_TOOLS="$ROOT/bin/tools/macos/extract.command"
-
-if [[ -x "$EXTRACT_TOOLS" ]]; then
-	"$EXTRACT_TOOLS"
-elif [[ -f "$EXTRACT_TOOLS" ]]; then
-	bash "$EXTRACT_TOOLS"
-fi
+download_asset "reflex-libs-$PLATFORM.zip"  "$ROOT/bin/lib"
+download_asset "reflex-tools-$PLATFORM.zip" "$ROOT/bin/tools"
+download_asset "reflex-docs-$PLATFORM.zip"  "$ROOT/bin/tools"
 
 echo "Verifying installed macOS tool signatures..."
 verify_signed_tool "$ROOT/bin/tools/macos/reflex"
@@ -94,6 +117,12 @@ verify_signed_tool "$ROOT/bin/tools/macos/ReflexDocumentation.app"
 verify_signed_tool "$ROOT/bin/tools/macos/ReflexProjectCreator.app"
 verify_signed_tool "$ROOT/bin/tools/macos/ReflexResourceBuilder.app"
 
-cp "$VERSION_FILE" "$ROOT/bin/version.txt"
+# Record the installed version (resolve "latest" from the stamp baked into libs).
+RESOLVED="$VERSION"
+if [[ "$RESOLVED" == "latest" && -f "$ROOT/bin/lib/$PLATFORM/version.txt" ]]; then
+	RESOLVED="$(tr -d '[:space:]' < "$ROOT/bin/lib/$PLATFORM/version.txt")"
+fi
+mkdir -p "$ROOT/bin"
+echo "$RESOLVED" > "$INSTALLED_VERSION_FILE"
 
-echo "Reflex SDK $VERSION binaries installed."
+echo "Reflex SDK $RESOLVED binaries installed."

@@ -28,7 +28,7 @@ class _PRODUCT-NAME-SYMBOL_::App : public Reflex::Bootstrap::App
 {
 public:
 
-	static constexpr Reflex::WString::View kFileExt = L"_PRODUCT-NAME-SYMBOL-LOWER_";
+	static constexpr Reflex::WString::View kFileExt = L"_PACKAGE-ID-PRODUCT_";
 
 
 

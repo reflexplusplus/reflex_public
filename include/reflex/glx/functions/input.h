@@ -1,23 +1,26 @@
 #pragma once
 
 #include "lookup.h"
-#include "../event/defines.h"
+#include "../event/functions.h"
 
 
 
 
 //
-//
+//Primary API
 
 namespace Reflex::GLX
 {
 
 	void EnableMouse(Object & object, bool enable = true, bool intercept = false);
 
-	Pair <bool> MouseEnabled(const Object & object);
+
+	Point GetPointerPosition(const WindowClient & window);
 
 
-	void EnableMouseCapture(Object & object, bool enable = true, bool incremental = false);
+	Point GetPointerPosition(const Object & object, const Event & e);
+
+	[[deprecated ("user GetPointerPosition")]] Point GetMousePosition(const Object & object);
 
 
 	bool ExceedsDragThreshold(Point drag, Float sens = 2.0f);
@@ -27,8 +30,6 @@ namespace Reflex::GLX
 
 	Point ScaleDelta(const Object & object, Point window_coordinates_delta);
 
-	Point GetMousePosition(const Object & object);
-
 }
 
 
@@ -37,40 +38,67 @@ namespace Reflex::GLX
 //
 //impl
 
-REFLEX_INLINE void Reflex::GLX::EnableMouse(Object & object, bool enable, bool intercept)
+REFLEX_NS(Reflex::GLX::Detail)
+
+inline const Core::Pointer * QueryPointer(const WindowClient & window)
 {
-	constexpr Trap kMap[2][2] = { { kTrapThru, kTrapReject }, { kTrapPassive, kTrapActive } };
+	auto pointers = Core::desktop->GetPointers();
 
-	object.SetMouseOverTrapMode(kMap[enable][intercept]);
-
-#if REFLEX_DEBUG
-	auto test = enable ? (intercept ? kTrapActive : kTrapPassive) : (intercept ? kTrapReject : kTrapThru);
-
-	constexpr GLX::Trap kMouseOverReturn[4] =
+	for (auto & i : pointers)
 	{
-		kTrapThru,
-		kTrapPassive,
-		kTrapReject,
-		kTrapActive
-	};
+		if (i.window == window)
+		{
+			return &i;
+		}
+	}
 
-	REFLEX_ASSERT(test == kMouseOverReturn[MakeBits(enable, intercept)]);
-
-	REFLEX_ASSERT(object.GetMouseOverTrapMode() == test);
-#endif
+	return nullptr;
 }
 
-REFLEX_INLINE void Reflex::GLX::EnableMouseCapture(Object & object, bool enable, bool incremental)
+inline const Core::Pointer & GetActivePointer()
 {
-	constexpr Trap kMap[2][2] = { { kTrapPassive, kTrapPassive }, { kTrapActive, kTrapActiveIncremental } };
+	auto pointers = Core::desktop->GetPointers();
 
-	object.SetMouseClickTrapMode(kMap[enable][incremental]);
+	REFLEX_RFOREACH(i, pointers)
+	{
+		if (i.pressed) return i;
+	}
 
-#if REFLEX_DEBUG
-	auto test = enable ? (incremental ? kTrapActiveIncremental : kTrapActive) : kTrapPassive;
+	return pointers.GetFirst();
+}
 
-	REFLEX_ASSERT(object.GetMouseClickTrapMode() == test);
-#endif
+REFLEX_END
+
+REFLEX_INLINE void Reflex::GLX::EnableMouse(Object & object, bool enable, bool intercept)
+{
+	object.EnablePointer(enable, intercept);
+}
+
+inline Reflex::GLX::Point Reflex::GLX::GetPointerPosition(const WindowClient & window)
+{
+	auto pointers = Core::desktop->GetPointers();
+
+	for (auto & i : pointers)
+	{
+		if (i.window == window)
+		{
+			return i.position;
+		}
+	}
+
+	auto & pointer = pointers.GetLast();
+
+	return pointer.position + pointer.window->GetRect().origin - window.GetRect().origin;
+}
+
+inline Reflex::GLX::Point Reflex::GLX::GetPointerPosition(const Object & object, const Event & e)
+{
+	return TransformPosition(object, GetPosition(e));
+}
+
+inline Reflex::GLX::Point Reflex::GLX::GetMousePosition(const Object & object)
+{
+	return TransformPosition(object, Detail::GetActivePointer().position);
 }
 
 inline Reflex::GLX::Point Reflex::GLX::TransformPosition(const Object & object, Point absolute_position)
@@ -83,9 +111,4 @@ inline Reflex::GLX::Point Reflex::GLX::TransformPosition(const Object & object, 
 inline Reflex::GLX::Point Reflex::GLX::ScaleDelta(const Object & object, Point delta)
 {
 	return delta / CalculateAbs(object).b;
-}
-
-inline Reflex::GLX::Point Reflex::GLX::GetMousePosition(const Object & object)
-{
-	return TransformPosition(object, object.GetWindow()->GetMousePosition());
 }

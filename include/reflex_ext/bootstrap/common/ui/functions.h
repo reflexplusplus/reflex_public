@@ -11,7 +11,7 @@
 namespace Reflex::Bootstrap
 {
 
-	void SetStyleSheet(GLX::Object & view, const WString::View & path, FunctionPointer <TRef<Data::PropertySet>(GLX::Object & view)> create_options = &Detail::CreateDefaultStylesheetOptions);
+	void SetStyleSheet(GLX::Object & view, const WString::View & path);
 
 
 	void SetClipboard(Key32 type, const Data::Archive::View & data);
@@ -26,7 +26,7 @@ namespace Reflex::Bootstrap
 //
 //impl
 
-inline void Reflex::Bootstrap::SetStyleSheet(GLX::Object & view, const WString::View & path, FunctionPointer <TRef<Data::PropertySet>(GLX::Object & view)> create_options)
+inline void Reflex::Bootstrap::SetStyleSheet(GLX::Object & view, const WString::View & path)
 {
-	Detail::SetStyle(view, path, {}, create_options);
+	Detail::SetStyle(view, path, {});
 }

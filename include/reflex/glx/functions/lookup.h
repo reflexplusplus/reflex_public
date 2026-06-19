@@ -6,7 +6,7 @@
 
 
 //
-//
+//Primary API
 
 namespace Reflex::GLX
 {
@@ -67,16 +67,22 @@ inline Reflex::GLX::Object * Reflex::GLX::QueryChildById(Object & object, Key32 
 
 template <class TYPE> REFLEX_INLINE TYPE * Reflex::GLX::QueryParentByType(Object & object, TYPE * null)
 {
+	REFLEX_STATIC_ASSERT_DYNAMIC_CASTABLE(TYPE);
+
 	return Cast<TYPE>(Detail::QueryParentByType(object, TYPE::kDynamicTypeInfo, null));
 }
 
 template <class TYPE> REFLEX_INLINE TYPE * Reflex::GLX::QueryChildByType(Object & object, TYPE * null)
 {
+	REFLEX_STATIC_ASSERT_DYNAMIC_CASTABLE(TYPE);
+
 	return Cast<TYPE>(Detail::QueryChildByType(object, TYPE::kDynamicTypeInfo, null));
 }
 
 template <class TYPE> REFLEX_INLINE TYPE * Reflex::GLX::QueryElementByType(Object & object, TYPE * null)
 {
+	REFLEX_STATIC_ASSERT_DYNAMIC_CASTABLE(TYPE);
+
 	return Cast<TYPE>(Detail::QueryElementByType(object, TYPE::kDynamicTypeInfo, null));
 }
 

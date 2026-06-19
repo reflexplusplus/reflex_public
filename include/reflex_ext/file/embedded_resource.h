@@ -20,6 +20,8 @@ namespace Reflex::File
 
 	Data::Archive Extract(const EmbeddedResource & item);
 
+	template <class TYPE> inline TYPE UnpackResource(Key32 group, Key32 id, const TYPE & fallback);
+
 }
 
 
@@ -81,4 +83,27 @@ public:
 	Locator();
 
 	virtual TRef <System::FileHandle> OnRead(const ArrayView <WString::View> & subdomain, const WString::View & path, File::Attributes & attributes) const override;
+};
+
+
+
+
+//
+//impl
+
+template <class TYPE> inline TYPE Reflex::File::UnpackResource(Key32 group, Key32 id, const TYPE & fallback)
+{
+	if (auto res = EnumerableEmbeddedResource::Retrieve({ group, id }))
+	{
+		if constexpr (kIsType<TYPE,bool>)
+		{
+			return True(Data::Unpack<UInt8>(res->data));
+		}
+		else
+		{
+			return Data::Unpack<TYPE>(res->data);
+		}
+	}
+
+	return fallback;
 };

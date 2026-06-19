@@ -144,8 +144,6 @@ protected:
 
 	virtual bool OnEvent(Object & src, Event & e) override;
 
-	virtual void OnFocus() override;
-
 
 
 public: //TODO merge & cleanup

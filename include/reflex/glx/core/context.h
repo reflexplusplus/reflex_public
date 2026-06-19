@@ -14,6 +14,8 @@ struct Context;
 
 struct RenderContext;
 
+struct Pointer;
+
 REFLEX_END
 
 
@@ -64,6 +66,26 @@ struct Reflex::GLX::Core::RenderContext
 
 
 	static RenderContext * st_current;
+};
+
+
+
+
+//
+//impl
+
+struct Reflex::GLX::Core::Pointer
+{
+	TRef <GLX::WindowClient> window;
+	WeakReference target;
+	UIntNative touch_id = ~UIntNative(0);
+	UInt8 slot = 0;
+	bool pressed = false;
+	bool drag_and_drop = false;
+	Trap capture_mode = kTrapThru;
+	System::fPoint position;
+	System::fPoint capture_origin;
+	UInt64 drag_z = kMaxUInt64;
 };
 
 

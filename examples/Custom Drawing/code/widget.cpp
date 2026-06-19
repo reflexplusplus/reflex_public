@@ -121,8 +121,6 @@ struct WidgetImpl : public GLX::Object
 
 WidgetImpl::WidgetImpl()
 {
-	GLX::EnableMouseCapture(*this, true, true);
-
 	Update();
 }
 
@@ -132,19 +130,21 @@ bool WidgetImpl::OnEvent(GLX::Object & src, GLX::Event & e)
 	{
 		Data::SetFloat32(*this, "init", m_value);
 
+		GLX::EnablePointerCapture(e, true, true);
+
 		return true;
 	}
 	else if (e.id == GLX::kMouseDrag)
 	{
-		auto delta = GLX::GetMouseDelta(e);
+		auto delta = GLX::GetDelta(e);
 
 		auto value = Data::GetFloat32(*this, "init");
 
 		m_value = Clip(value - (delta.y / 256.0f), -1.0f, 1.0f);
 
-		//Redraw();	//would be sufficient to retrigger the OnDraw callback
+		Redraw();	//schedule the OnDraw callback
 
-		Update();	//but.. here im using Update instead (which will also schedule Redraw) as doing SetText in OnUpdate
+		Update();	//schedule OnUpdate, where we update the text
 
 		return true;
 	}
