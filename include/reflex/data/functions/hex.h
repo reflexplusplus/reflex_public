@@ -6,7 +6,7 @@
 
 
 //
-//declarations
+//Primary API
 
 namespace Reflex::Data
 {

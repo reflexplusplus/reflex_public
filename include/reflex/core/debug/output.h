@@ -13,8 +13,6 @@ namespace Reflex
 
 	class Output;
 
-	[[deprecated("use Output")]] typedef Output DebugOutput;
-
 }
 
 

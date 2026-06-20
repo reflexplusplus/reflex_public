@@ -1,0 +1,232 @@
+include: "menu.txt";
+
+menu: { inherit: Menu > menu; };
+
+@Font Large:
+{
+	path: "fonts/OpenSans/static/OpenSans/OpenSans-Regular.ttf";
+	
+	size: 14;
+};
+
+@Font Medium:
+{
+	path: "fonts/OpenSans/static/OpenSans/OpenSans-Regular.ttf";
+	
+	size: 13;
+};
+
+bg_colour: 255;
+
+size: 384,512;
+padding: 8;
+
+Header:
+{
+	size: 40;
+	padding: 1,0;
+	margin: 0,-9,0,0;
+
+	bg: Text(indent: 1,0; font: Large; colour: 140; value: "PROJECT CREATOR");
+	
+	Popup:
+	{
+		size: 22;
+		render: x8;
+		colour: 180;
+		bg: 
+		Circle(),
+		Align(position: center; size: 10,8; content: TriangleFill(direction: bottom; offset: 0,1; corner: 2));
+		
+		@Alias menu;
+	};
+};
+
+Group:
+{
+	bg: Fill(indent: 0,0,0,8; colour: 240; corner: 4);
+	
+	padding: 0,0,0,8;
+};
+
+Item:
+{
+	size: 32;
+
+	transition: 0.125;
+
+	@Colour key_colour: 128;
+	@Colour value_colour: 64;
+	
+	@State focused:
+	{
+		@Colour key_colour: 64;
+		@Colour value_colour: 32;
+		
+		bg: Fill(corner: 4; colour: 232);
+	};	
+	
+	fg:
+	Split
+	(
+		content:
+		Text(font: Medium; value: &key; justify: left; indent: 8,2; colour: key_colour),
+		Text(font: Medium; value: &value; justify: right; indent: 8,2; colour: value_colour);
+	);
+
+	@Alias active: { source: focused; };
+};
+
+Popup:
+{
+	inherit: Item;
+
+	@Alias menu;
+};
+
+TextEdit:
+{
+	inherit: Item;
+
+	fg: Text(font: Medium; value: &key; justify: left; indent: 8,2; colour: key_colour);
+		
+	body:
+	{
+		margin: 152,0,0,0;
+	};
+
+	content:
+	{
+		@State used:
+		{
+			bg: Text(font: Medium; indent: 8,2; justify: right; colour: 64; value: &value);
+		};
+
+		@State active:
+		{
+			bg: TextEdit(font: Medium; value: &value; indent: 8,2; justify: right; colour: 64);
+		};
+
+		bg: Text(font: Medium; indent: 8,2; justify: right; colour: 160; value: "Enter Value");
+	};
+};
+
+Checkbox:
+{
+	inherit: Item;
+	
+	size: 22;
+	margin: 0;
+
+	fg: 
+	Text(font: Small; value: &value; justify: left; indent: 8,0; colour: key_colour),
+	Align
+	(	
+		position: right;
+		indent: 4,2; 
+		size: 14; 
+		content:
+		Border(colour: key_colour; corner: 4)
+	);
+	
+	@State selected:
+	{
+		fg:
+		Text(font: Small; value: &value; justify: left; indent: 8,0; colour: key_colour),
+		Align
+		(	
+			position: right; 
+			indent: 4,2; 
+			size: 14; 
+			content:
+			Border(colour: key_colour; corner: 4),
+			CircleFill(indent: 4; colour: key_colour);
+		);
+		
+		@Alias focused: { source: focused; };
+	};
+};
+
+Button:
+{
+	size: 32;
+	transition: 0.125;
+	
+	bg: 
+	Fill(corner: 4; colour: 80,192,248),
+	Text(font: Medium; indent: 8,2; justify: center; colour: 255; value: &value; transform: uppercase);	
+
+	@State focused:
+	{
+		fg: Border(corner: 4; colour: 0,64);		
+	};
+
+	@State inactive:
+	{
+		bg:
+		Fill(corner: 4; colour: 240),
+		Text(font: Medium; indent: 8,2; justify: center; colour: 128; value: &value; transform: uppercase);		
+	};
+};
+
+Scroller:
+{	
+	inherit: Group;
+	
+	clip: true;
+	
+	fg: InnerShadow(indent: 4,4,0,8; width: 0,8; colour: 240);
+	
+	Markup:
+	{
+		padding: 0,0,0,4;
+		
+		Item:
+		{
+			size: 20;
+
+			colour: 128;
+		};
+		
+		h:
+		{
+			margin: 0,10,0,4;
+			inherit: Item;
+			colour: 96;
+			bg: Text(font: Medium; indent: 8,2; justify: top_left; value: &value; overflow: wrap);
+		};
+
+		p:
+		{
+			margin: 0,0,0,8;
+			inherit: Item;
+					
+			bg: Text(indent: 8,2; font: Medium; justify: top_left; value: &value; overflow: wrap; line_space: 8);
+		};
+
+		bullets:
+		{
+			li:
+			{
+				inherit: Item;
+				
+				bg: 
+				Align(indent: 9,0; size: 6; position: left; content: CircleFill()),
+				Text(indent: 24,0,0,0; font: Medium; value: &value; justify: left);
+			};
+		};
+	};
+	
+	y:
+	{
+		size: 32;
+		bg: Bar(indent: 14,8,8,8; range: &range; region: &region; content: Fill(corner: 6; color: 0,16));
+	};
+};
+
+Locate:
+{
+	margin: 0,0,0,16;
+	
+	bg: Text(indent: 8,2; colour: 32; font: Medium; justify: center; value: &value);
+};

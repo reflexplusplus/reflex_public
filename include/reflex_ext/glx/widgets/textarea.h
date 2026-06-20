@@ -51,12 +51,6 @@ public:
 
 	const TRef <TextEditBehaviour> behaviour;
 
-
-
-protected:
-
-	void OnSetProperty(Address address, Reflex::Object & object) override;
-
 };
 
 
@@ -67,13 +61,12 @@ protected:
 
 REFLEX_NS(Reflex::GLX)
 
-[[deprecated("use TextArea::ClearText")]] void ClearText(TextArea & object);						//no longer available
-
-[[deprecated("use TextArea::SetText")]] void SetText(TextArea & object, WString && label);
-
-[[deprecated("use TextArea::SetText")]] void SetText(TextArea & object, const WString & label);
-
-[[deprecated("use TextArea::GetText")]] WString::View GetText(const TextArea & object);
+//setting text on TextArea container is typically unintended error, use textarea.SetText(). Cast to GLX::Object if really intended
+void ClearText(TextArea & textarea) = delete;						
+void SetText(TextArea & textarea, WString && label, Key32 value = kvalue) = delete;
+void SetText(TextArea & textarea, const WString & label, Key32 value = kvalue) = delete;
+void SetText(TextArea & textarea, const WString::View & label, Key32 value = kvalue) = delete;
+WString::View GetText(const TextArea & textarea) = delete;
 
 REFLEX_END
 

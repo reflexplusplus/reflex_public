@@ -33,16 +33,4 @@ REFLEX_NS(Reflex)
 
 template <class TYPE> [[deprecated]] inline NonRefT <TYPE> && Move(TYPE && value) noexcept { return static_cast<NonRefT<TYPE>&&>(value); }
 
-template <class TYPE> [[deprecated]] inline constexpr TYPE && Forward(NonRefT <TYPE> & t) noexcept
-{
-	return static_cast<TYPE&&>(t);
-}
-
-template <class TYPE> [[deprecated]] inline constexpr TYPE && Forward(NonRefT <TYPE> && t) noexcept
-{
-	REFLEX_STATIC_ASSERT(!std::is_lvalue_reference<TYPE>::value);
-
-	return static_cast<TYPE&&>(t);
-}
-
 REFLEX_END

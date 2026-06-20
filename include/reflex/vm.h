@@ -1,5 +1,7 @@
 #pragma once
 
+#if __has_include("vm/[require].h")
+
 #include "vm/[require].h"
 
 #include "vm/library.h"
@@ -27,4 +29,19 @@
 
 #if REFLEX_INCLUDE_UI
 #include "vm/bindings/glx.h"
+#endif
+
+#else
+
+//polyfill for reflex_public
+
+namespace Reflex::VM
+{
+
+	struct Module;
+
+	struct Context;
+
+}
+
 #endif

@@ -57,9 +57,6 @@ public:
 	void Keep(GLX::Object & object);
 
 
-	[[deprecated("use Acquire(Key32 id)")]] TRef <Object> Create(Key32 id) { return Acquire(id); }
-
-
 
 private:
 
