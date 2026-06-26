@@ -41,11 +41,11 @@ namespace Reflex::GLX
 //
 //Menu
 
-class Reflex::GLX::Menu : public Scroller
+class Reflex::GLX::Menu : public ScrollArea
 {
 public:
 
-	REFLEX_OBJECT(GLX::Menu, Scroller);
+	REFLEX_OBJECT(GLX::Menu, ScrollArea);
 
 	static Menu & null;
 
@@ -94,7 +94,7 @@ public:
 
 protected:
 
-	using Scroller::Scroller;
+	using ScrollArea::ScrollArea;
 
 };
 

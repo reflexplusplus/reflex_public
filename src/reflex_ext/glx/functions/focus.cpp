@@ -14,7 +14,7 @@ void CollectFocusable(Object & container, Array <Object*> & list)
 {
 	for (auto & i : container)
 	{
-		if (Data::GetBool(i, kWantsFocus))
+		if (Data::GetBool(i, kfocusable))
 		{
 			list.Push(&i);
 		}
@@ -109,9 +109,9 @@ void Reflex::GLX::EnableTabNavigation(Object & object)
 
 void Reflex::GLX::EnableFocusHighlight(Object & root)
 {
-	auto focus_ref = AcquireProperty<Detail::LegacyWeakReferenceObject>(root, kWantsFocus);
+	auto focus_ref = AcquireProperty<Detail::LegacyWeakReferenceObject>(root, kfocusable);
 
-	SetEventDelegate(root, kWantsFocus, [focus_ref](Object & src, Event & e) mutable
+	SetEventDelegate(root, kfocusable, [focus_ref](Object & src, Event & e) mutable
 	{
 		if (e.id == kFocus)
 		{
@@ -119,7 +119,7 @@ void Reflex::GLX::EnableFocusHighlight(Object & root)
 
 			for (auto & parent : Object::ParentRange(src))
 			{
-				if (Data::GetBool(parent, kWantsFocus))
+				if (Data::GetBool(parent, kfocusable))
 				{
 					if (focus.Adr() != &parent)
 					{
@@ -127,7 +127,7 @@ void Reflex::GLX::EnableFocusHighlight(Object & root)
 
 						if (QueryAntecedent(e, kKeyDown))
 						{
-							if (auto ctr = Detail::SearchInheritedProperty<FocusHighlightCtr>(parent, kWantsFocus))
+							if (auto ctr = Detail::SearchInheritedProperty<FocusHighlightCtr>(parent, kfocusable))
 							{
 								Run(parent, K32("highlight"), 1.0f, ctr->value());
 							}
@@ -147,17 +147,17 @@ void Reflex::GLX::EnableFocusHighlight(Object & root)
 
 void Reflex::GLX::DisableFocusHighlight(Object & root)
 {
-	root.ClearDelegate(kWantsFocus);
+	root.ClearDelegate(kfocusable);
 
-	root.UnsetProperty<Detail::LegacyWeakReferenceObject>(kWantsFocus);
+	root.UnsetProperty<Detail::LegacyWeakReferenceObject>(kfocusable);
 }
 
 void Reflex::GLX::SetFocusHighlight(Object & scope, const Function <TRef<Animation>()> & ctr)
 {
-	scope.SetProperty(kWantsFocus, REFLEX_CREATE(FocusHighlightCtr, ctr));
+	scope.SetProperty(kfocusable, REFLEX_CREATE(FocusHighlightCtr, ctr));
 }
 
 void Reflex::GLX::ClearFocusHighlight(Object & scope)
 {
-	scope.UnsetProperty<FocusHighlightCtr>(kWantsFocus);
+	scope.UnsetProperty<FocusHighlightCtr>(kfocusable);
 }

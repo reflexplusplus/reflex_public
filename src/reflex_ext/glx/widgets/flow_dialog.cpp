@@ -96,7 +96,7 @@ void Reflex::GLX::FlowDialog::UpdateButtons(const Page & page)
 
 		Activate(button, active);
 
-		Data::SetBool(button, kWantsFocus, active);
+		Data::SetBool(button, kfocusable, active);
 	}
 }
 

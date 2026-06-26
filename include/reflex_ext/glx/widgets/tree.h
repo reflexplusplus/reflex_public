@@ -21,11 +21,11 @@ namespace Reflex::GLX
 //
 //Tree
 
-class Reflex::GLX::Tree : public Scroller
+class Reflex::GLX::Tree : public ScrollArea
 {
 public:
 
-	REFLEX_OBJECT(GLX::Tree, Scroller);
+	REFLEX_OBJECT(GLX::Tree, ScrollArea);
 
 
 

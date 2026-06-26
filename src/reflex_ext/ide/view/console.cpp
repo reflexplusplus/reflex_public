@@ -115,7 +115,7 @@ Console::MainWindowDelegate::MainWindowDelegate(Console & console, System::Windo
 		m_tabgroup.AddPanel(i.a, i.b, GLX::kcontent, i.a);
 	}
 
-	Data::SetBool(m_tabgroup, GLX::kresize, true);
+	Data::SetBool(m_tabgroup, GLX::kresizable, true);
 
 	SetContent(m_tabgroup);
 
@@ -287,7 +287,7 @@ Console::UndockedPanel::UndockedPanel(MainWindowDelegate & windowdlg, Key32 pane
 
 		if (panelid == panel->id)
 		{
-			Data::SetBool(panel, GLX::kresize, true);	//stop stylsheet refresh from doing AutoFit
+			Data::SetBool(panel, GLX::kresizable, true);	//stop stylsheet refresh from doing AutoFit
 
 			windowdlg.console->m_undocked = panelid;
 

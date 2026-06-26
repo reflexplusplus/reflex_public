@@ -232,7 +232,7 @@ void Reflex::GLX::Tree::SelectNext()
 
 void Reflex::GLX::Tree::OnSetStyle(const Style & style)
 {
-	Scroller::OnSetStyle(style);
+	ScrollArea::OnSetStyle(style);
 
 	m_node_style = style[kitem].Adr();
 
@@ -324,7 +324,7 @@ bool Reflex::GLX::Tree::OnEvent(Object & src, Event & e)
 		};
 	}
 
-	return Scroller::OnEvent(src, e);
+	return ScrollArea::OnEvent(src, e);
 }
 
 Reflex::GLX::Tree::Node::Node(Tree & tree)
@@ -444,7 +444,7 @@ void Reflex::GLX::Tree::Node::Reveal(bool animate)
 
 	Float pad = header->contentsize.h;
 
-	tree.Scroller::Reveal(true, pos.y, h, pad, animate);
+	tree.ScrollArea::Reveal(true, pos.y, h, pad, animate);
 }
 
 void Reflex::GLX::Tree::Node::OnSetStyle(const Style & style)

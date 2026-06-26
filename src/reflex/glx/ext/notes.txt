@@ -1,0 +1,5 @@
+lodepng
+licence does not require acknowledgement
+
+nanojpg
+MIT licence - requirements acknowledgement in credits

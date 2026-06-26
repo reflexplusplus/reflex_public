@@ -24,7 +24,7 @@ namespace Reflex::Bootstrap
 class Reflex::Bootstrap::App :
 	public Data::PropertySet,
 	public Streamable,
-	public State
+	public StateMt
 {
 public:
 

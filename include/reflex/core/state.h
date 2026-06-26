@@ -11,7 +11,12 @@
 namespace Reflex
 {
 
-	class State;
+	template <bool MT, bool LEGACY = false> class ChangeCount;
+
+	
+	using State = ChangeCount <false>;
+
+	using StateMt = ChangeCount <true>;
 
 }
 
@@ -19,13 +24,16 @@ namespace Reflex
 
 
 //
-//State
+//ChangeCount
 
-class Reflex::State
+template <bool MT, bool LEGACY>
+class Reflex::ChangeCount
 {
 public:
 
 	//types
+
+	using Storage = ConditionalType<MT, AtomicUInt32, UInt32>;
 
 	class Monitor;
 
@@ -33,19 +41,21 @@ public:
 
 	//lifetime
 
-	State();
+	ChangeCount();
 
 
 
 	//info
 
-	const UInt32 & GetChangeCount() const { return m_count; }
+	UInt32 GetCurrentCount() const;
+
+	const Storage * GetAdr() const { return &m_count; }
 
 
 
 protected:
 
-	State(const State &) {}
+	ChangeCount(const ChangeCount &) {}
 
 
 	//notify
@@ -59,7 +69,7 @@ private:
 	friend class Monitor;
 
 
-	UInt m_count;
+	Storage m_count;
 
 };
 
@@ -67,9 +77,10 @@ private:
 
 
 //
-//State::Monitor
+//ChangeCount::Monitor
 
-class Reflex::State::Monitor
+template <bool MT, bool LEGACY>
+class Reflex::ChangeCount<MT,LEGACY>::Monitor
 {
 public:
 
@@ -77,7 +88,7 @@ public:
 
 	Monitor();
 
-	Monitor(const State & state);
+	Monitor(const ChangeCount & state);
 
 	Monitor(const Monitor & monitor);
 
@@ -85,17 +96,18 @@ public:
 
 	//setup
 
-	void Connect(const State & state);
-
-	void Reconnect();
+	void Connect(const ChangeCount & state);
 
 	void Disconnect();
 
 	bool Connected() const;
 
 
+	void Invalidate();	//force next Poll to true
 
-	//check
+
+
+	//read
 
 	bool Poll() const;
 
@@ -105,7 +117,9 @@ private:
 
 	mutable UInt32 m_count;
 
-	const UInt32 * m_state_counter;
+	mutable Storage m_count_disconnected;
+
+	const Storage * m_state_counter;
 
 };
 
@@ -115,61 +129,120 @@ private:
 //
 //impl
 
-REFLEX_INLINE Reflex::State::State()
+template <bool MT, bool LEGACY> REFLEX_INLINE Reflex::ChangeCount<MT,LEGACY>::ChangeCount()
 	: m_count(0)
 {
 }
 
-REFLEX_INLINE void Reflex::State::Notify()
+template <bool MT, bool LEGACY> REFLEX_INLINE Reflex::UInt32 Reflex::ChangeCount<MT,LEGACY>::GetCurrentCount() const
 {
-	++m_count;
+	if constexpr (MT)
+	{
+		return m_count.load(std::memory_order_acquire);
+	}
+	else
+	{
+		return m_count;
+	}
 }
 
-REFLEX_INLINE Reflex::State::Monitor::Monitor()
+template <bool MT, bool LEGACY> REFLEX_INLINE void Reflex::ChangeCount<MT,LEGACY>::Notify()
+{
+	if constexpr (MT)
+	{
+		m_count.fetch_add(1, std::memory_order_release);
+	}
+	else
+	{
+		++m_count;
+	}
+}
+
+template <bool MT, bool LEGACY> REFLEX_INLINE Reflex::ChangeCount<MT,LEGACY>::Monitor::Monitor()
 	: m_count(0)
-	, m_state_counter(&m_count)
+	, m_count_disconnected(0)
+	, m_state_counter(&m_count_disconnected)
 {
 }
 
-REFLEX_INLINE Reflex::State::Monitor::Monitor(const State & state)
+template <bool MT, bool LEGACY> REFLEX_INLINE Reflex::ChangeCount<MT,LEGACY>::Monitor::Monitor(const ChangeCount & state)
 	: m_count(0)
-	, m_state_counter(&m_count)
+	, m_count_disconnected(0)
+	, m_state_counter(&m_count_disconnected)
 {
 	Connect(state);
 }
 
-REFLEX_INLINE Reflex::State::Monitor::Monitor(const Monitor & monitor)
+template <bool MT, bool LEGACY> REFLEX_INLINE Reflex::ChangeCount<MT,LEGACY>::Monitor::Monitor(const Monitor & monitor)
 	: m_count(0)
-	, m_state_counter(&m_count)
+	, m_count_disconnected(0)
+	, m_state_counter(&m_count_disconnected)
 {
 	m_state_counter = monitor.m_state_counter;
 
-	m_count = (*m_state_counter) - 1;
+	if constexpr (LEGACY)
+	{
+		Invalidate();
+	}
+	else
+	{
+		m_count = monitor.m_count;
+	}
 }
 
-REFLEX_INLINE void Reflex::State::Monitor::Connect(const State & state)
+template <bool MT, bool LEGACY> REFLEX_INLINE void Reflex::ChangeCount<MT,LEGACY>::Monitor::Connect(const ChangeCount & state)
 {
 	m_state_counter = &state.m_count;
 
-	m_count = (*m_state_counter) - 1;
+	if constexpr (LEGACY)
+	{
+		Invalidate();
+	}
+	else
+	{
+		m_count = state.GetCurrentCount();
+	}
 }
 
-REFLEX_INLINE void Reflex::State::Monitor::Reconnect()
+template <bool MT, bool LEGACY> REFLEX_INLINE void Reflex::ChangeCount<MT,LEGACY>::Monitor::Invalidate()
 {
-	m_count = (*m_state_counter) - 1;
+	if constexpr (MT)
+	{
+		m_count = m_state_counter->load(std::memory_order_acquire) - 1;
+	}
+	else
+	{
+		m_count = (*m_state_counter) - 1;
+	}
 }
 
-REFLEX_INLINE void Reflex::State::Monitor::Disconnect()
+template <bool MT, bool LEGACY> REFLEX_INLINE void Reflex::ChangeCount<MT,LEGACY>::Monitor::Disconnect()
 {
-	m_state_counter = &m_count;
+	if constexpr (MT)
+	{
+		m_count_disconnected.store(m_count, std::memory_order_relaxed);
+	}
+	else
+	{
+		m_count_disconnected = m_count;
+	}
+
+	m_state_counter = &m_count_disconnected;
 }
 
-REFLEX_INLINE bool Reflex::State::Monitor::Connected() const
+template <bool MT, bool LEGACY> REFLEX_INLINE bool Reflex::ChangeCount<MT,LEGACY>::Monitor::Connected() const
 {
-	return m_state_counter != &m_count;
+	return m_state_counter != &m_count_disconnected;
 }
 
-REFLEX_INLINE bool Reflex::State::Monitor::Poll() const
+template <bool MT, bool LEGACY> REFLEX_INLINE bool Reflex::ChangeCount<MT,LEGACY>::Monitor::Poll() const
 {
-	return SetFiltered(m_count, *m_state_counter);
+	if constexpr (MT)
+	{
+		return SetFiltered(m_count, m_state_counter->load(std::memory_order_acquire));
+	}
+	else
+	{
+		return SetFiltered(m_count, *m_state_counter);
+	}
 }

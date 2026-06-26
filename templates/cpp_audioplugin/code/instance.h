@@ -34,9 +34,9 @@ public:
 
 	//config
 
-	static Reflex::System::AudioPlugin::Configuration::Class MakeClass();
+	static Class MakeClass();
 
-	static Reflex::TRef <ParamDefs> CreateParamDefs();
+	static void PopulateParameters(const Class & cls, Reflex::ArrayRegion < Reflex::Pair <Reflex::Key32, Reflex::ConstReference <Reflex::Bootstrap::ParamDesc> > > paramdefs);
 
 
 

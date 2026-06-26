@@ -3,6 +3,7 @@ include: "common.glx";
 @Font Medium:
 {
 	path: "fonts/OpenSans/static/OpenSans/OpenSans-Regular.ttf";
+
 	size: 12;
 };
 
@@ -110,80 +111,98 @@ Control:
 
 	bg: Text(font: Medium; value: &label; justify: bottom; colour: 96);
 
-	continuous:
+	@State continuous:
 	{
-		transition: 0.25;
-		render: x4;
+		transition: 0.125;
 
-		size: 64;
-		color: 128;
-		sweep_range: 0.375,0.75;							//custom property for RotaryDisplayPropertiesDelegate
-				
-		bg:
-		Rotate
-		(
-			angle: &indicator;
-			content:
-			Align
-			(
-				position: right;
-				size: 10,2;
-
-				content: Fill(corner: 1)
-			)
-		),
-		Circle(sweep: &sweep; width: 10; color: 255,32),	//note this color modulates the "pen" color
-		Circle(sweep: 0.375,0.75; width: 2);
-		
-		@State hover:
+		@State active:
 		{
-			color: 108;
-			
-			fg: Text(font: Medium; value: &value; justify: center);
+			bg: Text(font: Medium; value: &value; justify: bottom; color: 32);
 		};
-	};
-
-	boolean:
-	{
-		transition: 0.25;
-
-		render: x4;
-		render_pad: 16;
 	
-		margin: 14,0;
-		size: 64,36;
-
-		bg: 
-		Border(colour: 128; width: 2; corner: 8),
-		Text(font: Medium; value: &value; justify: center; indent: 2,8; colour: 72);
-
 		@State hover:
 		{
-			bg:
-			Blur(radius: 16; opacity: 0.25; content: Fill(corner: 8)),
-			CircleGradient(from: 255,128; to: 255,0),
-			Border(colour: 128; width: 2; corner: 8),
-			Text(font: Medium; value: &value; justify: center; indent: 2,8; colour: 72);
+			bg: Text(font: Medium; value: &value; justify: bottom; color: 32);
 		};
 
-		@State selected:
+		content:
 		{
+			transition: 0.25;
+			render: x4;
+
+			size: 64;
+			color: 128;
+			sweep_range: 0.375,0.75;							//custom property for RotaryDisplayPropertiesDelegate
+					
 			bg:
-			Blur(radius: 16; opacity: 0.5; content: Fill(corner: 8)),
-			Fill(indent: 1; colour: 255,128; corner: 8),
-			CircleGradient(from: 255,128; to: 255,0),
-			Border(colour: 0,16; width: 3; corner: 8),
-			Border(colour: 128; width: 2; corner: 8),
-			Text(font: Medium; value: &value; justify: center; indent: 2,8; colour: 72);
+			Rotate
+			(
+				angle: &indicator;
+				content:
+				Align
+				(
+					position: right;
+					size: 10,2;
+	
+					content: Fill(corner: 1)
+				)
+			),
+			Circle(sweep: &sweep; width: 10; color: 255,32),	//note this color modulates the "pen" color
+			Circle(sweep: 0.375,0.75; width: 2);
+
+			@State hover:
+			{
+				color: 96;
+			};
 		};
-		
-		@State active: { inherit: hover; };
 	};
 
-	enumeration:
+	@State boolean:
 	{
-		inherit: boolean;
+		content:
+		{
+			transition: 0.25;
+			render: x4;
+			render_pad: 16;
+		
+			margin: 14,0;
+			size: 64,36;
 
-		@Alias menu;
+			color: 128;
+	
+			bg: 
+			Border(colour: 255; width: 2; corner: 8),
+			Text(font: Medium; value: &value; justify: center; indent: 2,8; colour: 72);
+	
+			@State hover:
+			{
+				color: 255;
+
+				bg:
+				Blur(radius: 16; opacity: 0.25; content: Fill(corner: 8)),
+				CircleGradient(from: 255,16; to: 255,0),
+				Border(colour: 96; width: 2; corner: 8),
+				Text(font: Medium; value: &value; justify: center; indent: 2,8; colour: 32);
+			};
+	
+			@State selected:
+			{
+				color: 255;
+
+				bg:
+				Blur(radius: 16; opacity: 0.5; content: Fill(corner: 8)),
+				Fill(indent: 1; colour: 255,128; corner: 8),
+				CircleGradient(from: 255,128; to: 255,0),
+				Border(colour: 0,16; width: 3; corner: 8),
+				Border(colour: 128; width: 2; corner: 8),
+				Text(font: Medium; value: &value; justify: center; _indent: 2,8; colour: 72);
+			};
+			
+			@Alias active: { source: hover; };
+	
+			@Alias menu;	//for enumeration
+		};
 	};
+
+	@Alias enumeration: { source: boolean; };
 };

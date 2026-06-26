@@ -30,16 +30,13 @@ public:
 
 	REFLEX_OBJECT(Bootstrap::View, GLX::Object);
 
-	View(App & app, UInt16 chunk_version, WString::View stylesheet_path) : View(app.session, MakeKey32("bootstrap.view"), chunk_version, stylesheet_path) { ConnectState(app); }
+	View(App & app, UInt16 chunk_version, WString::View stylesheet_path) : View(app, app.session, MakeKey32("bootstrap.view"), chunk_version, stylesheet_path) {}
 
-	View(File::PersistentPropertySet & state, Key32 chunk_id, UInt16 chunk_version, WString::View stylesheet_path);
+	template <bool MT> View(ChangeCount <MT> & state, File::PersistentPropertySet & session, Key32 chunk_id, UInt16 chunk_version, WString::View stylesheet_path);
 
 
 
 protected:
-
-	void ConnectState(State & state);	//by default this the state passed to ctor
-
 
 	//Streamable callbacks
 
@@ -64,6 +61,8 @@ protected:
 
 private:
 
+	View(File::PersistentPropertySet & session, Key32 chunk_id, UInt16 chunk_version, WString::View stylesheet_path);
+
 	void OnReset(Key32 context) final;
 
 	void OnRestore(Data::Archive::View & stream, Key32 context) final;
@@ -75,7 +74,7 @@ private:
 
 	WString m_stylesheet_path;
 
-	State::Monitor m_monitor;
+	Detail::Monitor m_monitor;
 };
 
 
@@ -84,7 +83,8 @@ private:
 //
 //impl
 
-inline void Reflex::Bootstrap::View::ConnectState(State & state)
+template <bool MT> inline Reflex::Bootstrap::View::View(ChangeCount <MT> & state, File::PersistentPropertySet & session, Key32 chunk_id, UInt16 chunk_version, WString::View stylesheet_path)
+	: View(session, chunk_id, chunk_version, stylesheet_path)
 {
 	m_monitor.Connect(state);
 }

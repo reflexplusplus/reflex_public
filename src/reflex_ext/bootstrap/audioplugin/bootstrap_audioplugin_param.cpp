@@ -38,7 +38,7 @@ Reflex::TRef <Reflex::Bootstrap::ParamDesc> Reflex::Bootstrap::ParamDesc::Create
 	return info;
 }
 
-Reflex::TRef <Reflex::Bootstrap::ParamDesc> Reflex::Bootstrap::ParamDesc::CreateEnum(CString && name, const ArrayView <CString> & values, Int32 initial)
+Reflex::TRef <Reflex::Bootstrap::ParamDesc> Reflex::Bootstrap::ParamDesc::CreateEnum(CString && name, ArrayView <CString> values, Int32 initial)
 {
 	REFLEX_ASSERT(values);
 

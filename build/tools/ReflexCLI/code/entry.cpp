@@ -107,29 +107,29 @@ const CLI::TaskDef kCommands[] =
 {
 	{
 		.id = K32("help"),
-		.fn = [](Async::Worker::Context & ctx, const Data::PropertySet & args, System::FileHandle & std_out)
+		.fn = [](const Data::PropertySet & args, System::FileHandle & std_out)
 		{
 			constexpr Pair <CString::View> kCommands[] =
 			{
-				{ "create", "[--template <id>] [--vendor <vendor>] --product <product> [--targets <list>] --output <folder> [--overwrite false]" },
+				{ "create", "--template <id> --vendor <vendor> --product <product> [--targets <list>] --output <folder> [--overwrite false]" },
 				{ "list-templates", "" },
 				{ "list-targets", "" },
 				{ "build-resources", "--path <path>" },
 				{ "set-default", "[--template <id>] [--vendor <vendor>] [--targets <list>] [--output <folder>]" },
 				{ "get-defaults", "" },
 				{ "set-reflex-path", "--path <reflex-root>" },
-				{ "get-reflex-path" },
+				{ "get-reflex-path", "" },
 			};
 
 			for (auto & command : kCommands)
 			{
-				File::WriteLine(std_out, Join("reflex ", command.a, ' ', command.b));
+				File::WriteLine(std_out, Join(CLI::Detail::kColours[CLI::kColourWhite], command.a, ' ', CLI::Detail::kColours[CLI::kColourBrightBlack], command.b));
 			}
 		}
 	},
 	{
 		.id = K32("set-default"),
-		.fn = [](Async::Worker::Context & ctx, const Data::PropertySet & args, System::FileHandle & std_out)
+		.fn = [](const Data::PropertySet & args, System::FileHandle & std_out)
 		{
 			bool any = false;
 
@@ -197,7 +197,7 @@ const CLI::TaskDef kCommands[] =
 	},
 	{
 		.id = K32("get-defaults"),
-		.fn = [](Async::Worker::Context & ctx, const Data::PropertySet & args, System::FileHandle & std_out)
+		.fn = [](const Data::PropertySet & args, System::FileHandle & std_out)
 		{
 			if (auto value = Data::GetCString(Bootstrap::global->prefs, kDefaultTemplate))
 			{
@@ -222,7 +222,7 @@ const CLI::TaskDef kCommands[] =
 	},
 	{
 		.id = K32("set-reflex-path"),
-		.fn = [](Async::Worker::Context & ctx, const Data::PropertySet & args, System::FileHandle & std_out)
+		.fn = [](const Data::PropertySet & args, System::FileHandle & std_out)
 		{
 			auto path = CLI::GetFolderArg(args, "path", true);
 
@@ -233,14 +233,14 @@ const CLI::TaskDef kCommands[] =
 	},
 	{
 		.id = K32("get-reflex-path"),
-		.fn = [](Async::Worker::Context & ctx, const Data::PropertySet & args, System::FileHandle & std_out)
+		.fn = [](const Data::PropertySet & args, System::FileHandle & std_out)
 		{
 			File::WriteLine(std_out, GetReflexPathEx());
 		}
 	},
 	{
 		.id = K32("list-templates"),
-		.fn = [](Async::Worker::Context & ctx, const Data::PropertySet & args, System::FileHandle & std_out)
+		.fn = [](const Data::PropertySet & args, System::FileHandle & std_out)
 		{
 			auto templates = GetTemplates(GetReflexPathEx());
 
@@ -279,7 +279,7 @@ const CLI::TaskDef kCommands[] =
 	},
 	{
 		.id = K32("list-targets"),
-		.fn = [](Async::Worker::Context & ctx, const Data::PropertySet & args, System::FileHandle & std_out)
+		.fn = [](const Data::PropertySet & args, System::FileHandle & std_out)
 		{
 			for (auto target : kTargets)
 			{
@@ -289,7 +289,7 @@ const CLI::TaskDef kCommands[] =
 	},
 	{
 		.id = K32("create"),
-		.fn = [](Async::Worker::Context & ctx, const Data::PropertySet & args, System::FileHandle & std_out)
+		.fn = [](const Data::PropertySet & args, System::FileHandle & std_out)
 		{
 			auto reflex_path = GetReflexPathEx();
 
@@ -369,7 +369,7 @@ const CLI::TaskDef kCommands[] =
 	},
 	{
 		.id = K32("build-resources"),
-		.fn = [](Async::Worker::Context & ctx, const Data::PropertySet & args, System::FileHandle & std_out)
+		.fn = [](const Data::PropertySet & args, System::FileHandle & std_out)
 		{
 			auto path = CLI::GetFilenameArg(args, "path", true);
 
@@ -377,7 +377,35 @@ const CLI::TaskDef kCommands[] =
 
 			BuildResources(path, progress);
 		}
+	},
+#if REFLEX_DEBUG
+	{
+		.id = K32("test-progress-bar"),
+		.fn = [](const Data::PropertySet & args, System::FileHandle & std_out)
+		{
+			auto task = AutoRelease(System::Thread::Create([&args, &std_out]()
+			{
+				auto steps = ToInt32(Data::GetCString(args, "steps", "40"));
+				auto delay_ms = ToInt32(Data::GetCString(args, "delay_ms", "50"));
+
+				if (steps <= 0) CLI::ThrowError("steps must be > 0");
+				if (delay_ms < 0) CLI::ThrowError("delay_ms must be >= 0");
+
+				CLI::Await(std_out, "testing progress bar...", true, {}, [steps, delay_ms](CLI::TaskContext & ctx)
+				{
+					for (Int32 i = 0; i < steps; ++i)
+					{
+						ctx.SetProgress(Float32(i + 1) / Float32(steps));
+
+						System::SuspendThread(UInt32(delay_ms));
+					}
+				});
+
+				CLI::Print(std_out, CLI::kColourGreen, "progress bar test completed");
+			}));
+		}
 	}
+#endif
 };
 
 REFLEX_END_INTERNAL

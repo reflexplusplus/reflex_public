@@ -204,9 +204,9 @@ PropertyEditorImpl::PropertyEditorImpl(const Data::Detail::StandardPropertySheet
 	GLX::Init(m_remove_property, m_styles.button, L"Remove");
 
 
-	Data::SetBool(m_tree, GLX::kWantsFocus, true);
+	Data::SetBool(m_tree, GLX::kfocusable, true);
 
-	Data::SetBool(m_properties, GLX::kWantsFocus, true);
+	Data::SetBool(m_properties, GLX::kfocusable, true);
 
 	GLX::SetFlow(m_properties_area, GLX::kFlowY);
 
@@ -231,7 +231,7 @@ PropertyEditorImpl::PropertyEditorImpl(const Data::Detail::StandardPropertySheet
 	GLX::AddInlineFlex(m_properties_area, m_properties);
 
 	GLX::SetFlow(*this, GLX::kFlowY | GLX::kFlowInvert);
-	Data::SetBool(m_properties_area, GLX::kresize, true);
+	Data::SetBool(m_properties_area, GLX::kresizable, true);
 	SetSplitSize(m_properties_area, 192.0f);
 	GLX::AddInline(*this, m_properties_area);
 	GLX::AddInlineFlex(*this, m_tree);
@@ -1040,7 +1040,7 @@ PropertyEditorImpl::Dialog::Field::Field(PropertyEditorImpl & view, const Interf
 {
 	m_popup.SetDelegate({}, New<GLX::PopupBehaviour>());
 
-	Data::SetBool(m_textedit, GLX::kWantsFocus, true);
+	Data::SetBool(m_textedit, GLX::kfocusable, true);
 
 	GLX::EnableAutoFit(m_textedit, false, false);
 
@@ -1224,7 +1224,7 @@ bool PropertyEditorImpl::Dialog::OnDragDropReceiveExternal(const Reflex::Object 
 {
 	Field & value = *m_fields[1];
 
-	if (Data::GetBool(value.m_popup, GLX::kWantsFocus))
+	if (Data::GetBool(value.m_popup, GLX::kfocusable))
 	{
 		typedef ObjectOf < Array <WString> > Files;
 

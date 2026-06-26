@@ -1,0 +1,10 @@
+<resources output="../../opengl_resources.cpp" format="reflex_minimal">
+
+	<Reflex::System::Common>
+
+		<file path="vertex.shader" id="kVertexShader"/>
+		<file path="fragment.shader" id="kFragmentShader"/>
+
+	</>
+
+</resources>

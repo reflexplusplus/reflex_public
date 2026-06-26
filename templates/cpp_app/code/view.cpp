@@ -51,7 +51,7 @@ ViewImpl::ViewImpl(App & app)
 	: View(app, kChunkVersion, L":res:_PRODUCT-NAME-SYMBOL_/styles.glx")
 	, app(app)
 {
-	Data::SetBool(*this, GLX::kresize, true);
+	Data::SetBool(*this, GLX::kresizable, true);
 
 	if constexpr (REFLEX_DEBUG)
 	{

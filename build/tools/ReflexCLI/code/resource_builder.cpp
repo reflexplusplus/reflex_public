@@ -68,20 +68,6 @@ struct ResourceBuilder
 		System::GetFileAttributes(source_path, item.source_attributes);
 	}
 
-	static void HashAttributes(UInt64 & hash, const WString::View & path)
-	{
-		Tuple <UInt64,UInt64> attributes;
-
-		if (System::GetFileAttributes(path, attributes))
-		{
-			hash = Data::FNV1a64(Data::Pack(attributes), hash);
-		}
-		else
-		{
-			hash = Data::FNV1a64(Data::Pack(MakeTuple(UInt64(0), UInt64(0))), hash);
-		}
-	}
-
 	static void AddFolder(Array <Item> & items, const Data::PropertySet & attributes, const ArrayView <WString> & exclude_folders, const ArrayView <WString> & exclude_types, const WString & root, const WString & folder)
 	{
 		auto abspath = Join(root, folder);
@@ -626,11 +612,25 @@ CString ResourceBuilder::MakeHex(const Data::Archive::View & data)
 
 UInt64 ResourceBuilder::ComputeHash(const WString::View & xml_path)
 {
+	constexpr auto HashPathAndAttributes = [](UInt64 & hash, const WString::View & path)
+	{
+		hash = Data::FNV1a64(Data::EncodeUCS2(path), hash);
+
+		Tuple <UInt64, UInt64> attributes;
+
+		if (System::GetFileAttributes(path, attributes))
+		{
+			hash = Data::FNV1a64(Data::Pack(attributes), hash);
+		}
+		else
+		{
+			hash = Data::FNV1a64(Data::Pack(MakeTuple(UInt64(0), UInt64(0))), hash);
+		}
+	};
+
 	UInt64 hash = Data::FNV1a64(Data::Pack(kDependencyCacheVersion));
 
-	hash = Data::FNV1a64(Data::EncodeUCS2(xml_path), hash);
-
-	HashAttributes(hash, xml_path);
+	HashPathAndAttributes(hash, xml_path);
 
 	for (auto & group : Namespace::BranchIterator(m_root))
 	{
@@ -638,8 +638,7 @@ UInt64 ResourceBuilder::ComputeHash(const WString::View & xml_path)
 		{
 			if (auto & path = item.source_path)
 			{
-				hash = Data::FNV1a64(Data::EncodeUCS2(path), hash);
-				HashAttributes(hash, path);
+				HashPathAndAttributes(hash, path);
 			}
 		}
 	}

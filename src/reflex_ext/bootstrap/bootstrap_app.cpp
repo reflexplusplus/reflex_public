@@ -92,9 +92,9 @@ bool Reflex::Bootstrap::App::Save(const WString & path)
 
 void Reflex::Bootstrap::App::Notify(bool edited)
 {
-	m_edited = m_edited || edited;
+	if (edited) m_edited = true;
 
-	State::Notify();
+	StateMt::Notify();
 }
 
 void Reflex::Bootstrap::App::AttachSessionListener()

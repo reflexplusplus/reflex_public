@@ -97,7 +97,7 @@ Reflex::Data::Archive Reflex::File::Extract(const EmbeddedResource & item)
 }
 
 Reflex::File::EnumerableEmbeddedResource::Locator::Locator()
-	: File::VirtualFileSystem::Locator(K32("res"), { 1, 1 }) 
+	: File::VirtualFileSystem::Locator(K32("res"), { 1, kMaxUInt8 }) 
 {
 }
 
@@ -105,7 +105,13 @@ Reflex::TRef <Reflex::System::FileHandle> Reflex::File::EnumerableEmbeddedResour
 {
 	REFLEX_ASSERT(subdomain);
 
-	if (auto item = EnumerableEmbeddedResource::Retrieve({ subdomain.GetFirst(), path }))
+	auto ptr = subdomain.GetFirst().data;
+
+	auto end = subdomain.GetLast().data + subdomain.GetLast().size;
+
+	WString::View subdomain_path = { ptr, UInt32(end - ptr) };
+
+	if (auto item = EnumerableEmbeddedResource::Retrieve({ subdomain_path, path }))
 	{
 		auto rtn = (*ResourceDecoder::st_openfns[True(item->uncompressed_size)])(*item);
 
@@ -113,8 +119,6 @@ Reflex::TRef <Reflex::System::FileHandle> Reflex::File::EnumerableEmbeddedResour
 
 		return rtn;
 	}
-
-	auto ptr = subdomain.GetFirst().data;
 
 	WString::View fullpath = { ptr, UInt32((path.data + path.size) - ptr) };
 

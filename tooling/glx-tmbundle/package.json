@@ -1,0 +1,20 @@
+{
+    "name": "glx",
+    "displayName": "GLX",
+    "contributes": {
+        "languages": [
+            {
+                "id": "glx",
+                "aliases": ["GLX", "glx"],
+                "extensions": [".glx"]
+            }
+        ],
+        "grammars": [
+            {
+                "language": "glx",
+                "scopeName": "source.glx",
+                "path": "./Syntaxes/glx.tmLanguage.json"
+            }
+        ]
+    }
+}

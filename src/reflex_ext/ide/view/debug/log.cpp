@@ -52,7 +52,7 @@ private:
 
 
 
-	State::Monitor m_monitor;
+	StateMt::Monitor m_monitor;
 
 
 	WString m_unknown;
@@ -131,6 +131,8 @@ LogView::LogView()
 
 
 	EnableOnClock();
+
+	m_monitor.Invalidate();
 }
 
 void LogView::Clear()

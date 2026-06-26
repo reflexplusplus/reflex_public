@@ -1,0 +1,1334 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 54;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		1A1201792B17507D0061B44C /* glx.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1A65EF692A82EDC500EE3931 /* glx.cpp */; };
+		1A1201862B1750900061B44C /* vm.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1A65EF6F2A82EDE600EE3931 /* vm.cpp */; };
+		1A1201A72B1750DF0061B44C /* vm_ui.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1A1201A52B1750D10061B44C /* vm_ui.cpp */; };
+		1A1201B32B1751F40061B44C /* osx_dynamiclibrary.mm in Sources */ = {isa = PBXBuildFile; fileRef = 1A1201B12B1751E40061B44C /* osx_dynamiclibrary.mm */; };
+		1A53B3A22B187F6B00B4AEA2 /* osx_app.mm in Sources */ = {isa = PBXBuildFile; fileRef = 1A53B3A02B187F5F00B4AEA2 /* osx_app.mm */; };
+		1A53B3A32B187F8200B4AEA2 /* osx_console.mm in Sources */ = {isa = PBXBuildFile; fileRef = 1A53B39E2B187F3700B4AEA2 /* osx_console.mm */; };
+		1A65EF6E2A82EDE000EE3931 /* vec.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1A65EF6D2A82EDE000EE3931 /* vec.cpp */; };
+		1A7FCBCE2B0DD4F50000C2E4 /* osx_au.mm in Sources */ = {isa = PBXBuildFile; fileRef = 1A7FCBCA2B0DD4F10000C2E4 /* osx_au.mm */; };
+		1A7FCBCF2B0DD4F80000C2E4 /* osx_vst2.mm in Sources */ = {isa = PBXBuildFile; fileRef = 1A7FCBC82B0DD4F10000C2E4 /* osx_vst2.mm */; };
+		1A7FCBD02B0DD5110000C2E4 /* osx_vst3.mm in Sources */ = {isa = PBXBuildFile; fileRef = 1A7FCBC92B0DD4F10000C2E4 /* osx_vst3.mm */; };
+		1AA66B302F45E1CA00163CAA /* osx_clap.mm in Sources */ = {isa = PBXBuildFile; fileRef = 1AA66B2F2F45E1CA00163CAA /* osx_clap.mm */; };
+		1AA6D70B2B0CC9F000A8D36D /* osx_audioapp.mm in Sources */ = {isa = PBXBuildFile; fileRef = 1AA6D7062B0CC9DC00A8D36D /* osx_audioapp.mm */; };
+		1AD82D832F1DCFE90081FFBD /* opengl.mm in Sources */ = {isa = PBXBuildFile; fileRef = 1AD82D822F1DCFE90081FFBD /* opengl.mm */; };
+		1AE4707C2F1A252B001C9231 /* osx_library.mm in Sources */ = {isa = PBXBuildFile; fileRef = 1AE4707B2F1A252B001C9231 /* osx_library.mm */; };
+		DF3342B7271FEFAA00BE028C /* core.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DF86FC6D25DFAD7E00218C01 /* core.cpp */; };
+		DF3342B9271FEFBC00BE028C /* data.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DF86FC7025DFAD8400218C01 /* data.cpp */; };
+		DF3342BB271FEFBF00BE028C /* file.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DF86FC7625DFAD9200218C01 /* file.cpp */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		17AF9A242C37D9A9000DE3E6 /* src */ = {isa = PBXFileReference; lastKnownFileType = folder; name = src; path = ../../../src; sourceTree = "<group>"; };
+		17AF9A252C37D9B3000DE3E6 /* include */ = {isa = PBXFileReference; lastKnownFileType = folder; name = include; path = ../../../include; sourceTree = "<group>"; };
+		1A1201822B17507D0061B44C /* libReflexCommonUi.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libReflexCommonUi.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		1A1201932B1750900061B44C /* libReflexCommonVm.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libReflexCommonVm.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		1A1201A42B17509A0061B44C /* libReflexCommonVmUi.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libReflexCommonVmUi.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		1A1201A52B1750D10061B44C /* vm_ui.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = vm_ui.cpp; path = ../../../src/reflex/vm_ui.cpp; sourceTree = "<group>"; };
+		1A1201B02B1751BF0061B44C /* libReflexTargetDynamicLibrary.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libReflexTargetDynamicLibrary.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		1A1201B12B1751E40061B44C /* osx_dynamiclibrary.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = osx_dynamiclibrary.mm; path = ../../../src/reflex/system/osx_dynamiclibrary.mm; sourceTree = "<group>"; };
+		1A53B3942B187EE400B4AEA2 /* libReflexTargetApp.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libReflexTargetApp.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		1A53B39D2B187EFD00B4AEA2 /* libReflexTargetConsole.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libReflexTargetConsole.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		1A53B39E2B187F3700B4AEA2 /* osx_console.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = osx_console.mm; path = ../../../src/reflex/system/osx_console.mm; sourceTree = "<group>"; };
+		1A53B3A02B187F5F00B4AEA2 /* osx_app.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = osx_app.mm; path = ../../../src/reflex/system/osx_app.mm; sourceTree = "<group>"; };
+		1A65EF692A82EDC500EE3931 /* glx.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = glx.cpp; path = ../../../src/reflex/glx.cpp; sourceTree = "<group>"; };
+		1A65EF6D2A82EDE000EE3931 /* vec.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = vec.cpp; path = ../../../src/reflex/vec.cpp; sourceTree = "<group>"; };
+		1A65EF6F2A82EDE600EE3931 /* vm.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = vm.cpp; path = ../../../src/reflex/vm.cpp; sourceTree = "<group>"; };
+		1A7FCBB52B0DD48E0000C2E4 /* libReflexTargetVST2.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libReflexTargetVST2.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		1A7FCBBE2B0DD4980000C2E4 /* libReflexTargetVST3.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libReflexTargetVST3.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		1A7FCBC72B0DD49E0000C2E4 /* libReflexTargetAU.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libReflexTargetAU.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		1A7FCBC82B0DD4F10000C2E4 /* osx_vst2.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = osx_vst2.mm; path = ../../../src/reflex/system/osx_vst2.mm; sourceTree = "<group>"; };
+		1A7FCBC92B0DD4F10000C2E4 /* osx_vst3.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = osx_vst3.mm; path = ../../../src/reflex/system/osx_vst3.mm; sourceTree = "<group>"; };
+		1A7FCBCA2B0DD4F10000C2E4 /* osx_au.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = osx_au.mm; path = ../../../src/reflex/system/osx_au.mm; sourceTree = "<group>"; };
+		1AA66B2E2F45E16B00163CAA /* libReflexTargetCLAP.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libReflexTargetCLAP.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		1AA66B2F2F45E1CA00163CAA /* osx_clap.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; name = osx_clap.mm; path = ../../../src/reflex/system/osx_clap.mm; sourceTree = "<group>"; };
+		1AA6D7042B0CC93600A8D36D /* libReflexTargetAudioApp.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libReflexTargetAudioApp.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		1AA6D7062B0CC9DC00A8D36D /* osx_audioapp.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = osx_audioapp.mm; path = ../../../src/reflex/system/osx_audioapp.mm; sourceTree = "<group>"; };
+		1AD82D812F1DCF4B0081FFBD /* libReflexSystemOpenGL.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libReflexSystemOpenGL.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		1AD82D822F1DCFE90081FFBD /* opengl.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; name = opengl.mm; path = ../../../src/reflex/system/osx/ui/opengl.mm; sourceTree = "<group>"; };
+		1AE4707A2F1A2514001C9231 /* libReflexTargetLibrary.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libReflexTargetLibrary.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		1AE4707B2F1A252B001C9231 /* osx_library.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; name = osx_library.mm; path = ../../../src/reflex/system/osx_library.mm; sourceTree = "<group>"; };
+		DF86FC6225DFAD0A00218C01 /* libReflexCommon.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libReflexCommon.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		DF86FC6D25DFAD7E00218C01 /* core.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = core.cpp; path = ../../../src/reflex/core.cpp; sourceTree = "<group>"; };
+		DF86FC7025DFAD8400218C01 /* data.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = data.cpp; path = ../../../src/reflex/data.cpp; sourceTree = "<group>"; };
+		DF86FC7625DFAD9200218C01 /* file.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = file.cpp; path = ../../../src/reflex/file.cpp; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		1A12017E2B17507D0061B44C /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		1A12018F2B1750900061B44C /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		1A1201A02B17509A0061B44C /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		1A1201AC2B1751BF0061B44C /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		1A53B3902B187EE400B4AEA2 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		1A53B3992B187EFD00B4AEA2 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		1A7FCBB12B0DD48E0000C2E4 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		1A7FCBBA2B0DD4980000C2E4 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		1A7FCBC32B0DD49E0000C2E4 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		1AA66B292F45E16B00163CAA /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		1AA6D6FF2B0CC93600A8D36D /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		1AD82D7C2F1DCF4B0081FFBD /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		1AE470752F1A2514001C9231 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		DF86FC6025DFAD0A00218C01 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		1A65EF5E2A82EB7500EE3931 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		DF86FC5925DFAD0A00218C01 = {
+			isa = PBXGroup;
+			children = (
+				17AF9A252C37D9B3000DE3E6 /* include */,
+				17AF9A242C37D9A9000DE3E6 /* src */,
+				DF86FC6D25DFAD7E00218C01 /* core.cpp */,
+				DF86FC7625DFAD9200218C01 /* file.cpp */,
+				DF86FC7025DFAD8400218C01 /* data.cpp */,
+				1A65EF6D2A82EDE000EE3931 /* vec.cpp */,
+				1A65EF692A82EDC500EE3931 /* glx.cpp */,
+				1A65EF6F2A82EDE600EE3931 /* vm.cpp */,
+				1A1201A52B1750D10061B44C /* vm_ui.cpp */,
+				1A53B39E2B187F3700B4AEA2 /* osx_console.mm */,
+				1A53B3A02B187F5F00B4AEA2 /* osx_app.mm */,
+				1AA6D7062B0CC9DC00A8D36D /* osx_audioapp.mm */,
+				1A7FCBCA2B0DD4F10000C2E4 /* osx_au.mm */,
+				1A7FCBC82B0DD4F10000C2E4 /* osx_vst2.mm */,
+				1A7FCBC92B0DD4F10000C2E4 /* osx_vst3.mm */,
+				1AA66B2F2F45E1CA00163CAA /* osx_clap.mm */,
+				1A1201B12B1751E40061B44C /* osx_dynamiclibrary.mm */,
+				1AE4707B2F1A252B001C9231 /* osx_library.mm */,
+				1AD82D822F1DCFE90081FFBD /* opengl.mm */,
+				DF86FC6325DFAD0A00218C01 /* Products */,
+				1A65EF5E2A82EB7500EE3931 /* Frameworks */,
+			);
+			sourceTree = "<group>";
+		};
+		DF86FC6325DFAD0A00218C01 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				DF86FC6225DFAD0A00218C01 /* libReflexCommon.a */,
+				1AA6D7042B0CC93600A8D36D /* libReflexTargetAudioApp.a */,
+				1A7FCBB52B0DD48E0000C2E4 /* libReflexTargetVST2.a */,
+				1A7FCBBE2B0DD4980000C2E4 /* libReflexTargetVST3.a */,
+				1A7FCBC72B0DD49E0000C2E4 /* libReflexTargetAU.a */,
+				1A1201822B17507D0061B44C /* libReflexCommonUi.a */,
+				1A1201932B1750900061B44C /* libReflexCommonVm.a */,
+				1A1201A42B17509A0061B44C /* libReflexCommonVmUi.a */,
+				1A1201B02B1751BF0061B44C /* libReflexTargetDynamicLibrary.a */,
+				1A53B3942B187EE400B4AEA2 /* libReflexTargetApp.a */,
+				1A53B39D2B187EFD00B4AEA2 /* libReflexTargetConsole.a */,
+				1AE4707A2F1A2514001C9231 /* libReflexTargetLibrary.a */,
+				1AD82D812F1DCF4B0081FFBD /* libReflexSystemOpenGL.a */,
+				1AA66B2E2F45E16B00163CAA /* libReflexTargetCLAP.a */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXHeadersBuildPhase section */
+		1A1201732B17507D0061B44C /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		1A1201842B1750900061B44C /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		1A1201952B17509A0061B44C /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		1A1201A92B1751BF0061B44C /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		1A53B38D2B187EE400B4AEA2 /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		1A53B3962B187EFD00B4AEA2 /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		1A7FCBAE2B0DD48E0000C2E4 /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		1A7FCBB72B0DD4980000C2E4 /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		1A7FCBC02B0DD49E0000C2E4 /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		1AA66B262F45E16B00163CAA /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		1AA6D6F42B0CC93600A8D36D /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		1AD82D792F1DCF4B0081FFBD /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		1AE470722F1A2514001C9231 /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		DF86FC5E25DFAD0A00218C01 /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXHeadersBuildPhase section */
+
+/* Begin PBXNativeTarget section */
+		1A1201722B17507D0061B44C /* ReflexCommonUi */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 1A12017F2B17507D0061B44C /* Build configuration list for PBXNativeTarget "ReflexCommonUi" */;
+			buildPhases = (
+				1A1201732B17507D0061B44C /* Headers */,
+				1A1201742B17507D0061B44C /* Sources */,
+				1A12017E2B17507D0061B44C /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = ReflexCommonUi;
+			productName = ReflexCommonUi;
+			productReference = 1A1201822B17507D0061B44C /* libReflexCommonUi.a */;
+			productType = "com.apple.product-type.library.static";
+		};
+		1A1201832B1750900061B44C /* ReflexCommonVm */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 1A1201902B1750900061B44C /* Build configuration list for PBXNativeTarget "ReflexCommonVm" */;
+			buildPhases = (
+				1A1201842B1750900061B44C /* Headers */,
+				1A1201852B1750900061B44C /* Sources */,
+				1A12018F2B1750900061B44C /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = ReflexCommonVm;
+			productName = ReflexCommonVm;
+			productReference = 1A1201932B1750900061B44C /* libReflexCommonVm.a */;
+			productType = "com.apple.product-type.library.static";
+		};
+		1A1201942B17509A0061B44C /* ReflexCommonVmUi */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 1A1201A12B17509A0061B44C /* Build configuration list for PBXNativeTarget "ReflexCommonVmUi" */;
+			buildPhases = (
+				1A1201952B17509A0061B44C /* Headers */,
+				1A1201962B17509A0061B44C /* Sources */,
+				1A1201A02B17509A0061B44C /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = ReflexCommonVmUi;
+			productName = ReflexCommonVmUi;
+			productReference = 1A1201A42B17509A0061B44C /* libReflexCommonVmUi.a */;
+			productType = "com.apple.product-type.library.static";
+		};
+		1A1201A82B1751BF0061B44C /* ReflexTargetDynamicLibrary */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 1A1201AD2B1751BF0061B44C /* Build configuration list for PBXNativeTarget "ReflexTargetDynamicLibrary" */;
+			buildPhases = (
+				1A1201A92B1751BF0061B44C /* Headers */,
+				1A1201AA2B1751BF0061B44C /* Sources */,
+				1A1201AC2B1751BF0061B44C /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = ReflexTargetDynamicLibrary;
+			productName = ReflexTargetDynamicLibrary;
+			productReference = 1A1201B02B1751BF0061B44C /* libReflexTargetDynamicLibrary.a */;
+			productType = "com.apple.product-type.library.static";
+		};
+		1A53B38C2B187EE400B4AEA2 /* ReflexTargetApp */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 1A53B3912B187EE400B4AEA2 /* Build configuration list for PBXNativeTarget "ReflexTargetApp" */;
+			buildPhases = (
+				1A53B38D2B187EE400B4AEA2 /* Headers */,
+				1A53B38E2B187EE400B4AEA2 /* Sources */,
+				1A53B3902B187EE400B4AEA2 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = ReflexTargetApp;
+			productName = ReflexTargetApp;
+			productReference = 1A53B3942B187EE400B4AEA2 /* libReflexTargetApp.a */;
+			productType = "com.apple.product-type.library.static";
+		};
+		1A53B3952B187EFD00B4AEA2 /* ReflexTargetConsole */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 1A53B39A2B187EFD00B4AEA2 /* Build configuration list for PBXNativeTarget "ReflexTargetConsole" */;
+			buildPhases = (
+				1A53B3962B187EFD00B4AEA2 /* Headers */,
+				1A53B3972B187EFD00B4AEA2 /* Sources */,
+				1A53B3992B187EFD00B4AEA2 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = ReflexTargetConsole;
+			productName = ReflexTargetConsole;
+			productReference = 1A53B39D2B187EFD00B4AEA2 /* libReflexTargetConsole.a */;
+			productType = "com.apple.product-type.library.static";
+		};
+		1A7FCBAD2B0DD48E0000C2E4 /* ReflexTargetVST2 */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 1A7FCBB22B0DD48E0000C2E4 /* Build configuration list for PBXNativeTarget "ReflexTargetVST2" */;
+			buildPhases = (
+				1A7FCBAE2B0DD48E0000C2E4 /* Headers */,
+				1A7FCBAF2B0DD48E0000C2E4 /* Sources */,
+				1A7FCBB12B0DD48E0000C2E4 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = ReflexTargetVST2;
+			productName = ReflexTargetVST2;
+			productReference = 1A7FCBB52B0DD48E0000C2E4 /* libReflexTargetVST2.a */;
+			productType = "com.apple.product-type.library.static";
+		};
+		1A7FCBB62B0DD4980000C2E4 /* ReflexTargetVST3 */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 1A7FCBBB2B0DD4980000C2E4 /* Build configuration list for PBXNativeTarget "ReflexTargetVST3" */;
+			buildPhases = (
+				1A7FCBB72B0DD4980000C2E4 /* Headers */,
+				1A7FCBB82B0DD4980000C2E4 /* Sources */,
+				1A7FCBBA2B0DD4980000C2E4 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = ReflexTargetVST3;
+			productName = ReflexTargetVST3;
+			productReference = 1A7FCBBE2B0DD4980000C2E4 /* libReflexTargetVST3.a */;
+			productType = "com.apple.product-type.library.static";
+		};
+		1A7FCBBF2B0DD49E0000C2E4 /* ReflexTargetAU */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 1A7FCBC42B0DD49E0000C2E4 /* Build configuration list for PBXNativeTarget "ReflexTargetAU" */;
+			buildPhases = (
+				1A7FCBC02B0DD49E0000C2E4 /* Headers */,
+				1A7FCBC12B0DD49E0000C2E4 /* Sources */,
+				1A7FCBC32B0DD49E0000C2E4 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = ReflexTargetAU;
+			productName = ReflexTargetAU;
+			productReference = 1A7FCBC72B0DD49E0000C2E4 /* libReflexTargetAU.a */;
+			productType = "com.apple.product-type.library.static";
+		};
+		1AA66B252F45E16B00163CAA /* ReflexTargetCLAP */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 1AA66B2A2F45E16B00163CAA /* Build configuration list for PBXNativeTarget "ReflexTargetCLAP" */;
+			buildPhases = (
+				1AA66B262F45E16B00163CAA /* Headers */,
+				1AA66B272F45E16B00163CAA /* Sources */,
+				1AA66B292F45E16B00163CAA /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = ReflexTargetCLAP;
+			productName = ReflexTargetVST2;
+			productReference = 1AA66B2E2F45E16B00163CAA /* libReflexTargetCLAP.a */;
+			productType = "com.apple.product-type.library.static";
+		};
+		1AA6D6F32B0CC93600A8D36D /* ReflexTargetAudioApp */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 1AA6D7012B0CC93600A8D36D /* Build configuration list for PBXNativeTarget "ReflexTargetAudioApp" */;
+			buildPhases = (
+				1AA6D6F42B0CC93600A8D36D /* Headers */,
+				1AA6D6F52B0CC93600A8D36D /* Sources */,
+				1AA6D6FF2B0CC93600A8D36D /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = ReflexTargetAudioApp;
+			productName = ReflexTargetAudioApp;
+			productReference = 1AA6D7042B0CC93600A8D36D /* libReflexTargetAudioApp.a */;
+			productType = "com.apple.product-type.library.static";
+		};
+		1AD82D782F1DCF4B0081FFBD /* ReflexSystemOpenGL */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 1AD82D7D2F1DCF4B0081FFBD /* Build configuration list for PBXNativeTarget "ReflexSystemOpenGL" */;
+			buildPhases = (
+				1AD82D792F1DCF4B0081FFBD /* Headers */,
+				1AD82D7A2F1DCF4B0081FFBD /* Sources */,
+				1AD82D7C2F1DCF4B0081FFBD /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = ReflexSystemOpenGL;
+			productName = ReflexTargetDynamicLibrary;
+			productReference = 1AD82D812F1DCF4B0081FFBD /* libReflexSystemOpenGL.a */;
+			productType = "com.apple.product-type.library.static";
+		};
+		1AE470712F1A2514001C9231 /* ReflexTargetLibrary */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 1AE470762F1A2514001C9231 /* Build configuration list for PBXNativeTarget "ReflexTargetLibrary" */;
+			buildPhases = (
+				1AE470722F1A2514001C9231 /* Headers */,
+				1AE470732F1A2514001C9231 /* Sources */,
+				1AE470752F1A2514001C9231 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = ReflexTargetLibrary;
+			productName = ReflexTargetDynamicLibrary;
+			productReference = 1AE4707A2F1A2514001C9231 /* libReflexTargetLibrary.a */;
+			productType = "com.apple.product-type.library.static";
+		};
+		DF86FC6125DFAD0A00218C01 /* ReflexCommon */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = DF86FC6625DFAD0A00218C01 /* Build configuration list for PBXNativeTarget "ReflexCommon" */;
+			buildPhases = (
+				DF86FC5E25DFAD0A00218C01 /* Headers */,
+				DF86FC5F25DFAD0A00218C01 /* Sources */,
+				DF86FC6025DFAD0A00218C01 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = ReflexCommon;
+			productName = ReflexCommon;
+			productReference = DF86FC6225DFAD0A00218C01 /* libReflexCommon.a */;
+			productType = "com.apple.product-type.library.static";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		DF86FC5A25DFAD0A00218C01 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = YES;
+				LastUpgradeCheck = 2620;
+				TargetAttributes = {
+					DF86FC6125DFAD0A00218C01 = {
+						CreatedOnToolsVersion = 12.3;
+					};
+				};
+			};
+			buildConfigurationList = DF86FC5D25DFAD0A00218C01 /* Build configuration list for PBXProject "Reflex" */;
+			compatibilityVersion = "Xcode 9.3";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = DF86FC5925DFAD0A00218C01;
+			productRefGroup = DF86FC6325DFAD0A00218C01 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				DF86FC6125DFAD0A00218C01 /* ReflexCommon */,
+				1A1201722B17507D0061B44C /* ReflexCommonUi */,
+				1A1201832B1750900061B44C /* ReflexCommonVm */,
+				1A1201942B17509A0061B44C /* ReflexCommonVmUi */,
+				1A53B3952B187EFD00B4AEA2 /* ReflexTargetConsole */,
+				1A53B38C2B187EE400B4AEA2 /* ReflexTargetApp */,
+				1AA6D6F32B0CC93600A8D36D /* ReflexTargetAudioApp */,
+				1A7FCBAD2B0DD48E0000C2E4 /* ReflexTargetVST2 */,
+				1A7FCBB62B0DD4980000C2E4 /* ReflexTargetVST3 */,
+				1A7FCBBF2B0DD49E0000C2E4 /* ReflexTargetAU */,
+				1AA66B252F45E16B00163CAA /* ReflexTargetCLAP */,
+				1A1201A82B1751BF0061B44C /* ReflexTargetDynamicLibrary */,
+				1AE470712F1A2514001C9231 /* ReflexTargetLibrary */,
+				1AD82D782F1DCF4B0081FFBD /* ReflexSystemOpenGL */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXSourcesBuildPhase section */
+		1A1201742B17507D0061B44C /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				1A1201792B17507D0061B44C /* glx.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		1A1201852B1750900061B44C /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				1A1201862B1750900061B44C /* vm.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		1A1201962B17509A0061B44C /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				1A1201A72B1750DF0061B44C /* vm_ui.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		1A1201AA2B1751BF0061B44C /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				1A1201B32B1751F40061B44C /* osx_dynamiclibrary.mm in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		1A53B38E2B187EE400B4AEA2 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				1A53B3A22B187F6B00B4AEA2 /* osx_app.mm in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		1A53B3972B187EFD00B4AEA2 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				1A53B3A32B187F8200B4AEA2 /* osx_console.mm in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		1A7FCBAF2B0DD48E0000C2E4 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				1A7FCBCF2B0DD4F80000C2E4 /* osx_vst2.mm in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		1A7FCBB82B0DD4980000C2E4 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				1A7FCBD02B0DD5110000C2E4 /* osx_vst3.mm in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		1A7FCBC12B0DD49E0000C2E4 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				1A7FCBCE2B0DD4F50000C2E4 /* osx_au.mm in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		1AA66B272F45E16B00163CAA /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				1AA66B302F45E1CA00163CAA /* osx_clap.mm in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		1AA6D6F52B0CC93600A8D36D /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				1AA6D70B2B0CC9F000A8D36D /* osx_audioapp.mm in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		1AD82D7A2F1DCF4B0081FFBD /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				1AD82D832F1DCFE90081FFBD /* opengl.mm in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		1AE470732F1A2514001C9231 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				1AE4707C2F1A252B001C9231 /* osx_library.mm in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		DF86FC5F25DFAD0A00218C01 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				1A65EF6E2A82EDE000EE3931 /* vec.cpp in Sources */,
+				DF3342B7271FEFAA00BE028C /* core.cpp in Sources */,
+				DF3342B9271FEFBC00BE028C /* data.cpp in Sources */,
+				DF3342BB271FEFBF00BE028C /* file.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		1789B9B12E3B6E3500B1BC52 /* Debug-withDsym */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				BUILT_PRODUCTS_DIR = "$(SRCROOT)/../../../bin/lib/macos/$(CONFIGURATION)";
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++20";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				DEAD_CODE_STRIPPING = YES;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_ENABLE_CPP_RTTI = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				GENERATE_MASTER_OBJECT_FILE = YES;
+				HEADER_SEARCH_PATHS = "../../../src/reflex/glx/ext/freetype-2.9.1/include";
+				MACOSX_DEPLOYMENT_TARGET = 10.15;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				OTHER_CFLAGS = "-Wno-nullability-completeness";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				SKIP_INSTALL = YES;
+				TARGET_BUILD_DIR = "$(SRCROOT)/../../../bin/lib/macos/$(CONFIGURATION)";
+				USER_HEADER_SEARCH_PATHS = ../../../include;
+			};
+			name = "Debug-withDsym";
+		};
+		1789B9B22E3B6E3500B1BC52 /* Debug-withDsym */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+			};
+			name = "Debug-withDsym";
+		};
+		1789B9B32E3B6E3500B1BC52 /* Debug-withDsym */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+			};
+			name = "Debug-withDsym";
+		};
+		1789B9B42E3B6E3500B1BC52 /* Debug-withDsym */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+			};
+			name = "Debug-withDsym";
+		};
+		1789B9B52E3B6E3500B1BC52 /* Debug-withDsym */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+			};
+			name = "Debug-withDsym";
+		};
+		1789B9B62E3B6E3500B1BC52 /* Debug-withDsym */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+			};
+			name = "Debug-withDsym";
+		};
+		1789B9B72E3B6E3500B1BC52 /* Debug-withDsym */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+			};
+			name = "Debug-withDsym";
+		};
+		1789B9B82E3B6E3500B1BC52 /* Debug-withDsym */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+			};
+			name = "Debug-withDsym";
+		};
+		1789B9B92E3B6E3500B1BC52 /* Debug-withDsym */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+			};
+			name = "Debug-withDsym";
+		};
+		1789B9BA2E3B6E3500B1BC52 /* Debug-withDsym */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+			};
+			name = "Debug-withDsym";
+		};
+		1789B9BB2E3B6E3500B1BC52 /* Debug-withDsym */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+			};
+			name = "Debug-withDsym";
+		};
+		1789B9BC2E3B6E3500B1BC52 /* Debug-withDsym */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+			};
+			name = "Debug-withDsym";
+		};
+		1A1201802B17507D0061B44C /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+			};
+			name = Debug;
+		};
+		1A1201812B17507D0061B44C /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+			};
+			name = Release;
+		};
+		1A1201912B1750900061B44C /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+			};
+			name = Debug;
+		};
+		1A1201922B1750900061B44C /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+			};
+			name = Release;
+		};
+		1A1201A22B17509A0061B44C /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+			};
+			name = Debug;
+		};
+		1A1201A32B17509A0061B44C /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+			};
+			name = Release;
+		};
+		1A1201AE2B1751BF0061B44C /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+			};
+			name = Debug;
+		};
+		1A1201AF2B1751BF0061B44C /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+			};
+			name = Release;
+		};
+		1A53B3922B187EE400B4AEA2 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+			};
+			name = Debug;
+		};
+		1A53B3932B187EE400B4AEA2 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+			};
+			name = Release;
+		};
+		1A53B39B2B187EFD00B4AEA2 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+			};
+			name = Debug;
+		};
+		1A53B39C2B187EFD00B4AEA2 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+			};
+			name = Release;
+		};
+		1A7FCBB32B0DD48E0000C2E4 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+			};
+			name = Debug;
+		};
+		1A7FCBB42B0DD48E0000C2E4 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+			};
+			name = Release;
+		};
+		1A7FCBBC2B0DD4980000C2E4 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+			};
+			name = Debug;
+		};
+		1A7FCBBD2B0DD4980000C2E4 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+			};
+			name = Release;
+		};
+		1A7FCBC52B0DD49E0000C2E4 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+			};
+			name = Debug;
+		};
+		1A7FCBC62B0DD49E0000C2E4 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+			};
+			name = Release;
+		};
+		1AA66B2B2F45E16B00163CAA /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+			};
+			name = Debug;
+		};
+		1AA66B2C2F45E16B00163CAA /* Debug-withDsym */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+			};
+			name = "Debug-withDsym";
+		};
+		1AA66B2D2F45E16B00163CAA /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+			};
+			name = Release;
+		};
+		1AA6D7022B0CC93600A8D36D /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+			};
+			name = Debug;
+		};
+		1AA6D7032B0CC93600A8D36D /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+			};
+			name = Release;
+		};
+		1AD82D7E2F1DCF4B0081FFBD /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					GL_SILENCE_DEPRECATION,
+					"$(inherited)",
+				);
+			};
+			name = Debug;
+		};
+		1AD82D7F2F1DCF4B0081FFBD /* Debug-withDsym */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					GL_SILENCE_DEPRECATION,
+					"$(inherited)",
+				);
+			};
+			name = "Debug-withDsym";
+		};
+		1AD82D802F1DCF4B0081FFBD /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					GL_SILENCE_DEPRECATION,
+					"$(inherited)",
+				);
+			};
+			name = Release;
+		};
+		1AE470772F1A2514001C9231 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+			};
+			name = Debug;
+		};
+		1AE470782F1A2514001C9231 /* Debug-withDsym */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+			};
+			name = "Debug-withDsym";
+		};
+		1AE470792F1A2514001C9231 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+			};
+			name = Release;
+		};
+		DF86FC6425DFAD0A00218C01 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				BUILT_PRODUCTS_DIR = "$(SRCROOT)/../../../bin/lib/macos/$(CONFIGURATION)";
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++20";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				DEAD_CODE_STRIPPING = YES;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_ENABLE_CPP_RTTI = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				GENERATE_MASTER_OBJECT_FILE = YES;
+				HEADER_SEARCH_PATHS = "../../../src/reflex/glx/ext/freetype-2.9.1/include";
+				MACOSX_DEPLOYMENT_TARGET = 10.15;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				OTHER_CFLAGS = "-Wno-nullability-completeness";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				SKIP_INSTALL = YES;
+				TARGET_BUILD_DIR = "$(SRCROOT)/../../../bin/lib/macos/$(CONFIGURATION)";
+				USER_HEADER_SEARCH_PATHS = ../../../include;
+			};
+			name = Debug;
+		};
+		DF86FC6525DFAD0A00218C01 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				BUILT_PRODUCTS_DIR = "$(SRCROOT)/../../../bin/lib/macos/$(CONFIGURATION)";
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++20";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				DEAD_CODE_STRIPPING = YES;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_ENABLE_CPP_RTTI = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 2;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				GENERATE_MASTER_OBJECT_FILE = YES;
+				HEADER_SEARCH_PATHS = "../../../src/reflex/glx/ext/freetype-2.9.1/include";
+				MACOSX_DEPLOYMENT_TARGET = 10.15;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				OTHER_CFLAGS = "-Wno-nullability-completeness";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				SKIP_INSTALL = YES;
+				TARGET_BUILD_DIR = "$(SRCROOT)/../../../bin/lib/macos/$(CONFIGURATION)";
+				USER_HEADER_SEARCH_PATHS = ../../../include;
+			};
+			name = Release;
+		};
+		DF86FC6725DFAD0A00218C01 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+			};
+			name = Debug;
+		};
+		DF86FC6825DFAD0A00218C01 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		1A12017F2B17507D0061B44C /* Build configuration list for PBXNativeTarget "ReflexCommonUi" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				1A1201802B17507D0061B44C /* Debug */,
+				1789B9B32E3B6E3500B1BC52 /* Debug-withDsym */,
+				1A1201812B17507D0061B44C /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		1A1201902B1750900061B44C /* Build configuration list for PBXNativeTarget "ReflexCommonVm" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				1A1201912B1750900061B44C /* Debug */,
+				1789B9B42E3B6E3500B1BC52 /* Debug-withDsym */,
+				1A1201922B1750900061B44C /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		1A1201A12B17509A0061B44C /* Build configuration list for PBXNativeTarget "ReflexCommonVmUi" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				1A1201A22B17509A0061B44C /* Debug */,
+				1789B9B52E3B6E3500B1BC52 /* Debug-withDsym */,
+				1A1201A32B17509A0061B44C /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		1A1201AD2B1751BF0061B44C /* Build configuration list for PBXNativeTarget "ReflexTargetDynamicLibrary" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				1A1201AE2B1751BF0061B44C /* Debug */,
+				1789B9BC2E3B6E3500B1BC52 /* Debug-withDsym */,
+				1A1201AF2B1751BF0061B44C /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		1A53B3912B187EE400B4AEA2 /* Build configuration list for PBXNativeTarget "ReflexTargetApp" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				1A53B3922B187EE400B4AEA2 /* Debug */,
+				1789B9B72E3B6E3500B1BC52 /* Debug-withDsym */,
+				1A53B3932B187EE400B4AEA2 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		1A53B39A2B187EFD00B4AEA2 /* Build configuration list for PBXNativeTarget "ReflexTargetConsole" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				1A53B39B2B187EFD00B4AEA2 /* Debug */,
+				1789B9B62E3B6E3500B1BC52 /* Debug-withDsym */,
+				1A53B39C2B187EFD00B4AEA2 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		1A7FCBB22B0DD48E0000C2E4 /* Build configuration list for PBXNativeTarget "ReflexTargetVST2" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				1A7FCBB32B0DD48E0000C2E4 /* Debug */,
+				1789B9B92E3B6E3500B1BC52 /* Debug-withDsym */,
+				1A7FCBB42B0DD48E0000C2E4 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		1A7FCBBB2B0DD4980000C2E4 /* Build configuration list for PBXNativeTarget "ReflexTargetVST3" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				1A7FCBBC2B0DD4980000C2E4 /* Debug */,
+				1789B9BA2E3B6E3500B1BC52 /* Debug-withDsym */,
+				1A7FCBBD2B0DD4980000C2E4 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		1A7FCBC42B0DD49E0000C2E4 /* Build configuration list for PBXNativeTarget "ReflexTargetAU" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				1A7FCBC52B0DD49E0000C2E4 /* Debug */,
+				1789B9BB2E3B6E3500B1BC52 /* Debug-withDsym */,
+				1A7FCBC62B0DD49E0000C2E4 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		1AA66B2A2F45E16B00163CAA /* Build configuration list for PBXNativeTarget "ReflexTargetCLAP" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				1AA66B2B2F45E16B00163CAA /* Debug */,
+				1AA66B2C2F45E16B00163CAA /* Debug-withDsym */,
+				1AA66B2D2F45E16B00163CAA /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		1AA6D7012B0CC93600A8D36D /* Build configuration list for PBXNativeTarget "ReflexTargetAudioApp" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				1AA6D7022B0CC93600A8D36D /* Debug */,
+				1789B9B82E3B6E3500B1BC52 /* Debug-withDsym */,
+				1AA6D7032B0CC93600A8D36D /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		1AD82D7D2F1DCF4B0081FFBD /* Build configuration list for PBXNativeTarget "ReflexSystemOpenGL" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				1AD82D7E2F1DCF4B0081FFBD /* Debug */,
+				1AD82D7F2F1DCF4B0081FFBD /* Debug-withDsym */,
+				1AD82D802F1DCF4B0081FFBD /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		1AE470762F1A2514001C9231 /* Build configuration list for PBXNativeTarget "ReflexTargetLibrary" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				1AE470772F1A2514001C9231 /* Debug */,
+				1AE470782F1A2514001C9231 /* Debug-withDsym */,
+				1AE470792F1A2514001C9231 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		DF86FC5D25DFAD0A00218C01 /* Build configuration list for PBXProject "Reflex" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				DF86FC6425DFAD0A00218C01 /* Debug */,
+				1789B9B12E3B6E3500B1BC52 /* Debug-withDsym */,
+				DF86FC6525DFAD0A00218C01 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		DF86FC6625DFAD0A00218C01 /* Build configuration list for PBXNativeTarget "ReflexCommon" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				DF86FC6725DFAD0A00218C01 /* Debug */,
+				1789B9B22E3B6E3500B1BC52 /* Debug-withDsym */,
+				DF86FC6825DFAD0A00218C01 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = DF86FC5A25DFAD0A00218C01 /* Project object */;
+}

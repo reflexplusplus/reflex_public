@@ -101,7 +101,7 @@ private:
 
 	GLX::List m_list;
 
-	GLX::Scroller m_scroller;
+	GLX::ScrollArea m_scroller;
 
 	GLX::Button m_button;
 
@@ -123,7 +123,7 @@ ViewImpl::ViewImpl(App & app)
 	m_button(L"Open XML"),
 	m_time(1.0f)
 {
-	Data::SetBool(*this, GLX::kresize, true);
+	Data::SetBool(*this, GLX::kresizable, true);
 
 	GLX::SetFlow(*this, GLX::kFlowY);
 

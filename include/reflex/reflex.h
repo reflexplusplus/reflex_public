@@ -1,7 +1,7 @@
 #pragma once
 
-#include "reflex_minimal.h"
-
+#include "core.h"
+#include "system.h"
 #include "simd.h"
 #include "data.h"
 #include "file.h"

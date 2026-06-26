@@ -9,8 +9,8 @@
 //Secondary API
 
 class Reflex::Output::Profiler :
-	public Object,//Item <Profiler,false>,
-	public State
+	public Object,
+	public StateMt
 {
 public:
 
@@ -75,7 +75,7 @@ private:
 
 	Item m_item;
 
-	UInt32 * m_pliststate;
+	AtomicUInt32 * m_plist_state;
 
 	Buffer m_name;
 

@@ -136,7 +136,7 @@ Reflex::TRef <Reflex::GLX::Animation> Reflex::GLX::Detail::CreateZoomAnimation(K
 {
 	static constexpr auto UnsetMagnification = [](Object & object, Key32 id)
 	{
-		object.ClearMod(Reflex::Detail::MergeHashes(id.value, Detail::kmagnification));
+		object.UnsetMod(Reflex::Detail::MergeHashes(id.value, Detail::kmagnification));
 	};
 
 	static constexpr auto SetMagnification = [](Object & object, Key32 id, Float scale)

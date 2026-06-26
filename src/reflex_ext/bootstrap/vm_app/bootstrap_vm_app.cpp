@@ -1,6 +1,6 @@
 #include "reflex_ext/bootstrap/vm_app.h"
 #include "vm_view_wrapper.h"
-#include "../common/vm_view.h"
+#include "../common/[require].h"
 
 
 
@@ -288,13 +288,13 @@ Reflex::TRef <Reflex::Bootstrap::Global> Reflex::Bootstrap::StartVmApp(System::A
 
 		viewwrapper->GetContent().b->Update();
 
-		viewwrapper->SetProperty(K32("monitor"), GLX::CreateAnimationClock([viewwrapper, app, count_z = app->GetChangeCount(), buildcount_z = app->m_buildcount](Float32 delta) mutable
+		viewwrapper->SetProperty(K32("monitor"), GLX::CreateAnimationClock([viewwrapper, app, count_z = app->GetCurrentCount(), buildcount_z = app->m_buildcount](Float32 delta) mutable
 		{
 			if (SetFiltered(buildcount_z, app->m_buildcount))
 			{
 				viewwrapper->Rebuild();
 			}
-			else if (SetFiltered(count_z, app->GetChangeCount()))
+			else if (SetFiltered(count_z, app->GetCurrentCount()))
 			{
 				viewwrapper->GetContent().b->Update();
 			}
