@@ -754,6 +754,20 @@ function(_reflex_add_plugin_format base_target format sources name vendor versio
 
     set(_t "${base_target}_${format}")
 
+    # Normalize source paths to CMake form (forward slashes). Consumers on Windows
+    # may pass native backslash paths (e.g. paths derived from a backslash
+    # REFLEX_DIR); reaching add_library()/add_executable() as string literals, CMake
+    # parses backslash sequences as invalid character escapes (e.g. "\G" from a
+    # "...\GitLab-Runner\..." path), failing configuration. A direct backslash
+    # replace (not file(TO_CMAKE_PATH), which splits drive letters on ":") is the
+    # safe, platform-uniform normalization.
+    set(_normalized_sources "")
+    foreach(_src IN LISTS sources)
+        string(REPLACE "\\" "/" _src "${_src}")
+        list(APPEND _normalized_sources "${_src}")
+    endforeach()
+    set(sources "${_normalized_sources}")
+
     if(format STREQUAL "Standalone")
 
         _reflex_resolve_target_lib(TargetAudioApp audioapp _fmtlib)
