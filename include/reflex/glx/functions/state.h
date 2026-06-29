@@ -41,7 +41,7 @@ inline void Reflex::GLX::SetState(Object & object, Key32 state, bool value)
 	}
 	else
 	{
-		object.ClearState(state);
+		object.UnsetState(state);
 	}
 }
 
@@ -49,7 +49,7 @@ inline bool Reflex::GLX::ToggleState(Object & object, Key32 state)
 {
 	if (object.CheckState(state))
 	{
-		object.ClearState(state);
+		object.UnsetState(state);
 
 		return false;
 	}

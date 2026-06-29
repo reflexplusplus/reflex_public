@@ -14,9 +14,9 @@
 namespace Reflex
 {
 
-	template <class TYPE, bool RETAIN = true, class BASE = Object> class List;
+	template <class TYPE, bool RETAIN = true, class BASE = Object> class List;		//intrusive list
 
-	template <class TYPE, bool RETAIN = true, class BASE = Object> class Item;
+	template <class TYPE, bool RETAIN = true, class BASE = Object> class Item;		//intrusive list item
 
 
 	template <class auto_1> Idx LookupIndex(auto_1 && item, Idx fallback = {});
@@ -375,6 +375,19 @@ template <bool REVERSE, class TYPE> inline TRef <TYPE> Traverse(TYPE * & itr)
 	return current;
 }
 
+template <class BASE>	//workaround to implement SendTop/SendBottom/SetIndex without retain/release and notifications
+struct ItemWithoutCallbackHack : public Item <ItemWithoutCallbackHack<BASE>, false, BASE>
+{
+	using Item<ItemWithoutCallbackHack, false, BASE>::Attach;
+	using Item<ItemWithoutCallbackHack, false, BASE>::Detach;
+	using Item<ItemWithoutCallbackHack, false, BASE>::InsertBefore;
+	using Item<ItemWithoutCallbackHack, false, BASE>::InsertAfter;
+
+	void OnAttach(typename Item<ItemWithoutCallbackHack, false, BASE>::List & list) {}
+
+	void OnDetach(typename Item<ItemWithoutCallbackHack, false, BASE>::List & list) {}
+};
+
 REFLEX_END
 
 template <class TYPE, bool RETAIN, class BASE> REFLEX_INLINE Reflex::List<TYPE,RETAIN,BASE>::List()
@@ -432,29 +445,6 @@ template <class TYPE, bool RETAIN, class BASE> REFLEX_INLINE const TYPE * Reflex
 {
 	return Cast<TYPE>(Cast<ItemType>(m_last));
 }
-
-
-
-
-//
-//
-
-REFLEX_NS(Reflex::Detail)
-
-template <class BASE>	//this was the quickest way to implement SendTop/SendBottom/SetIndex so that they dont retain/release and dont notify
-struct ItemWithoutCallbackHack : public Item <ItemWithoutCallbackHack<BASE>, false, BASE>
-{
-	using Item<ItemWithoutCallbackHack, false, BASE>::Attach;
-	using Item<ItemWithoutCallbackHack, false, BASE>::Detach;
-	using Item<ItemWithoutCallbackHack, false, BASE>::InsertBefore;
-	using Item<ItemWithoutCallbackHack, false, BASE>::InsertAfter;
-
-	void OnAttach(typename Item<ItemWithoutCallbackHack, false, BASE>::List & list) {}
-
-	void OnDetach(typename Item<ItemWithoutCallbackHack, false, BASE>::List & list) {}
-};
-
-REFLEX_END
 
 template <class TYPE, bool RETAIN, class BASE> Reflex::Item<TYPE,RETAIN,BASE>::Item()
 	: m_list(nullptr)
@@ -821,12 +811,6 @@ template <class TYPE, bool RETAIN, class BASE> REFLEX_INLINE const TYPE * Reflex
 {
 	return Cast<TYPE>(m_next);
 }
-
-
-
-
-//
-//itr
 
 template <class TYPE, bool RETAIN, class BASE> template <bool CONST, bool REVERSE> REFLEX_INLINE Reflex::List<TYPE,RETAIN,BASE>::ItrImpl<CONST,REVERSE>::ItrImpl()
 	: m_itr(nullptr)

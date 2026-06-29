@@ -1,0 +1,13 @@
+<resources output="code/resources.cpp">
+
+	<ReflexCLI>
+		<file id="app_plist" path="resources/app.plist"/>
+		<file id="audioapp_plist" path="resources/audioapp.plist"/>
+		<file id="ios_app_plist" path="resources/ios_app.plist"/>
+		<file id="ios_audioapp_plist" path="resources/ios_audioapp.plist"/>
+		<file id="clap_vst_plist" path="resources/clap_vst.plist"/>
+		<file id="audiounit_plist" path="resources/audiounit.plist"/>
+		<file id="auv3_plist" path="resources/auv3.plist"/>
+	</ReflexCLI>
+
+</resources>

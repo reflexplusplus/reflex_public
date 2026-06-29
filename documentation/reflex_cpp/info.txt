@@ -362,9 +362,9 @@
 
 6:
 {
-	@WString Description: "#p While Reflex’s native formats (text-based PropertySheet and the binary PropertySet format) provide better type support and integration with the Reflex pipeline, JSON remains the natural choice when exchanging data with external systems - especially web services, scripting environments, and tools that expect standard JSON encoding.
+	@WString Description: "#p While Reflex's native formats (text-based PropertySheet and the binary PropertySet format) provide better type support and integration with the Reflex pipeline, JSON remains the natural choice when exchanging data with external systems - especially web services, scripting environments, and tools that expect standard JSON encoding.
 
-#p Reflex::Data provides support for mapping JSON to/from PropertySet, allowing interchange while retaining the benefits of PropertySet’s typed accessors and structured hierarchy.
+#p Reflex::Data provides support for mapping JSON to/from PropertySet, allowing interchange while retaining the benefits of PropertySet's typed accessors and structured hierarchy.
 
 #h1 Decoding JSON into a PropertySet
 
@@ -807,7 +807,7 @@
 
 #p Async tasks are reference-counted. Clients typically hold a Reference <Async::Task>.  Destroying this reference automatically requests cancellation of the task (assuming one-owner).
 
-#p For custom workers, task cancellation is cooperative. Worker implementations must explicitly observe and respect the task’s run flag via calling Cancelled() and if true, return early. In this case typically you should also ctx.SetResult(false) to indicate failure.
+#p For custom workers, task cancellation is cooperative. Worker implementations must explicitly observe and respect the task's run flag via calling Cancelled() and if true, return early. In this case typically you should also ctx.SetResult(false) to indicate failure.
 
 #h1 Observation
 
@@ -867,7 +867,13 @@
 {
 	Group: true;
 
-	@WString Description: "#p GLX layout is handled by a layout model attached to each Object. By default every Object uses the standard layout model (kStandardLayout), which supports common “box layout” behaviors: inline flow, inline flex, float (pin), stretch (fill), plus absolute positioning.
+	@WString Description: "<span>
+#p GLX layout is handled by a layout model attached to each
+#p $spc
+#link symbol: [$qReflex$q, $qGLX$q, $qObject$q]; text: $qGLX::Object$q;
+#p .
+</span>
+#p By default every Object uses the standard layout model (kStandardLayout), which supports common 'box layout' behaviors: inline flow, inline flex, float (pin), stretch (fill), plus absolute positioning.
 
 #p You typically don't write layout code directly. Instead: 
 <list>
@@ -919,7 +925,7 @@
 #h1 Auto-fit (size to content)
 
 #p Auto-fit is enabled by default. This means an object will grow its content size to accommodate its children.
-#p A child’s contribution to content size is derived from: 
+#p A child's contribution to content size is derived from: 
 <list>
 #p Its style size / max properties.
 #p Its render layers (e.g. Text layers naturally size to text).
@@ -936,7 +942,7 @@
 
 #h1 Child Positioning Modes
 
-#p Each child has a positioning mode that is interpreted by its parent’s layout model.
+#p Each child has a positioning mode that is interpreted by its parent's layout model.
 #p In the standard model, this is set either: 
 <list>
 #p When adding the child via AddInline / AddFloat / AddAbsolute
@@ -945,7 +951,7 @@
 
 #p The AddXXX helpers are convenience functions that: 
 <list>
-#p Configure the child’s positioning mode (via the EnableXXX helpers)
+#p Configure the child's positioning mode (via the EnableXXX helpers)
 #p Attach the child to the parent (via Object::SetParent). 
 </list>
 
@@ -967,7 +973,7 @@
 
 #h2 Inline Positioning
 
-#p Inline children participate in the parent’s flow. They are laid out sequentially along the flow axis.
+#p Inline children participate in the parent's flow. They are laid out sequentially along the flow axis.
 #p The Orientation parameter controls placement on the *orthogonal axis* (perpendicular to flow):
 
 <list>
@@ -1028,7 +1034,7 @@
 
 #h2 Float Positioning
 
-#p Float positions a child relative to the parent’s bounds but removes it from inline flow.  Floated children do not affect layout of inline siblings.
+#p Float positions a child relative to the parent's bounds but removes it from inline flow.  Floated children do not affect layout of inline siblings.
 
 #p Float positioning can be specified using: 
 <list>
@@ -1070,7 +1076,7 @@
 
 #h2 Absolute (explicit coordinates)
 
-#p Absolute places a child at an explicit position in the parent’s coordinate space.
+#p Absolute places a child at an explicit position in the parent's coordinate space.
 
 <code>
 #p auto canvas = New<GLX::Object>();
@@ -1092,7 +1098,7 @@
 
 #h2 kStandardLayoutWrapped
 
-#p To allow inline children to wrap, set the parent’s layout model to kStandardLayoutWrapped.
+#p To allow inline children to wrap, set the parent's layout model to kStandardLayoutWrapped.
 #p Child APIs remain unchanged.
 
 #p Typical use cases: 
@@ -1316,7 +1322,7 @@
 
 <list>
 #p Use kPropertySetFormat for application data, presets, configs, or anything Reflex-internal.
-#p Use kPropertySheetFormat when you need editable text files or want structured types without JSON’s restrictions.
+#p Use kPropertySheetFormat when you need editable text files or want structured types without JSON's restrictions.
 #p Use kJsonFormat for web communication and external file formats.
 </list>";
 
@@ -1329,7 +1335,7 @@
 
 	@WString Description: "#p GLX supports a powerful visual styling system designed to clearly separate presentation from layout. Layout logic is implemented in C++ or Reflex VM code, while stylesheets remain no-code, making them accessible to designers without impacting development. 
 
-#p Stylesheets avoid the unpredictable inheritance rules of CSS while still enabling reuse via includes, states, and the inherit: property.
+#p Stylesheets avoid the unpredictable inheritance rules of CSS while enabling reuse and composition via includes, states, inheritance and aliases.
 
 #p The unique bg/fg layer concept allows highly rich designs to be expressed almost entirely through vector primitives. With a wide set of predefined render layers, you can build fully resizable, vectorised UIs that eliminate reliance on pre-baked bitmaps and bloated binaries. Layers support advanced anti-aliasing for crisp visuals at any resolution.
 
@@ -1485,7 +1491,7 @@ See also Bootstrap::Detail::SetStyle.
 #h1 States
 
 #p States are style variants that override properties when active. They appear as @State blocks inside a style and are applied in top-to-bottom order, so later states override earlier ones when both are active.
-#p Push and clear states in code with Object::SetState(Key32) and Object::ClearState(Key32). Hover and focus are the only built-in states and are managed by GLX::Object automatically.
+#p Push and clear states in code with Object::SetState(Key32) and Object::UnsetState(Key32). Hover and focus are the only built-in states and are managed by GLX::Object automatically.
 
 <code>
 #p Button:
@@ -2294,7 +2300,7 @@ See also Bootstrap::Detail::SetStyle.
 #p 		return true;
 #p
 #p 	case GLX::kDragDropLeave:
-#p 		src.ClearState($qdragover$q);
+#p 		src.UnsetState($qdragover$q);
 #p 		return true;
 #p
 #p 	case GLX::kDragDropReceive:
@@ -2397,7 +2403,7 @@ See also Bootstrap::Detail::SetStyle.
 #p
 #p 	SetAbstractProperty(window, $qdragdrop_target$q, GLX::CreateDragDropTargetListener([this, run_opacity_animation](GLX::Object & drop_target)
 #p 	{
-#p 		m_drop_target.Load()->ClearState($qdragover$q);	//using Reflex::Detail::WeakRef to cover case drop_target might be stack-based
+#p 		m_drop_target.Load()->UnsetState($qdragover$q);	//using Reflex::Detail::WeakRef to cover case drop_target might be stack-based
 #p 		m_drop_target.Store(drop_target);
 #p 		drop_target.SetState($qdragover$q);
 #p 
@@ -2465,6 +2471,15 @@ See also Bootstrap::Detail::SetStyle.
 
 39:
 {
+	@WString Description: "#p GLX::Object is the primary class of the GLX UI system.
+
+#p It represents an interactable, drawable region of the screen, and also acts as a node within the GLX object tree.
+
+#p Users coming from web technologies can think of it roughly like a DOM element: it has a parent/child hierarchy, can carry style, receives events, participates in layout, and can render visual content.
+
+#p It is the base class for most GLX widgets, but in many cases subclassing is not necessary because behaviour can also be assembled through generic properties, delegates, stylesheets, and the event system.
+";
+
 	Path: ["Reflex", "GLX", "Object"];
 
 	Module: ["Reflex", "GLX", "Layout"];
@@ -2572,7 +2587,7 @@ See also Bootstrap::Detail::SetStyle.
 <list> 
 #p src: The object emitting the event. The event is dispatched upward from this object. 
 #p id: The Key32 event identifier. 
-#p id_value_pairs: A variadic list of key/value pairs written into the event’s data payload. Keys are identifiers; values may be any supported data type. 
+#p id_value_pairs: A variadic list of key/value pairs written into the event's data payload. Keys are identifiers; values may be any supported data type. 
 #p return: boolean indicating whether the event was trapped or not
 </list>
 
@@ -3541,7 +3556,7 @@ See also Bootstrap::Detail::SetStyle.
 
 #p If TYPE is not raw-packable, compilation will fail with an error such as “Non raw-packable type”.
 
-#p Pack performs no encoding, metadata emission, or length prefixing. The size of the returned view is determined entirely by the value’s binary representation.
+#p Pack performs no encoding, metadata emission, or length prefixing. The size of the returned view is determined entirely by the value's binary representation.
 
 <code>
 #p UInt32 u32 = 42;
@@ -4045,9 +4060,9 @@ See also Bootstrap::Detail::SetStyle.
 
 149:
 {
-	@WString Description: "#p The Popup widget is a lightweight “click-to-open” menu control. When clicked, it opens a floating Menu anchored to the Popup’s screen position (typically displayed underneath the widget if there is space, otherwise positioned to fit).
+	@WString Description: "#p The Popup widget is a lightweight “click-to-open” menu control. When clicked, it opens a floating Menu anchored to the Popup's screen position (typically displayed underneath the widget if there is space, otherwise positioned to fit).
 
-#p Popup is built around Menu: it opens a Menu instance and reuses Menu’s item model, styling, and selection events.
+#p Popup is built around Menu: it opens a Menu instance and reuses Menu's item model, styling, and selection events.
 
 #p See the GLX::Menu documentation for details on populating a menu (items, sub-menus etc) and handling selection events.
 
@@ -4067,7 +4082,7 @@ See also Bootstrap::Detail::SetStyle.
 
 #h1 Opening behaviour
 
-#p When the Popup is clicked, it opens a Menu and then forwards the menu’s Menu::kMenuOpen event to the Popup itself (emitting upward). This allows the Popup, or any of its parents, to intercept the open and populate the menu.
+#p When the Popup is clicked, it opens a Menu and then forwards the menu's Menu::kMenuOpen event to the Popup itself (emitting upward). This allows the Popup, or any of its parents, to intercept the open and populate the menu.
 
 #p Typical patterns:
 
@@ -4522,7 +4537,7 @@ See also Bootstrap::Detail::SetStyle.
 {
 	Group: true;
 
-	@WString Description: "#p Reflex makes a primary, explicit distinction between object-types and value-types. Object types derive from Reflex::Object, are shared, reference counted, typically heap-based (although they can also be instantiated on the stack), and non-copyable by default.
+	@WString Description: "#p Reflex makes a primary, explicit distinction between object-types and value-types. All object-types derive from Reflex::Object, are shared, reference counted, typically heap-based (although they can also be instantiated on the stack), and non-copyable by default.
 
 #p Value types (non-Objects such as UInt32 or Array) are lightweight stack-based primitives. To promote a value into an object so it can participate in reference counting, heap allocation, dynamic properties, or generic object APIs, use ObjectOf<TYPE>.
 
@@ -4712,7 +4727,7 @@ See also Bootstrap::Detail::SetStyle.
 {
 	Group: true;
 
-	@WString Description: "#p Data::PropertySet is Reflex’s generic container for structured, tree-based data.
+	@WString Description: "#p Data::PropertySet is Reflex's generic container for structured, tree-based data.
 
 #p PropertySet allows arbitrary data to be attached to objects at runtime, without modifying class definitions or introducing ad-hoc subclasses.
 
@@ -6063,7 +6078,7 @@ See also Bootstrap::Detail::SetStyle.
 #p }
 </code>
 
-#p If you don’t need to support interception of menus from child objects, you can open and populate together:
+#p If you don't need to support interception of menus from child objects, you can open and populate together:
 
 <code>
 #p bool SubView::OnEvent(GLX::Object & src, GLX::Event & e)
@@ -6116,7 +6131,7 @@ See also Bootstrap::Detail::SetStyle.
 <list> 
 #p src: The object receiving the event. 
 #p id: The Key32 event identifier. 
-#p id_value_pairs: A variadic list of key/value pairs written into the event’s data payload. Keys are identifiers; values may be any supported data type. 
+#p id_value_pairs: A variadic list of key/value pairs written into the event's data payload. Keys are identifiers; values may be any supported data type. 
 #p return: boolean indicating whether the event was trapped or not
 </list>
 
@@ -7852,6 +7867,13 @@ See also Bootstrap::Detail::SetStyle.
 	Module: ["Reflex", "GLX", "Events"];
 };
 
+414:
+{
+	Path: ["Reflex", "ReverseIterate"];
+
+	Module: ["Reflex", "Containers"];
+};
+
 415:
 {
 	@WString Description: "#p Converts a window-space delta into the local scaled coordinate space of the object.";
@@ -8420,10 +8442,10 @@ See also Bootstrap::Detail::SetStyle.
 {
 	@WString Description: "#p Bootstrap::View is the standard GLX view base class used by template projects.
 
-#p It implements `Streamable` on application session state, so view state can be streamed automatically out of the box.
+#p It implements 'Streamable' on application session state, so view state can be streamed automatically out of the box.
 
-#p It also monitors the application `State` and, in its clock/update flow, schedules `OnUpdate()` when state changes are detected.
-#p If you override the clock handling, be sure to call the base `OnClock`.
+#p It also monitors the application 'State' and, in its clock/update flow, schedules 'OnUpdate()' when state changes are detected.
+#p If you override the clock handling, be sure to call the base 'OnClock'.
 ";
 
 	Path: ["Reflex", "Bootstrap", "View"];
@@ -8695,7 +8717,7 @@ See also Bootstrap::Detail::SetStyle.
 {
 	@WString Description: "#p Synchronous HTTP connection wrapper.
 
-#p Requests are performed synchronously through `Request(...)`, so this API should normally be used from a background thread rather than the main/UI thread.
+#p Requests are performed synchronously through 'Request(...)', so this API should normally be used from a background thread rather than the main/UI thread.
 ";
 
 	Path: ["Reflex", "System", "HttpConnection"];
@@ -8707,3 +8729,277 @@ See also Bootstrap::Detail::SetStyle.
 
 	Module: ["Reflex", "File", "IO"];
 };
+
+484:
+{
+	@WString Description: "#p Attaches this object as the last child of 'parent', updating layout and window attachment as needed.";
+
+	Path: ["Reflex", "GLX", "Object", "SetParent"];
+
+	Module: ["Reflex", "GLX", "Layout"];
+};
+
+485:
+{
+	@WString Description: "#p Detaches and removes all child objects from this object.";
+
+	Path: ["Reflex", "GLX", "Object", "Clear"];
+
+	Module: ["Reflex", "GLX", "Layout"];
+};
+
+486:
+{
+	@WString Description: "#p Reattaches this object immediately before the given sibling object.";
+
+	Path: ["Reflex", "GLX", "Object", "InsertBefore"];
+
+	Module: ["Reflex", "GLX", "Layout"];
+};
+
+487:
+{
+	@WString Description: "#p Reattaches this object immediately after the given sibling object.";
+
+	Path: ["Reflex", "GLX", "Object", "InsertAfter"];
+
+	Module: ["Reflex", "GLX", "Layout"];
+};
+
+488:
+{
+	@WString Description: "#p Removes this object from its parent and detaches its branch from the current window.";
+
+	Path: ["Reflex", "GLX", "Object", "Detach"];
+
+	Module: ["Reflex", "GLX", "Layout"];
+};
+
+489:
+{
+	@WString Description: "#p Moves this object to the start of its sibling order, then realigns the parent layout.";
+
+	Path: ["Reflex", "GLX", "Object", "SendBottom"];
+
+	Module: ["Reflex", "GLX", "Layout"];
+};
+
+490:
+{
+	@WString Description: "#p Moves this object to the end of its sibling order, then realigns the parent layout.";
+
+	Path: ["Reflex", "GLX", "Object", "SendTop"];
+
+	Module: ["Reflex", "GLX", "Layout"];
+};
+
+491:
+{
+	@WString Description: "#p Sets the mouse cursor to use while this object is the active pointer target.";
+
+	Path: ["Reflex", "GLX", "Object", "SetMouseCursor"];
+
+	Module: ["Reflex", "GLX", "Events"];
+};
+
+492:
+{
+	@WString Description: "#p Returns the cursor currently configured for this object.";
+
+	Path: ["Reflex", "GLX", "Object", "GetMouseCursor"];
+
+	Module: ["Reflex", "GLX", "Events"];
+};
+
+493:
+{
+	@WString Description: "#p Assigns the base stylesheet for this object, reapplies any active states, then calls OnSetStyle and rebuilds layout if the effective style changed.";
+
+	Path: ["Reflex", "GLX", "Object", "SetStyle"];
+
+	Module: ["Reflex", "GLX", "Styling"];
+};
+
+494:
+{
+	@WString Description: "#p Returns the base style currently attached to this object.";
+
+	Path: ["Reflex", "GLX", "Object", "GetStyle"];
+
+	Module: ["Reflex", "GLX", "Styling"];
+};
+
+495:
+{
+	@WString Description: "#p Returns the current effective style for this object after active states have been applied.";
+
+	Path: ["Reflex", "GLX", "Object", "GetCurrentStyle"];
+
+	Module: ["Reflex", "GLX", "Styling"];
+};
+
+496:
+{
+	@WString Description: "#p Removes a style-state key from this object and reapplies the resulting effective style.";
+
+	Path: ["Reflex", "GLX", "Object", "UnsetState"];
+
+	Module: ["Reflex", "GLX", "Styling"];
+};
+
+497:
+{
+	@WString Description: "#p Adds a style-state key to this object and reapplies the resulting effective style.
+
+#p This is used to select matching stylesheet sub-styles such as @State selected: { ... }, which selectively override properties from the base style.";
+
+	Path: ["Reflex", "GLX", "Object", "SetState"];
+
+	Module: ["Reflex", "GLX", "Styling"];
+};
+
+498:
+{
+	@WString Description: "#p Returns true if the object currently has the given style-state key set.";
+
+	Path: ["Reflex", "GLX", "Object", "CheckState"];
+
+	Module: ["Reflex", "GLX", "Styling"];
+};
+
+499:
+{
+	@WString Description: "#p Returns the current pointer-enable mode as {enabled, active}, matching the two arguments used by EnablePointer.";
+
+	Path: ["Reflex", "GLX", "Object", "PointerEnabled"];
+
+	Module: ["Reflex", "GLX", "Events"];
+};
+
+500:
+{
+	@WString Description: "#p Enables or disables acceptance of multi-touch pointer slots on this object.";
+
+	Path: ["Reflex", "GLX", "Object", "EnableMultiTouch"];
+
+	Module: ["Reflex", "GLX", "Events"];
+};
+
+501:
+{
+	@WString Description: "#p Returns true if multi-touch pointer slots are currently enabled on this object.";
+
+	Path: ["Reflex", "GLX", "Object", "MultiTouchEnabled"];
+
+	Module: ["Reflex", "GLX", "Events"];
+};
+
+502:
+{
+	@WString Description: "#p Requests keyboard focus for this object from the current GLX desktop.";
+
+	Path: ["Reflex", "GLX", "Object", "Focus"];
+
+	Module: ["Reflex", "GLX", "Events"];
+};
+
+503:
+{
+	@WString Description: "#p Delivers the event directly to this object's OnEvent handler using 'src' as the event source, without bubbling to parents.";
+
+	Path: ["Reflex", "GLX", "Object", "ProcessEvent"];
+
+	Module: ["Reflex", "GLX", "Events"];
+};
+
+504:
+{
+	@WString Description: "#p Emits the event from this object and bubbles it up the parent chain until handled.";
+
+	Path: ["Reflex", "GLX", "Object", "Emit"];
+
+	Module: ["Reflex", "GLX", "Events"];
+};
+
+505:
+{
+	@WString Description: "#p Schedules this object's layout and renderer to be rebuilt, including upward accommodation of parent layout.
+#p A common use case is forcing style-backed data to be rebuilt when the style depends on object properties that are only read while constructing the computed style or renderer.";
+
+	Path: ["Reflex", "GLX", "Object", "RebuildLayout"];
+
+	Module: ["Reflex", "GLX", "Layout"];
+};
+
+506:
+{
+	@WString Description: "#p Requests a visual redraw of this object and its parents without rebuilding layout.";
+
+	Path: ["Reflex", "GLX", "Object", "Redraw"];
+
+	Module: ["Reflex", "GLX", "Layout"];
+};
+
+507:
+{
+	@WString Description: "#p Schedules the virtual OnUpdate callback for this object.";
+
+	Path: ["Reflex", "GLX", "Object", "Update"];
+
+	Module: ["Reflex", "GLX", "Events"];
+};
+
+508:
+{
+	@WString Description: "#p Virtual callback invoked when the object's branch is attached to a window. The GLX::Object base implementation forwards this to delegates.";
+
+	Path: ["Reflex", "GLX", "Object", "OnAttachWindow"];
+
+	Module: ["Reflex", "GLX", "Events"];
+};
+
+509:
+{
+	@WString Description: "#p Virtual callback invoked when the object's branch is detached from a window. The GLX::Object base implementation forwards this to delegates.";
+
+	Path: ["Reflex", "GLX", "Object", "OnDetachWindow"];
+
+	Module: ["Reflex", "GLX", "Events"];
+};
+
+510:
+{
+	@WString Description: "#p Virtual callback invoked from the window clock when clock updates are enabled for the object and it is attached to a window.";
+
+	Path: ["Reflex", "GLX", "Object", "OnClock"];
+
+	Module: ["Reflex", "GLX", "Events"];
+};
+
+511:
+{
+	@WString Description: "#p Virtual callback invoked after Update() has scheduled an object refresh. The GLX::Object base implementation forwards this to delegates.";
+
+	Path: ["Reflex", "GLX", "Object", "OnUpdate"];
+
+	Module: ["Reflex", "GLX", "Events"];
+};
+
+512:
+{
+	@WString Description: "#p Virtual callback invoked when the effective style for this object changes. The GLX::Object base implementation forwards this to delegates.";
+
+	Path: ["Reflex", "GLX", "Object", "OnSetStyle"];
+
+	Module: ["Reflex", "GLX", "Styling"];
+};
+
+513:
+{
+	@WString Description: "#p Virtual event handler for direct and bubbled GLX events. The GLX::Object base implementation forwards the event to delegates and returns whether any handled it.";
+
+	Path: ["Reflex", "GLX", "Object", "OnEvent"];
+
+	Module: ["Reflex", "GLX", "Events"];
+};
+

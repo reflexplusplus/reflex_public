@@ -1,7 +1,7 @@
 #pragma once
 
+#include "../window.h"
 #include "lookup.h"
-#include "../event/functions.h"
 
 
 
@@ -59,7 +59,7 @@ inline const Core::Pointer & GetActivePointer()
 {
 	auto pointers = Core::desktop->GetPointers();
 
-	REFLEX_RFOREACH(i, pointers)
+	for (auto & i : ReverseIterate(pointers))
 	{
 		if (i.pressed) return i;
 	}

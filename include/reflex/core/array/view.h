@@ -2,6 +2,7 @@
 
 #include "defines.h"
 #include "traits.h"
+#include "../meta/auxtypes.h"
 #include "../string/detail/compare.h"
 #include "../string/raw.h"
 #include "../detail/iterate.h"

@@ -15,9 +15,6 @@ namespace Reflex::GLX
 	ConstTRef <StyleSheet> RetrieveStyleSheet(const WString::View & path, const Data::PropertySet & options = Data::PropertySet::null);
 
 
-	void SetOnStyle(Object & object, const Function <void(const Style&)> & callback, Key32 delegate_id = MakeKey32("GLX::SetOnStyle"));
-
-
 	ConstTRef <Style> FindStyle(const Style & style, Key32 id);
 
 	ConstTRef <Style> FindStyle(const Object & object, Key32 id);

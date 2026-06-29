@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CFBundleDevelopmentRegion</key>
+	<string>English</string>
+	<key>CFBundleExecutable</key>
+	<string>$(PRODUCT_NAME)</string>
+	<key>CFBundleIdentifier</key>
+	<string>$(BUNDLE_ID)</string>
+	<key>CFBundleInfoDictionaryVersion</key>
+	<string>6.0</string>
+	<key>CFBundleName</key>
+	<string>$(PRODUCT_NAME)</string>
+	<key>CFBundleDisplayName</key>
+	<string>$(PRODUCT_NAME)</string>
+	<key>CFBundlePackageType</key>
+	<string>XPC!</string>
+	<key>CFBundleShortVersionString</key>
+	<string>$(VERSION)</string>
+	<key>CFBundleVersion</key>
+	<string>$(VERSION)</string>
+	<key>NSExtension</key>
+	<dict>
+		<key>NSExtensionPointIdentifier</key>
+		<string>com.apple.AudioUnit-UI</string>
+		<key>NSExtensionPrincipalClass</key>
+		<string>ReflexAuv3ViewController</string>
+		<key>NSExtensionAttributes</key>
+		<dict>
+			<key>AudioComponents</key>
+			<array>
+				<dict>
+					<key>name</key>
+					<string>$(VENDOR_NAME): $(PRODUCT_NAME)</string>
+					<key>manufacturer</key>
+					<string>$(AU_VENDOR_4CC)</string>
+					<key>type</key>
+					<string>$(AU_TYPE_4CC)</string>
+					<key>subtype</key>
+					<string>$(AU_UID_4CC)</string>
+					<key>version</key>
+					<integer>$(AU_VERSION)</integer>
+					<key>sandboxSafe</key>
+					<true/>
+					<key>tags</key>
+					<array><string>$(AU_TAG)</string></array>
+				</dict>
+			</array>
+		</dict>
+	</dict>
+</dict>
+</plist>

@@ -113,7 +113,7 @@ ViewImpl::ViewImpl(App & app)
 	
 		SetAbstractProperty(window, "dragdrop_target", GLX::CreateDragDropTargetListener([this, run_opacity_animation](GLX::Object & drop_target)
 		{
-			m_drop_target.Load()->ClearState("dragover");
+			m_drop_target.Load()->UnsetState("dragover");
 			m_drop_target.Store(drop_target);
 			drop_target.SetState("dragover");
 
@@ -189,7 +189,7 @@ bool ViewImpl::OnEvent(GLX::Object & src, GLX::Event & e)
 						return true;
 
 					case GLX::kDragDropLeave:
-						dst_row->ClearState("dragover");
+						dst_row->UnsetState("dragover");
 						return true;
 
 					case GLX::kDragDropReceive:

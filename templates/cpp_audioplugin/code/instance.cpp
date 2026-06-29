@@ -171,8 +171,8 @@ Reflex::Bootstrap::AudioPlugin::Class _PRODUCT-NAME-SYMBOL_::Instance::MakeClass
 
 	cls.product = Bootstrap::global->product;
 
-#ifdef VERSION
-	cls.version = REFLEX_STRINGIFY(VERSION);
+#ifdef PRODUCT_VERSION
+	cls.version = REFLEX_STRINGIFY(PRODUCT_VERSION);
 #else
 	cls.version = "1.0.0";
 #endif

@@ -12,7 +12,7 @@
 namespace Reflex::Data
 {
 
-	class Format;
+	class Format;		//generic interface for structured data storage format
 
 }
 

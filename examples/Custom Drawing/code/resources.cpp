@@ -11,7 +11,7 @@ const Reflex::UInt64 kConfig_view_allow_init_animations[1] =
 	0x0000000000000001ull, 
 };
 
-const Reflex::File::EnumerableEmbeddedResource Config::view_allow_init_animations(K32("Config"), K32("view.allow_init_animations"), reinterpret_cast<const Reflex::UInt8*>(&kConfig_view_allow_init_animations), 1u, 0u);
+const Reflex::File::EnumerableEmbeddedResource Config::view_allow_init_animations(Reflex::K32("Config"), Reflex::K32("view.allow_init_animations"), reinterpret_cast<const Reflex::UInt8*>(&kConfig_view_allow_init_animations), 1u, 0u);
 
 
 
@@ -227,7 +227,7 @@ const Reflex::UInt64 kCustomDrawing_fonts_Roboto_Mono_static_RobotoMono_Regular_
 	0x0000000075f856e6ull, 
 };
 
-const Reflex::File::EnumerableEmbeddedResource CustomDrawing::fonts_Roboto_Mono_static_RobotoMono_Regular_ttf(K32("CustomDrawing"), K32("fonts/Roboto_Mono/static/RobotoMono-Regular.ttf"), reinterpret_cast<const Reflex::UInt8*>(&kCustomDrawing_fonts_Roboto_Mono_static_RobotoMono_Regular_ttf), 12996u, 15748u);
+const Reflex::File::EnumerableEmbeddedResource CustomDrawing::fonts_Roboto_Mono_static_RobotoMono_Regular_ttf(Reflex::K32("CustomDrawing"), Reflex::K32("fonts/Roboto_Mono/static/RobotoMono-Regular.ttf"), reinterpret_cast<const Reflex::UInt8*>(&kCustomDrawing_fonts_Roboto_Mono_static_RobotoMono_Regular_ttf), 12996u, 15748u);
 
 
 
@@ -284,7 +284,7 @@ const Reflex::UInt64 kCustomDrawing_fonts_Roboto_Mono_OFL_txt[354] =
 	0x2e45524150002c0aull, 0x000000000000000aull, 
 };
 
-const Reflex::File::EnumerableEmbeddedResource CustomDrawing::fonts_Roboto_Mono_OFL_txt(K32("CustomDrawing"), K32("fonts/Roboto_Mono/OFL.txt"), reinterpret_cast<const Reflex::UInt8*>(&kCustomDrawing_fonts_Roboto_Mono_OFL_txt), 2825u, 4303u);
+const Reflex::File::EnumerableEmbeddedResource CustomDrawing::fonts_Roboto_Mono_OFL_txt(Reflex::K32("CustomDrawing"), Reflex::K32("fonts/Roboto_Mono/OFL.txt"), reinterpret_cast<const Reflex::UInt8*>(&kCustomDrawing_fonts_Roboto_Mono_OFL_txt), 2825u, 4303u);
 
 
 
@@ -321,7 +321,7 @@ const Reflex::UInt64 kCustomDrawing_fonts_Roboto_Mono_README_txt[194] =
 	0x6c69617465649005ull, 0x00000000000a2e73ull, 
 };
 
-const Reflex::File::EnumerableEmbeddedResource CustomDrawing::fonts_Roboto_Mono_README_txt(K32("CustomDrawing"), K32("fonts/Roboto_Mono/README.txt"), reinterpret_cast<const Reflex::UInt8*>(&kCustomDrawing_fonts_Roboto_Mono_README_txt), 1547u, 2550u);
+const Reflex::File::EnumerableEmbeddedResource CustomDrawing::fonts_Roboto_Mono_README_txt(Reflex::K32("CustomDrawing"), Reflex::K32("fonts/Roboto_Mono/README.txt"), reinterpret_cast<const Reflex::UInt8*>(&kCustomDrawing_fonts_Roboto_Mono_README_txt), 1547u, 2550u);
 
 
 
@@ -329,17 +329,17 @@ const Reflex::File::EnumerableEmbeddedResource CustomDrawing::fonts_Roboto_Mono_
 //
 //styles.glx
 
-const Reflex::UInt64 kCustomDrawing_styles_glx[41] =
+const Reflex::UInt64 kCustomDrawing_styles_glx[46] =
 {
-	0x46401ff300000166ull, 0x65646f4320746e6full, 0x746170090a7b0a3aull, 0x746e6f6622203a68ull, 0x6f746f626f522f73ull, 0x74732f6f6e6f4d5full, 0x1200001363697461ull, 0x756765522d10f200ull, 
+	0x46401ff3000001b6ull, 0x65646f4320746e6full, 0x746170090a7b0a3aull, 0x746e6f6622203a68ull, 0x6f746f626f522f73ull, 0x74732f6f6e6f4d5full, 0x1200001363697461ull, 0x756765522d10f200ull, 
 	0x226674742e72616cull, 0x657a6973090a0a3bull, 0x3b7d0a3b3432203aull, 0x313511f1000e0a0aull, 0x0a0a3b3231352c32ull, 0x756f6c6f635f6762ull, 0x440a0a3b30203a72ull, 0x007479616c707369ull, 
-	0x3a7265646e6572b4ull, 0x5f60000d3b347820ull, 0xf10010203a646170ull, 0x736e617274090a04ull, 0x30203a6e6f697469ull, 0x600200163532312eull, 0xc0000e3032333100ull, 0x323374616f6c4640ull, 
-	0x3a0200c164697720ull, 0x7543203a67625100ull, 0x7361766e61438200ull, 0x745302f1002d2928ull, 0x65766f6820657461ull, 0x2a090a7b090a3a72ull, 0x00002d09090a3900ull, 0x32203a7205f000afull, 
-	0x2c293832312c3535ull, 0x287478655409090aull, 0x6564c1005800011cull, 0x3a65756c6176203bull, 0x203b0cf000082620ull, 0x3a7966697473756aull, 0x297265746e656320ull, 0x3b7d0a3b7d090a3bull, 
-	0x000000000000000aull, 
+	0x3a7265646e6572b4ull, 0x5f60000d3b347820ull, 0xf10010203a646170ull, 0x736e617274090a03ull, 0x30203a6e6f697469ull, 0x005f02001535322eull, 0x40c0000e30323331ull, 0x20323374616f6c46ull, 
+	0x00390200c0646977ull, 0x007443203a676251ull, 0x287361766e614382ull, 0x6174531bf0002d29ull, 0x7265766f68206574ull, 0x6609090a7b090a3aull, 0x694609090a203a67ull, 0x6e65646e69286c6cull, 
+	0xb2203b342d203a74ull, 0x312c09f000b10000ull, 0x4209090a2c293832ull, 0x696461722872756cull, 0x00223631203a7375ull, 0x655450002f746e21ull, 0x0074000137287478ull, 0x6c6176203b6564c1ull, 
+	0xf1000826203a6575ull, 0x697473756a203b03ull, 0x746e6563203a7966ull, 0x00350f004f297265ull, 0x0a3b7d090a3b901dull, 0x00000000000a3b7dull, 
 };
 
-const Reflex::File::EnumerableEmbeddedResource CustomDrawing::styles_glx(K32("CustomDrawing"), K32("styles.glx"), reinterpret_cast<const Reflex::UInt8*>(&kCustomDrawing_styles_glx), 321u, 358u);
+const Reflex::File::EnumerableEmbeddedResource CustomDrawing::styles_glx(Reflex::K32("CustomDrawing"), Reflex::K32("styles.glx"), reinterpret_cast<const Reflex::UInt8*>(&kCustomDrawing_styles_glx), 363u, 438u);
 
 
 

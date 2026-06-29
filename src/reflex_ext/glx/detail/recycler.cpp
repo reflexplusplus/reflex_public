@@ -50,7 +50,7 @@ Reflex::GLX::Detail::Recycler::~Recycler()
 
 	if (needs_reorder) for (auto & i : m_kept) i->SendTop();
 
-	REFLEX_RFOREACH(i, remove)
+	for (auto & i : ReverseIterate(remove))
 	{
 		i->id = {};						//prevent reuse on next refresh
 

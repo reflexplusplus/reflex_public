@@ -125,7 +125,7 @@ public:
 
 	//state
 
-	void ClearState(Key32 state);
+	void UnsetState(Key32 state);
 
 	void SetState(Key32 state);
 
@@ -137,9 +137,9 @@ public:
 
 	//mods
 
-	void SetMod(Key32 id, TRef <Detail::ComputedStyle> cstyle);
-
 	void UnsetMod(Key32 id);
+
+	void SetMod(Key32 id, TRef <Detail::ComputedStyle> cstyle);
 
 	ConstTRef <Detail::ComputedStyle> GetMod(Key32 id) const;
 
@@ -148,8 +148,6 @@ public:
 
 
 	//used by standard layout/style, typically do not use directly
-
-	//flow/layout (affects children)
 
 	void SetLayoutFlags(UInt8 flags);
 
@@ -168,6 +166,12 @@ public:
 	//properties
 
 	Key32 id;
+
+
+
+	//deprecations
+
+	[[deprecated("use UnsetState")]] void ClearState(Key32 state) { return UnsetState(state); }
 
 
 
@@ -245,18 +249,18 @@ protected:
 
 private:
 
-	friend Core::Accessor;
-
 	friend class Library;
 
-	friend Event;
+	friend class Event;
 
-	friend Style;
+	friend class Style;
+
+	friend struct StateTransition;
 
 	
 	void ApplyState(const Sequence <Key32> & states);
 
-	UInt8 ComputeStyle();
+	void RebuildRenderer();
 
 
 	struct Delegates : public Reflex::Item<Delegate>::List { using List::Clear; };

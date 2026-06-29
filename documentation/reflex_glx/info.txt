@@ -53,6 +53,10 @@
 
 7:
 {
+	@WString 3860471657: "#p Draws a filled ellipse or circle inside the layer rect.
+
+#p When a sweep is supplied, it renders only that arc segment as a filled pie shape.";
+
 	Path: ["CircleFill"];
 
 	Module: ["Vector"];
@@ -60,6 +64,10 @@
 
 8:
 {
+	@WString 3860471657: "#p Positions the wrapped content into a sub-region of the available rect, based on a value range and visible region.
+
+#p This is commonly used for meter, slider, and scrollbar-style fills where the child layers should occupy only part of the track.";
+
 	Path: ["Bar"];
 
 	Module: ["Vector"];
@@ -67,6 +75,10 @@
 
 9:
 {
+	@WString 3860471657: "#p Draws a filled triangle inside the layer rect.
+
+#p The direction can be chosen with the direction property, and an optional corner value rounds the triangle corners.";
+
 	Path: ["TriangleFill"];
 
 	Module: ["Vector"];
@@ -74,6 +86,10 @@
 
 10:
 {
+	@WString 3860471657: "#p Draws a filled polygon from the supplied points array.
+
+#p Points can be given directly in layer space, or normalized and scaled to the layer rect.";
+
 	Path: ["Polygon"];
 
 	Module: ["Vector"];
@@ -81,6 +97,10 @@
 
 11:
 {
+	@WString 3860471657: "#p Draws a linear colour gradient across the layer rect, interpolating between the from and to colours.
+
+#p The angle controls the gradient direction, and optional dithering switches it to a rendered graphic path instead of pure vector output.";
+
 	Path: ["Gradient"];
 
 	Module: ["Vector"];
@@ -88,6 +108,10 @@
 
 12:
 {
+	@WString 3860471657: "#p Draws an outlined triangle inside the layer rect.
+
+#p The width property controls stroke thickness, and corner can be used to round the triangle corners.";
+
 	Path: ["Triangle"];
 
 	Module: ["Vector"];
@@ -95,6 +119,10 @@
 
 13:
 {
+	@WString 3860471657: "#p Draws a filled rectangle across the layer rect.
+
+#p When corner is supplied it becomes a rounded fill using the given corner radii.";
+
 	Path: ["Fill"];
 
 	Module: ["Vector"];
@@ -102,6 +130,10 @@
 
 14:
 {
+	@WString 3860471657: "#p Draws a horizontal or vertical line within the layer rect.
+
+#p Position chooses where the line sits, width controls thickness, and pattern can be used for dotted or dashed variants.";
+
 	Path: ["Line"];
 
 	Module: ["Vector"];
@@ -109,6 +141,10 @@
 
 15:
 {
+	@WString 3860471657: "#p Draws a stroked path from the supplied points array.
+
+#p It supports open or closed paths, configurable width, join values of miter, round, or bevel, and cap values of butt, round, or square.";
+
 	Path: ["Path"];
 
 	Module: ["Vector"];
@@ -116,6 +152,10 @@
 
 16:
 {
+	@WString 3860471657: "#p Draws a rectangular outline around the layer rect.
+
+#p Width controls stroke thickness, and corner can be supplied for rounded borders.";
+
 	Path: ["Border"];
 
 	Module: ["Vector"];
@@ -123,6 +163,10 @@
 
 17:
 {
+	@WString 3860471657: "#p Draws an outlined ellipse or circle inside the layer rect.
+
+#p Width controls stroke thickness, and sweep can be used for partial arcs with optional round caps.";
+
 	Path: ["Circle"];
 
 	Module: ["Vector"];
@@ -130,6 +174,10 @@
 
 18:
 {
+	@WString 3860471657: "#p Draws a radial gradient from the center of the layer rect outward.
+
+#p The from colour is placed at the centre and the to colour at the outer edge.";
+
 	Path: ["CircleGradient"];
 
 	Module: ["Vector"];
@@ -241,28 +289,59 @@
 {
 	Group: true;
 
+	@WString 3860471657: "#p Draws a single image frame, with optional fit, anchor, autofit, and colour modulation.
+
+#p The source property may be:
+<list>
+#p a resource key naming an ImageSet,
+#p a two-key array of [imageset, frame] to pick a specific named frame,
+#p or an ImageSet object supplied directly.
+</list>
+
+#p Fit controls how the image is placed in the layer rect, including none, stretch, contain, and cover.";
+
 	Path: ["Image"];
 };
 
 34:
 {
-	Path: ["ImageFill"];
+	@WString 3860471657: "#p Draws a single image frame, with optional fit, anchor, autofit, and colour modulation.
+
+#p The source property may be:
+<list>
+#p a resource key naming an ImageSet,
+#p a two-key array of [imageset, frame] to pick a specific named frame,
+#p a referenced ImageSet property via the & operator.
+</list>
+
+#p Fit controls how the image is placed in the layer rect, including none, stretch, contain, and cover.";
+
+	Path: ["Image"];
 
 	Module: ["Image"];
 };
 
 35:
 {
-	Path: ["ImageSelector"];
+	@WString 3860471657: "#p Repeats an image frame to tile-fill the layer rect.
+
+#p Source accepts the same forms as Image: an ImageSet key, [imageset, frame], or a direct ImageSet object.";
+
+	Path: ["ImageFill"];
 
 	Module: ["Image"];
 };
 
 36:
 {
-	Path: ["GraphicCanvas"];
+	@WString 3860471657: "#p Draws one frame from an ImageSet chosen at render time.
 
-	Module: ["Vector"];
+#p Source selects the ImageSet, and frame selects which frame to use.
+#p Frame may be given as a key for named frames, an integer index, or a float from 0 to 1 to select across the available frame range.";
+
+	Path: ["ImageSelector"];
+
+	Module: ["Image"];
 };
 
 37:
@@ -324,6 +403,10 @@
 
 41:
 {
+	@WString 3860471657: "#p Draws a simple bar graph from an array of numeric values.
+
+#p Each value is normalized against the supplied range and rendered as a bar across the available rect, respecting flow inversion.";
+
 	Path: ["BarGraph"];
 
 	Module: ["Vector"];
@@ -331,6 +414,10 @@
 
 42:
 {
+	@WString 3860471657: "#p Binds a monochrome vector canvas callback layer.
+
+#p The callback appends plain point geometry, which is then rendered using the layer colour.";
+
 	Path: ["Canvas"];
 
 	Module: ["Vector"];
@@ -345,6 +432,12 @@
 
 44:
 {
+	@WString 3860471657: "<span>
+#p Alias of
+#link symbol: [$qColourCanvas$q]; text: $q ColourCanvas$q;
+</span>
+";
+
 	Path: ["ColorCanvas"];
 
 	Module: ["Vector"];
@@ -352,6 +445,10 @@
 
 45:
 {
+	@WString 3860471657: "#p Binds a colour-point canvas callback layer.
+
+#p The callback appends geometry with per-point colour, making it suitable when a single layer needs multiple colours.";
+
 	Path: ["ColourCanvas"];
 
 	Module: ["Vector"];
@@ -373,6 +470,10 @@
 
 48:
 {
+	@WString 3860471657: "#p Rotates the wrapped content around its center.
+
+#p This is a wrapper layer, so it transforms the nested content rather than drawing a shape by itself.";
+
 	Path: ["Rotate"];
 
 	Module: ["Vector"];
@@ -380,6 +481,10 @@
 
 49:
 {
+	@WString 3860471657: "#p Scales the wrapped content around a chosen origin point.
+
+#p This can be used for zoom, stretch, or flip-style effects on nested vector or graphic content.";
+
 	Path: ["Scale"];
 
 	Module: ["Vector"];
@@ -387,7 +492,24 @@
 
 50:
 {
+	@WString 3860471657: "#p Offsets the wrapped content by a fixed amount.
+
+#p Offsets are normally in GLX units, and can also be expressed in pixels using unit: px.";
+
 	Path: ["Translate"];
 
 	Module: ["Vector"];
 };
+
+51:
+{
+	@WString 3860471657: "#p Uses an image frame as an alpha mask for wrapped content.
+
+#p The wrapped content is first rendered to an offscreen bitmap, then composited through the selected image mask.
+#p Source accepts the same forms as Image: an ImageSet key, [imageset, frame], or a direct ImageSet object.";
+
+	Path: ["ImageMask"];
+
+	Module: ["Image"];
+};
+

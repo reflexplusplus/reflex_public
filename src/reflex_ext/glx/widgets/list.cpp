@@ -162,7 +162,7 @@ ReorderContainer::~ReorderContainer()
 
 		for (auto & i : m_objects) EnableInline<false>(i.a, GLX::kOrientationFit);
 
-		m_objects[m_from].a->ClearState(List::kReorderState);
+		m_objects[m_from].a->UnsetState(List::kReorderState);
 
 		if (m_from == m_to)
 		{
@@ -313,7 +313,7 @@ void Reflex::GLX::List::OnDeselect(UInt idx)
 	{
 		auto item = LookupChildAtIndex(*this, idx);
 
-		item->ClearState(kSelectedState);
+		item->UnsetState(kSelectedState);
 	}
 }
 

@@ -1,2 +1,0 @@
-ASIO
-'host/pc/asiolist.cpp' was modified to fix compilation issue

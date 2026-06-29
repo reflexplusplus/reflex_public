@@ -60,15 +60,16 @@ private:
 };
 
 
-template <class KEY, class VALUE, class COMPARE, bool CONTIGUOUS> auto MakeRange(Sequence <KEY,VALUE,COMPARE,CONTIGUOUS> & sequence, const KEY & lowest, const KEY & highest) { return typename Sequence<KEY,VALUE,COMPARE,CONTIGUOUS>::Range(sequence, lowest, highest); }
-
-template <class KEY, class VALUE, class COMPARE, bool CONTIGUOUS> auto MakeRange(const Sequence <KEY,VALUE,COMPARE,CONTIGUOUS> & sequence, const KEY & lowest, const KEY & highest) { return typename Sequence<KEY,VALUE,COMPARE,CONTIGUOUS>::ConstRange(sequence, lowest, highest); }
-
-
-
-template <class KEY, class VALUE, class COMPARE, bool CONTIGUOUS, bool CONST> auto Reverse(typename Sequence <KEY,VALUE,COMPARE,CONTIGUOUS>::template RangeImpl <CONST> && iterable)
+template <class KEY, class VALUE, class COMPARE, bool CONTIGUOUS> auto MakeRange(Sequence <KEY,VALUE,COMPARE,CONTIGUOUS> & sequence, const KEY & lowest, const KEY & highest) 
 {
-	return RangeHolder(iterable.begin(), iterable.end());
+	return typename Sequence<KEY,VALUE,COMPARE,CONTIGUOUS>::Range(sequence, lowest, highest);
 }
+
+template <class KEY, class VALUE, class COMPARE, bool CONTIGUOUS> auto MakeRange(const Sequence <KEY,VALUE,COMPARE,CONTIGUOUS> & sequence, const KEY & lowest, const KEY & highest)
+{
+	return typename Sequence<KEY,VALUE,COMPARE,CONTIGUOUS>::ConstRange(sequence, lowest, highest);
+}
+
+template <class KEY, class VALUE, class COMPARE, bool CONTIGUOUS, bool CONST> auto ReverseIterate(typename Sequence <KEY,VALUE,COMPARE,CONTIGUOUS>::template RangeImpl <CONST> && iterable) = delete;
 
 REFLEX_END

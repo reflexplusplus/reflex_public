@@ -26,8 +26,6 @@ namespace Reflex
 	template <class POLICY = StandardCompare, class ARRAY, class FROM_VALUE, class TO_VALUE> auto Replace(const ARRAY & array, const FROM_VALUE & from_element_or_array, const TO_VALUE & to_element_or_array);
 
 
-	template <class POLICY = StandardCompare, class TYPE, class VALUE> [[deprecated("use Remove")]] void RemoveValue(Array <TYPE> &array, VALUE && value);
-
 	template <class POLICY = StandardCompare, class TYPE, class VALUE> void Remove(Array <TYPE> & array, VALUE && element_or_array);
 
 	template <class POLICY = StandardCompare, class ARRAY, class VALUE> auto Filter(const ARRAY & array, VALUE && element_or_array);
@@ -54,9 +52,9 @@ template <class POLICY, class TYPE, class VALUE> REFLEX_INLINE Idx SearchElement
 
 template <class POLICY, class TYPE, class VALUE> REFLEX_INLINE Idx ReverseSearchElement(const ArrayView <TYPE> & view, VALUE && value)
 {
-	REFLEX_RFOREACH(itr, view)
+	for (auto & i : ReverseIterate(view))
 	{
-		if (POLICY::eq(itr, std::forward<VALUE>(value))) return UInt(&itr - view.data);
+		if (POLICY::eq(i, std::forward<VALUE>(value))) return UInt(&i - view.data);
 	}
 
 	return {};
@@ -129,15 +127,17 @@ template <class POLICY, class TYPE> Array <TYPE> ReplaceRegion(const ArrayView <
 
 template <class CASEPOLICY, class TYPE> REFLEX_INLINE void RemoveRegion(Array <TYPE> & array, ArrayView <TYPE> value)
 {
+#if REFLEX_DEBUG
 	REFLEX_ASSERT(value.size != 0);
-
+	
 	auto a0 = ToUIntNative(array.GetData());
 	auto a1 = a0 + UIntNative(array.GetSize() * sizeof(TYPE));
-
+	
 	auto v0 = ToUIntNative(value.data);
 	auto v1 = v0 + UIntNative(value.size * sizeof(TYPE));
-
+	
 	REFLEX_ASSERT(!((v0 < a1) && (v1 > a0)));
+#endif
 
 	UInt position = 0;
 
@@ -242,11 +242,6 @@ template <class POLICY, class ARRAY, class FROM, class TO> inline auto Reflex::R
 
 		return rtn;
 	}
-}
-
-template <class POLICY, class TYPE, class VALUE> inline void Reflex::RemoveValue(Array <TYPE> & array, VALUE && value)
-{
-	Detail::RemoveValue<POLICY, TYPE, VALUE>(array, std::forward<VALUE>(value));
 }
 
 template <class POLICY, class TYPE, class VALUE> REFLEX_INLINE void Reflex::Remove(Array <TYPE> & array, VALUE && element_or_array)

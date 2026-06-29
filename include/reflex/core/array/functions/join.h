@@ -64,10 +64,7 @@ struct Joiner
 
 		rtn.Allocate(length);
 
-		REFLEX_LOOP(idx, sizeof...(VARGS))
-		{
-			rtn.Append(refs[idx]);
-		}
+		for (auto & i : refs) rtn.Append(i);
 
 		return rtn;
 	}

@@ -20,7 +20,6 @@
 namespace Reflex
 {
 
-
 	template <class TYPE> struct IsRawConstructible;
 
 	template <class TYPE> struct IsRawCopyable { static constexpr bool value = bool(__is_trivially_copyable(TYPE)); };

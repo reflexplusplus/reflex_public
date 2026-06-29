@@ -352,7 +352,7 @@ struct UI::Events : public Panel
 
 			UInt idx = m_current->steps.GetSize();
 
-			REFLEX_RFOREACH(step, m_current->steps)
+			for (auto & step : ReverseIterate(m_current->steps))
 			{
 				auto receiver = step.ref.Load();
 
@@ -804,7 +804,7 @@ void UI::OnUpdate()
 	{
 		m_onfocus.Clear();
 
-		m_track_btn.ClearState(GLX::kSelectedState);
+		m_track_btn.UnsetState(GLX::kSelectedState);
 	}
 
 	auto show = BitCheck(m_flags, 1);
@@ -1120,7 +1120,7 @@ void UI::Objects::Interface::GetProperties(Data::PropertySet & node, Key32 group
 				{
 					CString path;
 
-					REFLEX_RFOREACH(i, m_ids)
+					for (auto & i : ReverseIterate(m_ids))
 					{
 						if (auto id = Data::GetKey(map, i))
 						{

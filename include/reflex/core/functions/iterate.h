@@ -6,10 +6,24 @@
 
 
 //
-//Secondary API
+//Primary API
 
-REFLEX_NS(Reflex)
+namespace Reflex
+{
 
-template <class TYPE> auto Reverse(TYPE && iterable) { return Detail::RangeHolder(iterable.rbegin(), iterable.rend()); }
+	template <class TYPE> auto ReverseIterate(TYPE && iterable);
 
-REFLEX_END
+}
+
+
+
+
+//
+//impl
+
+template <class TYPE> inline auto Reflex::ReverseIterate(TYPE && iterable)
+{ 
+	static_assert(std::is_lvalue_reference_v<TYPE>, "ReverseIterate cannot be used with temporaries");
+
+	return Detail::RangeHolder(iterable.rbegin(), iterable.rend()); 
+}

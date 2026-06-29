@@ -107,32 +107,16 @@ License text in this repository:
 - src/reflex/data/ext/lz4-dev/lib/LICENSE
 
 
-OpenGL Extension Headers
-------------------------
-Copyright (c) 2007 The Khronos Group Inc.
-Copyright (c) 1991-2004 Silicon Graphics, Inc.
-
-Vendored OpenGL extension header files present in the repository.
-
-License:
-- Khronos permissive license (`glext.h`)
-- SGI Free Software License B / notice (`wglext.h`)
-
-License text / notices in this repository:
-- src/reflex/system/win/ext/opengl/glext.h
-- src/reflex/system/win/ext/opengl/wglext.h
-
-
-SSE Math Function Code (`sse_mathfun.h`)
+SSE Math Function Code ('sse_mathfun.h')
 ----------------------------------------
 Copyright (C) 2007 Julien Pommier
 
 This repository includes a refactored SIMD exponential implementation derived
-from the `sse_mathfun.h` code lineage, itself described upstream as being based
+from the 'sse_mathfun.h' code lineage, itself described upstream as being based
 on corresponding algorithms from the Cephes math library.
 
 Used in:
-- include/reflex/simd/float_v4.h (`SIMD::Exp`)
+- include/reflex/simd/float_v4.h ('SIMD::Exp')
 - src/reflex/vec/common.cpp (related constants)
 
 License:
@@ -152,7 +136,7 @@ License:
 - Apache License 2.0
 
 License text / notices in this repository:
-- resources/android/java/com/reflex_multimedia/reflex/sdk/AudioDeviceInfoConverter.kt
+- resources/android/java/com/reflexplusplus/reflex/sdk/AudioDeviceInfoConverter.kt
 
 
 Gradle Wrapper / Android Project Scaffolding
@@ -231,10 +215,19 @@ Notes:
 - This implementation has since been refactored within this repository.
 
 
-PENDING
---------------
-The following items require separate SDK agreement or distribution
-clearance review beyond normal third-party notice handling:
+ASIO Support (Optional External SDK Dependency)
+-----------------------------------------------
+This distribution does not include Steinberg ASIO SDK files.
 
-- ASIO
-- VST2
+On Windows, the prebuilt static libraries include a 'ReflexTargetAudioAppASIO'
+variant built against the Steinberg ASIO SDK headers.
+
+Using this variant requires the Steinberg ASIO SDK to be obtained
+separately, and the required ASIO source file(s) to be added to your
+project for static linking.
+
+Use of the Steinberg ASIO SDK is subject to Steinberg's applicable
+licensing terms.
+
+ASIO is a trademark of Steinberg Media Technologies GmbH,
+registered in Europe and other countries.

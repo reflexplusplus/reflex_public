@@ -13,9 +13,6 @@ namespace Reflex
 
 	struct NullType {};
 
-	enum NoValue
-	{
-		kNoValue = 0
-	};
+	enum NoValue { kNoValue };
 
 }

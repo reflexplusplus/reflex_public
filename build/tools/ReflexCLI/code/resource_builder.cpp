@@ -1,6 +1,7 @@
 #include "tasks.h"
 
-using namespace Reflex;
+
+
 
 REFLEX_BEGIN_INTERNAL(ReflexCLI)
 
@@ -180,7 +181,7 @@ struct ResourceBuilder
 	static constexpr CString::View kComment = "//";
 	static constexpr char kComma = ',';
 	static constexpr UInt kLineSize = 8;
-	static constexpr UInt32 kDependencyCacheVersion = 1;
+	static constexpr UInt32 kDependencyCacheVersion = 2;
 	static constexpr Key32 kCompressedFormats[] =
 	{
 		"jpg", "jpeg", "png", "gif", "webp",
@@ -394,7 +395,8 @@ void ResourceBuilder::Compile(const WString::View & path, volatile Float & progr
 		for (auto & i : Namespace::ParentRange(group)) ns.Push(i.id);
 
 		ns.Pop();
-		ReverseArray(ns);
+		
+		Reverse(ns);
 
 		for (auto & i : group.items) WriteItem(cpp, file_scratch, ns, i, total, done, progress);
 	}
@@ -567,7 +569,7 @@ void ResourceBuilder::WriteItem(System::FileHandle & file, Data::Archive & file_
 		if (item.enumerable)
 		{
 			string = Join(string, kReflex, kPublicItem, full_namespace, kDoubleColon, data_varname, '(');
-			string = Join(string, "K32(", '"', full_namespace, '"', "), K32(", '"', item.id, '"', ')');
+			string = Join(string, "Reflex::K32(", '"', full_namespace, '"', "), Reflex::K32(", '"', item.id, '"', ')');
 			string = Join(string, kComma, ' ', archive, kComma, ' ', compressed, ");");
 		}
 		else

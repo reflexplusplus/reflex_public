@@ -296,7 +296,7 @@
 					"$(OTHER_CFLAGS)",
 					"-fpermissive",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.reflexmultimedia.reflexresourcebuilder;
+				PRODUCT_BUNDLE_IDENTIFIER = com.reflexplusplus.reflexresourcebuilder;
 				PRODUCT_NAME = ReflexResourceBuilder;
 				REFLEX_PATH = "$(PROJECT_DIR)/../../../../../";
 				SDKROOT = macosx;
@@ -371,7 +371,7 @@
 					"$(OTHER_CFLAGS)",
 					"-fpermissive",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.reflexmultimedia.reflexresourcebuilder;
+				PRODUCT_BUNDLE_IDENTIFIER = com.reflexplusplus.reflexresourcebuilder;
 				PRODUCT_NAME = ReflexResourceBuilder;
 				REFLEX_PATH = "$(PROJECT_DIR)/../../../../../";
 				SDKROOT = macosx;
@@ -388,7 +388,7 @@
 					REFLEX_BOOTSTRAP_TYPE_APP,
 					"$(inherited)",
 				);
-				INFOPLIST_FILE = "$(REFLEX_PATH)/resources/macos/App.plist";
+				INFOPLIST_FILE = "$(PROJECT_DIR)/app.plist";
 			};
 			name = Debug;
 		};
@@ -400,7 +400,7 @@
 					REFLEX_BOOTSTRAP_TYPE_APP,
 					"$(inherited)",
 				);
-				INFOPLIST_FILE = "$(REFLEX_PATH)/resources/macos/App.plist";
+				INFOPLIST_FILE = "$(PROJECT_DIR)/app.plist";
 			};
 			name = Release;
 		};

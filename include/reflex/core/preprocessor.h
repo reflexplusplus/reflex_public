@@ -51,6 +51,8 @@
 
 #define REFLEX_OFFSETOF(TYPE,MEMBER) offsetof(TYPE,MEMBER)
 
+#define REFLEX_MEMBER_TO_CLASS(CLASS, MEMBER, PTR) reinterpret_cast<CLASS*>(reinterpret_cast<Reflex::UInt8*>(PTR) - offsetof(CLASS, MEMBER))
+
 
 #define REFLEX_MARKER(X) X:
 
@@ -65,11 +67,6 @@
 #define REFLEX_LOOP_PTR(ADR, VAR, N) for (auto VAR = ADR, end_ = ADR + (N); VAR < end_; ++VAR)
 
 #define REFLEX_RLOOP_PTR(ADR, PTR, N) for (auto start_ = ADR, PTR = start_ + (N); PTR-- > start_;)
-
-
-#define REFLEX_FOREACH(I, CONTAINER) for ([[maybe_unused]] auto & I : CONTAINER)
-
-#define REFLEX_RFOREACH(I, CONTAINER) for ([[maybe_unused]] auto & I : Reverse(CONTAINER))
 
 
 

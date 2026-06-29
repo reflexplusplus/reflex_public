@@ -1,2 +1,4 @@
 /third_party/
 **/*.cache
+code/resources.h
+code/resources.cpp

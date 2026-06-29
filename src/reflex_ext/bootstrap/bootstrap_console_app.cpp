@@ -170,14 +170,21 @@ Reflex::WString Reflex::Bootstrap::CLI::GetFilenameArg(const Data::PropertySet &
 
 	corrected = Replace(corrected, ToView(double_stroke), ToView(File::kStroke));
 
-	auto filename = File::ResolveRelativePath(corrected);
+	if (corrected.GetSize() > 1 && corrected[0] == File::kDot && corrected[1] == File::kStroke)
+	{
+		corrected = File::ResolveIncludePath(System::GetCurrentDirectory(), corrected);
+	}
+	else
+	{
+		corrected = File::ResolveRelativePath(corrected);
+	}
 
-	if (check_exists && !System::Exists(filename))
+	if (check_exists && !System::Exists(corrected))
 	{
 		ThrowMissingArg(id, "<filename>");
 	}
 
-	return filename;
+	return corrected;
 }
 
 Reflex::WString Reflex::Bootstrap::CLI::GetFolderArg(const Data::PropertySet & args, CString::View id, bool check_exists)
@@ -340,8 +347,6 @@ Reflex::UInt8 Reflex::Bootstrap::CLI::Dispatch(const ArrayView <CString::View> &
 			Print(std_out, kColourBrightRed, error);
 		}
 	}
-
-	File::WriteBytes(std_out, Data::Pack(Detail::kColours[kColourDefault]));
 
 	return ok ? 0 : 1;
 }

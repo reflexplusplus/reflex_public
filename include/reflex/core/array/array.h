@@ -18,7 +18,7 @@
 namespace Reflex
 {
 
-	template <class TYPE> class Array;
+	template <class TYPE> class Array;		//dynamically-sized contiguous container
 
 }
 
@@ -120,7 +120,7 @@ public:
 	template <AllocatePolicy ALLOC = kAllocateOver> TYPE & Push(TYPE && value);
 
 
-	template <AllocatePolicy ALLOC = kAllocateOver> void Append(const View & value, bool debug_guarantee = false);	//todo make guarantee template bool
+	template <AllocatePolicy ALLOC = kAllocateOver> void Append(const View & value);
 
 
 	void Pop();
@@ -378,9 +378,7 @@ template <class TYPE> inline Reflex::Array<TYPE>::Array(Array && value)
 	if (kIsNullTerminated)
 	{
 		m_ptr = Detail::NullTerminator<TYPE, true>::Allocate(allocator, 0, AllocInfo(Detail::GetDebugTypeName<TYPE>(), "Array(Array &&)"));
-
 		m_capacity = 0;
-
 		m_size = 0;
 
 		NullTerminate();
@@ -390,16 +388,12 @@ template <class TYPE> inline Reflex::Array<TYPE>::Array(Array && value)
 	else
 	{
 		m_ptr = value.m_ptr;
-
+		m_capacity = value.m_capacity;
 		m_size = value.m_size;
 
-		m_capacity = value.m_capacity;
-
-		value.m_ptr = 0;
-
-		value.m_size = 0;
-
+		value.m_ptr = nullptr;
 		value.m_capacity = 0;
+		value.m_size = 0;
 	}
 }
 
@@ -758,11 +752,15 @@ template <class TYPE> inline TYPE & Reflex::Array<TYPE>::Insert(UInt idx, TYPE &
 	}
 }
 
-template <class TYPE> template <Reflex::AllocatePolicy ALLOC> REFLEX_INLINE void Reflex::Array<TYPE>::Append(const View & view, bool debug_guarantee)
+template <class TYPE> template <Reflex::AllocatePolicy ALLOC> REFLEX_INLINE void Reflex::Array<TYPE>::Append(const View & view)
 {
 	UInt length = m_size + view.size;
 
-	REFLEX_ASSERT(Copy(ALLOC == kAllocateNone) || debug_guarantee || !Inside(ToUIntNative(view.data), ToUIntNative(m_ptr), UIntNative(m_capacity * sizeof(TYPE))));
+#if REFLEX_DEBUG
+	const bool from_self = Inside(ToUIntNative(view.data), ToUIntNative(m_ptr), UIntNative(m_capacity * sizeof(TYPE)));
+	const bool safe = from_self ? ((view.data + view.size) <= (m_ptr + m_size)) && (length <= m_capacity) : true;
+	REFLEX_ASSERT(Copy(ALLOC == kAllocateNone) || safe);
+#endif
 
 	Allocate<ALLOC>(length);
 

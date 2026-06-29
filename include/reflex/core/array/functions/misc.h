@@ -14,7 +14,7 @@ namespace Reflex
 	template <AllocatePolicy POLICY = kAllocateOver, class TYPE> ArrayRegion <TYPE> Extend(Array <TYPE> & data, UInt n);
 
 
-	template <class ARRAY> void ReverseArray(ARRAY && data);
+	template <class ARRAY> void Reverse(ARRAY && data);
 
 
 	template <class TYPE> void Reorder(Array <TYPE> & data, UInt from, UInt to);
@@ -34,7 +34,7 @@ namespace Reflex
 
 REFLEX_NS(Reflex::Detail)
 
-template <typename TYPE> inline void ReverseArray(const ArrayRegion <TYPE> & data)
+template <typename TYPE> inline void Reverse(ArrayRegion <TYPE> data)
 {
 	REFLEX_LOOP(idx, data.size / 2)
 	{
@@ -53,9 +53,9 @@ template <Reflex::AllocatePolicy POLICY, class TYPE> REFLEX_INLINE Reflex::Array
 	return { data.GetData() + size, n };
 }
 
-template <typename ARRAY> inline void Reflex::ReverseArray(ARRAY && data)
+template <typename ARRAY> inline void Reflex::Reverse(ARRAY && data)
 {
-	Detail::ReverseArray(ToRegion(data));
+	Detail::Reverse(ToRegion(data));
 }
 
 template <class TYPE> inline void Reflex::Reorder(Array <TYPE> & data, UInt from, UInt to)

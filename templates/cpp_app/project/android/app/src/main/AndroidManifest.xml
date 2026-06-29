@@ -29,7 +29,7 @@
 		</provider>
 
 		<service
-			android:name="com.reflex_multimedia.reflex.sdk.BackgroundAudioService"
+			android:name="com.reflexplusplus.reflex.sdk.BackgroundAudioService"
 			android:enabled="true"
 			android:stopWithTask="true"
 			android:foregroundServiceType="mediaPlayback" />
@@ -50,7 +50,7 @@
 				android:value="CppLib" />
 		</activity>
 
-		<activity android:name="com.reflex_multimedia.reflex.sdk.ReflexTextInputActivity"
+		<activity android:name="com.reflexplusplus.reflex.sdk.ReflexTextInputActivity"
 			android:configChanges="orientation|keyboard|keyboardHidden|screenSize|screenLayout|uiMode"
 			android:exported="false"
 			android:windowSoftInputMode="adjustResize"

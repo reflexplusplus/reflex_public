@@ -368,8 +368,22 @@ endfunction()
 # Internal: apply macOS app bundle settings
 # =========================================================
 
-function(_reflex_configure_macos_bundle target name vendor package_id_vendor package_id_product)
-    _reflex_generate_plist(_plist ${target} "${name}" "${vendor}" "1.0.0" "app"
+function(_reflex_configure_macos_bundle target name vendor version package_id_vendor package_id_product)
+    _reflex_generate_plist(_plist ${target} "${name}" "${vendor}" "${version}" "app"
+        "${package_id_vendor}" "${package_id_product}")
+    _reflex_resolve_package_id(_package_id "${vendor}" "${name}" "${package_id_vendor}" "${package_id_product}")
+    _reflex_set_bundle_identifier(${target} "${_package_id}")
+    _reflex_configure_xcode_bundle_signing(${target})
+
+    set_target_properties(${target} PROPERTIES
+        MACOSX_BUNDLE                TRUE
+        MACOSX_BUNDLE_BUNDLE_NAME    "${name}"
+        MACOSX_BUNDLE_INFO_PLIST     "${_plist}"
+    )
+endfunction()
+
+function(_reflex_configure_macos_audio_bundle target name vendor version package_id_vendor package_id_product)
+    _reflex_generate_plist(_plist ${target} "${name}" "${vendor}" "${version}" "audioapp"
         "${package_id_vendor}" "${package_id_product}")
     _reflex_resolve_package_id(_package_id "${vendor}" "${name}" "${package_id_vendor}" "${package_id_product}")
     _reflex_set_bundle_identifier(${target} "${_package_id}")
@@ -387,8 +401,8 @@ endfunction()
 # Internal: apply iOS app bundle settings
 # =========================================================
 
-function(_reflex_configure_ios_bundle target name vendor package_id_vendor package_id_product)
-    _reflex_generate_plist(_plist ${target} "${name}" "${vendor}" "1.0.0" "app"
+function(_reflex_configure_ios_bundle target name vendor version package_id_vendor package_id_product)
+    _reflex_generate_plist(_plist ${target} "${name}" "${vendor}" "${version}" "ios_app"
         "${package_id_vendor}" "${package_id_product}")
     _reflex_resolve_package_id(_package_id "${vendor}" "${name}" "${package_id_vendor}" "${package_id_product}")
     _reflex_set_bundle_identifier(${target} "${_package_id}")
@@ -396,12 +410,26 @@ function(_reflex_configure_ios_bundle target name vendor package_id_vendor packa
     set_target_properties(${target} PROPERTIES
         MACOSX_BUNDLE                TRUE
         MACOSX_BUNDLE_BUNDLE_NAME    "${name}"
-        # iOS App.plist carries the UIApplicationSceneManifest — required or the
+        # iOS app.plist carries the UIApplicationSceneManifest — required or the
         # scene-based app launches with no scene and hangs at a blank screen.
         MACOSX_BUNDLE_INFO_PLIST     "${_plist}"
         # Generate a shared scheme for the host app. The AUv3 extension scheme
         # (wasCreatedForAppExtension) resolves its run destinations against the
         # host app's scheme — without it Xcode shows "No Destinations".
+        XCODE_GENERATE_SCHEME        ON
+    )
+endfunction()
+
+function(_reflex_configure_ios_audio_bundle target name vendor version package_id_vendor package_id_product)
+    _reflex_generate_plist(_plist ${target} "${name}" "${vendor}" "${version}" "ios_audioapp"
+        "${package_id_vendor}" "${package_id_product}")
+    _reflex_resolve_package_id(_package_id "${vendor}" "${name}" "${package_id_vendor}" "${package_id_product}")
+    _reflex_set_bundle_identifier(${target} "${_package_id}")
+
+    set_target_properties(${target} PROPERTIES
+        MACOSX_BUNDLE                TRUE
+        MACOSX_BUNDLE_BUNDLE_NAME    "${name}"
+        MACOSX_BUNDLE_INFO_PLIST     "${_plist}"
         XCODE_GENERATE_SCHEME        ON
     )
 endfunction()
@@ -423,9 +451,20 @@ endfunction()
 #   )
 
 function(reflex_add_app target)
-    cmake_parse_arguments(A "" "NAME;VENDOR;PACKAGE_ID_VENDOR;PACKAGE_ID_PRODUCT" "SOURCES" ${ARGN})
+    cmake_parse_arguments(A "" "NAME;VENDOR;VERSION;PACKAGE_ID_VENDOR;PACKAGE_ID_PRODUCT" "SOURCES" ${ARGN})
+
+    if(NOT A_VERSION)
+        set(A_VERSION "1.0.0")
+    endif()
 
     _reflex_add_executable_target(${target} TRUE ${A_SOURCES})
+
+    # Name the binary after NAME so it matches the plist's CFBundleExecutable.
+    # Without this the executable takes the CMake target name; when NAME differs
+    # (e.g. contains spaces) macOS cannot find the executable and refuses to launch.
+    if(A_NAME)
+        set_target_properties(${target} PROPERTIES OUTPUT_NAME "${A_NAME}")
+    endif()
 
     target_compile_definitions(${target} PRIVATE REFLEX_BOOTSTRAP_TYPE_APP)
     _reflex_init_target(${target})
@@ -439,13 +478,13 @@ function(reflex_add_app target)
 
     if(APPLE AND NOT CMAKE_SYSTEM_NAME STREQUAL "iOS")
         _reflex_configure_macos_bundle(${target}
-            "${A_NAME}" "${A_VENDOR}"
+            "${A_NAME}" "${A_VENDOR}" "${A_VERSION}"
             "${A_PACKAGE_ID_VENDOR}" "${A_PACKAGE_ID_PRODUCT}"
         )
         _reflex_link_apple_app_frameworks(${target})
     elseif(APPLE AND CMAKE_SYSTEM_NAME STREQUAL "iOS")
         _reflex_configure_ios_bundle(${target}
-            "${A_NAME}" "${A_VENDOR}"
+            "${A_NAME}" "${A_VENDOR}" "${A_VERSION}"
             "${A_PACKAGE_ID_VENDOR}" "${A_PACKAGE_ID_PRODUCT}"
         )
         _reflex_link_apple_ios_frameworks(${target})
@@ -474,9 +513,20 @@ endfunction()
 #   )
 
 function(reflex_add_vm_app target)
-    cmake_parse_arguments(A "" "NAME;VENDOR;PACKAGE_ID_VENDOR;PACKAGE_ID_PRODUCT" "SOURCES" ${ARGN})
+    cmake_parse_arguments(A "" "NAME;VENDOR;VERSION;PACKAGE_ID_VENDOR;PACKAGE_ID_PRODUCT" "SOURCES" ${ARGN})
+
+    if(NOT A_VERSION)
+        set(A_VERSION "1.0.0")
+    endif()
 
     _reflex_add_executable_target(${target} TRUE ${A_SOURCES})
+
+    # Name the binary after NAME so it matches the plist's CFBundleExecutable.
+    # Without this the executable takes the CMake target name; when NAME differs
+    # (e.g. contains spaces) macOS cannot find the executable and refuses to launch.
+    if(A_NAME)
+        set_target_properties(${target} PROPERTIES OUTPUT_NAME "${A_NAME}")
+    endif()
 
     target_compile_definitions(${target} PRIVATE REFLEX_BOOTSTRAP_TYPE_VM_APP)
     _reflex_init_target(${target})
@@ -490,13 +540,13 @@ function(reflex_add_vm_app target)
 
     if(APPLE AND NOT CMAKE_SYSTEM_NAME STREQUAL "iOS")
         _reflex_configure_macos_bundle(${target}
-            "${A_NAME}" "${A_VENDOR}"
+            "${A_NAME}" "${A_VENDOR}" "${A_VERSION}"
             "${A_PACKAGE_ID_VENDOR}" "${A_PACKAGE_ID_PRODUCT}"
         )
         _reflex_link_apple_app_frameworks(${target})
     elseif(APPLE AND CMAKE_SYSTEM_NAME STREQUAL "iOS")
         _reflex_configure_ios_bundle(${target}
-            "${A_NAME}" "${A_VENDOR}"
+            "${A_NAME}" "${A_VENDOR}" "${A_VERSION}"
             "${A_PACKAGE_ID_VENDOR}" "${A_PACKAGE_ID_PRODUCT}"
         )
         _reflex_link_apple_ios_frameworks(${target})
@@ -510,11 +560,34 @@ endfunction()
 
 
 # =========================================================
+# Internal: locate the prebuilt `reflex` CLI tool
+# =========================================================
+# Sets out_var to the host-platform tool path, or empty if it is not present
+# in this distribution (matching _reflex_add_resource_build's silent skip).
+
+function(_reflex_find_tool out_var)
+    if(WIN32)
+        set(_t "${REFLEX_ROOT}/bin/tools/win/reflex.exe")
+    elseif(APPLE)
+        set(_t "${REFLEX_ROOT}/bin/tools/macos/reflex")
+    elseif(CMAKE_SYSTEM_NAME STREQUAL "Linux")
+        set(_t "${REFLEX_ROOT}/bin/tools/linux/reflex")
+    else()
+        set(_t "")
+    endif()
+    if(_t AND EXISTS "${_t}")
+        set(${out_var} "${_t}" PARENT_SCOPE)
+    else()
+        set(${out_var} "" PARENT_SCOPE)
+    endif()
+endfunction()
+
+
+# =========================================================
 # Internal: generate an Info.plist with resolved values
 # =========================================================
-# Reads the matching template plist from resources/macos/ and replaces
-# Xcode variables ($(PRODUCT_NAME) etc.) with actual values, since the
-# Makefile generator doesn't resolve them.
+# Uses the 'reflex' cli tool with 'build-plist' task
+# the tool derives the AU AudioComponents integer version and AUv3 tag).
 
 function(_reflex_generate_plist output_var target name vendor version bundle_type)
     # Optional package/AU parameters:
@@ -527,61 +600,66 @@ function(_reflex_generate_plist output_var target name vendor version bundle_typ
     set(_au_vendor_4cc "${ARGV10}")
     set(_au_tag "${ARGV11}")
 
-    # Map bundle_type to template file
-    if(bundle_type STREQUAL "app")
-        if(CMAKE_SYSTEM_NAME STREQUAL "iOS")
-            # iOS needs the UIApplicationSceneManifest (UISceneDelegate) plist,
-            # else the scene-based app launches with no scene and hangs.
-            set(_template "${REFLEX_ROOT}/resources/ios/App.plist")
-        else()
-            set(_template "${REFLEX_ROOT}/resources/macos/App.plist")
-        endif()
-    elseif(bundle_type STREQUAL "component")
-        set(_template "${REFLEX_ROOT}/resources/macos/AudioUnit.plist")
-    elseif(bundle_type STREQUAL "clap")
-        set(_template "${REFLEX_ROOT}/resources/macos/CLAP.plist")
-    elseif(bundle_type STREQUAL "auv3")
-        set(_template "${REFLEX_ROOT}/resources/macos/AUv3.plist")
-    else()
-        # vst3, vst — all use the same VST template
-        set(_template "${REFLEX_ROOT}/resources/macos/VST.plist")
-    endif()
+    set(_plist_path "${CMAKE_CURRENT_BINARY_DIR}/${target}_Info.plist")
 
-    file(READ "${_template}" _plist_content)
-
-    # Resolve Xcode variables
+    # Bundle identifier (shared by both generation paths)
     _reflex_resolve_package_id(_package_id "${vendor}" "${name}" "${_package_id_vendor}" "${_package_id_product}")
-
-    if(bundle_type STREQUAL "app")
+    if(bundle_type STREQUAL "app"
+       OR bundle_type STREQUAL "audioapp"
+       OR bundle_type STREQUAL "ios_app"
+       OR bundle_type STREQUAL "ios_audioapp")
         set(_bundle_id "${_package_id}")
     else()
         set(_bundle_id "${_package_id}.${bundle_type}")
     endif()
 
-    string(REPLACE "$(PRODUCT_NAME)" "${name}" _plist_content "${_plist_content}")
-    string(REPLACE "$(PRODUCT_BUNDLE_IDENTIFIER)" "${_bundle_id}" _plist_content "${_plist_content}")
-    string(REPLACE "$(CURRENT_PROJECT_VERSION)" "${version}" _plist_content "${_plist_content}")
-
-    # Version strings (templates have hardcoded "1.0.0")
-    string(REPLACE ">1.0.0<" ">${version}<" _plist_content "${_plist_content}")
-
-    # AU-specific variable replacement
-    if(_au_type_4cc AND _au_uid_4cc AND _au_vendor_4cc)
-        string(REPLACE "$(AU_TYPE_4CC)" "${_au_type_4cc}" _plist_content "${_plist_content}")
-        string(REPLACE "$(AU_UID_4CC)" "${_au_uid_4cc}" _plist_content "${_plist_content}")
-        string(REPLACE "$(AU_VENDOR_4CC)" "${_au_vendor_4cc}" _plist_content "${_plist_content}")
-        string(REPLACE "$(VENDOR_NAME)" "${vendor}" _plist_content "${_plist_content}")
-        # Fix description to use product name instead of generic text
-        string(REPLACE "Reflex AudioUnit Plugin" "${name}" _plist_content "${_plist_content}")
+    _reflex_find_tool(_tool)
+    if(NOT _tool)
+        message(FATAL_ERROR
+            "Reflex: 'reflex build-plist' tool not found. "
+            "Expected a host tool in the Reflex distribution for plist generation.")
     endif()
 
-    # AUv3 AudioComponents tag (MIDI / Synthesizer / Effects)
-    if(_au_tag)
-        string(REPLACE "$(AU_TAG)" "${_au_tag}" _plist_content "${_plist_content}")
+    # Map CMake bundle_type -> build-plist --target
+    if(bundle_type STREQUAL "component")
+        set(_tool_target "au")
+    elseif(bundle_type STREQUAL "vst")
+        set(_tool_target "vst2")
+    else()
+        # app/audioapp/ios_app/ios_audioapp/clap/vst3/auv3 map 1:1
+        set(_tool_target "${bundle_type}")
     endif()
 
-    set(_plist_path "${CMAKE_CURRENT_BINARY_DIR}/${target}_Info.plist")
-    file(WRITE "${_plist_path}" "${_plist_content}")
+    set(_args
+        build-plist
+        --target    "${_tool_target}"
+        --output    "${_plist_path}"
+        --product   "${name}"
+        --bundle_id "${_bundle_id}"
+        --version   "${version}"
+    )
+    # AU / AUv3 need vendor + 4CCs; the tool derives the AU_VERSION
+    # integer and (for AUv3) the AudioComponents tag itself.
+    if(_tool_target STREQUAL "au" OR _tool_target STREQUAL "auv3")
+        list(APPEND _args
+            --vendor          "${vendor}"
+            --au_type         "${_au_type_4cc}"
+            --au_subtype      "${_au_uid_4cc}"
+            --au_manufacturer "${_au_vendor_4cc}"
+        )
+    endif()
+
+    execute_process(
+        COMMAND "${_tool}" ${_args}
+        RESULT_VARIABLE _rc
+        OUTPUT_VARIABLE _out
+        ERROR_VARIABLE  _err
+    )
+    if(NOT _rc EQUAL 0)
+        message(FATAL_ERROR
+            "Reflex: 'reflex build-plist' failed for ${target} "
+            "(${_tool_target}):\n${_out}${_err}")
+    endif()
     set(${output_var} "${_plist_path}" PARENT_SCOPE)
 endfunction()
 
@@ -590,11 +668,98 @@ endfunction()
 # Internal: create one plugin format target
 # =========================================================
 
+# =========================================================
+# Internal: map a plugin format to its platform system-entry TU
+# =========================================================
+# Returns in <out> the absolute path to the per-platform unity source for
+# <basename> (e.g. "vst3" -> src/reflex/system/osx_vst3.mm on macOS), or empty
+# if no such source exists for the current platform / source tree.
+function(_reflex_platform_unity_source basename out)
+    set(${out} "" PARENT_SCOPE)
+    if(WIN32)
+        set(_cand "${REFLEX_ROOT}/src/reflex/system/win_${basename}.cpp")
+    elseif(CMAKE_SYSTEM_NAME STREQUAL "iOS")
+        set(_cand "${REFLEX_ROOT}/src/reflex/system/ios_${basename}.mm")
+    elseif(APPLE)
+        set(_cand "${REFLEX_ROOT}/src/reflex/system/osx_${basename}.mm")
+    elseif(CMAKE_SYSTEM_NAME STREQUAL "Linux")
+        set(_cand "${REFLEX_ROOT}/src/reflex/system/linux_${basename}.cpp")
+    else()
+        return()
+    endif()
+    if(EXISTS "${_cand}")
+        set(${out} "${_cand}" PARENT_SCOPE)
+    endif()
+endfunction()
+
+
+# =========================================================
+# Internal: resolve the library a plugin format links against
+# =========================================================
+# With REFLEX_BUILD_TARGETS_FROM_SOURCE ON and the source tree present, compiles
+# the platform system-entry TU into a static lib once (Reflex::<alias>), so edits
+# to system/<plat>_<basename> rebuild without refreshing a prebuilt lib. Otherwise
+# returns the prebuilt imported target. Returns empty in <out> when the format is
+# unavailable on this platform (the caller skips it).
+function(_reflex_resolve_target_lib alias basename out)
+    set(${out} "" PARENT_SCOPE)
+
+    if(REFLEX_BUILD_TARGETS_FROM_SOURCE)
+        set(_srctgt "_ReflexSrc_${alias}")
+        if(NOT TARGET ${_srctgt})
+            _reflex_platform_unity_source("${basename}" _unity)
+            if(_unity)
+                add_library(${_srctgt} STATIC "${_unity}")
+                target_include_directories(${_srctgt} PRIVATE
+                    "${REFLEX_ROOT}/include"
+                    "${REFLEX_ROOT}/src")
+                set_target_properties(${_srctgt} PROPERTIES
+                    CXX_STANDARD 20
+                    MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
+                # ObjC++ entry TUs (.mm) use manual reference counting (MRC), matching
+                # the SDK's own build (it sets no CLANG_ENABLE_OBJC_ARC, so MRC is the
+                # default). au.mm uses explicit -autorelease, which ARC forbids.
+                # Silence SDK-deprecation/nullability noise.
+                get_filename_component(_ext "${_unity}" EXT)
+                if(_ext STREQUAL ".mm")
+                    set_source_files_properties("${_unity}" PROPERTIES
+                        COMPILE_FLAGS "-fno-objc-arc -Wno-deprecated-declarations -Wno-nullability-completeness")
+                    # The system entry sources call Apple APIs the latest SDK marks
+                    # obsoleted at recent deployment targets (e.g. CGWindowListCreateImage,
+                    # obsoleted 15.0 — a hard error there, only a deprecation below it).
+                    # Build them against the same SDK floor the prebuilt libs use so those
+                    # APIs stay available (and the deprecation is silenced above). A static
+                    # lib with a lower min-version links cleanly into a newer-target app.
+                    if(APPLE AND NOT CMAKE_SYSTEM_NAME STREQUAL "iOS")
+                        target_compile_options(${_srctgt} PRIVATE -mmacosx-version-min=10.15)
+                    endif()
+                endif()
+                _reflex_apply_apple_options(${_srctgt})
+                _reflex_apply_msvc_options(${_srctgt})
+            endif()
+        endif()
+        if(TARGET ${_srctgt})
+            set(${out} "${_srctgt}" PARENT_SCOPE)
+            return()
+        endif()
+    endif()
+
+    if(TARGET Reflex::${alias})
+        set(${out} "Reflex::${alias}" PARENT_SCOPE)
+    endif()
+endfunction()
+
+
 function(_reflex_add_plugin_format base_target format sources name vendor version package_id_vendor package_id_product au_type_4cc au_uid_4cc au_vendor_4cc)
 
     set(_t "${base_target}_${format}")
 
     if(format STREQUAL "Standalone")
+
+        _reflex_resolve_target_lib(TargetAudioApp audioapp _fmtlib)
+        if(NOT _fmtlib)
+            return()
+        endif()
 
         if(WIN32)
             add_executable(${_t} WIN32 ${sources})
@@ -607,7 +772,7 @@ function(_reflex_add_plugin_format base_target format sources name vendor versio
         set_target_properties(${_t} PROPERTIES
             OUTPUT_NAME "${name}"
         )
-        target_link_libraries(${_t} PRIVATE Reflex::TargetAudioApp)
+        target_link_libraries(${_t} PRIVATE ${_fmtlib})
 
         # Audio frameworks on both macOS and iOS (the helper is platform-aware).
         if(APPLE)
@@ -615,13 +780,13 @@ function(_reflex_add_plugin_format base_target format sources name vendor versio
         endif()
 
         if(APPLE AND NOT CMAKE_SYSTEM_NAME STREQUAL "iOS")
-            _reflex_configure_macos_bundle(${_t}
-                "${name}" "${vendor}"
+            _reflex_configure_macos_audio_bundle(${_t}
+                "${name}" "${vendor}" "${version}"
                 "${package_id_vendor}" "${package_id_product}"
             )
         elseif(APPLE AND CMAKE_SYSTEM_NAME STREQUAL "iOS")
-            _reflex_configure_ios_bundle(${_t}
-                "${name}" "${vendor}"
+            _reflex_configure_ios_audio_bundle(${_t}
+                "${name}" "${vendor}" "${version}"
                 "${package_id_vendor}" "${package_id_product}"
             )
             _reflex_link_apple_ios_frameworks(${_t})
@@ -629,7 +794,8 @@ function(_reflex_add_plugin_format base_target format sources name vendor versio
 
     elseif(format STREQUAL "VST3")
 
-        if(NOT TARGET Reflex::TargetVST3)
+        _reflex_resolve_target_lib(TargetVST3 vst3 _fmtlib)
+        if(NOT _fmtlib)
             return()
         endif()
 
@@ -639,7 +805,7 @@ function(_reflex_add_plugin_format base_target format sources name vendor versio
             PREFIX           ""
             BUNDLE_EXTENSION "vst3"
         )
-        target_link_libraries(${_t} PRIVATE Reflex::TargetVST3)
+        target_link_libraries(${_t} PRIVATE ${_fmtlib})
 
         if(APPLE AND NOT CMAKE_SYSTEM_NAME STREQUAL "iOS")
             _reflex_link_apple_audio_frameworks(${_t})
@@ -661,7 +827,8 @@ function(_reflex_add_plugin_format base_target format sources name vendor versio
 
     elseif(format STREQUAL "CLAP")
 
-        if(NOT TARGET Reflex::TargetCLAP)
+        _reflex_resolve_target_lib(TargetCLAP clap _fmtlib)
+        if(NOT _fmtlib)
             return()
         endif()
 
@@ -671,7 +838,7 @@ function(_reflex_add_plugin_format base_target format sources name vendor versio
             PREFIX           ""
             BUNDLE_EXTENSION "clap"
         )
-        target_link_libraries(${_t} PRIVATE Reflex::TargetCLAP)
+        target_link_libraries(${_t} PRIVATE ${_fmtlib})
 
         if(APPLE AND NOT CMAKE_SYSTEM_NAME STREQUAL "iOS")
             _reflex_link_apple_audio_frameworks(${_t})
@@ -693,7 +860,8 @@ function(_reflex_add_plugin_format base_target format sources name vendor versio
 
     elseif(format STREQUAL "VST2")
 
-        if(NOT TARGET Reflex::TargetVST2)
+        _reflex_resolve_target_lib(TargetVST2 vst2 _fmtlib)
+        if(NOT _fmtlib)
             return()
         endif()
 
@@ -702,7 +870,7 @@ function(_reflex_add_plugin_format base_target format sources name vendor versio
             OUTPUT_NAME "${name}"
             PREFIX      ""
         )
-        target_link_libraries(${_t} PRIVATE Reflex::TargetVST2)
+        target_link_libraries(${_t} PRIVATE ${_fmtlib})
 
         if(APPLE AND NOT CMAKE_SYSTEM_NAME STREQUAL "iOS")
             _reflex_link_apple_audio_frameworks(${_t})
@@ -725,7 +893,8 @@ function(_reflex_add_plugin_format base_target format sources name vendor versio
 
     elseif(format STREQUAL "AU")
 
-        if(NOT TARGET Reflex::TargetAU)
+        _reflex_resolve_target_lib(TargetAU au _fmtlib)
+        if(NOT _fmtlib)
             return()
         endif()
 
@@ -743,7 +912,7 @@ function(_reflex_add_plugin_format base_target format sources name vendor versio
             MACOSX_BUNDLE_INFO_PLIST "${_plist}"
         )
         target_link_libraries(${_t} PRIVATE
-            Reflex::TargetAU
+            ${_fmtlib}
             "-framework AudioUnit"
             "-framework AudioToolbox"
         )
@@ -776,8 +945,9 @@ function(_reflex_add_plugin_format base_target format sources name vendor versio
             set_target_properties(_ReflexSrc_TargetAUv3 PROPERTIES
                 CXX_STANDARD 20
             )
+            # MRC, matching the SDK build (no CLANG_ENABLE_OBJC_ARC set).
             set_source_files_properties("${_auv3_unity}" PROPERTIES
-                COMPILE_FLAGS "-fobjc-arc -Wno-deprecated-declarations"
+                COMPILE_FLAGS "-fno-objc-arc -Wno-deprecated-declarations"
             )
             _reflex_apply_apple_options(_ReflexSrc_TargetAUv3)
             add_library(Reflex::TargetAUv3 ALIAS _ReflexSrc_TargetAUv3)
@@ -884,6 +1054,10 @@ function(_reflex_add_plugin_format base_target format sources name vendor versio
 
     # Common settings for all formats
     target_compile_definitions(${_t} PRIVATE REFLEX_BOOTSTRAP_TYPE_AUDIOPLUGIN)
+    # Single source of truth for the version: the same value drives the
+    # Info.plist (above) and the run-time class metadata. instance.cpp reads
+    # this via REFLEX_STRINGIFY(PRODUCT_VERSION); matches the Xcode templates.
+    target_compile_definitions(${_t} PRIVATE PRODUCT_VERSION=${version})
     set_target_properties(${_t} PROPERTIES
         CXX_STANDARD 20
         MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>"
@@ -1027,6 +1201,13 @@ function(reflex_add_audio_plugin target)
     if(NOT A_FORMATS)
         message(WARNING "reflex_add_audio_plugin: no FORMATS specified for '${target}'")
         return()
+    endif()
+
+    # Version is the single source of truth for both the Info.plist and the
+    # run-time class metadata. Default it so omitting VERSION never yields an
+    # empty plist version (the tool also requires x.y.z to pack the AU integer).
+    if(NOT A_VERSION)
+        set(A_VERSION "1.0.0")
     endif()
 
     foreach(_fmt IN LISTS A_FORMATS)

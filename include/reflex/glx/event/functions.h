@@ -1,5 +1,6 @@
 #pragma once
 
+#include "defines.h"
 #include "../object.h"
 #include "../functions/properties.h"
 

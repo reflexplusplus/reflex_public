@@ -20,17 +20,17 @@ struct NonAnimatedStateAnimation : public ObjectAnimation
 	{
 		GLX::AnimationScope scope(false);
 
-		m_target->ClearState(m_state);
+		m_target->UnsetState(m_state);
 	}
 
-	virtual void OnBegin() override
+	void OnBegin() override
 	{
 		m_target->SetState(m_state);
 	}
 
-	virtual bool OnClock(Float delta) override { return false; }
+	bool OnClock(Float delta) override { return false; }
 
-	virtual void OnSkip() override {}
+	void OnSkip() override {}
 
 
 	const Key32 m_state;
@@ -47,22 +47,22 @@ struct StateAnimation : public NonAnimatedStateAnimation
 
 	~StateAnimation()
 	{
-		m_target->ClearState(m_state);
+		m_target->UnsetState(m_state);
 	}
 
-	virtual void OnSetTime(Float32 time) override
+	void OnSetTime(Float32 time) override
 	{
 		m_time = time;
 	}
 
-	virtual void OnBegin() override
+	void OnBegin() override
 	{
 		m_remain = m_time;
 
 		m_target->SetState(m_state);
 	}
 
-	virtual bool OnClock(Float delta) override
+	bool OnClock(Float delta) override
 	{
 		m_remain -= delta;
 
@@ -93,19 +93,19 @@ Reflex::TRef <Reflex::GLX::Animation> Reflex::GLX::CreateCallbackAnimation(const
 		{
 		}
 
-		virtual void OnSetTime(Float32 time) override
+		void OnSetTime(Float32 time) override
 		{
 			m_time = time;
 		}
 
-		virtual void OnBegin() override 
+		void OnBegin() override 
 		{
 			m_remain = m_time;
 
 			m_called = false;
 		}
 
-		virtual bool OnClock(Float delta) override 
+		bool OnClock(Float delta) override 
 		{
 			m_remain -= delta;
 
@@ -124,7 +124,7 @@ Reflex::TRef <Reflex::GLX::Animation> Reflex::GLX::CreateCallbackAnimation(const
 			}
 		}
 
-		virtual void OnSkip() override 
+		void OnSkip() override 
 		{ 
 			if (SetFiltered(m_called, true))
 			{

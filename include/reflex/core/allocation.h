@@ -41,7 +41,7 @@ public:
 	
 	static TRef <Allocation> Create(UInt size = 0);
 
-	static TRef <Allocation> Create(const ArrayView <TYPE> & data);
+	static TRef <Allocation> Create(ArrayView <TYPE> data);
 
 
 	
@@ -147,7 +147,7 @@ template <class TYPE> Reflex::TRef < Reflex::Allocation <TYPE> > inline Reflex::
 	}
 }
 
-template <class TYPE> Reflex::TRef < Reflex::Allocation <TYPE> > inline Reflex::Allocation<TYPE>::Create(const ArrayView <TYPE> & view)
+template <class TYPE> Reflex::TRef < Reflex::Allocation <TYPE> > inline Reflex::Allocation<TYPE>::Create(ArrayView <TYPE> view)
 {
 	auto num_bytes = kSizeOf<TYPE> * view.size;
 

@@ -11,7 +11,7 @@
 namespace Reflex
 {
 
-	template <class TYPE, UInt SIZE> class Queue;
+	template <class TYPE, UInt SIZE> class Queue;		//SPSC lock-free queue
 
 }
 
@@ -19,7 +19,7 @@ namespace Reflex
 
 
 //
-//Queue (SPSC)
+//Queue
 
 template <class TYPE, Reflex::UInt SIZE>
 class Reflex::Queue

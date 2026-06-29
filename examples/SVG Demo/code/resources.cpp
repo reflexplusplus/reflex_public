@@ -11,7 +11,7 @@ const Reflex::UInt64 kConfig_view_allow_init_animations[1] =
 	0x0000000000000001ull, 
 };
 
-const Reflex::File::EnumerableEmbeddedResource Config::view_allow_init_animations(K32("Config"), K32("view.allow_init_animations"), reinterpret_cast<const Reflex::UInt8*>(&kConfig_view_allow_init_animations), 1u, 0u);
+const Reflex::File::EnumerableEmbeddedResource Config::view_allow_init_animations(Reflex::K32("Config"), Reflex::K32("view.allow_init_animations"), reinterpret_cast<const Reflex::UInt8*>(&kConfig_view_allow_init_animations), 1u, 0u);
 
 
 
@@ -227,7 +227,7 @@ const Reflex::UInt64 kSVGDemo_fonts_Roboto_Mono_static_RobotoMono_Regular_ttf[16
 	0x0000000075f856e6ull, 
 };
 
-const Reflex::File::EnumerableEmbeddedResource SVGDemo::fonts_Roboto_Mono_static_RobotoMono_Regular_ttf(K32("SVGDemo"), K32("fonts/Roboto_Mono/static/RobotoMono-Regular.ttf"), reinterpret_cast<const Reflex::UInt8*>(&kSVGDemo_fonts_Roboto_Mono_static_RobotoMono_Regular_ttf), 12996u, 15748u);
+const Reflex::File::EnumerableEmbeddedResource SVGDemo::fonts_Roboto_Mono_static_RobotoMono_Regular_ttf(Reflex::K32("SVGDemo"), Reflex::K32("fonts/Roboto_Mono/static/RobotoMono-Regular.ttf"), reinterpret_cast<const Reflex::UInt8*>(&kSVGDemo_fonts_Roboto_Mono_static_RobotoMono_Regular_ttf), 12996u, 15748u);
 
 
 
@@ -284,7 +284,7 @@ const Reflex::UInt64 kSVGDemo_fonts_Roboto_Mono_OFL_txt[354] =
 	0x2e45524150002c0aull, 0x000000000000000aull, 
 };
 
-const Reflex::File::EnumerableEmbeddedResource SVGDemo::fonts_Roboto_Mono_OFL_txt(K32("SVGDemo"), K32("fonts/Roboto_Mono/OFL.txt"), reinterpret_cast<const Reflex::UInt8*>(&kSVGDemo_fonts_Roboto_Mono_OFL_txt), 2825u, 4303u);
+const Reflex::File::EnumerableEmbeddedResource SVGDemo::fonts_Roboto_Mono_OFL_txt(Reflex::K32("SVGDemo"), Reflex::K32("fonts/Roboto_Mono/OFL.txt"), reinterpret_cast<const Reflex::UInt8*>(&kSVGDemo_fonts_Roboto_Mono_OFL_txt), 2825u, 4303u);
 
 
 
@@ -321,7 +321,7 @@ const Reflex::UInt64 kSVGDemo_fonts_Roboto_Mono_README_txt[194] =
 	0x6c69617465649005ull, 0x00000000000a2e73ull, 
 };
 
-const Reflex::File::EnumerableEmbeddedResource SVGDemo::fonts_Roboto_Mono_README_txt(K32("SVGDemo"), K32("fonts/Roboto_Mono/README.txt"), reinterpret_cast<const Reflex::UInt8*>(&kSVGDemo_fonts_Roboto_Mono_README_txt), 1547u, 2550u);
+const Reflex::File::EnumerableEmbeddedResource SVGDemo::fonts_Roboto_Mono_README_txt(Reflex::K32("SVGDemo"), Reflex::K32("fonts/Roboto_Mono/README.txt"), reinterpret_cast<const Reflex::UInt8*>(&kSVGDemo_fonts_Roboto_Mono_README_txt), 1547u, 2550u);
 
 
 
@@ -338,7 +338,7 @@ const Reflex::UInt64 kSVGDemo_icons_svg[39] =
 	0x676e616972746f1aull, 0x68746170a00b00e8ull, 0x00fd354d223d6420ull, 0x30392030394c20a1ull, 0x715a1f0007314c20ull, 0x6776732f3c600a00ull, 0x000000000000003eull, 
 };
 
-const Reflex::File::EnumerableEmbeddedResource SVGDemo::icons_svg(K32("SVGDemo"), K32("icons.svg"), reinterpret_cast<const Reflex::UInt8*>(&kSVGDemo_icons_svg), 305u, 471u);
+const Reflex::File::EnumerableEmbeddedResource SVGDemo::icons_svg(Reflex::K32("SVGDemo"), Reflex::K32("icons.svg"), reinterpret_cast<const Reflex::UInt8*>(&kSVGDemo_icons_svg), 305u, 471u);
 
 
 
@@ -359,7 +359,7 @@ const Reflex::UInt64 kSVGDemo_styles_glx[71] =
 	0x91203a67664d02c9ull, 0x203a06ff026b0102ull, 0x74206b63696c4322ull, 0x53206e65706f206full, 0x91000002a0224756ull, 0x3b2930203a72c002ull, 0x00000a0a0a3b7d0aull, 
 };
 
-const Reflex::File::EnumerableEmbeddedResource SVGDemo::styles_glx(K32("SVGDemo"), K32("styles.glx"), reinterpret_cast<const Reflex::UInt8*>(&kSVGDemo_styles_glx), 566u, 939u);
+const Reflex::File::EnumerableEmbeddedResource SVGDemo::styles_glx(Reflex::K32("SVGDemo"), Reflex::K32("styles.glx"), reinterpret_cast<const Reflex::UInt8*>(&kSVGDemo_styles_glx), 566u, 939u);
 
 
 

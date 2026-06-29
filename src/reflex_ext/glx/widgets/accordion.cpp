@@ -103,7 +103,7 @@ void Reflex::GLX::Accordion::Close(bool animate)
 				SkipExit(body, true);
 			}
 
-			header->ClearState(kopen);
+			header->UnsetState(kopen);
 		}
 	}
 }

@@ -39,7 +39,6 @@
 
 #include "core/state.h"
 #include "core/queue.h"
-#include "core/flags.h"
 #include "core/list.h"
 #include "core/node.h"
 #include "core/signal.h"
@@ -47,6 +46,8 @@
 #include "core/detail.h"
 
 #include "core/debug.h"
+
+#include "core/legacy/flags.h"
 
 
 

@@ -904,7 +904,7 @@ void PropertyEditorImpl::RemoveSelectedProperties(View & view)
 
 	auto selection = GLX::GetListSelection(properties);
 
-	REFLEX_RFOREACH(x, selection)
+	for (auto & x : ReverseIterate(selection))
 	{
 		auto item = Cast<Attribute>(GLX::LookupChildAtIndex(*properties, x));
 
@@ -949,7 +949,7 @@ void PropertyEditorImpl::RefreshNode(Data::PropertySet & node, UI & ui, const WS
 	{
 		Array < Reference <GLX::Object> > recycle;
 
-		REFLEX_RFOREACH(i, *ui.body)
+		for (auto & i : ReverseIterate(*ui.body))
 		{
 			recycle.Push(i);
 		}
@@ -1114,7 +1114,7 @@ void PropertyEditorImpl::Dialog::Create(PropertyEditorImpl & view, GLX::Object &
 
 		GLX::AddFloat(overlay, dialog, GLX::kOrientationFit, GLX::kOrientationCenter);
 
-		GLX::SetOnStyle(overlay, [dialog](const GLX::Style & style)
+		GLX::SetOnStyle(overlay, {}, [dialog](const GLX::Style & style)
 		{
 			dialog->SetStyle(style["Dialog"]);
 		});

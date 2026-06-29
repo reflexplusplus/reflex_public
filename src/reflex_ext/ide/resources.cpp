@@ -257,7 +257,7 @@ const Reflex::UInt64 kReflex_IDE_font[1969] =
 	0x00c7f556e6000000ull, 
 };
 
-const Reflex::File::EnumerableEmbeddedResource Reflex::IDE::font(K32("Reflex::IDE"), K32("font"), reinterpret_cast<const Reflex::UInt8*>(&kReflex_IDE_font), 15751u, 19476u);
+const Reflex::File::EnumerableEmbeddedResource Reflex::IDE::font(Reflex::K32("Reflex::IDE"), Reflex::K32("font"), reinterpret_cast<const Reflex::UInt8*>(&kReflex_IDE_font), 15751u, 19476u);
 
 
 
@@ -473,7 +473,7 @@ const Reflex::UInt64 kReflex_IDE_mono[1625] =
 	0x0000000075f856e6ull, 
 };
 
-const Reflex::File::EnumerableEmbeddedResource Reflex::IDE::mono(K32("Reflex::IDE"), K32("mono"), reinterpret_cast<const Reflex::UInt8*>(&kReflex_IDE_mono), 12996u, 15748u);
+const Reflex::File::EnumerableEmbeddedResource Reflex::IDE::mono(Reflex::K32("Reflex::IDE"), Reflex::K32("mono"), reinterpret_cast<const Reflex::UInt8*>(&kReflex_IDE_mono), 12996u, 15748u);
 
 
 
@@ -517,7 +517,7 @@ const Reflex::UInt64 kReflex_IDE_icons_png[249] =
 	0x00000000826042aeull, 
 };
 
-const Reflex::File::EnumerableEmbeddedResource Reflex::IDE::icons_png(K32("Reflex::IDE"), K32("icons.png"), reinterpret_cast<const Reflex::UInt8*>(&kReflex_IDE_icons_png), 1988u, 0u);
+const Reflex::File::EnumerableEmbeddedResource Reflex::IDE::icons_png(Reflex::K32("Reflex::IDE"), Reflex::K32("icons.png"), reinterpret_cast<const Reflex::UInt8*>(&kReflex_IDE_icons_png), 1988u, 0u);
 
 
 
@@ -535,7 +535,7 @@ const Reflex::UInt64 kReflex_IDE_icons_txt[43] =
 	0x1606005c0800a200ull, 0x090a0a90005c0e00ull, 0x00000a3b7d0a3b5dull, 
 };
 
-const Reflex::File::EnumerableEmbeddedResource Reflex::IDE::icons_txt(K32("Reflex::IDE"), K32("icons.txt"), reinterpret_cast<const Reflex::UInt8*>(&kReflex_IDE_icons_txt), 342u, 737u);
+const Reflex::File::EnumerableEmbeddedResource Reflex::IDE::icons_txt(Reflex::K32("Reflex::IDE"), Reflex::K32("icons.txt"), reinterpret_cast<const Reflex::UInt8*>(&kReflex_IDE_icons_txt), 342u, 737u);
 
 
 
@@ -633,7 +633,7 @@ const Reflex::UInt64 kReflex_IDE_styles_txt[680] =
 	
 };
 
-const Reflex::File::EnumerableEmbeddedResource Reflex::IDE::styles_txt(K32("Reflex::IDE"), K32("styles.txt"), reinterpret_cast<const Reflex::UInt8*>(&kReflex_IDE_styles_txt), 5433u, 17953u);
+const Reflex::File::EnumerableEmbeddedResource Reflex::IDE::styles_txt(Reflex::K32("Reflex::IDE"), Reflex::K32("styles.txt"), reinterpret_cast<const Reflex::UInt8*>(&kReflex_IDE_styles_txt), 5433u, 17953u);
 
 
 

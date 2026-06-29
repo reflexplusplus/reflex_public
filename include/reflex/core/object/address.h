@@ -13,16 +13,24 @@
 namespace Reflex
 {
 
-	struct Address
-	{
-		bool operator==(const Address & b) const { return Reinterpret<UInt64>(*this) == Reinterpret<UInt64>(b); }
-		bool operator!=(const Address & b) const { return Reinterpret<UInt64>(*this) != Reinterpret<UInt64>(b); }
-		bool operator<(const Address & b) const { return Reinterpret<UInt64>(*this) < Reinterpret<UInt64>(b); }
-
-		Key32 id;
-		TypeID type_id;
-	};
+	struct Address;		//64bit property address comprising id + type
 
 	template <class TYPE> Address MakeAddress(Key32 id);
 
 }
+
+
+
+
+//
+//Address
+
+struct Reflex::Address
+{
+	bool operator==(const Address & b) const { return Reinterpret<UInt64>(*this) == Reinterpret<UInt64>(b); }
+	bool operator!=(const Address & b) const { return Reinterpret<UInt64>(*this) != Reinterpret<UInt64>(b); }
+	bool operator<(const Address & b) const { return Reinterpret<UInt64>(*this) < Reinterpret<UInt64>(b); }
+
+	Key32 id;
+	TypeID type_id;
+};

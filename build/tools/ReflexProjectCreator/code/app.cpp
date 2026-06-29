@@ -46,7 +46,7 @@ struct AppImpl : public App
 };
 
 AppImpl::AppImpl()
-	: App(MakeKey32("ProjectCreator"), 2)
+	: App(K32("ProjectCreator"), 2)
 	, m_reflex_path(ReflexCLI::GetReflexPath())
 {
 }
@@ -96,15 +96,15 @@ void AppImpl::OnReset(Key32 context)
 
 			switch (MakeKey32(target.a))
 			{
-			case MakeKey32("android_studio"):
+			case K32("android_studio"):
 				target.b = true;
 				break;
 
-			case MakeKey32("visual_studio"):
+			case K32("visual_studio"):
 				target.b = System::kPlatform == System::kPlatformWindows;
 				break;
 
-			case MakeKey32("xcode"):
+			case K32("xcode"):
 				target.b = System::kPlatform == System::kPlatformMacOS;
 				break;
 			}

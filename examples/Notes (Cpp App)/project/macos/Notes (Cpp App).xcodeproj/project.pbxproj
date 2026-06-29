@@ -284,7 +284,7 @@
 					"$(OTHER_CFLAGS)",
 					"-fpermissive",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.reflexmultimedia.notescppapp;
+				PRODUCT_BUNDLE_IDENTIFIER = com.reflexplusplus.notescppapp;
 				PRODUCT_NAME = "Notes (Cpp App)";
 				SDKROOT = macosx;
 				STANDARD_C_PLUS_PLUS_LIBRARY_TYPE = static;
@@ -358,7 +358,7 @@
 					"$(OTHER_CFLAGS)",
 					"-fpermissive",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.reflexmultimedia.notescppapp;
+				PRODUCT_BUNDLE_IDENTIFIER = com.reflexplusplus.notescppapp;
 				PRODUCT_NAME = "Notes (Cpp App)";
 				SDKROOT = macosx;
 				STANDARD_C_PLUS_PLUS_LIBRARY_TYPE = static;
@@ -374,7 +374,7 @@
 					REFLEX_BOOTSTRAP_TYPE_APP,
 					"$(inherited)",
 				);
-				INFOPLIST_FILE = "$(REFLEX_PATH)/resources/macos/App.plist";
+				INFOPLIST_FILE = "$(PROJECT_DIR)/app.plist";
 			};
 			name = Debug;
 		};
@@ -386,7 +386,7 @@
 					REFLEX_BOOTSTRAP_TYPE_APP,
 					"$(inherited)",
 				);
-				INFOPLIST_FILE = "$(REFLEX_PATH)/resources/macos/App.plist";
+				INFOPLIST_FILE = "$(PROJECT_DIR)/app.plist";
 			};
 			name = Release;
 		};

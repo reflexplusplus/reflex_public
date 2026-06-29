@@ -31,6 +31,11 @@ namespace ReflexCLI
 
 	WString GetReflexExecutablePath(const WString::View & reflex_path);
 
+
+	void ThrowError(CString::View msg, CString::View error);
+
+	void ThrowError(CString::View msg, WString::View error);
+
 }
 
 

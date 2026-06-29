@@ -28,7 +28,8 @@
 #include "system/window.h"
 #include "system/renderer.h"
 
-#include "system/audio_device.h"		//experimental/transitional api
+#include "system/audio.h"
+#include "system/midi.h"
 
 #include "system/entry/console.h"		//framework: console/cmd line app
 #include "system/entry/instance.h"		//framework: ui app
