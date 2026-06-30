@@ -135,7 +135,7 @@ const CLI::TaskDef kCommands[] =
 		.id = K32("set-default"),
 		.fn = [](const Data::PropertySet & args, System::FileHandle & std_out)
 		{
-			bool any = false;
+			bool set = false;
 
 			if (auto pvalue = args.QueryProperty<Data::CStringProperty>("template"))
 			{
@@ -154,7 +154,7 @@ const CLI::TaskDef kCommands[] =
 					CLI::ThrowError("invalid template id");
 				}
 
-				any = true;
+				set = true;
 			}
 
 			if (auto pvalue = args.QueryProperty<Data::CStringProperty>("vendor"))
@@ -168,7 +168,7 @@ const CLI::TaskDef kCommands[] =
 					Data::UnsetCString(Bootstrap::global->prefs, kDefaultVendor);
 				}
 
-				any = true;
+				set = true;
 			}
 
 			if (auto pvalue = args.QueryProperty<Data::CStringProperty>("targets"))
@@ -182,21 +182,26 @@ const CLI::TaskDef kCommands[] =
 					Data::UnsetCString(Bootstrap::global->prefs, kDefaultTargets);
 				}
 
-				any = true;
+				set = true;
 			}
 
 			if (auto value = CLI::GetFolderArg(args, "output", false))
 			{
 				Data::SetWString(Bootstrap::global->prefs, kDefaultOutput, value);
 
-				any = true;
+				set = true;
 			}
 			else if (auto pvalue = args.QueryProperty<Data::CStringProperty>("output"))
 			{
-				if (pvalue->value.Empty()) Data::UnsetWString(Bootstrap::global->prefs, kDefaultOutput);
+				if (pvalue->value.Empty())
+				{
+					Data::UnsetWString(Bootstrap::global->prefs, kDefaultOutput);
+					
+					set = true;
+				}
 			}
 
-			if (!any) CLI::ThrowError("nothing to set");
+			if (!set) CLI::ThrowError("nothing to set");
 		}
 	},
 	{
@@ -431,6 +436,16 @@ void ReflexCLI::ThrowError(CString::View msg, CString::View error)
 void ReflexCLI::ThrowError(CString::View msg, WString::View error)
 {
 	ThrowError(msg, ToCString(error));
+}
+
+bool ReflexCLI::SaveGeneratedFile(const WString & path, Data::Archive::View data)
+{
+	auto handle = Make<System::FileHandle>(path, System::FileHandle::kModeOverwrite);
+
+	bool written = handle->Write(data.data, data.size) == data.size;
+	bool flushed = handle->Flush(true);
+	
+	return written && flushed;
 }
 
 Reflex::UInt8 Reflex::System::OnStart(const ArrayView <CString::View> & cmdline)

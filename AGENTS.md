@@ -21,6 +21,11 @@
 - `Reflex::Bootstrap`: Standard application bootstrapping, global app state, and common app/plugin integration glue.
 - `Reflex::Async`: Higher-level async helpers built on lower-level system primitives.
 
+## Setup
+
+- To install the pre-built binaries, run the `install` script at the repo root
+- Users with access to the source tree, can optionally build the libraries and tools locally via the appropriate platform build scripts under: `build/lib/[platform]` and `build/tools/[platform]`
+
 ## Creating Projects
 
 - When creating a new Reflex app or test project, use the repo CLI instead of attempting to manually set up projects.
@@ -80,7 +85,6 @@
 - `src/reflex/` often explains how something works internally, but should not be the default source for deciding how higher-level code is meant to use an API.
 - If a symbol is unclear, search the generated manual by documented `Path` and then inspect the corresponding header.
 
-## Building
+## Visual Verification
 
-- To build Reflex or its tools, use the scripts in the `build/` folder rather than inventing ad hoc build commands.
-- Start by checking the relevant platform/project subfolder under `build/` and use the provided scripts there.
+- For automated window capture and saving to PNG for verification, see the docs for `Reflex::GLX::CaptureWindow`

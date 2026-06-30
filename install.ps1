@@ -61,6 +61,19 @@ try {
 		Expand-Archive -Path $out -DestinationPath $dest -Force
 	}
 
+	function Create-AliasLauncher($launcherPath, $targetPath) {
+		$launcherDir = Split-Path -Parent $launcherPath
+		if ($launcherDir) {
+			New-Item -ItemType Directory -Force -Path $launcherDir | Out-Null
+		}
+		$launcherContents = @"
+@echo off
+setlocal
+start "" "$targetPath"
+"@
+		Set-Content -Path $launcherPath -Value $launcherContents
+	}
+
 	Write-Host "Installing Reflex SDK $Version ($Platform) from $Repo ..."
 	Get-Asset "reflex-libs-$AssetPlatform.zip"  (Join-Path $Root 'bin\lib')
 	Get-Asset "reflex-tools-$AssetPlatform.zip" (Join-Path $Root 'bin\tools')
@@ -75,6 +88,17 @@ try {
 	# bin/ and its .gitignore, so the install output would otherwise show as changes).
 	Set-Content -Path (Join-Path $Root 'bin\.gitignore') -Value '*'
 	Set-Content -Path $InstalledVersionFile -Value $resolved
+
+	# --- generate documentation launcher -----------------------------------
+	Create-AliasLauncher `
+		(Join-Path $Root 'documentation\ReflexDocumentation.bat') `
+		(Join-Path $Root 'bin\tools\win\ReflexDocumentation.exe')
+
+	# --- generate project creator launcher ----------------------------------
+	Create-AliasLauncher `
+		(Join-Path $Root 'ReflexProjectCreator.bat') `
+		(Join-Path $Root 'bin\tools\win\ReflexProjectCreator.exe')
+
 	Write-Host "Reflex SDK $resolved binaries installed."
 }
 finally {

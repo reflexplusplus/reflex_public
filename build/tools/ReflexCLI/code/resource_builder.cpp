@@ -378,7 +378,7 @@ void ResourceBuilder::Compile(const WString::View & path, volatile Float & progr
 
 	for (auto & i : m_root) DeclareNamespace(h, i);
 
-	File::Save(h_path, buffer->value);
+		SaveGeneratedFile(h_path, buffer->value);
 
 	buffer->value.Clear();
 
@@ -401,8 +401,8 @@ void ResourceBuilder::Compile(const WString::View & path, volatile Float & progr
 		for (auto & i : group.items) WriteItem(cpp, file_scratch, ns, i, total, done, progress);
 	}
 
-	File::Save(cpp_path, buffer->value);
-	File::Save(cache_path, Data::Pack(dependency_hash));
+		SaveGeneratedFile(cpp_path, buffer->value);
+		SaveGeneratedFile(cache_path, Data::Pack(dependency_hash));
 
 	output.LogEx(kLogNormal, {}, path, ' ', total, " files, ", ToCString(Float64(buffer->value.GetSize()) / Float64(1024 * 1024), 2), "mb, ", (System::GetElapsedTime() - start_time) * 1000.0, "ms");
 

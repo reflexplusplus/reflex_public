@@ -105,6 +105,19 @@ download_asset() {
 	unzip -q -o "$out" -d "$dest"
 }
 
+create_alias() {
+	local launcher_path="$1"
+	local target_path="$2"
+	mkdir -p "$(dirname "$launcher_path")"
+	cat > "$launcher_path" <<EOF
+#!/bin/bash
+set -euo pipefail
+ROOT="\$(cd "\$(dirname "\$0")" && pwd)"
+open "$target_path"
+EOF
+	chmod +x "$launcher_path"
+}
+
 echo "Installing Reflex SDK $VERSION ($PLATFORM) from $REPO ..."
 
 download_asset "reflex-libs-$PLATFORM.zip"  "$ROOT/bin/lib"
@@ -127,5 +140,15 @@ mkdir -p "$ROOT/bin"
 # bin/ and its .gitignore, so the install output would otherwise show as changes).
 printf '*\n' > "$ROOT/bin/.gitignore"
 echo "$RESOLVED" > "$INSTALLED_VERSION_FILE"
+
+# --- generate documentation launcher -----------------------------------
+create_alias \
+	"$ROOT/documentation/ReflexDocumentation.command" \
+	"$ROOT/bin/tools/macos/ReflexDocumentation.app"
+
+# --- generate project creator launcher ----------------------------------
+create_alias \
+	"$ROOT/ReflexProjectCreator.command" \
+	"$ROOT/bin/tools/macos/ReflexProjectCreator.app"
 
 echo "Reflex SDK $RESOLVED binaries installed."

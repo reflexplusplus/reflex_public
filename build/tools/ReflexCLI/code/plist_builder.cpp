@@ -145,6 +145,7 @@ Data::Archive PrepareBindings(Key32 target, PlistBindings & bindings)
 		break;
 
 	default:
+		plist = nullptr;	//avoid warning
 		ThrowError("unknown target", "?");
 		break;
 	}
@@ -175,7 +176,7 @@ void ReflexCLI::BuildPlist(const Data::PropertySet & args, System::FileHandle & 
 		blob = Replace(blob, Data::Pack(token), Data::Pack(value));
 	}
 
-	if (!File::Save(filename, blob)) ThrowError("failed to write plist", filename);
+	if (!SaveGeneratedFile(filename, blob)) ThrowError("failed to write plist", filename);
 
 	File::WriteLine(std_out, filename);
 }
