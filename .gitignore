@@ -48,5 +48,9 @@ cmake-build-*/
 
 # Version is the git tag; CI generates version.txt into release zips / export trees.
 /version.txt
+/reflex
+/reflex.bat
 /ReflexProjectCreator.bat
 /ReflexProjectCreator.command
+
+/tmp

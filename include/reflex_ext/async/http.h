@@ -76,6 +76,8 @@ enum NetworkSimulation : UInt32
 
 TRef <Task> CreateHttpRequest(const CString::View & method, const CString::View & url, const HttpHeaders & headers, const Data::Archive::View & body, TRef <HttpRequestCallbacks> callbacks, NetworkSimulation network_simulation = kNetworkSimulationNone, Output & output = File::output);
 
+Worker::Result Fetch(Worker::Context & ctx, CString::View method, CString::View url, HttpHeaders::View headers, Data::Archive::View body, HttpRequestCallbacks & callbacks, NetworkSimulation network_simulation = kNetworkSimulationNone, Output & output = File::output);	//synchronous function
+
 REFLEX_END
 
 
@@ -84,7 +86,20 @@ REFLEX_END
 //
 //impl
 
+inline Reflex::TRef <Reflex::Async::Task> Reflex::Async::Detail::CreateHttpRequest(const CString::View & method, const CString::View & url, const HttpHeaders & headers, const Data::Archive::View & body, TRef <HttpRequestCallbacks> callbacks, Detail::NetworkSimulation network_simulation, Output & output)
+{
+	REFLEX_ASSERT(method && url); //TODO assert on url validation
+
+	output.Log(method, url);
+
+	return Worker::Create([method = Join(method), url = Join(url), headers, body = Join(body), callbacks = AutoRelease(callbacks), network_simulation, &output](Worker::Context & ctx)
+	{
+		return Detail::Fetch(ctx, method, url, headers, body, callbacks, network_simulation, output);
+	});
+}
+
 inline Reflex::TRef <Reflex::Async::Task> Reflex::Async::CreateHttpRequest(const CString::View & method, const CString::View & url, const HttpHeaders & headers, const Data::Archive::View & body, Output & output)
 {
 	return Detail::CreateHttpRequest(method, url, headers, body, New<Detail::StandardHttpRequestCallbacks>(), Detail::kNetworkSimulationNone, output);
 }
+

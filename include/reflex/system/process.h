@@ -34,9 +34,7 @@ public:
 	struct Options
 	{
 		Priority priority = kPriorityNormal;
-
 		FileHandle * std_out = nullptr;
-
 		bool allow_window = true;
 	};
 
@@ -44,15 +42,17 @@ public:
 
 	//lifetime
 
-	[[nodiscard]] static TRef <Process> Create(const WString & path, const ArrayView <WString> & args, const Options & options);
+	[[nodiscard]] static TRef <Process> Create(const WString & path, ArrayView <WString> args, const Options & options);
 
-	[[nodiscard]] static TRef <Process> Create(const WString & path, const ArrayView <WString> & args);	//clang workaroud
+	[[nodiscard]] static TRef <Process> Create(const WString & path, ArrayView <WString> args);	//clang workaroud
 
 
 
 	//interface
 
-	virtual bool Status() const = 0;
+	virtual Optional <Int32> GetExitCode() const = 0;
+
+	virtual void Detach() = 0;
 
 	virtual void Terminate() = 0;
 
@@ -64,8 +64,7 @@ public:
 //
 //impl
 
-inline Reflex::TRef <Reflex::System::Process> Reflex::System::Process::Create(const WString & path, const ArrayView <WString> & args)
+inline Reflex::TRef <Reflex::System::Process> Reflex::System::Process::Create(const WString & path, ArrayView <WString> args)
 {
 	return Create(path, args, {});
 }
-

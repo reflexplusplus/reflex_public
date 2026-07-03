@@ -112,7 +112,7 @@ TemplateDefinitionEx OpenTemplateDefinitionEx(const WString::View & template_fol
 
 void AddTargetExcludes(TemplateDefinitionEx & tmpl, ArrayView <CString> targets)
 {
-	if (!targets) Bootstrap::CLI::ThrowError("invalid --targets value");
+	if (!targets) Bootstrap::CLI::ThrowError("invalid --target value");
 	
 	if (!Search<StringCompare>(targets, "cmake"))
 	{

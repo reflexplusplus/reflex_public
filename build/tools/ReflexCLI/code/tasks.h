@@ -10,10 +10,19 @@
 
 namespace ReflexCLI
 {
+
 	struct StringCompare
 	{
 		static bool eq(CString::View a, CString::View b);
 	};
+
+
+	void Install(CString::View version, const Array <CString::View> & platforms, const WString & path, bool test, System::FileHandle & std_out);
+
+	void ListVersions(Reflex::System::FileHandle & std_out);
+
+	void GetVersion(System::FileHandle & std_out);
+
 
 	struct Variable
 	{
@@ -30,5 +39,10 @@ namespace ReflexCLI
 
 
 	extern Output output;
+
+
+	inline const auto & kColourDim = Bootstrap::CLI::Detail::kColours[Bootstrap::CLI::kColourBrightBlack];
+
+	inline const auto & kColourDefault = Bootstrap::CLI::Detail::kColours[Bootstrap::CLI::kColourDefault];
 
 }

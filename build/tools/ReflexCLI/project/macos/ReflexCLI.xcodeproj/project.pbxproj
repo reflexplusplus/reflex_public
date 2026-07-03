@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		1A78F8DF2C46B1A00082B727 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1A78F8DE2C46B1A00082B727 /* Cocoa.framework */; };
 		1A78F8E12C46B1A40082B727 /* DiskArbitration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1A78F8E02C46B1A40082B727 /* DiskArbitration.framework */; };
+		1AAC4E1F2FF7685C00A19887 /* install.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1AAC4E1E2FF7685C00A19887 /* install.cpp */; };
 		1AB907D22C43B13F00C7668A /* project_creator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1AB907D12C43B13F00C7668A /* project_creator.cpp */; };
 		1AC320E42DE879A60052AF30 /* entry.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1AC320E32DE879A60052AF30 /* entry.cpp */; };
 		1AC320E62FF100010052AF30 /* plist_builder.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1AC320E52FF100010052AF30 /* plist_builder.cpp */; };
@@ -23,6 +24,7 @@
 		1A35FF6A2DE8725700474805 /* paths.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = paths.xcconfig; sourceTree = SOURCE_ROOT; };
 		1A78F8DE2C46B1A00082B727 /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
 		1A78F8E02C46B1A40082B727 /* DiskArbitration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = DiskArbitration.framework; path = System/Library/Frameworks/DiskArbitration.framework; sourceTree = SDKROOT; };
+		1AAC4E1E2FF7685C00A19887 /* install.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = install.cpp; path = ../../code/install.cpp; sourceTree = SOURCE_ROOT; };
 		1AB907C22C43AF1800C7668A /* reflex */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = reflex; sourceTree = BUILT_PRODUCTS_DIR; };
 		1AB907D12C43B13F00C7668A /* project_creator.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = project_creator.cpp; path = ../../code/project_creator.cpp; sourceTree = SOURCE_ROOT; };
 		1AC320E32DE879A60052AF30 /* entry.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = entry.cpp; path = ../../code/entry.cpp; sourceTree = SOURCE_ROOT; };
@@ -65,6 +67,7 @@
 				1A35FF6A2DE8725700474805 /* paths.xcconfig */,
 				1A78F8DD2C46B17F0082B727 /* Frameworks */,
 				1AB907D12C43B13F00C7668A /* project_creator.cpp */,
+				1AAC4E1E2FF7685C00A19887 /* install.cpp */,
 				1AC320E52FF100010052AF30 /* plist_builder.cpp */,
 				1AC320E72FF100020052AF30 /* resources.cpp */,
 				1AE2E5052FC5DBA600279ADD /* resource_builder.cpp */,
@@ -115,7 +118,7 @@
 					};
 				};
 			};
-			buildConfigurationList = 1AB907BD2C43AF1800C7668A /* Build configuration list for PBXProject "reflex" */;
+			buildConfigurationList = 1AB907BD2C43AF1800C7668A /* Build configuration list for PBXProject "ReflexCLI" */;
 			compatibilityVersion = "Xcode 14.0";
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
@@ -168,6 +171,7 @@
 				1AC320E62FF100010052AF30 /* plist_builder.cpp in Sources */,
 				1AC320E82FF100020052AF30 /* resources.cpp in Sources */,
 				1AE2E5062FC5DBA600279ADD /* resource_builder.cpp in Sources */,
+				1AAC4E1F2FF7685C00A19887 /* install.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -347,7 +351,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		1AB907BD2C43AF1800C7668A /* Build configuration list for PBXProject "reflex" */ = {
+		1AB907BD2C43AF1800C7668A /* Build configuration list for PBXProject "ReflexCLI" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				1AB907C72C43AF1800C7668A /* Debug */,

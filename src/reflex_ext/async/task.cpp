@@ -23,24 +23,22 @@ REFLEX_END_INTERNAL
 
 Reflex::Async::Task & Reflex::Async::Task::null = Reflex::Async::g_null_async_task;
 
-Reflex::Async::Worker::Worker(const Function <void(Context & ctx)> & bg_task)
+Reflex::Async::Worker::Worker(const Function <Result(Context & ctx)> & bg_task)
 	: m_presult(&Object::null)
 {
 	Object::null.RetainMt();
 
 	m_thread = System::Thread::Create([this, bg_task]()
 	{
-		bg_task(m_context);
+		auto [ok, payload] = bg_task(m_context);
 
-		m_context.m_result_payload->RetainMt();		//this is an atomic increment
+		payload->RetainMt();		//this is an atomic increment
 		
-		REFLEX_ATOMIC_WRITE(m_presult, m_context.m_result_payload.Adr());	//copy to fg m_presult
+		REFLEX_ATOMIC_WRITE(m_presult, payload.Adr());	//copy to fg m_presult
 
 		Object::null.ReleaseMt();	//balance counter on null object
 
-		REFLEX_ATOMIC_WRITE(m_context.m_status, m_context.m_result_ok ? kStatusCompleted : kStatusFailed);
-
-		REFLEX_ASSERT(m_context.m_result_set);
+		REFLEX_ATOMIC_WRITE(m_context.m_status, ok ? kStatusCompleted : kStatusFailed);
 	});
 }
 
@@ -58,7 +56,17 @@ void Reflex::Async::Worker::Wait()
 	m_thread->Wait();	//join
 }
 
-Reflex::TRef <Reflex::Async::Worker> Reflex::Async::Worker::Create(const Function <void(Context & ctx)> & bg_task)
+Reflex::TRef <Reflex::Async::Worker> Reflex::Async::Worker::Create(const Function <Result(Context & ctx)> & bg_task)
 {
 	return Reflex::Detail::Constructor<Worker>::New(g_default_allocator, bg_task);
+}
+
+bool Reflex::Async::Worker::ContextImpl::Cancelled() const
+{
+	return REFLEX_ATOMIC_READ_UNORDERED(m_cancelled);
+}
+
+void Reflex::Async::Worker::ContextImpl::SetProgress(Float value)
+{
+	REFLEX_ATOMIC_WRITE_UNORDERED(m_progress, value);
 }

@@ -161,7 +161,7 @@ void ReflexCLI::BuildPlist(const Data::PropertySet & args, System::FileHandle & 
 
 	auto target = Bootstrap::CLI::GetString(args, "target");
 
-	auto filename = Bootstrap::CLI::GetFilenameArg(args, "output", false);
+	auto filename = Bootstrap::CLI::GetFilename(args, "output", false);
 
 	PlistBindings bindings;
 

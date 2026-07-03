@@ -2,6 +2,7 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <ClCompile Include="..\..\..\code\entry.cpp" />
+    <ClCompile Include="..\..\..\code\install.cpp" />
     <ClCompile Include="..\..\..\code\plist_builder.cpp" />
     <ClCompile Include="..\..\..\code\project_creator.cpp" />
     <ClCompile Include="..\..\..\code\resource_builder.cpp" />
