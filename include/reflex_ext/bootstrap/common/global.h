@@ -33,7 +33,7 @@ public:
 	REFLEX_OBJECT(Bootstrap::Global, Data::PropertySet);
 
 
-	[[nodiscard]] static TRef <Global> Acquire(const CString::View & vendor, const CString::View & product, const WString::View & projectdir, Key32 resource_group = kNullKey);
+	[[nodiscard]] static TRef <Global> Acquire(CString::View vendor, CString::View product, WString::View project_dir, Key32 resource_group = kNullKey);
 
 
 	virtual TRef <Object> CreateDeepLinkListener(const Function<void(CString::View)> & callback) = 0;
@@ -60,6 +60,6 @@ public:
 
 protected:
 
-	Global(const CString::View & vendor, const CString::View & product, const WString::View & projectdir, Key32 resources_subdomain);
+	Global(CString::View vendor, CString::View product, WString::View project_dir, Key32 resources_subdomain);
 
 };

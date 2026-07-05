@@ -224,7 +224,7 @@ Console::MainWindowDelegate::MainWindowDelegate(Console & console, System::Windo
 
 			auto menu = GLX::OpenContextMenu(GetContent());
 
-			const Tuple <Key32,WString::View> options[] = { {kOnTop, L"Always On Top"}, {GlobalImpl::kLogFile, L"Enable Log File"} };
+			const Tuple <Key32,WString::View> options[] = { {kOnTop, L"Always On Top"} };
 
 			auto & prefs = *TheGlobal::Get()->m_prefs;
 

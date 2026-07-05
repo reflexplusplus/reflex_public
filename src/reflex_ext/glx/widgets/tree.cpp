@@ -99,6 +99,8 @@ Reflex::GLX::Tree::Tree()
 
 Reflex::GLX::Tree::~Tree()
 {
+	REFLEX_DEBUG_WARN_SCOPE(GLX::null_object_set, false);
+
 	m_selection.Clear();
 
 	SetContent(Null<Object>());

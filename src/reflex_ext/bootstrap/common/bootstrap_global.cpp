@@ -16,7 +16,7 @@ constexpr UInt32 kIDE = MakeKey32("bootstrap.ide");
 
 struct GlobalImpl : public Global
 {
-	GlobalImpl(const CString::View & vendor, const CString::View & product, const WString::View & projectdir, Key32 resources_subdomain);
+	GlobalImpl(CString::View vendor, CString::View product, WString::View project_dir, Key32 resources_subdomain);
 
 	~GlobalImpl();
 
@@ -32,6 +32,8 @@ struct GlobalImpl : public Global
 	void OnSetProperty(Address address, Object & object) override;
 
 
+	REFLEX_IF_DEBUG(WString m_project_dir;)
+
 	UInt8 m_ide_enabled;
 
 	UInt8 m_flushcycle;
@@ -46,9 +48,10 @@ struct GlobalImpl : public Global
 #endif
 };
 
-GlobalImpl::GlobalImpl(const CString::View & vendor, const CString::View & product, const WString::View & projectdir, Key32 resources_subdomain)
-	: Global(vendor, product, projectdir, resources_subdomain)
+GlobalImpl::GlobalImpl(CString::View vendor, CString::View product, WString::View project_dir, Key32 resources_subdomain)
+	: Global(vendor, product, project_dir, resources_subdomain)
 #ifndef REFLEX_BOOTSTRAP_TYPE_CONSOLE_APP
+	REFLEX_IF_DEBUG(,m_project_dir(project_dir))
 	, m_ide_enabled(kMaxUInt8)
 	, m_flushcycle(0)
 	, m_prefs_monitor(prefs)
@@ -117,15 +120,30 @@ TRef <Object> GlobalImpl::EnableIde(bool enable)
 	{
 		if (enable)
 		{
-			auto filename = Join(ToWString(System::GetTime()), File::kDot, IDE::kTXT);
+			WString logfile;
 
-			auto path = Detail::MakeProductPath(System::kPathDesktop, vendor, product, filename);
+			if (Data::GetBool(prefs, K32("bootstrap.log_file")))
+			{
+				logfile = Detail::MakeProductPath(System::kPathDesktop, vendor, product);
+				File::MakePath(logfile);
+				logfile.Append(ToWString(System::GetTime()));
+				logfile.Push(File::kDot);
+				logfile.Append(IDE::kTXT);
+			}
+			else
+			{
+				#if REFLEX_DEBUG
+				logfile = Join(m_project_dir, L"reflex_log.txt");
+				Reflex::g_default_allocator->SetLeakLogPath(Join(m_project_dir, L"reflex_leaks.txt"));
+				#endif
+			}
 
-			auto folder = File::SplitFilename(path).a;
+			if (logfile)
+			{
+				Output::SetOutputFile(New<System::FileHandle>(logfile, System::FileHandle::kModeOverwrite));
+			}
 
-			File::MakePath(folder);
-
-			m_ide = IDE::Start(resourcepool, path, prefs);
+			m_ide = IDE::Start(resourcepool, prefs);
 		}
 		else
 		{
@@ -193,14 +211,14 @@ Reflex::WString Reflex::Bootstrap::Detail::MakeProductPath(System::Path system_p
 	return Join(System::GetPath(system_path), ToWString(vendor), File::kStroke, ToWString(name), File::kStroke, filename);
 }
 
-Reflex::TRef <Reflex::Bootstrap::Global> Reflex::Bootstrap::Global::Acquire(const CString::View & vendor, const CString::View & product, const WString::View & projectdir, Key32 resources_subdomain)
+Reflex::TRef <Reflex::Bootstrap::Global> Reflex::Bootstrap::Global::Acquire(CString::View vendor, CString::View product, WString::View projectdir, Key32 resources_subdomain)
 {
 	REFLEX_ASSERT_MAINTHREAD("Bootstrap::Global::Acquire");
 
 	return TheGlobal::Acquire(vendor, product, projectdir, resources_subdomain);
 }
 
-Reflex::Bootstrap::Global::Global(const CString::View & vendor, const CString::View & product, const WString::View & projectdir, Key32 resources_subdomain)
+Reflex::Bootstrap::Global::Global(CString::View vendor, CString::View product, WString::View project_dir, Key32 resources_subdomain)
 	: filesystem(File::VirtualFileSystem::Create(File::kdisk)),
 	resourcepool(File::ResourcePool::Create(filesystem)),
 	prefs(New<File::PersistentPropertySet>(Data::kPropertySetFormat)),
@@ -221,7 +239,7 @@ Reflex::Bootstrap::Global::Global(const CString::View & vendor, const CString::V
 		lock.Attach(New<File::FileLocator>());
 
 #ifndef REFLEX_BOOTSTRAP_TYPE_CONSOLE_APP
-		if (projectdir) lock.Attach(New<IDE::ProxyPath>(MakeKey32("res"), resources_subdomain, Join(projectdir, L"resources", System::kPathDelimiter)));
+		if (project_dir) lock.Attach(New<IDE::ProxyPath>(MakeKey32("res"), resources_subdomain, Join(project_dir, L"resources", System::kPathDelimiter)));
 #endif
 	}
 
@@ -229,7 +247,7 @@ Reflex::Bootstrap::Global::Global(const CString::View & vendor, const CString::V
 
 	File::MakePath(File::SplitFilename(path).a);
 
-	if (!System::Exists(path))	//TEMP migration for versions & nsa
+	if (!System::Exists(path))	//TEMP migration
 	{
 		constexpr WString::View kOldFilenames[] = { L"config", L"state" };
 

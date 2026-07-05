@@ -28,7 +28,7 @@ struct ContextMenu : public MenuImpl
 
 		auto self = REFLEX_CREATE(ContextMenu, src, context);
 
-		WarnScope <false> scope(null_object_set);
+		REFLEX_DEBUG_WARN_SCOPE(null_object_set, false);
 
 		Object::null.SetProperty(K32("context_menu"), Cast<Menu>(self));
 

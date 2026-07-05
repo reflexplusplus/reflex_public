@@ -12,6 +12,11 @@ AtomicUInt32 g_num_http_requests = 0;
 
 REFLEX_END_INTERNAL
 
+Reflex::Async::Detail::StandardHttpRequestCallbacks::StandardHttpRequestCallbacks(UInt8 decode_json_flags)
+	: m_decode_json_flags(decode_json_flags)
+{
+}
+
 void Reflex::Async::Detail::StandardHttpRequestCallbacks::OnHeader(const CString::View & key, const CString::View & value)
 {
 	if (CaseInsensitive::eq(key, "content-encoding"))
@@ -35,7 +40,7 @@ Reflex::TRef <Reflex::Object> Reflex::Async::Detail::StandardHttpRequestCallback
 
 	if (m_is_json)
 	{
-		return New<Data::PropertySet>(Data::DecodePropertySet(Data::kJsonFormat, m_body));
+		return New<Data::PropertySet>(Data::DecodePropertySet(Data::kJsonFormat, m_body, m_decode_json_flags));
 	}
 	else
 	{

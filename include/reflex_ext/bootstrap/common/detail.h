@@ -16,13 +16,16 @@
 
 namespace Reflex::Bootstrap::Detail
 {
+	
+	struct Monitor;		//wrapper for StateMt/State::Monitor
+
 
 	WString MakeProductPath(System::Path system_path, const CString::View & vendor, const CString::View & name, const WString::View & filename = {});
 
 	constexpr WString::View kPrefsFilename = L"config";
 
 
-	//entry helpers
+	//debug helpers
 
 	inline WString ExtractProjectDir(const char * filepath)
 	{
@@ -34,9 +37,6 @@ namespace Reflex::Bootstrap::Detail
 		return {};
 		#endif
 	}
-
-
-	struct Monitor;		//wrapper for StateMt/State::Monitor
 
 }
 

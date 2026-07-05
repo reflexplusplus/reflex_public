@@ -17,7 +17,7 @@ REFLEX_INLINE UInt64 PackTimeSizeStatus(const File::Attributes & attributes)
 	return (status << 62) | (size << 32) | time;
 }
 
-GlobalImpl::GlobalImpl(Reflex::File::ResourcePool & resourcepool, Data::PropertySet & prefs, const WString::View & logfile)
+GlobalImpl::GlobalImpl(Reflex::File::ResourcePool & resourcepool, Data::PropertySet & prefs)
 	: m_resourcepool(resourcepool)
 	, m_prefs(prefs)
 	, m_monitor(*this)
@@ -58,15 +58,6 @@ GlobalImpl::GlobalImpl(Reflex::File::ResourcePool & resourcepool, Data::Property
 
 	REFLEX_ASSERT_MAINTHREAD("IDE::GlobalImpl::GlobalImpl");
 
-	if (logfile && Data::GetBool(prefs, GlobalImpl::kLogFile))
-	{
-		File::MakePath(File::SplitFilename(logfile).a);
-
-		auto file = System::FileHandle::Create(logfile, System::FileHandle::kModeOverwrite);
-
-		Output::SetOutputFile(file);
-	}
-
 	File::output.Log("IDE");
 }
 
@@ -77,7 +68,7 @@ GlobalImpl::~GlobalImpl()
 	File::output.Log("/IDE");
 }
 
-ResourceGroupImpl::ResourceGroupImpl(File::ResourcePool & resourcepool, Key32 uid, const WString::View & desc, const Function <void(ResourceGroup&)> & onreload)
+ResourceGroupImpl::ResourceGroupImpl(File::ResourcePool & resourcepool, Key32 uid, WString::View desc, const Function <void(ResourceGroup&)> & onreload)
 	: m_resourcepool(resourcepool)
 	, m_uid(uid)
 	, m_onreload(onreload)
@@ -183,14 +174,14 @@ REFLEX_END_INTERNAL
 
 const bool & Reflex::IDE::kIsAwake = Reflex::IDE::TheGlobal::IsAwake();
 
-Reflex::TRef <Reflex::Object> Reflex::IDE::Start(File::ResourcePool & resourcepool, const WString::View & logfile, Data::PropertySet & prefs)
+Reflex::TRef <Reflex::Object> Reflex::IDE::Start(File::ResourcePool & resourcepool, Data::PropertySet & prefs)
 {
 	REFLEX_ASSERT(File::module.IsInitalised());
 	
-	return TheGlobal::Acquire(resourcepool, prefs, logfile);
+	return TheGlobal::Acquire(resourcepool, prefs);
 }
 
-Reflex::TRef <Reflex::IDE::ResourceGroup> Reflex::IDE::ResourceGroup::Create(File::ResourcePool & resourcepool, Key32 uid, const WString::View & desc, const Function <void(ResourceGroup&)> & onreload)
+Reflex::TRef <Reflex::IDE::ResourceGroup> Reflex::IDE::ResourceGroup::Create(File::ResourcePool & resourcepool, Key32 uid, WString::View desc, const Function <void(ResourceGroup&)> & onreload)
 {
 	if (kIsAwake)
 	{

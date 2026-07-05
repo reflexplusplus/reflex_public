@@ -27,7 +27,7 @@ struct ResourceGroupImpl : public ResourceGroup
 		UInt64 time_size_status;
 	};
 
-	ResourceGroupImpl(File::ResourcePool & resourcepool, Key32 uid, const WString::View & desc, const Function <void(ResourceGroup&)> & onreload);
+	ResourceGroupImpl(File::ResourcePool & resourcepool, Key32 uid, WString::View desc, const Function <void(ResourceGroup&)> & onreload);
 
 	~ResourceGroupImpl();
 
@@ -53,10 +53,7 @@ struct ResourceGroupImpl : public ResourceGroup
 
 struct GlobalImpl : public Global
 {
-	static constexpr Key32 kLogFile = K32("IDE/LogFile");
-
-
-	GlobalImpl(File::ResourcePool & resourcepool, Data::PropertySet & prefs, const WString::View & logfile);
+	GlobalImpl(File::ResourcePool & resourcepool, Data::PropertySet & prefs);
 
 	~GlobalImpl();
 

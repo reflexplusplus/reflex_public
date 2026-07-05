@@ -56,7 +56,7 @@ namespace Reflex::Bootstrap::CLI
 	{
 		static ProgressBar & null;
 
-		static TRef <ProgressBar> Create(System::FileHandle & out, const CString::View & title, bool show_progress);
+		static TRef <ProgressBar> Create(System::FileHandle & out, CString::View title, bool show_progress);
 
 		virtual void Render(Float32 progress = 0.0f) = 0;
 	};

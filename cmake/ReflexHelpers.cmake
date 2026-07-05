@@ -716,14 +716,22 @@ function(_reflex_resolve_target_lib alias basename out)
                 set_target_properties(${_srctgt} PROPERTIES
                     CXX_STANDARD 20
                     MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
-                # ObjC++ entry TUs (.mm) use manual reference counting (MRC), matching
-                # the SDK's own build (it sets no CLANG_ENABLE_OBJC_ARC, so MRC is the
-                # default). au.mm uses explicit -autorelease, which ARC forbids.
+                # ObjC++ entry TUs (.mm) are MRC, matching the prebuilt libs
+                # (no CLANG_ENABLE_OBJC_ARC → MRC default). The macOS entry
+                # unities have no ARC-only constructs, so they stay MRC. The iOS
+                # unities use __weak self-captures and ARC-heap-copied block
+                # returns (hard MRC errors), so iOS builds with ARC. iOS has no
+                # AudioUnit-v2 (au) target, so no au-under-ARC concern here.
                 # Silence SDK-deprecation/nullability noise.
                 get_filename_component(_ext "${_unity}" EXT)
                 if(_ext STREQUAL ".mm")
+                    if(CMAKE_SYSTEM_NAME STREQUAL "iOS")
+                        set(_arc_flag "-fobjc-arc")
+                    else()
+                        set(_arc_flag "-fno-objc-arc")
+                    endif()
                     set_source_files_properties("${_unity}" PROPERTIES
-                        COMPILE_FLAGS "-fno-objc-arc -Wno-deprecated-declarations -Wno-nullability-completeness")
+                        COMPILE_FLAGS "${_arc_flag} -Wno-deprecated-declarations -Wno-nullability-completeness")
                     # The system entry sources call Apple APIs the latest SDK marks
                     # obsoleted at recent deployment targets (e.g. CGWindowListCreateImage,
                     # obsoleted 15.0 — a hard error there, only a deprecation below it).
@@ -973,9 +981,14 @@ function(_reflex_add_plugin_format base_target format sources name vendor versio
             set_target_properties(_ReflexSrc_TargetAUv3 PROPERTIES
                 CXX_STANDARD 20
             )
-            # MRC, matching the SDK build (no CLANG_ENABLE_OBJC_ARC set).
+            # ARC on both platforms — the AUv3 exception to the otherwise-MRC
+            # macOS build. common/instance/auv3.mm uses __weak self-captures and
+            # returns blocks that ARC heap-copies on its macOS (#else) path as
+            # well as iOS — both hard MRC errors — so macOS AUv3 cannot build
+            # under MRC. build.mm in the same unity has no MRC constructs, so
+            # ARC is safe for the whole TU.
             set_source_files_properties("${_auv3_unity}" PROPERTIES
-                COMPILE_FLAGS "-fno-objc-arc -Wno-deprecated-declarations"
+                COMPILE_FLAGS "-fobjc-arc -Wno-deprecated-declarations -Wno-nullability-completeness"
             )
             _reflex_apply_apple_options(_ReflexSrc_TargetAUv3)
             add_library(Reflex::TargetAUv3 ALIAS _ReflexSrc_TargetAUv3)
@@ -1011,6 +1024,16 @@ function(_reflex_add_plugin_format base_target format sources name vendor versio
         _reflex_generate_plist(_plist ${_t} "${name}" "${vendor}" "${version}" "auv3"
             "${package_id_vendor}" "${package_id_product}"
             "${au_type_4cc}" "${au_uid_4cc}" "${au_vendor_4cc}" "${_au_tag}")
+
+        # The AUv3 binary is OUTPUT_NAME "${name} AUv3" (below), but build-plist
+        # derives CFBundleExecutable from --product ("${name}"). On iOS installd
+        # rejects the .appex when CFBundleExecutable doesn't name the real
+        # binary ("missing its bundle executable"). Reconcile it without
+        # touching --product, which also feeds the host-visible CFBundleName /
+        # AudioComponents name.
+        execute_process(COMMAND /usr/libexec/PlistBuddy
+            -c "Set :CFBundleExecutable ${name} AUv3" "${_plist}")
+
         _reflex_set_bundle_identifier(${_t} "${_package_id}.auv3")
 
         set_target_properties(${_t} PROPERTIES

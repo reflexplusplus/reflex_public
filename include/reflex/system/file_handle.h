@@ -50,9 +50,9 @@ public:
 
 	//lifetime
 
-	[[nodiscard]] static TRef <FileHandle> Create(const WString & path, Mode mode = kModeRead, bool lock = true);
+	[[nodiscard]] static TRef <FileHandle> Create(const WString & path, Mode mode = kModeRead, bool lock = true, Allocator & allocator = g_default_allocator);
 
-	[[nodiscard]] static TRef <FileHandle> Create(StandardStream stream);
+	[[nodiscard]] static TRef <FileHandle> Create(StandardStream stream, Allocator & allocator = g_default_allocator);
 
 
 

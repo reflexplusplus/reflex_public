@@ -2527,7 +2527,7 @@ See also Bootstrap::Detail::SetStyle.
 {
 	Path: ["Reflex", "ReverseSearch"];
 
-	Module: ["Reflex", "String"];
+	Module: ["Reflex", "Containers"];
 };
 
 37:
@@ -2746,138 +2746,101 @@ See also Bootstrap::Detail::SetStyle.
 
 58:
 {
-	@WString Description: "#p Deletes a directory, including all content.";
+	@WString Description: "#p Logical OR helper that exists in addition to the built-in operator for cases where all argument expressions should still be evaluated before combining the result.
 
-	Path: ["Reflex", "File", "DeletePath"];
+#p This is useful for patterns such as:
 
-	Module: ["Reflex", "File", "Path"];
+<code>
+#p if (Or(CallA(), CallB()))
+#p {
+#p }
+</code>
+
+#p Both CallA() and CallB() are evaluated because they are function arguments. This differs from the built-in $q||$ operator, which short-circuits expression evaluation.";
+
+	Path: ["Reflex", "Or"];
 };
 
 59:
 {
-	Path: ["Reflex", "Data", "AcquirePropertySet"];
+	@WString Description: "#p Logical AND helper that exists in addition to the built-in operator for cases where all argument expressions should still be evaluated before combining the result.
 
-	Module: ["Reflex", "Data", "PropertySet"];
+#p This is useful for patterns such as:
+
+<code>
+#p if (And(CallA(), CallB()))
+#p {
+#p }
+</code>
+
+#p Both CallA() and CallB() are evaluated because they are function arguments. This differs from the built-in $q&&$ operator, which short-circuits expression evaluation.";
+
+	Path: ["Reflex", "And"];
 };
 
 60:
 {
-	@WString Description: "#p Appends the filled rectangle geometry to a point collection.";
+	@WString Description: "#p Generic dereference helper used so templated code can accept either an object/reference-like wrapper or a raw pointer through a common path.
 
-	Path: ["Reflex", "GLX", "AddRectFill"];
+#p Overloads exist for direct references and pointer-like types. In generic code this is often clearer than spelling out $q*$q at each call site.";
 
-	Module: ["Reflex", "GLX", "Styling", "Canvas"];
-};
-
-61:
-{
-	@WString Description: "#p Sets or clears a named visual state on the object.
-
-#p States are typically consumed by stylesheet blocks such as $q@State selected:$q.
-
-<code>
-#p Item:
-#p {
-#p 	bg: Fill(colour: 48);
-#p
-#p 	@State selected:
-#p 	{
-#p 		bg: Fill(colour: 0,120,255);
-#p 	};
-#p };
-</code>
-
-<code>
-#p GLX::SetState(item, $qselected$q, true);
-</code>
-";
-
-	Path: ["Reflex", "GLX", "SetState"];
-
-	Module: ["Reflex", "GLX", "Styling"];
-};
-
-62:
-{
-	@WString Description: "#p Creates a desktop listener that fires when the current drag-and-drop operation ends.";
-
-	Path: ["Reflex", "GLX", "CreateDragDropEndListener"];
-
-	Module: ["Reflex", "GLX", "Events", "Drag & Drop"];
-};
-
-63:
-{
-	Path: ["Reflex", "AutoRelease"];
+	Path: ["Reflex", "Deref"];
 
 	Module: ["Reflex", "Object"];
 };
 
+61:
+{
+	@WString Description: "#p Generic address-of helper used where the normal $q&$q operator is intentionally unavailable or would pick the wrong overload.
+
+#p This is particularly useful for wrapper types such as TRef or ArrayRegion, which delete $qoperator&$q to prevent accidental misuse. Use GetAdr when you explicitly want the wrapper's storage address rather than the address of its underlying pointee/data.";
+
+	Path: ["Reflex", "GetAdr"];
+
+	Module: ["Reflex", "Object"];
+};
+
+62:
+{
+	@WString Description: "#p Tests whether an object or object-reference compares equal to the null instance for its type.
+
+#p This is mainly intended for generic code working with Reflex object/reference wrappers, where comparing against the type's null value is clearer than checking raw pointer state directly.";
+
+	Path: ["Reflex", "IsNull"];
+};
+
+63:
+{
+	@WString Description: "#p Tests whether an object or object-reference does not compare equal to the null instance for its type.
+
+#p This is the inverse of IsNull and is mainly intended for generic code working with Reflex object/reference wrappers.";
+
+	Path: ["Reflex", "IsValid"];
+};
+
 64:
 {
-	@WString Description: "#p Returns the key code stored on a GLX key event, or kKeyCodeNull if none was set.";
+	@WString Description: "#p Returns a reference to the wrapped raw pointer storage.
 
-	Path: ["Reflex", "GLX", "GetKeyCode"];
+#p This is mainly used when comparing or interoperating with raw pointers, or when passing the wrapped pointer through low-level helper APIs that expect a pointer reference.";
 
-	Module: ["Reflex", "GLX", "Events"];
+	Path: ["Reflex", "TRef", "Adr"];
 };
 
 65:
 {
-	@WString Description: "#p Writes a single line of text to a Data::Archive (byte array), encoding the input as either raw ASCII (CString::View overload) or UTF-8 (WString::View overload).
+	@WString Description: "#p Returns a reference to the wrapped raw pointer storage.
 
-<list>
-#p stream: Byte array to append the encoded line.
-#p line: The line to write. CString::View is written as raw ASCII bytes; WString::View is encoded to UTF-8.
-</list>
+#p This is mainly used when comparing or interoperating with raw pointers, or when passing the wrapped pointer through low-level helper APIs that expect a pointer reference.";
 
-#p A line terminator is automatically appended. The input string should not include a newline.
-
-<code>
-#p Data::Archive stream;
-#p
-#p //write plain ASCII
-#p Data::WriteLine(stream, $qfirst line$q);
-#p Data::WriteLine(stream, $qsecond line$q);
-#p
-#p //write multibyte UTF-8 
-#p Data::WriteLine(stream, L$qUTF-8 text$q);
-#p Data::WriteLine(stream, L$q日本語$q);
-</code>
-";
-
-	Path: ["Reflex", "Data", "WriteLine"];
-
-	Module: ["Reflex", "Data", "Serialization"];
+	Path: ["Reflex", "Reference", "Adr"];
 };
 
 66:
 {
-	@WString Description: "#p Writes a single line of text to the file, encoding the input as either raw ASCII (CString::View overload) or UTF-8 (WString::View overload).
+	@WString Description: "#p Releases the current referenced object, if any, and resets the reference to its null value.";
 
-<list>
-#p file_handle: An open file handle positioned at the current write offset.
-#p line: The line to write. CString::View is written as raw ASCII bytes; WString::View is encoded to UTF-8.
-</list>
-
-#p A line terminator is automatically appended. The input string should not include a newline.
-
-<code>
-#p auto file_handle = Make<System::FileHandle>(path);
-#p 
-#p //write plain ASCII
-#p File::WriteLine(file_handle, $qfirst line$q);
-#p File::WriteLine(file_handle, $qsecond line$q);
-#p 
-#p //write multibyte UTF-8 
-#p File::WriteLine(file_handle, L$qUTF-8 text$q);
-#p File::WriteLine(file_handle, L$q日本語$q);
-</code>
-";
-
-	Path: ["Reflex", "File", "WriteLine"];
-
-	Module: ["Reflex", "File", "IO"];
+	Path: ["Reflex", "Reference", "Clear"];
 };
 
 67:
@@ -5034,7 +4997,7 @@ See also Bootstrap::Detail::SetStyle.
 {
 	Path: ["Reflex", "Search"];
 
-	Module: ["Reflex", "String"];
+	Module: ["Reflex", "Containers"];
 };
 
 188:
@@ -8229,6 +8192,13 @@ See also Bootstrap::Detail::SetStyle.
 	Module: ["Reflex", "GLX", "Events"];
 };
 
+437:
+{
+	Path: ["Reflex", "FunctionPointer"];
+
+	Module: ["Reflex", "Types"];
+};
+
 438:
 {
 	@WString Description: "#p Returns the delta stored on drag and wheel events.";
@@ -9182,97 +9152,339 @@ See also Bootstrap::Detail::SetStyle.
 	Module: ["Reflex", "GLX", "Events"];
 };
 
-58:
+515:
 {
-	@WString Description: "#p Logical OR helper that exists in addition to the built-in operator for cases where all argument expressions should still be evaluated before combining the result.
+	Path: ["Reflex", "Extend"];
 
-#p This is useful for patterns such as:
+	Module: ["Reflex", "Containers"];
+};
 
-<code>
-#p if (Or(CallA(), CallB()))
-#p {
-#p }
-</code>
+516:
+{
+	Path: ["Reflex", "GetArraySize"];
 
-#p Both CallA() and CallB() are evaluated because they are function arguments. This differs from the built-in $q||$ operator, which short-circuits expression evaluation.";
+	Module: ["Reflex", "Containers"];
+};
 
+517:
+{
+	Path: ["Reflex", "QueryFunctionProperty"];
+
+	Module: ["Reflex", "Object"];
+};
+
+518:
+{
+	Path: ["Reflex", "SetFunctionProperty"];
+
+	Module: ["Reflex", "Object"];
+};
+
+519:
+{
+	Path: ["Reflex", "UnsetFunctionProperty"];
+
+	Module: ["Reflex", "Object"];
+};
+
+520:
+{
+	Path: ["Reflex", "AutoRelease"];
+
+	Module: ["Reflex", "Object"];
+};
+
+521:
+{
+	Group: true;
+
+	Path: ["Reflex", "Math"];
+};
+
+522:
+{
+	Group: true;
+
+	Path: ["Reflex", "Logic"];
+};
+
+523:
+{
 	Path: ["Reflex", "Or"];
+
+	Module: ["Reflex", "Logic"];
 };
 
-59:
+524:
 {
-	@WString Description: "#p Logical AND helper that exists in addition to the built-in operator for cases where all argument expressions should still be evaluated before combining the result.
-
-#p This is useful for patterns such as:
-
-<code>
-#p if (And(CallA(), CallB()))
-#p {
-#p }
-</code>
-
-#p Both CallA() and CallB() are evaluated because they are function arguments. This differs from the built-in $q&&$ operator, which short-circuits expression evaluation.";
-
 	Path: ["Reflex", "And"];
+
+	Module: ["Reflex", "Logic"];
 };
 
-60:
+525:
 {
-	@WString Description: "#p Generic dereference helper used so templated code can accept either an object/reference-like wrapper or a raw pointer through a common path.
+	Path: ["Reflex", "Not"];
 
-#p Overloads exist for direct references and pointer-like types. In generic code this is often clearer than spelling out $q*$q at each call site.";
-
-	Path: ["Reflex", "Deref"];
+	Module: ["Reflex", "Logic"];
 };
 
-61:
+526:
 {
-	@WString Description: "#p Generic address-of helper used where the normal $q&$q operator is intentionally unavailable or would pick the wrong overload.
+	Path: ["Reflex", "Poll"];
 
-#p This is particularly useful for wrapper types such as TRef or ArrayRegion, which delete $qoperator&$q to prevent accidental misuse. Use GetAdr when you explicitly want the wrapper's storage address rather than the address of its underlying pointee/data.";
-
-	Path: ["Reflex", "GetAdr"];
+	Module: ["Reflex", "Logic"];
 };
 
-62:
+527:
 {
-	@WString Description: "#p Tests whether an object or object-reference compares equal to the null instance for its type.
+	Path: ["Reflex", "Swap"];
 
-#p This is mainly intended for generic code working with Reflex object/reference wrappers, where comparing against the type's null value is clearer than checking raw pointer state directly.";
-
-	Path: ["Reflex", "IsNull"];
+	Module: ["Reflex", "Logic"];
 };
 
-63:
+528:
 {
-	@WString Description: "#p Tests whether an object or object-reference does not compare equal to the null instance for its type.
+	Path: ["Reflex", "True"];
 
-#p This is the inverse of IsNull and is mainly intended for generic code working with Reflex object/reference wrappers.";
-
-	Path: ["Reflex", "IsValid"];
+	Module: ["Reflex", "Logic"];
 };
 
-64:
+529:
 {
-	@WString Description: "#p Returns a reference to the wrapped raw pointer storage.
+	Path: ["Reflex", "SetDelta"];
 
-#p This is mainly used when comparing or interoperating with raw pointers, or when passing the wrapped pointer through low-level helper APIs that expect a pointer reference.";
-
-	Path: ["Reflex", "TRef", "Adr"];
+	Module: ["Reflex", "Logic"];
 };
 
-65:
+530:
 {
-	@WString Description: "#p Returns a reference to the wrapped raw pointer storage.
+	Path: ["Reflex", "SetFiltered"];
 
-#p This is mainly used when comparing or interoperating with raw pointers, or when passing the wrapped pointer through low-level helper APIs that expect a pointer reference.";
-
-	Path: ["Reflex", "Reference", "Adr"];
+	Module: ["Reflex", "Logic"];
 };
 
-66:
+531:
 {
-	@WString Description: "#p Releases the current referenced object, if any, and resets the reference to its null value.";
+	Path: ["Reflex", "RoundUpPow2"];
 
-	Path: ["Reflex", "Reference", "Clear"];
+	Module: ["Reflex", "Math"];
 };
+
+532:
+{
+	Path: ["Reflex", "Abs"];
+
+	Module: ["Reflex", "Math"];
+};
+
+533:
+{
+	Path: ["Reflex", "Cos"];
+
+	Module: ["Reflex", "Math"];
+};
+
+534:
+{
+	Path: ["Reflex", "Exp"];
+
+	Module: ["Reflex", "Math"];
+};
+
+535:
+{
+	Path: ["Reflex", "Log"];
+
+	Module: ["Reflex", "Math"];
+};
+
+536:
+{
+	Path: ["Reflex", "Max"];
+
+	Module: ["Reflex", "Math"];
+};
+
+537:
+{
+	Path: ["Reflex", "Min"];
+
+	Module: ["Reflex", "Math"];
+};
+
+538:
+{
+	Path: ["Reflex", "Pow"];
+
+	Module: ["Reflex", "Math"];
+};
+
+539:
+{
+	Path: ["Reflex", "Sin"];
+
+	Module: ["Reflex", "Math"];
+};
+
+540:
+{
+	Path: ["Reflex", "QuantiseDown"];
+
+	Module: ["Reflex", "Math"];
+};
+
+541:
+{
+	Path: ["Reflex", "SquareRoot"];
+
+	Module: ["Reflex", "Math"];
+};
+
+542:
+{
+	Path: ["Reflex", "Normalise"];
+
+	Module: ["Reflex", "Math"];
+};
+
+543:
+{
+	Path: ["Reflex", "Quantise"];
+
+	Module: ["Reflex", "Math"];
+};
+
+544:
+{
+	Path: ["Reflex", "Truncate"];
+
+	Module: ["Reflex", "Math"];
+};
+
+545:
+{
+	Path: ["Reflex", "QuantiseUp"];
+
+	Module: ["Reflex", "Math"];
+};
+
+546:
+{
+	Path: ["Reflex", "RoundNearest"];
+
+	Module: ["Reflex", "Math"];
+};
+
+547:
+{
+	Path: ["Reflex", "Reciprocal"];
+
+	Module: ["Reflex", "Math"];
+};
+
+548:
+{
+	Path: ["Reflex", "Quartic"];
+
+	Module: ["Reflex", "Math"];
+};
+
+549:
+{
+	Path: ["Reflex", "Clip"];
+
+	Module: ["Reflex", "Math"];
+};
+
+550:
+{
+	Path: ["Reflex", "Cube"];
+
+	Module: ["Reflex", "Math"];
+};
+
+551:
+{
+	Path: ["Reflex", "Exp2"];
+
+	Module: ["Reflex", "Math"];
+};
+
+552:
+{
+	Path: ["Reflex", "Log2"];
+
+	Module: ["Reflex", "Math"];
+};
+
+553:
+{
+	Path: ["Reflex", "Sign"];
+
+	Module: ["Reflex", "Math"];
+};
+
+554:
+{
+	Path: ["Reflex", "Sort"];
+
+	Module: ["Reflex", "Containers"];
+};
+
+555:
+{
+	Path: ["Reflex", "LinearInterpolate"];
+
+	Module: ["Reflex", "Math"];
+};
+
+556:
+{
+	Path: ["Reflex", "Reorder"];
+
+	Module: ["Reflex", "Logic"];
+};
+
+557:
+{
+	Path: ["Reflex", "Reverse"];
+
+	Module: ["Reflex", "Containers"];
+};
+
+558:
+{
+	Path: ["Reflex", "RoundUp"];
+
+	Module: ["Reflex", "Math"];
+};
+
+559:
+{
+	Path: ["Reflex", "Modulo"];
+
+	Module: ["Reflex", "Math"];
+};
+
+560:
+{
+	Path: ["Reflex", "MulAdd"];
+
+	Module: ["Reflex", "Math"];
+};
+
+561:
+{
+	Path: ["Reflex", "Square"];
+
+	Module: ["Reflex", "Math"];
+};
+
+562:
+{
+	Path: ["Reflex", "RoundDown"];
+
+	Module: ["Reflex", "Math"];
+};
+
