@@ -48,11 +48,14 @@ public:
 
 	struct EventBuffer;
 
+	struct NoteInfo;
+
 	enum ChangeFlags : UInt8
 	{
-		kChangeParameterValues = 1,
-		kChangeParameterInfo = 2,
-		kChangeState = 4,
+		kChangeState = 1,
+		kChangeParameterValues = 2,
+		kChangeParameterInfo = 4,
+		kChangeNoteInfo = 8,
 	};
 
 
@@ -101,7 +104,7 @@ public:
 
 	virtual void ReportProcessingDelay(UInt32 delay) = 0;
 
-	virtual void ReportStateChange(UInt8 change_flags) = 0;	//parameters, descriptions or general state (for parameters, do not call for host automation!)
+	virtual void ReportStateChange(UInt8 change_flags) = 0;	//parameters, descriptions, note names or general state (for parameters, do not call for host automation!)
 
 
 
@@ -256,6 +259,9 @@ public:
 	virtual void OnSetPluginChunk(const ArrayView <UInt8> & archive) = 0;
 
 
+	virtual void OnGetNoteInfo(Array <NoteInfo> & infos) const = 0;
+
+
 	virtual void OnGetParameterInfo(UInt32 idx, CString & name) const = 0;
 
 	virtual Float32 OnGetParameterValue(UInt32 idx) const = 0;
@@ -264,6 +270,7 @@ public:
 
 
 	virtual FunctionPointer <void(Callbacks&,UInt)> OnPrepare(UInt32 max_buffersize, Float32 samplerate, ConstTRef <EventBuffer> events_in, TRef <EventBuffer> events_out, const ArrayView <const Float32*> & inputs, const ArrayView <Float32*> & outputs) = 0;
+
 };
 
 
@@ -311,6 +318,19 @@ public:
 
 
 //
+//AudioPlugin::NoteInfo
+
+struct Reflex::System::AudioPlugin::NoteInfo
+{
+	UInt8 note = 0;
+	Optional <UInt8> channel;	//unset == all channels
+	CString name;
+};
+
+
+
+
+//
 //AudioPlugin::MidiEvent
 
 struct Reflex::System::AudioPlugin::Event
@@ -322,11 +342,8 @@ struct Reflex::System::AudioPlugin::Event
 	};
 
 	UInt16 type : 1;	//0 == MIDI, 1 == Automation
-
 	UInt16 position : 14;
-
 	UInt16 idx;		//MIDI -> portidx, Automation -> parameter
-
 	union { UInt32 u32; Float32 f32; } value;
 };
 
@@ -339,10 +356,7 @@ struct Reflex::System::AudioPlugin::Event
 struct Reflex::System::AudioPlugin::EventBuffer
 {
 	bool clock = false;
-
 	Float64 bps = 1.0;
-
 	Float64 beatpos = 0.0;
-
 	ArrayView <Event> events;
 };

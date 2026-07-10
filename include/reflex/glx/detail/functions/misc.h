@@ -47,6 +47,8 @@ bool TruncatePath(const Font & font, Float width, WString & path);
 bool GetBool(const Data::PropertySet & properties, Key32 id, bool fallback = false);
 
 
+Point ToPoint(const ArrayView <Float32> & floats, Point fallback = {});
+
 Size ToSize(const ArrayView <Float32> & floats, Size fallback = {});
 
 Margin ToMargin(const ArrayView <Float32> & floats, UInt16 stylesheet_flags = 0);
@@ -160,7 +162,7 @@ REFLEX_INLINE Reflex::Float Reflex::GLX::Detail::Align1D(Float owner_size, Float
 	return Align1D(owner_size, item_size, orientation, kOrientationToAlign1D);
 }
 
-REFLEX_INLINE Reflex::GLX::Size Reflex::GLX::Detail::ToSize(const ArrayView <Float32> & floats, Size fallback)
+REFLEX_INLINE Reflex::GLX::Point Reflex::GLX::Detail::ToPoint(const ArrayView <Float32> & floats, Point fallback)
 {
 	if (floats)
 	{
@@ -170,6 +172,11 @@ REFLEX_INLINE Reflex::GLX::Size Reflex::GLX::Detail::ToSize(const ArrayView <Flo
 	{
 		return fallback;
 	}
+}
+
+REFLEX_INLINE Reflex::GLX::Size Reflex::GLX::Detail::ToSize(const ArrayView <Float32> & floats, Size fallback)
+{
+	return Reinterpret<Size>(ToPoint(floats, Reinterpret<Point>(fallback)));
 }
 
 REFLEX_INLINE Reflex::GLX::Margin Reflex::GLX::Detail::ToMargin(const ArrayView <Float32> & floats, UInt16 stylesheet_flags)

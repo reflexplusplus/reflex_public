@@ -67,9 +67,9 @@ public:
 
 protected:
 
-	virtual void OnSetStyle(const Style & style) override;
+	void OnSetStyle(const Style & style) override;
 
-	virtual bool OnEvent(Object & src, Event & e) override;
+	bool OnEvent(Object & src, Event & e) override;
 
 
 
@@ -78,22 +78,23 @@ private:
 	using PopulateCallbackProperty = ObjectOf <PopulateCallback>;
 
 
-	virtual UInt OnGetSize() const override;
+	UInt OnGetSize() const override;
 
-	virtual Idx OnGetIndex(Object & child) override;
+	Idx OnGetIndex(Object & child) override;
 
-	virtual void OnSelect(UInt idx) override;
+	void OnSelect(UInt idx) override;
 
-	virtual void OnDeselect(UInt idx) override;
+	void OnDeselect(UInt idx) override;
 
-	virtual void OnEnumerateSelection(UInt start, UInt range, const Function <void(UInt idx, UInt n)> & callback) const override;
+	void OnEnumerateSelection(UInt start, UInt range, const Function <void(UInt idx, UInt n)> & callback) const override;
 
-	virtual void OnReveal(UInt idx) override;
+	void OnReveal(UInt idx) override;
 
 
 	template <bool Y> static void OnAccommodate(VirtualList & object, bool & isresponsive, Size & contentsize);
 
 	template <bool Y> static void OnAlign(VirtualList & object, bool isresponsive, Float & contenth);
+
 
 
 	ConstTRef <Style> m_item;

@@ -34,19 +34,19 @@ public:
 
 
 
-	//properties
-
-	static constexpr auto krange = GLX::krange;		//RangeProperty
-
-	static constexpr auto kvalue = GLX::kvalue;		//Data::Float32Property
-
-
-
 	//events
 
 	static constexpr auto kTransaction = GLX::kTransaction;
 
 	REFLEX_GLX_EVENT_ID(DoubleClick);
+
+
+
+	//properties
+
+	static constexpr auto krange = GLX::krange;		//RangeProperty
+	
+	static constexpr auto kvalue = GLX::kvalue;		//Data::Float32Property
 
 
 

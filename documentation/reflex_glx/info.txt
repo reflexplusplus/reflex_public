@@ -21,6 +21,44 @@
 
 3:
 {
+	@WString 3860471657: "#p Positions wrapped content inside the available rect using indent, optional size, and position alignment.
+
+#p Align is the standard wrapper for float-type positioning semantics of nested layers, allowing positioning at the top, bottom, left, right, center, or any corner of its bounds, while optionally shrinking or expanding the region the child is aligned within.
+
+#p 'indent' reduces or expands the available rect before alignment. 'offset: x,y' is shorthand for symmetric translation-style indent, equivalent to setting near indent to 'x,y' and far indent to '-x,-y'. This makes Align useful as a simple translate wrapper:
+
+<code>
+#p Align(offset: -8; content: Canvas());
+</code>
+
+#p 'position' controls which axes stay in fit mode and which axes become explicitly aligned. If an axis remains 'fit', the content stretches on that axis to the available inner rect. If an axis is set to 'near', 'center', or 'far', Align uses the content size on that axis and positions it accordingly.
+
+#p 'size' only takes effect on axes where a non-fit position is set. If position is left in fit mode, the child continues to stretch to the available rect, so 'size' does not constrain it there. This is why 'size' is typically paired with 'position', for example to place or extrude content outside the normal bounds.
+
+#p With 'normalized: true', indent and size are interpreted relative to the available rect instead of pixel units. This is useful for proportional offsets and scale-style placement such as centered or offset gradients.
+
+<code>
+#p Align
+#p (
+#p 	normalized: true;
+#p 	offset: 0.0,-0.25;
+#p 	content: CircleGradient(fit: cover; from: 32; to: 0; dither: 8);
+#p );
+</code>
+
+#p Using normalized true with a size of 1.41 (approximation of sqrt of 2) can be used to extrude a circle layer so that the circle passing through the box corners.
+
+<code>
+#p Align
+#p (
+#p 	normalized: true;
+#p 	offset: 0.0,-0.25;
+#p 	size: 1.41;
+#p 	position: center;
+#p 	content: CircleGradient(fit: cover; from: 32; to: 0; dither: 8);
+#p );
+</code>";
+
 	Path: ["Align"];
 
 	Module: ["Layout"];
@@ -35,6 +73,8 @@
 
 5:
 {
+	@WString 3860471657: "#p Alias of Align";
+
 	Path: ["Group"];
 
 	Module: ["Layout"];

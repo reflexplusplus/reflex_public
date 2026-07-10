@@ -33,7 +33,7 @@
 ## Creating Projects
 
 - When creating a new Reflex app or test project, use the reflex CLI instead of attempting to manually set up projects.
-- Use `reflex create --template <id> --vendor <vendor> --product <product> --target <value[,..]> --output <folder>`.
+- Use `reflex create --template <id> --vendor <vendor> --product <product> --target <id[,..]> --output <folder>`.
 - Check available templates with `reflex templates`.
 - Check available targets with `reflex targets`.
 

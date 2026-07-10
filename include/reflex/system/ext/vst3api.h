@@ -592,6 +592,12 @@ namespace Reflex::VST3API
 		virtual tresult REFLEX_STDCALL restartComponent(Int32 flags) = 0;
 	};
 
+	struct IUnitHandler : public IUnknown
+	{
+		virtual tresult REFLEX_STDCALL notifyUnitSelection(Int32 unitId) = 0;
+		virtual tresult REFLEX_STDCALL notifyProgramListChange(Int32 listId, Int32 programIndex) = 0;
+	};
+
 	struct IHostView : public IUnknown
 	{
 		virtual tresult REFLEX_STDCALL resizeView(IPluginView * view, ViewRect & size) = 0;
@@ -677,6 +683,7 @@ namespace Reflex::VST3API
 
 	REFLEX_DECLARE_VST3_CLASS(IHostAutomation, IUnknown, 0x93A0BEA3, 0x0BD045DB, 0x8E890B0C, 0xC1E46AC6);
 	REFLEX_DECLARE_VST3_CLASS(IHostApplication, IUnknown, 0x58E595CC, 0xDB2D4969, 0x8B6AAF8C, 0x36A664E5);
+	REFLEX_DECLARE_VST3_CLASS(IUnitHandler, IUnknown, 0x4B5147F8, 0x4654486B, 0x8DAB30BA, 0x163A3C56);
 
 	REFLEX_DECLARE_VST3_CLASS(IParamValueQueue, IUnknown, 0x01263A18, 0xED074F6F, 0x98C9D356, 0x4686F9BA);
 	REFLEX_DECLARE_VST3_CLASS(IParameterChanges, IUnknown, 0xA4779663, 0x0BB64A56, 0xB44384A8, 0x466FEB9D);

@@ -8,16 +8,40 @@ REFLEX_BEGIN_INTERNAL(ReflexCLI)
 
 namespace CLI = Bootstrap::CLI;
 
-constexpr CString::View kTargets[] = { "cmake", "xcode", "visual_studio", "android_studio" };
-
-constexpr Key32 kDefaultTemplate = K32("default_template");
-constexpr Key32 kDefaultVendor = K32("default_vendor");
-constexpr Key32 kDefaultTargets = K32("default_targets");
-constexpr Key32 kDefaultOutput = K32("default_output");
+constexpr CString::View kVisualStudio = "visual_studio";
+constexpr CString::View kXcode = "xcode";
+constexpr CString::View kTargets[] = { "cmake", kXcode, kVisualStudio, "android_studio" };
 
 CString GetTemplateID(const TemplateDefinition & tmpl)
 {
 	return ToCString(File::SplitFilename(File::RemoveTrailingStroke(tmpl.folder)).b);
+}
+
+WString PromptValue(System::FileHandle & std_in, System::FileHandle & std_out, WString::View default_value = {})
+{
+	CString prompt;
+	
+	if (default_value) prompt  = Join(kColourDim, "[", ToCString(default_value), "]: ", kColourDefault);
+
+	std_out.Write(prompt.GetData(), prompt.GetSize());
+
+	std_out.Flush(true);
+
+	char buffer[1024];
+
+	auto n = std_in.Read(buffer, GetArraySize(buffer));
+
+	const char * pbuffer = buffer;
+
+	CString::View cbuffer = { pbuffer, n };
+
+	cbuffer = Data::Detail::ReadLine(cbuffer);
+
+	cbuffer = Trim(cbuffer);
+
+	WString trimmed = ToWString(cbuffer);
+
+	return trimmed ? trimmed : Join(default_value);
 }
 
 Array <CString> FindTargets(const CString::View & arg)
@@ -84,6 +108,203 @@ Array <TemplateDefinition> GetTemplates()
 	return templates;
 }
 
+void Create(const Data::PropertySet & args, System::FileHandle & std_out)
+{
+	constexpr auto get_default_target = []() -> CString::View
+	{
+		switch (System::kPlatform)
+		{
+		case System::kPlatformWindows:
+			return kVisualStudio;
+
+		case System::kPlatformMacOS:
+			return kXcode;
+		
+		default:
+			return "";
+		}
+	};
+
+	auto reflex_path = GetReflexPath();
+	
+	auto std_in = Make<System::FileHandle>(System::FileHandle::kStandardStreamIn);
+
+	const auto prompt_required = [&std_out, std_in](WString::View default_value = {}) -> WString
+	{
+		while (true)
+		{
+			if (auto value = PromptValue(*std_in, std_out, default_value))
+			{
+				return value;
+			}
+		}
+	};
+
+	auto prefs = Data::AcquirePropertySet(Bootstrap::global->prefs, K32("create"));
+
+	Array <Variable> prompted_inputs;
+
+	auto select = [&args, &std_out, std_in, prefs](CString::View id, bool multi, ArrayView <CString> valid) -> CString
+	{
+		Array <CString> rtn;
+
+		if (auto property = Data::GetCString(args, id))
+		{
+			auto parts = Split(property, ',');
+
+			for (auto & i : parts)
+			{
+				rtn.Push(Lowercase(i));
+			}
+		}
+		else
+		{
+			File::WriteLine(std_out, multi ? Join(id, "(s):") : Join(id, ':'));
+
+			REFLEX_LOOP(idx, valid.size)
+			{
+				CLI::Print(std_out, Join(kColourDim, ToCString(idx + 1), ": ", valid[idx], kColourDefault));
+			}
+
+			auto prompt = PromptValue(std_in, std_out, Data::GetWString(prefs, id));
+
+			auto parts = Split(prompt, ',');
+
+			for (auto & i : parts)
+			{
+				i = Trim(i);
+
+				if (i)
+				{
+					if (Data::Detail::kChar2Type[char(i.GetFirst())] == Data::Detail::kCharTypeNumber)
+					{
+						auto idx = ToUInt32(i);
+
+						if (idx > 0 && idx <= valid.size)
+						{
+							rtn.Push(valid[idx - 1]);
+						}
+					}
+					else
+					{
+						rtn.Push(ToCString(i));
+					}
+				}
+			}
+		}
+
+		if (rtn.Empty()) goto Fail;
+
+		if (!multi && rtn.GetSize() != 1) goto Fail;
+
+		for (auto & i : rtn)
+		{
+			if (!Search(valid, i)) goto Fail;
+		}
+
+		return Merge(rtn, ',');
+
+		Fail:
+		CLI::ThrowError(Join("invalid --", id));
+		return {};
+	};
+
+	auto templates = GetTemplates();
+
+	Array <CString> template_ids, target_ids;
+
+	for (auto & i : templates) template_ids.Push(GetTemplateID(i));
+	for (auto & i : kTargets) target_ids.Push(i);
+
+	if (auto default_target = get_default_target())
+	{
+		Remove(target_ids, default_target);
+		target_ids.Insert(1, default_target);
+	}
+
+	auto template_from_args = True(Data::GetCString(args, "template"));
+	auto target_from_args = True(Data::GetCString(args, "target"));
+
+	CString template_arg = select("template", false, template_ids);
+	CString target_arg = select("target", true, target_ids);
+
+	if (!template_from_args) prompted_inputs.Push({ "template", ToWString(template_arg) });
+	if (!target_from_args) prompted_inputs.Push({ "target", ToWString(target_arg) });
+
+	auto ptmpl = SearchTemplate(templates, template_arg);
+
+	auto targets = FindTargets(target_arg);
+
+	Tuple <bool, const Array <TokenDefinition> &, Array <Variable>> groups[] =
+	{
+		{ false, ptmpl->strings },
+		{ true, ptmpl->paths }
+	};
+
+	for (auto & group : groups)
+	{
+		for (auto & token : group.b)
+		{
+			File::WriteLine(std_out, Join(token.id, ':'));
+
+			WString value;
+
+			if (group.a)
+			{
+				if (auto arg = CLI::GetFolder(args, token.id, false))
+				{
+					value = arg;
+				}
+				else
+				{
+					value = prompt_required(Data::GetWString(prefs, token.id));
+
+					value = File::CorrectStrokes(value);
+
+					prompted_inputs.Push({ Join(token.id), value });
+				}
+			}
+			else
+			{
+				if (auto arg = Data::GetCString(args, token.id))
+				{
+					value = ToWString(arg);
+				}
+				else
+				{
+					value = prompt_required(Data::GetWString(prefs, token.id));
+					
+					prompted_inputs.Push({ Join(token.id), value });
+				}
+			}
+
+			group.c.Push({ token.token, value });
+		}
+	}
+
+	auto output = CLI::GetFolder(args, "output", false);
+	
+	if (output.Empty())
+	{
+		File::WriteLine(std_out, Join("output", ':'));
+
+		output = prompt_required(System::GetCurrentDirectory());
+
+		output = File::CorrectStrokes(output);
+	}
+
+	if (CaseInsensitive::eq(Left<true>(output, reflex_path.GetSize()), reflex_path)) CLI::ThrowError("invalid output path, pass --output <folder> to a location outside the reflex repository");
+
+	auto folder = CreateProject(*ptmpl, groups[0].c, groups[1].c, targets, output, CLI::GetBool(args, "overwrite"), std_out);
+
+	for (auto & input : prompted_inputs)
+	{
+		Data::SetWString(prefs, input.token, input.value);
+	}
+
+	File::WriteLine(std_out, Join(L"project created at ", folder));
+}
+
 const CLI::TaskDef kCommands[] =
 {
 	{
@@ -110,8 +331,6 @@ const CLI::TaskDef kCommands[] =
 				print_overview_command_summary("create", "create a new Reflex project from a template");
 				print_overview_command_summary("templates", "list available Reflex project templates");
 				print_overview_command_summary("targets", "list available project generation targets");
-				print_overview_command_summary("set-default", "save default values used by the create command");
-				print_overview_command_summary("get-defaults", "show saved default values for project creation");
 
 				File::WriteLine(std_out);
 				CLI::Print(std_out, CLI::kColourBrightBlack, "SDK Install:");
@@ -139,22 +358,14 @@ const CLI::TaskDef kCommands[] =
 					print_arg(false, "--product <product>", "the product name for the new project");
 					print_arg(false, "--output <folder>", "the destination folder for the generated project");
 					print_arg(true, "--target <list>", "the project format(s) to generate");
-					print_arg(true, "--overwrite false", "prevent overwriting template source files");
+					print_arg(true, "--overwrite false", "allow overwriting source files");
 					return;
 
 				case K32("install"):
 					print_arg(false, "[version]", "the requested SDK version to install, leave unspecified for latest");
-					print_arg(true, "--platforms <win|mac|android|ios[,..]>", "the platform packages to install");
+					print_arg(true, "--platforms <win|macos|android|ios[,..]>", "the platform packages to install");
 					print_arg(true, "--path <folder>", "install the SDK to a specific location");
 					print_arg(true, "--test true", "download and extract packages without moving files into place");
-					return;
-
-				case K32("set-default"):
-					print_arg(false, "[at least one option required]", "set default values used by create");
-					print_arg(true, "--template <id>", "set the default template");
-					print_arg(true, "--vendor <vendor>", "set the default vendor");
-					print_arg(true, "--target <list>", "set the default target(s) list");
-					print_arg(true, "--output <folder>", "set the default output folder");
 					return;
 
 				case K32("build-resources"):
@@ -179,7 +390,6 @@ const CLI::TaskDef kCommands[] =
 				case K32("versions"):
 				case K32("templates"):
 				case K32("targets"):
-				case K32("get-defaults"):
 				case K32("where"):
 					print_arg(true, "no arguments", "");
 					return;
@@ -197,104 +407,6 @@ const CLI::TaskDef kCommands[] =
 			else
 			{
 				show_overview();
-			}
-		}
-	},
-	{
-		.id = K32("set-default"),
-		.fn = [](const Data::PropertySet & args, System::FileHandle & std_out)
-		{
-			bool set = false;
-
-			if (auto pvalue = args.QueryProperty<Data::CStringProperty>("template"))
-			{
-				auto templates = GetTemplates();
-
-				if (SearchTemplate(templates, pvalue->value))
-				{
-					Data::SetCString(Bootstrap::global->prefs, kDefaultTemplate, pvalue->value);
-				}
-				else if (pvalue->value.Empty())
-				{
-					Data::UnsetCString(Bootstrap::global->prefs, kDefaultTemplate);
-				}
-				else
-				{
-					CLI::ThrowError("invalid template id");
-				}
-
-				set = true;
-			}
-
-			if (auto pvalue = args.QueryProperty<Data::CStringProperty>("vendor"))
-			{
-				if (pvalue->value)
-				{
-					Data::SetCString(Bootstrap::global->prefs, kDefaultVendor, pvalue->value);
-				}
-				else
-				{
-					Data::UnsetCString(Bootstrap::global->prefs, kDefaultVendor);
-				}
-
-				set = true;
-			}
-
-			if (auto pvalue = args.QueryProperty<Data::CStringProperty>("target"))
-			{
-				if (pvalue->value)
-				{
-					Data::SetCString(Bootstrap::global->prefs, kDefaultTargets, Merge(FindTargets(pvalue->value), ','));
-				}
-				else
-				{
-					Data::UnsetCString(Bootstrap::global->prefs, kDefaultTargets);
-				}
-
-				set = true;
-			}
-
-			if (auto value = CLI::GetFolder(args, "output", false))
-			{
-				Data::SetWString(Bootstrap::global->prefs, kDefaultOutput, value);
-
-				set = true;
-			}
-			else if (auto pvalue = args.QueryProperty<Data::CStringProperty>("output"))
-			{
-				if (pvalue->value.Empty())
-				{
-					Data::UnsetWString(Bootstrap::global->prefs, kDefaultOutput);
-					
-					set = true;
-				}
-			}
-
-			if (!set) CLI::ThrowError("nothing to set");
-		}
-	},
-	{
-		.id = K32("get-defaults"),
-		.fn = [](const Data::PropertySet & args, System::FileHandle & std_out)
-		{
-			if (auto value = Data::GetCString(Bootstrap::global->prefs, kDefaultTemplate))
-			{
-				File::WriteLine(std_out, Join("template=", value));
-			}
-
-			if (auto value = Data::GetCString(Bootstrap::global->prefs, kDefaultVendor))
-			{
-				File::WriteLine(std_out, Join("vendor=", value));
-			}
-
-			if (auto value = Data::GetCString(Bootstrap::global->prefs, kDefaultTargets))
-			{
-				File::WriteLine(std_out, Join("target=", value));
-			}
-
-			if (auto value = Data::GetWString(Bootstrap::global->prefs, kDefaultOutput))
-			{
-				File::WriteLine(std_out, Join(L"output=", value));
 			}
 		}
 	},
@@ -358,7 +470,7 @@ const CLI::TaskDef kCommands[] =
 		.id = K32("install"),
 		.fn = [](const Data::PropertySet & args, System::FileHandle & std_out)
 		{
-			Install(Data::GetCString(args, "value", "latest"), CLI::GetStringArray(args, "platforms"), CLI::GetFolder(args, "path", false), CLI::GetBool(args, "test"), std_out);
+			Install(Data::GetCString(args, "value"), CLI::GetStringArray(args, "platforms"), CLI::GetFolder(args, "path", false), CLI::GetBool(args, "test"), std_out);
 		}
 	},
 	{
@@ -377,98 +489,7 @@ const CLI::TaskDef kCommands[] =
 	},
 	{
 		.id = K32("create"),
-		.fn = [](const Data::PropertySet & args, System::FileHandle & std_out)
-		{
-			constexpr auto get_default_target = []() -> CString::View
-			{
-				switch (System::kPlatform)
-				{
-				case System::kPlatformWindows:
-					return "visual_studio";
-
-				case System::kPlatformMacOS:
-					return "xcode";
-
-				default:
-					return "cmake";
-				}
-			};
-
-			auto reflex_path = GetReflexPath();
-
-			CString template_arg = Data::GetCString(args, "template", Data::GetCString(Bootstrap::global->prefs, kDefaultTemplate));
-
-			auto templates = GetTemplates();
-			
-			if (auto ptmpl = SearchTemplate(templates, template_arg))
-			{
-				auto targets = FindTargets(Data::GetCString(args, "target", Data::GetCString(Bootstrap::global->prefs, kDefaultTargets, get_default_target())));
-
-				Tuple <bool, const Array <TokenDefinition> &, Array <Variable>> groups[] =
-				{
-					{ false, ptmpl->strings },
-					{ true, ptmpl->paths }
-				};
-
-				for (auto & group : groups)
-				{
-					for (auto & token : group.b)
-					{
-						WString value;
-
-						if (group.a)
-						{
-							value = CLI::GetFolder(args, token.id, true);
-						}
-						else 
-						{
-							if (auto arg = Data::GetCString(args, token.id))
-							{
-								value = ToWString(arg);
-							}
-							else if (StringCompare::eq(token.id, "vendor"))
-							{
-								if (auto vendor = Data::GetCString(Bootstrap::global->prefs, kDefaultVendor))
-								{
-									value = ToWString(vendor);
-								}
-								else
-								{
-									CLI::ThrowMissingArg(token.id, "<value>");
-								}
-							}
-							else
-							{
-								CLI::ThrowMissingArg(token.id, "<value>");
-							}
-						}
-
-						group.c.Push({ token.token, value });
-					}
-				}
-
-				auto dest = CLI::GetFolder(args, "output", false);
-
-				if (dest.Empty()) dest = Data::GetWString(Bootstrap::global->prefs, kDefaultOutput, System::GetCurrentDirectory());
-
-				if (CaseInsensitive::eq(Left<true>(dest, reflex_path.GetSize()), reflex_path)) CLI::ThrowError("invalid output path, pass --output <folder> to a location outside the reflex repository");
-
-				auto folder = CreateProject(*ptmpl, groups[0].c, groups[1].c, targets, dest, CLI::GetBool(args, "overwrite"), std_out);
-
-				File::WriteLine(std_out, Join(L"project created at ", folder));
-
-				return;
-			}
-
-			Array <CString> template_ids;
-
-			for (auto & tmpl : templates)
-			{
-				template_ids.Push(GetTemplateID(tmpl));
-			}
-
-			CLI::ThrowMissingArg("template", Join('[', Merge(template_ids, '|'), ']'));
-		}
+		.fn = &Create
 	},
 	{
 		.id = K32("build-resources"),
@@ -486,6 +507,13 @@ const CLI::TaskDef kCommands[] =
 		.fn = [](const Data::PropertySet & args, System::FileHandle & std_out)
 		{
 			BuildPlist(args, std_out);
+		}
+	},
+	{
+		.id = K32("reset"),
+		.fn = [](const Data::PropertySet & args, System::FileHandle & std_out)
+		{
+			Data::ResetPropertySet(Data::kPropertySetFormat, Bootstrap::global->prefs);
 		}
 	},
 };

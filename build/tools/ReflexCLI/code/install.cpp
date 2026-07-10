@@ -11,6 +11,7 @@ namespace CLI = Bootstrap::CLI;
 
 constexpr CString::View kReleasesApiUrl = "https://reflexplusplus.dev/api/releases/reflex_public";
 constexpr CString::View kCoreFilesLabel = "core files";
+constexpr CString::View kUnexpectedApiResponse = "unexpected api response";
 
 void WaitForProcess(CString::View label, const WString & process_path, ArrayView <WString> args)
 {
@@ -101,16 +102,6 @@ void PrintConfirmation(System::FileHandle & std_out, CString::View label, WStrin
 	File::WriteLine(std_out, Join(kColourDim, "Installed ", kColourDefault, label, ' ', kColourDim, ToCString(size_mb, 2), "mb", kColourDefault));
 }
 
-bool ShouldInstallPlatformAsset(CString::View asset_platform, const Map <Key32> & platforms)
-{
-	if (!asset_platform)
-	{
-		return false;
-	}
-
-	return True(platforms.Search(MakeKey32(Lowercase(asset_platform))));
-}
-
 Map <Key32> GetRequestedPlatforms(const Array <CString::View> & platforms)
 {
 	Map <Key32> requested;
@@ -154,20 +145,16 @@ Array <PackageAsset> GetInstallAssets(const Data::PropertySet & release, const M
 	for (auto & asset : Data::GetPropertySetArray(release, "assets"))
 	{
 		auto platform = Data::GetCString(asset, "platform");
-
-		if (!ShouldInstallPlatformAsset(platform, platforms))
-		{
-			continue;
-		}
-
 		auto name = Data::GetCString(asset, "name");
 		auto label = Data::GetCString(asset, "label");
 		auto url = Data::GetCString(asset, "url");
 
-		if (!name || !label || !url)
+		if (!platform || !name || !label || !url)
 		{
 			CLI::ThrowError("release asset is missing required fields");
 		}
+
+		if (!platforms.Search(MakeKey32(platform))) continue;
 
 		auto id = Join(platform, "-", label);
 
@@ -518,7 +505,7 @@ Reference <Data::PropertySet> FetchJson(System::FileHandle & std_out, CString::V
 		}
 		else if (success)
 		{
-			CLI::ThrowError("unexpected api response");
+			CLI::ThrowError(kUnexpectedApiResponse);
 		}
 		else
 		{
@@ -532,6 +519,20 @@ Reference <Data::PropertySet> FetchJson(System::FileHandle & std_out, CString::V
 	}
 
 	return response;
+}
+
+Array <ReleaseVersion> GetReleases(System::FileHandle & std_out, UInt limit)
+{
+	Array <ReleaseVersion> releases;
+
+	auto response = FetchJson(std_out, "Contacting server...", Join(kReleasesApiUrl, "?limit=50"));
+
+	for (auto & release : Data::GetPropertySetArray(*response, "releases"))
+	{
+		releases.Push({ .tag = Data::GetCString(release, "tag"), .date = UInt64(Data::GetInt64(release, "date")) });
+	}
+
+	return releases;
 }
 
 void DownloadFile(CString::View label, CString::View url, WString::View output_path, System::FileHandle & std_out)
@@ -564,24 +565,17 @@ CString ReadInstalledVersion()
 
 	auto utf8 = File::Open(version_path);
 	
-	return Trim<char>(Data::Unpack<CString::View>(utf8));
+	return Trim(Data::Unpack<CString::View>(utf8));
 }
 
 REFLEX_END_INTERNAL
 
 void ReflexCLI::ListVersions(System::FileHandle & std_out)
 {
-	Array <ReleaseVersion> releases;
-	
-	auto response = FetchJson(std_out, "Contacting server...", Join(kReleasesApiUrl, "?limit=50"));
-
-	for (auto & release : Data::GetPropertySetArray(*response, "releases"))
-	{
-		releases.Push({ .tag = Data::GetCString(release, "tag"), .date = UInt64(Data::GetInt64(release, "date")) });
-	}
-
 	auto installed_version = ReadInstalledVersion();
 
+	Array <ReleaseVersion> releases = GetReleases(std_out, 50);
+	
 	for (auto & i : releases)
 	{
 		//auto [year,month,day] = Reflex::UnixTimestampToDate(i.date);
@@ -615,30 +609,23 @@ void ReflexCLI::Install(CString::View version, const Array <CString::View> & pla
 
 	auto temp_path = CreateInstallTempPath(install_root);
 
-	CString release_url;
+	CString release_url = Join(kReleasesApiUrl, '/', version);
 
-	switch (MakeKey32(Lowercase(version)))
+	if (!version)
 	{
-	case K32(""):
-	case K32("latest"):
-		release_url = Join(kReleasesApiUrl, "/latest");
-		break;
+		auto releases = GetReleases(std_out, 1);
 
-	default:
-		release_url = Join(kReleasesApiUrl, "/", version);
-		break;
-	};
+		if (!releases) CLI::ThrowError(kUnexpectedApiResponse);
+
+		release_url.Append(releases.GetFirst().tag);
+	}
 
 	auto release = FetchJson(std_out, "Contacting server...", release_url);
 	
 	auto release_tag = Data::GetCString(*release, "tag");
 
-	if (!release_tag)
-	{
-		CLI::ThrowError("release is missing tag");
-	}
+	if (!release_tag) CLI::ThrowError(kUnexpectedApiResponse);
 
-	Array <DeferredMove> deferred_moves;
 	auto requested_platforms = GetRequestedPlatforms(platforms);
 	auto install_assets = GetInstallAssets(*release, requested_platforms, install_root, temp_path);
 
@@ -658,6 +645,8 @@ void ReflexCLI::Install(CString::View version, const Array <CString::View> & pla
 
 	DownloadFile(content_label, content_url, zip_path, std_out);
 		
+	Array <DeferredMove> deferred_moves;
+
 	InstallReleaseArchive(zip_path, install_root, temp_path, std_out, deferred_moves, test);
 
 	PrintConfirmation(std_out, content_label, zip_path);
@@ -679,11 +668,6 @@ void ReflexCLI::Install(CString::View version, const Array <CString::View> & pla
 	if (!test)
 	{
 		UpdateAliasLaunchers(install_root);
-	}
-
-	if (test)
-	{
-		File::WriteLine(std_out, Join(kColourDim, "Test mode enabled; extracted files were not moved into ", kColourDefault, ToCString(install_root), kColourDefault));
 	}
 
 	if (deferred_moves)
