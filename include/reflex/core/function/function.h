@@ -52,6 +52,8 @@ public:
 
 	Function(Base && fn);
 
+	Function(nullptr_t) = delete;
+
 
 
 	//init
@@ -77,6 +79,8 @@ public:
 	Function & operator=(Base && fn);
 
 	template <class BINDER> Function & operator=(BINDER b);
+
+	Function & operator=(nullptr_t) = delete;
 
 
 

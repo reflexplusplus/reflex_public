@@ -57,6 +57,11 @@
 
 #p The template parameters define the expected types and enforce strong typing at the call site.
 
+#h2 Validation
+
+#p Within Reflex, deserialization fundamentally expects pre-validated input. Individual Data::Deserialize calls do not perform size or integrity checks - this is by design, not omission. A size check at the individual deserializer level is largely meaningless in isolation: confirming that 4 bytes remain before reading a UInt32 says nothing about whether that value is semantically correct. 
+#p The general approach therefore is validation at the stream boundary, before deserialization begins. Once a valid, correctly bounded Archive::View is established at the container level, deserializers downstream can and should proceed without checks.
+#p The main exception is the higher-level SerializableFormat::Deserialize path, which does perform stream validation in order to support the Format::Decode-style APIs as those are intended to unpack external input data.  See Data::Format and Data::SerializableFormat for more info.
 
 #h1 Ordering and determinism
 
@@ -87,11 +92,6 @@
 #p Use PropertySet serialization (EncodePropertySet) when flexibility, flexible version evolution, or dynamic composition is required.
 
 #p Both systems share the same Data namespace but target different problem spaces.
-
-Here’s a **documentation-style “Relationship to Pack / Unpack” section**, aligned with the tone of the rest of the guide and clearly distinguishing intent.
-
-You can drop this directly after the PropertySet relationship section.
-
 
 #h1 Relationship to Pack / Unpack
 
@@ -266,7 +266,7 @@ You can drop this directly after the PropertySet relationship section.
 
 #h2 Multi-Icon SVG Sets
 
-#p Reflex supports icon sets where multiple icons are defined in a single SVG file using the `<symbol>` tag with unique IDs. Declare the SVG resource once, then select individual icons using the `>` frame selector - the same syntax used for bitmap sprite frames.
+#p Reflex supports icon sets where multiple icons are defined in a single SVG file using the '<symbol>' tag with unique IDs. Declare the SVG resource once, then select individual icons using the '>' frame selector - the same syntax used for bitmap sprite frames.
 
 <code>
 #p @SVG icons:
@@ -356,9 +356,9 @@ You can drop this directly after the PropertySet relationship section.
 
 6:
 {
-	@WString Description: "#p While Reflex’s native formats (text-based PropertySheet and the binary PropertySet format) provide better type support, performance, and integration with the Reflex pipeline, JSON remains the natural choice when exchanging data with external systems - especially web services, scripting environments, and tools that expect standard JSON encoding.
+	@WString Description: "#p While Reflex’s native formats (text-based PropertySheet and the binary PropertySet format) provide better type support and integration with the Reflex pipeline, JSON remains the natural choice when exchanging data with external systems - especially web services, scripting environments, and tools that expect standard JSON encoding.
 
-#p Reflex::Data provides full support for mapping JSON to/from PropertySet, allowing seamless interchange while retaining the benefits of PropertySet’s typed accessors and structured hierarchy.
+#p Reflex::Data provides support for mapping JSON to/from PropertySet, allowing interchange while retaining the benefits of PropertySet’s typed accessors and structured hierarchy.
 
 #h1 Decoding JSON into a PropertySet
 
@@ -407,14 +407,9 @@ You can drop this directly after the PropertySet relationship section.
 
 #h2 JSON decoding options
 
-#p JSON decoding supports configurable options, such as:
+#p Requires use of KeyMap to associate Key32 id's with their source string.
 
-<list>
-#p Decoding all strings as WString instead of CString.
-#p Decoding numbers as 64-bit float/int types instead of 32-bit defaults.
-</list>
-
-#p These are controlled via the optional Decode options structure passed to `DecodePropertySet`.
+#p These are controlled via the optional Decode options structure passed to 'DecodePropertySet'.
 
 
 #h1 Encoding PropertySet to JSON
@@ -450,16 +445,31 @@ You can drop this directly after the PropertySet relationship section.
 #p File::Save(path, blob);
 </code>
 
-#p The resulting `Data::Archive` contains a UTF-8 JSON document.
+#p The resulting 'Data::Archive' contains a UTF-8 JSON document.
 
+
+#h1 Supported types
+<list>
+#p PropertySet
+#p PropertySetArray
+#p BoolProperty
+#p UInt32Property
+#p UInt64Property
+#p Int32Property
+#p Int64Property
+#p Float32Property
+#p Float64Property
+#p CStringProperty
+#p WStringProperty
+</list>
 
 #h1 Summary
 
 <list>
-#p Use DecodePropertySet / EncodePropertySet with `kJSON` for full JSON↔PropertySet interoperability.
+#p Use DecodePropertySet / EncodePropertySet with 'kJsonFormat' for full JSON <-> PropertySet interoperability.
 #p Use typed accessors (GetFloat32, GetCString, GetPropertySet, etc.) exactly as with native PropertySet formats.
 #p JSON keys must be string-mapped via AcquireKeyMap / RegisterKey.
-#p Root arrays are accessed using `GetPropertySetArray(json, kNullKey)`.
+#p Root arrays are accessed using 'GetPropertySetArray(json, kNullKey)'.
 #p JSON decoding/encoding offers flexible type options for strings and numeric widths.
 </list>";
 
@@ -797,6 +807,8 @@ You can drop this directly after the PropertySet relationship section.
 
 #p Progress and completion are commonly monitored via polling using clocks created with CreateClock() or CreatePeriodic().
 
+#p However the recommended solution is to use the AttachAwait helper function which handles this pattern safelt, including use of weak references for handling edge cases where the completion callback destroys the observer.
+
 <warn>
 #p In UI code, do not use Async::CreateClock or Async::CreatePeriodic. Use the GLX equivalents (GLX::CreateAnimationClock, GLX::CreatePeriodicClock, or GLX::Object::OnClock), which guarantee a valid UI context for each callback.
 </warn>
@@ -839,31 +851,6 @@ You can drop this directly after the PropertySet relationship section.
 #p 		break;
 #p 	}
 #p });
-</code>
-
-#h2 Reusable UI $qAwait$q helper
-
-<code>
-#p void AttachAwait(GLX::Object & object, Key32 id, TRef <Async::Task> task, const Function <void(bool ok, Reflex::Object & result)> & callback)
-#p {
-#p 	GLX::AttachPeriodicClock(object, id, 0.25f, 0.25f, [&object, id, task = AutoRelease(task), callback]()
-#p 	{
-#p 		auto status = task->GetStatus();
-#p 		
-#p 		if (status == Async::Task::kStatusPending)
-#p 		{
-#p 			return;		//exit early, no callback
-#p 		}
-#p 		else 
-#p 		{
-#p 			Reflex::Detail::WeakRef <GLX::Object> weakref(object);	//object could die during callback, but we need to access again on last line
-#p 	
-#p 			callback(status == Async::Task::kStatusCompleted, task->GetResult());
-#p 	
-#p 			GLX::DetachClock(weakref.Load(), id);	//also releases the task, because was captured in a Reference
-#p 		}
-#p 	});
-#p }
 </code>
 ";
 
@@ -1224,8 +1211,15 @@ You can drop this directly after the PropertySet relationship section.
 <list>
 #p All XML values are strings (attributes and any stored element values). Convert manually if you need numeric types.
 #p Child elements are always in the kNullKey PropertySetArray (AcquireXmlNodes / GetXmlNodes).
-#p Tag name lives in the `ktag` CString on each node (GetXmlTag).
+#p Tag name lives in the 'ktag' CString on each node (GetXmlTag).
 #p If your XML subset is “icons/SVG-like”, you can usually ignore namespaces, DTD, entities, etc.
+</list>
+
+
+#h1 Supported types
+<list>
+#p PropertySetArray (xml elements)
+#p CStringProperty (xml attributes)
 </list>
 
 
@@ -1257,25 +1251,28 @@ You can drop this directly after the PropertySet relationship section.
 #h2 kPropertySetFormat
 <list>
 #p Recommended binary format
-#p Fast, compact, and supports the full range of Reflex property types (ints, floats, arrays, nested sets, blobs, colours, points, etc)
+#p Fast, compact, and supports the widest range of Reflex property objects: PropertySet, BoolProperty, UInt32Property, UInt64Property, Int32Property, Int64Property, Float32Property, Float64Property, CStringProperty, WStringProperty, Key32Property, ArchiveObject, and KeyMap.
 </list>
 
 #h2 kPropertySheetFormat
 <list>
 #p Human-readable text format
-#p Similar to JSON but with additional type info support (e.g. a sheet can encode various int formats)
+#p Similar to JSON but with additional type info support.
+#p Supports PropertySet, PropertySetArray, BoolProperty, UInt32Property, UInt64Property, Int32Property, Int64Property, Float32Property, Float64Property, CStringProperty, WStringProperty, Key32Property, ArchiveObject, and KeyMap.
 </list>
 
 #h2 kJsonFormat
 <list>
 #p Standard JSON
-#p Ideal for interoperability with web APIs and external tooling. Limited to JSON-compatible types
+#p Ideal for interoperability with web APIs and external tooling.
+#p Supports PropertySet, PropertySetArray, BoolProperty, UInt32Property, UInt64Property, Int32Property, Int64Property, Float32Property, Float64Property, CStringProperty, WStringProperty, and KeyMap. Unsupported values are emitted as null.
 </list>
 
 #h2 kReflexXmlFormat
 <list>
 #p Supports a sub-set of XML
-#p Only attributes and nested elements (ignores text content between tags)
+#p Only attributes and nested elements (ignores text content between tags).
+#p Supports PropertySetArray, CStringProperty, BoolProperty, Int32Property, Float32Property, and KeyMap. Nested node payloads are represented as PropertySet children.
 </list>
 
 #h1 Typical Usage
@@ -4062,7 +4059,7 @@ See also Bootstrap::Detail::SetStyle.
 
 #p TabGroup does not define any custom event IDs of its own.
 #p Selection is driven by the underlying GLX::Selector, and TabGroup forwards the selector's panel-selection notification.
-#p To observe selection changes, either listen on the selector returned by `GetSelector()`, or handle `GLX::Selector::kSelectPanel` on the TabGroup itself.
+#p To observe selection changes, either listen on the selector returned by 'GetSelector()', or handle 'GLX::Selector::kSelectPanel' on the TabGroup itself.
 
 #h2 Styling
 
@@ -4305,8 +4302,7 @@ See also Bootstrap::Detail::SetStyle.
 {
 	Group: true;
 
-	@WString Description: "```txt
-#p Reflex makes a primary, explicit distinction between object-types and value-types. Object types derive from Reflex::Object, are shared, reference counted, typically heap-based (although they can also be instantiated on the stack), and non-copyable by default.
+	@WString Description: "#p Reflex makes a primary, explicit distinction between object-types and value-types. Object types derive from Reflex::Object, are shared, reference counted, typically heap-based (although they can also be instantiated on the stack), and non-copyable by default.
 
 #p Value types (non-Objects such as UInt32 or Array) are lightweight stack-based primitives. To promote a value into an object so it can participate in reference counting, heap allocation, dynamic properties, or generic object APIs, use ObjectOf<TYPE>.
 
@@ -4480,7 +4476,6 @@ See also Bootstrap::Detail::SetStyle.
 #link symbol: [$qReflex$q, $qData$q, $qPropertySet$q]; text: $qData::PropertySet$q;
 #p .
 </span>
-```
 ";
 
 	Path: ["Reflex", "Object"];
@@ -4823,6 +4818,25 @@ See also Bootstrap::Detail::SetStyle.
 
 193:
 {
+	@WString Description: "#p Human-readable Reflex property-sheet serializer.
+	
+#h1 Supported types
+<list>
+#p PropertySet
+#p PropertySetArray
+#p BoolProperty
+#p UInt32Property
+#p UInt64Property
+#p Int32Property
+#p Int64Property
+#p Float32Property
+#p Float64Property
+#p CStringProperty
+#p WStringProperty
+#p Key32Property
+#p ArchiveObject
+</list>";
+
 	Path: ["Reflex", "Data", "kPropertySheetFormat"];
 
 	Module: ["Reflex", "Data", "Format"];
@@ -6024,6 +6038,10 @@ See also Bootstrap::Detail::SetStyle.
 
 274:
 {
+	@WString Description: "#p Binary serialization for PropertySet data.
+#p Stores ArchiveObject properties only, using the Reflex binary container format.
+#p Supported serialized property type: ArchiveObject.";
+
 	Path: ["Reflex", "Data", "kBinaryFormat"];
 
 	Module: ["Reflex", "Data", "Format"];
@@ -6031,26 +6049,66 @@ See also Bootstrap::Detail::SetStyle.
 
 275:
 {
+	@WString Description: "#p Attaches a completion callback to a running task, bound to the lifetime of a host object. 
+
+#p Internally, a periodic clock is stored as a named property on the host object, which polls the task status and invokes the callback once the task completes. Because the clock is owned by the host object, it is released when the object is destroyed, ensuring the callback is never called after the host has been destructed.
+
+#p Two overloads are provided: one for Data::PropertySet (general use), one for GLX::Object (UI code).
+
+<list>
+#p object: The host object that owns the await state. The callback lifetime is tied to this object.
+#p clock_id: Id for the clock used for polling, attaching a new await with the same id replaces any existing one.
+#p task: The running task to observe.
+#p callback: Invoked on completion with 'ok' indicating success and 'result' payload object.
+</list>
+
+<code>
+#p // create and start a background task
+#p auto task = New<Async::Worker>([](Async::Worker::Context& ctx)
+#p {
+#p  // ... do work, call ctx.SetResult when done
+#p });
+#p 
+#p // attach completion callback - lifetime tied to *this
+#p // if *this is destroyed before the task completes, callback is never called
+#p Async::AttachAwait(*this, $qanalyse$q, task, [this](bool ok, Object & result)
+#p {
+#p 	if (ok)
+#p 	{
+#p 		auto data = DynamicCast<Allocation<Float32>>(result);
+#p 		m_display.Redraw();
+#p 	}
+#p });
+</code>
+
+#p Note: for UI code, prefer the 'GLX::Object' overload which guarantees callbacks are delivered in a valid UI context. Do not use 'Async::CreatePeriodicClock' for completion monitoring in UI code - use 'AttachAwait' or the GLX clock equivalents instead.
+";
+
+	Path: ["Reflex", "Async", "AttachAwait"];
+};
+
+276:
+{
 	Path: ["Reflex", "Data", "GetKeyMap"];
 
 	Module: ["Reflex", "Data", "PropertySet"];
 };
 
-276:
+277:
 {
 	Path: ["Reflex", "ArrayRegion"];
 
 	Module: ["Reflex", "Containers"];
 };
 
-277:
+278:
 {
 	Path: ["Reflex", "GLX", "UnsetOpacity"];
 
 	Module: ["Reflex", "GLX", "Styling"];
 };
 
-278:
+279:
 {
 	@WString Description: "#p Convenience version of BindEvent for simple handlers.
 
@@ -6069,7 +6127,7 @@ See also Bootstrap::Detail::SetStyle.
 	Module: ["Reflex", "GLX", "Events"];
 };
 
-279:
+280:
 {
 	@WString Description: "#p Converts a string to a UInt32.
 
@@ -6092,7 +6150,7 @@ See also Bootstrap::Detail::SetStyle.
 	Module: ["Reflex", "String"];
 };
 
-280:
+281:
 {
 	@WString Description: "#p Converts a string to a UInt32.
 
@@ -6113,13 +6171,6 @@ See also Bootstrap::Detail::SetStyle.
 	Path: ["Reflex", "ToUInt64"];
 
 	Module: ["Reflex", "String"];
-};
-
-281:
-{
-	Path: ["Reflex", "GLX", "CreateMaxBoundsAnimation"];
-
-	Module: ["Reflex", "GLX", "Animation"];
 };
 
 282:

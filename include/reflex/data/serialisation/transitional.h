@@ -19,8 +19,6 @@ namespace Reflex::Data
 	template <class TYPE> TYPE FromBinary(Data::Archive::View view);
 
 
-	template <class TYPE> const TYPE & Peek(Archive::View & stream);
-
 	template <class TYPE> ArrayView <TYPE> ReadRawArray(Archive::View & stream, UInt n);
 
 	inline ArrayView <UInt8> ReadBytes(Archive::View & stream, UInt n) { return ReadRawArray<UInt8>(stream, n); }
@@ -83,15 +81,6 @@ template <class TYPE> inline TYPE Reflex::Data::FromBinary(Data::Archive::View v
 	{
 		return Deserialize<TYPE>(view);
 	}
-}
-
-template <class TYPE> REFLEX_INLINE const TYPE & Reflex::Data::Peek(Archive::View & stream)
-{
-	REFLEX_STATIC_ASSERT(IsRawCopyable<TYPE>::value);
-
-	REFLEX_ASSERT(stream.size >= sizeof(TYPE));
-
-	return *Reinterpret<TYPE>(stream.data);
 }
 
 template <class TYPE> REFLEX_INLINE Reflex::ArrayView <TYPE> Reflex::Data::ReadRawArray(Archive::View & stream, UInt n)

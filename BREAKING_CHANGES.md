@@ -2,6 +2,56 @@
 
 ## Pending
 
+### `System::FileHandle::Flush` now requires a `bool commit` argument
+
+`System::FileHandle::Flush()` changed signature to `bool Flush(bool commit)` in [include/reflex/system/file_handle.h](/D:/devt/reflex/include/reflex/system/file_handle.h:81).
+
+This is a source compatibility break for callers that previously invoked the no-argument form. Existing code now needs to choose whether it wants a lightweight flush or a durable commit flush:
+
+- `Flush(false)` for a non-committing flush boundary
+- `Flush(true)` for a commit-style flush used by persistence save paths
+
+### `System::FileHandle::Status()` removed
+
+`System::FileHandle::Status()` was removed from the file-handle interface.
+
+For the concrete file-handle implementations, `Status()` had effectively collapsed to "is this a real handle or the null handle", so callsites that only needed that validity check should now use `IsValid(fileHandleRef)` or an equivalent ref-validity test such as `if (fileHandleRef)`.
+
+Callsites that previously used `Status()` as a save-success signal should instead use the explicit operation results:
+
+- ref validity for open/create success
+- returned byte counts for read/write success
+- `Flush(false)` or `Flush(true)` for flush/commit success
+
+### `Data::SerializableFormat::Deserialize(...)` now reports explicit deserialize errors
+
+`Data::SerializableFormat` now returns a `DeserializeError` enum from `Deserialize(...)`, and the `Decode(...)` path uses that to surface top-level blob validation failures more explicitly.
+
+This is primarily an external-input validation mechanism for `Decode(blob)` style usage. It should not be read as a stronger promise that all nested deserialization in Reflex is now fully corruption-tolerant or recoverable: the lower-level deserialization contract still assumes valid stream ordering and correct handler behavior once execution enters trusted internal type-specific restore code.
+
+### `System::Rename` now follows POSIX replace-existing semantics, and `System::Move` is the cross-volume operation
+
+`System::Rename(...)` is now documented and implemented as a POSIX-style rename in [include/reflex/system/functions.h](/D:/devt/reflex/include/reflex/system/functions.h:43): it replaces an existing destination and is intended to fail across filesystems or volumes. A new `System::Move(...)` function is introduced for the broader relocation case, where cross-volume moves may fall back to copy/delete and are not guaranteed atomic.
+
+This is a behavior/API compatibility change for callers that relied on the previous Windows-specific split:
+
+- `System::Rename(...)` is now the atomic publish primitive used by `Reflex::File::Save(...)`
+- `System::Move(...)` should be used for relocations that may cross filesystems or volumes
+- code that previously used `System::ReplaceFile(...)` should migrate to `System::Rename(...)`
+
+## v0.2.002
+
+### `GLX::Detail::StandardLayout` constructor no longer takes an owner object
+
+`GLX::Detail::StandardLayout` no longer exposes the previous `StandardLayout(GLX::Object & owner)` constructor in [include/reflex/glx/layout/detail/standard_layout.h](/D:/devt/reflex/include/reflex/glx/layout/detail/standard_layout.h:58).
+
+This is a source compatibility break for downstream code that directly instantiates `StandardLayout` or derives from it using inherited constructors. Code written like this will need to be updated:
+
+- `New<MyLayout>(object)` -> `New<MyLayout>()`
+- derived layout types that relied on `using StandardLayout::StandardLayout;` now need to remove that dependency and provide their own constructors only if they actually need one
+
+## v0.1.015
+
 ### `DebugOutput` renamed to `Output` (compatibility alias currently retained)
 
 The core debug/logging type was renamed from `DebugOutput` to `Output` in the public headers, for example in [include/reflex/core/debug/output.h](/D:/devt/reflex_minimal/include/reflex/core/debug/output.h:14).

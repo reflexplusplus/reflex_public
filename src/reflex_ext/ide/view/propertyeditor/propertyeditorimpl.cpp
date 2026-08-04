@@ -542,7 +542,7 @@ bool PropertyEditorImpl::OnEvent(GLX::Object & src, GLX::Event & e)
 
 void PropertyEditorImpl::OnAttachWindow()
 {
-	GLX::AttachPeriodicClock(*this, K32("clock"), 0.1f, 0.1f, BindMethod(this, &PropertyEditorImpl::PopulateProperties));
+	GLX::AttachPeriodicClock(*this, K32("clock"), 0.1f, BindMethod(this, &PropertyEditorImpl::PopulateProperties));
 }
 
 void PropertyEditorImpl::OnDetachWindow()

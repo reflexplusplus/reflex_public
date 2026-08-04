@@ -460,7 +460,7 @@ void Reflex::GLX::MenuImpl::OnAttachWindow()
 
 		if (auto idx = LookupBranchIndex(content, Core::desktop->GetMouseOver()))
 		{
-			AttachPeriodicClock(*m_root, kNullKey, 0.35f, 0.0f, [this, ref = Core::WeakReference(LookupChildAtIndex(content, idx.value))]()
+			AttachPeriodicClock(*m_root, kNullKey, 0.35f, [this, ref = Core::WeakReference(LookupChildAtIndex(content, idx.value))]()
 			{
 				auto & item = *ref;
 

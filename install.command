@@ -36,11 +36,11 @@ echo "Extracting..."
 
 unzip -q -o "$ZIP" -d "$TEMP_DIR"
 
-if [[ -d "$TEMP_DIR/reflex/bin" ]]; then
+if [[ -d "$TEMP_DIR/bin" ]]; then
 	mkdir -p "$ROOT/bin"
-	cp -R "$TEMP_DIR/reflex/bin/." "$ROOT/bin/"
+	cp -R "$TEMP_DIR/bin/." "$ROOT/bin/"
 else
-	echo "Package does not contain reflex/bin folder."
+	echo "Package does not contain bin folder."
 	exit 1
 fi
 

@@ -11,3 +11,10 @@ namespace Reflex::Async
 	extern Reflex::Detail::Module module;	//-> Reflex::System::module
 
 }
+
+namespace Reflex::GLX
+{
+
+	class Object;
+
+}

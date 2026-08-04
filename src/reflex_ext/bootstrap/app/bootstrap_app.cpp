@@ -148,9 +148,7 @@ bool Reflex::Bootstrap::App::Open(const WString::View & path, const Data::Archiv
 	{
 		auto stream = Splice(data, 4).b;
 
-		session->Deserialize(stream, File::PersistentPropertySet::kContextPreset);
-
-		return true;
+		return session->Deserialize(stream, File::PersistentPropertySet::kContextPreset) == Data::SerializableFormat::kDeserializeErrorNone;
 	}
 	else
 	{

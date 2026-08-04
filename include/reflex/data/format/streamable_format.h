@@ -30,7 +30,16 @@ public:
 	static SerializableFormat & null;
 
 
-	void Deserialize(Archive::View & stream, PropertySet & data) const;
+	enum DeserializeError
+	{
+		kDeserializeErrorNone,
+		kDeserializeErrorInvalidHeader,
+		kDeserializeErrorUnsupportedVersion,
+		kDeserializeErrorInvalidStream,
+		kDeserializeErrorUnknownType,
+	};
+
+	DeserializeError Deserialize(Archive::View & stream, PropertySet & data) const;
 
 	void Serialize(Archive & stream, const PropertySet & data) const;
 
@@ -38,16 +47,14 @@ public:
 
 protected:
 
-	virtual void OnDeserialize(Archive::View & stream, PropertySet & data, UInt32 options) const = 0;
+	virtual DeserializeError OnDeserialize(Archive::View & stream, PropertySet & data, UInt32 options) const = 0;
 
 	virtual void OnSerialize(Archive & stream, const PropertySet & data) const = 0;
 
 
 
-private:
+	virtual bool OnDecode(PropertySet & out, const Archive::View & in, UInt32 options) const override;
 
-	virtual bool OnDecode(PropertySet & out, const Archive::View & in, UInt32 options) const override final;
-
-	virtual bool OnEncode(Archive & out, const PropertySet & in, UInt32 options) const override final;
+	virtual bool OnEncode(Archive & out, const PropertySet & in, UInt32 options) const override;
 
 };

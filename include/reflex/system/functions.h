@@ -40,14 +40,14 @@ namespace Reflex::System
 	bool GetFileAttributes(const WString & path, Tuple <UInt64,UInt64> & size_time);	//size, modified time
 
 
-	bool Rename(const WString & from, const WString & to);
+	bool Rename(const WString & from, const WString & to);	//POSIX-style rename (atomic, replace if exists, fail across volume)
 
 	bool Delete(const WString & path);
 
-	bool MakeDirectory(const WString & path);
-
-
 	bool Exists(const WString & path);
+
+
+	bool MakeDirectory(const WString & path);
 
 	bool IsDirectory(const WString & path);
 

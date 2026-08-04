@@ -65,11 +65,11 @@ inline bool Reflex::Data::Format::Decode(PropertySet & out, const Archive::View 
 	return OnDecode(out, in, options);
 }
 
-inline void Reflex::Data::SerializableFormat::Deserialize(Archive::View & stream, PropertySet & data) const
+inline Reflex::Data::SerializableFormat::DeserializeError Reflex::Data::SerializableFormat::Deserialize(Archive::View & stream, PropertySet & data) const
 {
 	OnReset(data);
 
-	OnDeserialize(stream, data, 0);
+	return OnDeserialize(stream, data, 0);
 }
 
 inline void Reflex::Data::SerializableFormat::Serialize(Archive & stream, const PropertySet & data) const

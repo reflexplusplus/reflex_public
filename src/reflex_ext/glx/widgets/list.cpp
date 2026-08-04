@@ -30,8 +30,6 @@ REFLEX_NOINLINE static bool EmitReorderRequest(Core::WeakReference & list, Trans
 
 struct ListLayout : public Detail::StandardLayout
 {
-	using StandardLayout::StandardLayout;
-
 	Pair <AccommodateFn,AlignFn> OnRebuild(GLX::Object & object, UInt8 layout_flags) override;
 
 	static void OnAccommodate(List & list, bool & isresponsive, Size & contentsize);
@@ -286,7 +284,7 @@ REFLEX_END_INTERNAL
 Reflex::GLX::List::List()
 	: GLX::AbstractList([](GLX::Object & self) -> TRef <Detail::LayoutModel>
 	{
-		return New<ListLayout>(self);
+		return New<ListLayout>();
 	})
 {
 }

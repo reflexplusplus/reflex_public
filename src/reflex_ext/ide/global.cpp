@@ -132,7 +132,7 @@ void ResourceGroupImpl::Refresh(File::ResourcePool::Lock & lock)
 
 			auto file = AutoRelease(lock.lock.Read(current->attributes.resolved_path, attributes));
 
-			if ((i.time_size_status != PackTimeSizeStatus(attributes)) && file->Status())
+			if ((i.time_size_status != PackTimeSizeStatus(attributes)) && IsValid(file))
 			{
 				ForceRebuild(lock);
 

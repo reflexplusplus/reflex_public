@@ -58,8 +58,6 @@ public:
 
 	//interface
 
-	virtual bool Status() const = 0;
-
 	virtual bool IsWriteable() const = 0;
 
 
@@ -78,6 +76,6 @@ public:
 
 	virtual bool Truncate() = 0;
 
-	virtual void Flush() = 0;
+	virtual bool Flush(bool commit) = 0;
 
 };

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "reflex/glx.h"
+#include "glx/[require].h"
 
 #if REFLEX_INCLUDE_UI
 
@@ -31,6 +31,7 @@
 #include "glx/animation/multi.h"
 #include "glx/animation/functions.h"
 
+#include "glx/functions/async.h"
 #include "glx/functions/dialogs.h"
 #include "glx/functions/window.h"
 #include "glx/functions/state.h"
