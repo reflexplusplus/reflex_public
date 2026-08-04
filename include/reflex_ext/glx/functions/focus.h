@@ -21,7 +21,7 @@ namespace Reflex::GLX
 
 	REFLEX_DECLARE_KEY32(WantsFocus);			//Use Data::SetBool(object, kWantsFocus, true)
 
-	void EnableFocusCycle(Object & root);		//typically set at branch root to allow on all objects within branch
+	void EnableTabNavigation(Object & root);		//typically set at branch root to allow on all objects within branch
 
 
 	void EnableFocusHighlight(Object & root);	//typically set at branch root to allow on all objects within branch
@@ -32,6 +32,9 @@ namespace Reflex::GLX
 	void SetFocusHighlight(Object & scope, const Function <TRef<Animation>()> & ctr);	//typically set at root, is inherited
 
 	void ClearFocusHighlight(Object & scope);
+
+
+	[[deprecated("use EnableTabNavigation")]] inline void EnableFocusCycle(Object & root) { EnableTabNavigation(root); }
 
 }
 

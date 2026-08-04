@@ -1,0 +1,18 @@
+<resources output="../resources.cpp">
+
+	<IDE>
+
+		<file id="font" path="fonts/OpenSans/static/OpenSans/OpenSans-Regular.ttf" public="true" compress="true"/>
+
+		<file id="mono" path="fonts/Roboto_Mono/static/RobotoMono-Regular.ttf" public="true" compress="true"/>
+
+
+		<file path="icons.png" public="true"/>
+
+		<file path="icons.txt" public="true" compress="true"/>
+
+		<file path="styles.txt" public="true" compress="true"/>
+
+	</IDE>
+
+</resources>

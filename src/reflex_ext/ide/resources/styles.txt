@@ -1,0 +1,1036 @@
+id: IDE;
+
+@Font Small:
+{
+	render: smooth;
+
+	antialias: true;
+
+	path: ":res:IDE/font";
+
+	size: 11.0;
+
+	spacing: 0;
+};
+
+@Font Regular:
+{
+	render: lcd;
+
+	antialias: true;
+
+	path: ":res:IDE/font";
+
+	size: 12;
+};
+
+@Font Medium:
+{
+	render: smooth;
+
+	antialias: true;
+
+	path: ":res:IDE/font";
+
+	size: 13;
+};
+
+@Font Code:
+{
+	path: ":res:IDE/mono";
+
+	size: 12;
+};
+
+@VectorSet ide_icons:
+{
+	path: ":res:IDE/icons.txt";
+};
+
+@Bitmap ide_icons_png:
+{
+	path: ":res:IDE/icons.png";
+
+	density: 2;
+
+	tile: 32;
+};
+
+menu:
+{
+	align: fit;
+	animate: true;
+
+	body:
+	{
+		clip: true;
+	};
+
+	y:
+	{
+		size: 20;
+
+		bg: Bar(indent: 6; range: &range; region: &region; content: Fill(corner: 3; colour: 0,32));
+	};
+
+	bg: 
+	Shadow(blur: 8; colour: 0,32),
+	Fill(colour: 232; corner: 2);
+
+	fg: Border(width: 1; colour: 232; corner: 2);
+
+	section:
+	{
+		size: 28;
+		
+		margin: 0,0,0,-2;
+		
+		bg: 
+		Fill(indent: 3; colour: 216; corner: 2),
+		Text(value: &value; indent: 10,0; font: Small; colour: 51);
+	};
+
+	common:
+	{
+		max: 256;
+
+		size: 28;
+
+		error:
+		{
+			render: x8;
+
+			margin: 8,0;
+
+			bg_colour: 255,0,0,0;
+
+			size: 17;
+
+			bg: 
+			CircleFill(colour: 255,0,0), 
+			Text(font: Small; colour: 255; justify: center; value: "!");
+		};
+	};
+	
+	item:
+	{
+		inherit: common;
+
+		@Margin text_indent: 10,0;
+		
+		bg: 
+		Line(position: bottom; indent: 8,-1; colour: 216), 
+		Text(value: &value; font: Small; indent: text_indent; colour: 51; overflow: &overflow|ellipsis);
+
+		@State hover:
+		{
+			bg:
+			Fill(indent: 2,1; colour: 255,128),
+			Line(position: bottom; indent: 8,-1; colour: 216),
+			Text(value: &value; font: Small; indent: text_indent; colour: 40; overflow: &overflow|ellipsis);
+		};
+
+		@State focused:
+		{
+			fg: Border(indent: 3; colour: 192; corner: 3);
+		};
+
+		@State selected:
+		{
+			@Margin text_indent: 10,0,32,0;
+		
+			fg:
+			Align(indent: 10,3; position: right; size: 6; content: CircleFill(colour: 51));
+
+			@State hover:
+			{
+				inherit: hover;
+				
+				fg:
+				Align(indent: 10,3; position: right; size: 6; content: CircleFill(colour: 40));
+			};
+
+			@State focused:
+			{
+				fg: 
+				Align(indent: 10,3; position: right; size: 6; content: CircleFill(colour: 51)),
+				Border(indent: 3; colour: 192; corner: 3);
+			};
+		};
+
+		@State inactive:
+		{
+			bg: 
+			Line(position: bottom; indent: 8,-1; colour: 216), 
+			Text(value: &value; font: Small; indent: text_indent; colour: 128; overflow: &overflow|ellipsis);
+		};
+	};
+
+	option:
+	{
+		inherit: item;
+
+		@Margin text_indent: 10,0,32,0;
+
+		fg: Align(indent: 10,3; position: right; size: 6; content: Circle(colour: 160));
+	};
+
+	folder:
+	{
+		inherit: common;
+
+		bg: 
+		Line(position: bottom; indent: 8,-1; colour: 216), 
+		Text(value: &value; font: Small; indent: 10,0,32,0; colour: 51; overflow: &overflow|ellipsis);
+
+		fg: Align(indent: 10,0; position: right; size: 6; content: TriangleFill(direction: right; colour: 60));
+
+		@State hover:
+		{
+			fg: Align(indent: 10,0; position: right; size: 6; content: TriangleFill(direction: right; colour: 40));
+
+			@State aselected:
+			{
+				bg:
+				Line(position: bottom; indent: 8,-1; colour: 216),
+				Fill(indent: 2,1; colour: 255,128),
+				Text(value: &value; indent: 10,0,32,0; font: Small; colour: 40; overflow: ellipsis);
+			};
+		};
+
+		@State focused:
+		{
+			fg: Align(indent: 10,0; position: right; size: 6; content: TriangleFill(direction: right; colour: 40));
+
+			@State hover:
+			{
+				fg: Align(indent: 10,0; position: right; size: 6; content: TriangleFill(direction: right; colour: 40));
+			};
+		};
+
+		@State selected:
+		{
+			bg: 
+			Line(position: bottom; indent: 8,-1; colour: 216), 
+			Text(value: &value; indent: 10,0,32,0; font: Small; colour: 51; overflow: ellipsis);
+
+			fg: Align(indent: 10,0; position: right; size: 6; content: TriangleFill(direction: right; colour: 40));
+		};
+	};
+
+	separator:
+	{
+		size: 1;
+
+		bg: 
+		Fill(indent: 0,-4; colour: 232), 
+		Fill(indent: 6,0; colour: 192);
+	};
+
+	@State sub:
+	{
+		align: near;
+	};
+};
+
+Icon:
+{
+	colour: 0;
+	
+	render: x8;
+
+	opacity: 0.35;
+
+	size: 32;
+
+	@State hover:
+	{
+		opacity: 0.5;
+	};
+
+	@State selected:
+	{
+		opacity: 0.75;
+	};
+};
+
+Builder:
+{
+	inherit: Icon;
+
+	bg: Image(source: ide_icons_png > a; anchor: center);
+};
+
+Settings:
+{
+	inherit: Icon;
+
+	bg: Image(source: ide_icons_png > b; anchor: center);
+};
+
+Debug:
+{
+	inherit: Icon;
+
+	bg: Image(source: ide_icons > debug; anchor: center);
+};
+
+UI:
+{
+	inherit: Icon;
+
+	bg: Image(source: ide_icons > ui; anchor: center);
+};
+
+Close:
+{
+	inherit: Icon;
+	
+	bg:
+	Align
+	(
+		size: 16;
+
+		content: Rotate(angle: 0.125; content: Line(position: fit,center; width: 2),Line(position: center,fit; width: 2))
+	);
+};
+
+Button:
+{
+	transition: 0.25;
+
+	size: 28;
+
+	bg: Fill(colour: 200; indent: 2; corner: 1.5);
+
+	fg: Text(value: &value; font: Small; indent: 12,0; colour: 96; transform: uppercase);
+
+	@State hover:
+	{
+		bg: Fill(colour: 192; indent: 2; corner: 1.5);
+
+		fg: Text(value: &value; font: Small; indent: 12,0; colour: 96; transform: uppercase);
+	};
+
+	@State selected:
+	{
+		bg: Fill(colour: 80,192,248; indent: 2; corner: 1.5);
+
+		fg: Text(value: &value; font: Small; indent: 12,0; colour: 255; transform: uppercase);
+	};
+
+	@State inactive:
+	{
+		fg: Text(value: &value; font: Small; indent: 12,0; colour: 128; transform: uppercase);
+	};
+};
+
+Popup:
+{
+	render: x2;
+
+	margin: 2;
+
+	size: 24;
+	
+	@Colour text_colour: 64,64,64;
+
+	bg:
+	Fill(colour: 200; corner: 2),
+	Text(value: &value; indent: 8,0,20,0; font: Small; justify: left; colour: text_colour),
+	Text(value: &info; indent: 8,0,20,0; font: Small; justify: right; colour: text_colour),
+	Align(indent: 9,0; position: right; size: 6,4; content: TriangleFill(direction: bottom; colour: 64));
+	
+	@State hover:
+	{
+		@Colour text_colour: 32,32,32;
+	};
+
+	@Alias menu;
+};
+
+InfoItem:
+{
+	size: 28;
+
+	bg: Fill(colour: 232; indent: 0,0,0,1);
+
+	Key:
+	{
+		bg: Text(value: &value; font: Medium; indent: 8,0; colour: 144);
+	};
+
+	Value:
+	{
+		padding: 0,0,2,0;
+		
+		bg: Text(value: &value; font: Medium; indent: 8,0; justify: right; colour: 32; overflow: ellipsis_left);
+
+		Search:
+		{
+			content:
+			{
+				bg: TextEdit(font: Medium; indent: 8,0; value: &value; colour: 32);
+			};
+		};
+		
+		Option:
+		{
+			size: 20;
+
+			transition: 0.25;
+
+			bg: Fill(colour: 200; indent: 2,4; corner: 1.5);
+
+			fg: Text(value: &value; font: Small; indent: 8,0; colour: 96; transform: uppercase);
+
+			@State selected:
+			{
+				bg: Fill(colour: 80,192,248; indent: 2,4; corner: 1.5);
+
+				fg: Text(value: &value; font: Small; indent: 8,0; colour: 255; transform: uppercase);
+			};
+		};
+	};
+
+	@State selected:
+	{
+		bg: Fill(colour: 80,192,248; indent: 0,0,0,1);
+
+		Key:
+		{
+			bg: Text(value: &value; font: Medium; indent: 8,0);
+		};
+
+		Value:
+		{
+			bg: Text(value: &value; font: Medium; indent: 8,0; justify: right; overflow: ellipsis_left);
+		};
+	};
+
+	@State Warning:
+	{
+		bg: Fill(colour: 255,255,0; indent: 0,0,0,1);
+
+		Key:
+		{
+			bg: Text(value: &value; font: Medium; indent: 8,0; colour: 8);
+		};
+
+		Value:
+		{
+			bg: Text(value: &value; font: Medium; indent: 8,0; justify: right; overflow: ellipsis_left; colour: 8);
+		};
+	};
+
+	@State Error:
+	{
+		bg: Fill(colour: 255,0,0; indent: 0,0,0,1);
+
+		Key:
+		{
+			bg: Text(value: &value; font: Medium; indent: 8,0);
+		};
+
+		Value:
+		{
+			bg: Text(value: &value; font: Medium; indent: 8,0; justify: right; overflow: ellipsis_left);
+		};
+	};
+
+	@State Invert:
+	{
+		Value:
+		{
+			bg: Text(value: &value; font: Medium; indent: 8,0; colour: 32);
+		};
+	};
+};
+
+Dialog:
+{
+	bg_colour: 242;
+
+	header:
+	{
+		margin: 0,1,0,0;
+
+		bg_colour: 255;
+
+		size: 48;
+
+		padding: 8,0;
+
+		bg: Text(value: &value; font: Medium; indent: 16,0; colour: 32);
+
+		tab:
+		{
+			bg: Text(value: &value; font: Medium; indent: 8,0; colour: 144);
+
+			@State hover:
+			{
+				bg: Text(value: &value; font: Medium; indent: 8,0; colour: 80);
+			};
+
+			@State selected:
+			{
+				bg: Text(value: &value; font: Medium; indent: 8,0; colour: 8);
+			};
+		};
+		
+		@Alias Builder;
+
+		@Alias Settings;
+
+		@Alias Debug;
+
+		@Alias UI;
+	};
+
+	body:
+	{
+		fg: InnerShadow(width: 0,2,0,0; colour: 0,32);
+	};
+
+	footer:
+	{
+		margin: 0,1,0,0;
+
+		bg_colour: 255;
+
+		size: 48;
+
+		padding: 8,0;
+
+		bg: Text(value: &value; font: Medium; indent: 16,0; colour: 32);
+	};
+};
+
+Bar:
+{
+	bg_colour: 220;
+
+	size: 32;
+
+	padding: 4;
+
+	fg: InnerShadow(width: 0,2; colour: 0,32);
+
+	SubGroup:
+	{
+		padding: 0,8,0,0;
+
+		bg: Line(position: top; indent: 4; colour: 200);
+	};
+
+	Button:
+	{
+		inherit: Button;
+	};
+};
+
+ConsoleGroup:
+{
+	header:
+	{
+		inherit: Bar;
+
+		tab:
+		{
+			inherit: Button;
+		};
+	};
+};
+
+List:
+{
+	size: 96;
+
+	padding: 0,0,0,0;
+
+	body: 
+	{
+		clip: true;
+	};
+	
+	content:
+	{
+		item:
+		{
+			size: 28;
+		};
+	};
+
+	x:
+	{
+		bg_colour: 200;
+
+		size: 20;
+
+		bg: InnerShadow(width: 0,3,0,0; colour: 0,16), Bar(indent: 8; range: &range; region: &region; content: Fill(corner: 2; colour: 64,64));
+	};
+
+	y:
+	{
+		size: 20;
+
+		bg: Bar(indent: 8; range: &range; region: &region; content: Fill(corner: 2; colour: 64,64));
+	};
+
+	node:
+	{
+		header:
+		{
+		};
+
+		body:
+		{
+			margin: 16,0,0,0;
+		};
+
+	};
+};
+
+Rectangle:
+{
+	bg:
+	Line(colour: 255,0,0,200; pattern: dashed; position: left),
+	Line(colour: 255,0,0,200; pattern: dashed; position: right),
+	Line(colour: 255,0,0,200; pattern: dashed; position: top),
+	Line(colour: 255,0,0,200; pattern: dashed; position: bottom);
+};
+
+ParentRectangle:
+{
+	bg:
+	Line(colour: 255,0,0,128; pattern: dotted; position: left),
+	Line(colour: 255,0,0,128; pattern: dotted; position: right),
+	Line(colour: 255,0,0,128; pattern: dotted; position: top),
+	Line(colour: 255,0,0,128; pattern: dotted; position: bottom);
+};
+
+PropertyEditor:
+{
+	Bar:
+	{
+		bg_colour: 216;
+
+		size: 28;
+
+		padding: 4,0;
+
+		Button:
+		{
+			transition: 0.25;
+		
+			margin: 2,0;
+
+			bg: Fill(colour: 200; indent: 0,4; corner: 1.5), Text(value: &value; indent: 8,0; font: Medium; colour: 48);
+
+			@State inactive:
+			{
+				bg: Text(value: &value; indent: 8,0; font: Medium; colour: 136);
+			};
+
+			@State selected:
+			{
+				bg: 
+				Fill(indent: 0,4; corner: 1.5; colour: 80,192,248), 
+				Text(value: &value; indent: 8,0; font: Medium);
+			};
+		};
+	};
+
+	Nodes:
+	{
+		inherit: List;
+
+		content:
+		{
+		};
+
+		item:
+		{
+			header:
+			{
+				size: 28;
+
+				bg:
+				Fill(indent: 0,0,0,1; colour: 232),
+				Text(font: Medium; indent: 20,0; value: &type; colour: 144),
+				Text(value: &value; font: Medium; indent: 8,0; justify: right; colour: 96; autofit: false; overflow: ellipsis),
+				Align(indent: 9,0; position: left; size: 5,6; content: TriangleFill(direction: right; corner: 2; colour: 128));
+
+				@State selected:
+				{
+					bg:
+					Fill(indent: 0,0,0,1; colour: 80,192,248),
+					Text(font: Medium; indent: 20,0; value: &type; colour: 255),
+					Text(value: &value; font: Medium; indent: 8,0; justify: right; colour: 255; autofit: false; overflow: ellipsis),
+					Align(indent: 9,0; position: left; size: 5,6; content: TriangleFill(direction: right; corner: 2; colour: 255));
+				};
+
+				@State open:
+				{
+					bg:
+					Fill(colour: 232; indent: 0,0,0,1),
+					Text(font: Medium; indent: 20,0; value: &type; colour: 144),
+					Text(value: &value; font: Medium; indent: 8,0; justify: right; colour: 96; autofit: false; overflow: ellipsis),
+					Align(indent: 8,0; position: left; size: 6,5; content: TriangleFill(direction: bottom; corner: 2; colour: 128));
+
+					@State selected:
+					{
+						bg:
+						Fill(colour: 80,192,248; indent: 0,0,0,1),
+						Text(font: Medium; indent: 20,0; value: &type; colour: 255),
+						Text(value: &value; font: Medium; indent: 8,0; justify: right; colour: 255; autofit: false; overflow: ellipsis),
+						Align(indent: 8,0; position: left; size: 6,5; content: TriangleFill(direction: bottom; corner: 2; colour: 255));
+					};
+				};
+			};
+
+			leaf:
+			{
+				header:
+				{
+					size: 28;
+
+					bg:
+					Fill(colour: 232; indent: 0,0,0,1),
+					Text(font: Medium; indent: 20,0; value: &type; colour: 144),
+					Text(value: &value; font: Medium; indent: 8,0; justify: right; colour: 96),
+					Align(indent: 9,0; position: left; size: 4; content: CircleFill(colour: 184));
+
+					@State selected:
+					{
+						bg:
+						Fill(colour: 80,192,248; indent: 0,0,0,1),
+						Text(font: Medium; indent: 20,0; value: &type; colour: 255),
+						Text(value: &value; font: Medium; indent: 8,0; justify: right; colour: 255),
+						Align(indent: 9,0; position: left; size: 4; content: CircleFill(colour: 224));
+					};
+				};
+
+			};
+
+			body:
+			{
+				margin: 20,0,0,0;
+			};
+
+		};
+	};
+
+	Properties:
+	{
+		inherit: List;
+
+		item:
+		{
+			size: 28;
+
+			bg: Fill(colour: 232; indent: 0,0,0,1);
+
+			key:
+			{
+				bg: Text(value: &value; font: Medium; indent: 8,0; colour: 128);
+			};
+
+			value:
+			{
+				bg: Text(value: &value; font: Medium; indent: 8,0; justify: right; colour: 96; overflow: ellipsis_left);
+			};
+
+			type:
+			{
+				size: 56,0;
+
+				bg: 
+				Border(indent: 4; colour: 160),
+				Text(value: &value; font: Medium; indent: 8,0; justify: center; colour: 128);
+			};
+
+			@State selected:
+			{
+				bg: Fill(colour: 80,192,248; indent: 0,0,0,1);
+
+				key:
+				{
+					bg: Text(value: &value; font: Medium; indent: 8,0);
+				};
+
+				value:
+				{
+					bg: Text(value: &value; font: Medium; indent: 8,0; justify: right; overflow: ellipsis);
+				};
+
+				type:
+				{
+					size: 56,0;
+
+					bg: 
+					Border(indent: 4),
+					Text(value: &value; font: Medium; indent: 8,0; justify: center);
+				};
+			};
+		};
+	};
+
+	Modal:
+	{
+		bg: Fill(colour: 244,128);
+	};
+
+	Dialog:
+	{
+		margin: 0;
+
+		padding: 16,44,16,16;
+
+		bg:
+		Shadow(),
+		Fill(colour: 255),
+		Border(colour: 228),
+		Text(value: &value; font: Medium; justify: top_left; indent: 16,20; colour: 64);
+
+		Field:
+		{
+			margin: 0,8;
+
+			size: 52;
+
+			padding: 0,20,0,0;
+
+			bg: Text(value: &value; font: Medium; justify: top_left; colour: 128);
+
+			Text:
+			{
+				bg: Fill(colour: 250);
+
+				fg: Border(width: 1; colour: 230);
+
+				content:
+				{
+					bg: Text(value: &value; font: Medium; indent: 8; colour: 64);
+				};
+
+				@State active:
+				{
+					fg: Border(width: 1; colour: 200);
+
+					content:
+					{
+						bg: TextEdit(font: Medium; value: &value; selection_colour: 240; selected_text_colour: 40; indent: 8; colour: 64);
+					};
+				};
+			};
+
+			MultiText:
+			{
+				size: 0,160;
+
+				inherit: Text;
+
+				content:
+				{
+					bg: Text(value: &value; font: Medium; indent: 8,10; colour: 64; justify: top_left; line_height: 1.75);
+				};
+
+				@State active:
+				{
+					content:
+					{
+						bg: TextEdit(font: Medium; indent: 8,10; colour: 64; value: &value; selection_colour: 228; selected_text_colour: 0; justify: top_left; line_height: 1.75);
+					};
+
+				};
+			};
+
+			Type:
+			{
+				size: 56,0;
+
+				bg: 
+				Border(indent: 4; colour: 160),
+				Text(value: &value; font: Medium; indent: 8,0; justify: center; colour: 128);
+
+				@Alias menu;
+
+				@State focused:
+				{
+					bg: 
+					Border(indent: 4; colour: 128),
+					Text(value: &value; font: Medium; indent: 8,0; justify: center; colour: 128);
+				};
+			};
+		};
+
+		Button:
+		{
+			margin: 4,4;
+
+			size: 28;
+
+			bg: 
+			Fill(colour: 200),
+			Text(value: &value; indent: 8,0; font: Small; transform: uppercase; justify: center; colour: 64);
+
+			@State hover:
+			{
+				bg: 
+				Fill(colour: 200),
+				Text(value: &value; indent: 8,0; font: Small; transform: uppercase; justify: center; colour: 32);
+			};
+
+			@State selected:
+			{
+				bg: 
+				Fill(colour: 80,192,248),
+				Text(value: &value; indent: 8,0; font: Small; transform: uppercase; justify: center; colour: 255);
+			};
+
+			@State inactive:
+			{
+				bg: 
+				Fill(colour: 200),
+				Text(value: &value; indent: 8,0; font: Small; transform: uppercase; justify: center; colour: 112);
+			};
+		};
+	};
+};
+
+TextEditor:
+{
+	bg_colour: 220;
+
+	inherit: List;
+
+	content:
+	{
+		LineNumbers:
+		{
+			padding: 0,7;
+
+			size: 40;
+
+			bg: Border(width: 0,0,1,0; colour: 0,32);
+
+			item:
+			{
+				size: 19;
+
+				bg: Text(value: &value; font: Code; indent: 8,0; justify: right; colour: 128);
+			};
+		};
+
+		Text:
+		{
+			bg: 
+			ColourCanvas(),
+			TextEdit(font: Code; indent: 8,12; justify: top_left; line_height: 1.6; value: &value; colour: 0; selected_text_colour: 0);
+		};
+	};
+};
+
+Row:
+{
+	size: 28;
+
+	padding: 4;
+};
+
+Section:
+{
+	header:
+	{
+		inherit: Row;
+
+		bg_colour: 220;
+
+		bg: Text(font: Regular; value: &value; indent: 8,0; justify: left; colour: 64; transform: uppercase);
+	};
+
+	body:
+	{
+		bg_colour: 232;
+	};
+};
+
+Property:
+{
+	inherit: Row;
+
+	header:
+	{
+		size: 128,0;
+
+		bg: Text(font: Regular; value: &value; indent: 4,0; justify: left; colour: 96);
+	};
+
+	bg: Line(indent: 4,0; position: far; colour: 224);
+};
+
+PopupProperty:
+{
+	inherit: Property;
+
+	body:
+	{
+		render: x2;
+
+		margin: 2;
+
+		bg:
+		Text(value: &value; indent: 20,0; font: Small; justify: right; colour: 64),
+		Align(indent: 5,0; position: right; size: 6,4; content: TriangleFill(direction: bottom; corner: 2; colour: 64));
+
+		@State hover:
+		{
+			bg:
+			Text(value: &value; indent: 20,0; font: Small; justify: right; colour: 32),
+			Align(indent: 5,0; position: right; size: 6,4; content: TriangleFill(direction: bottom; corner: 2; colour: 64));
+		};
+
+		@Alias menu;
+	};
+};
+
+ButtonProperty:
+{
+	inherit: Property;
+
+	body:
+	{
+		render: x4;
+
+		bg:
+		Align(indent: 8; size: 18,10; position: right; content: Fill(colour: 255; corner: 4)),
+		Align(indent: 17,0; size: 8; position: right; content: CircleFill(colour: 232));
+
+		@State hover:
+		{
+			bg:
+			Align(indent: 8; size: 18,10; position: right; content: Fill(colour: 255; corner: 4)),
+			Align(indent: 17,0; size: 8; position: right; content: CircleFill(colour: 232));
+		};
+
+		@State selected:
+		{
+			bg:
+			Align(indent: 8; size: 18,10; position: right; content: Fill(colour: 255; corner: 4)),
+			Align(indent: 9,0; size: 8; position: right; content: CircleFill(colour: 128));
+		};
+
+		@State inactive:
+		{
+			opacity: 0.5;
+
+			@State selected:
+			{
+				bg:
+				Align(indent: 8; size: 18,10; position: right; content: Fill(colour: 255; corner: 4)),
+				Align(indent: 17,0; size: 8; position: right; content: CircleFill(colour: 232));
+			};
+		};
+	};
+};

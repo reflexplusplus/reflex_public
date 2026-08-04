@@ -19,6 +19,8 @@ namespace Reflex::System
 
 	UInt32 GetNumProcessor();
 
+	UInt32 GetProcessID();
+
 	UInt64 GetTime();
 
 	Float64 GetElapsedTime();

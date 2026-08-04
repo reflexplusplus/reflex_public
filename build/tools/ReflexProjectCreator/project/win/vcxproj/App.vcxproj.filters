@@ -1,0 +1,40 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="..\..\..\code\app.cpp" />
+    <ClCompile Include="..\..\..\code\resources.cpp" />
+    <ClCompile Include="..\..\..\code\entry.cpp" />
+    <ClCompile Include="..\..\..\code\view.cpp" />
+    <ClCompile Include="$(REFLEX_PATH)\src\reflex_ext.cpp">
+      <Filter>Reflex</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Icon">
+      <UniqueIdentifier>{a9de5046-bb79-4d15-8cdd-32ab5c135e7f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Reflex">
+      <UniqueIdentifier>{09787b4e-afeb-4e8d-b623-3e91ac590b63}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="App.rc">
+      <Filter>Icon</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="..\icon_512x512%402x.ico">
+      <Filter>Icon</Filter>
+    </Image>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="resource.h">
+      <Filter>Icon</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="$(REFLEX_PATH)\resources\win\reflex_system.res">
+      <Filter>Reflex</Filter>
+    </Resource>
+  </ItemGroup>
+</Project>

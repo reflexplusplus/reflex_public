@@ -9,7 +9,8 @@
 
 $ErrorActionPreference = 'Stop'
 $Root = Split-Path -Parent $MyInvocation.MyCommand.Path
-$Platform = 'win'
+$Platform = 'win'              # on-disk dir token (bin\lib\win, bin\tools\win)
+$AssetPlatform = 'windows'     # release-asset token (reflex-libs-windows.zip)
 $InstalledVersionFile = Join-Path $Root 'bin\version.txt'
 
 # --- resolve version --------------------------------------------------------
@@ -61,15 +62,18 @@ try {
 	}
 
 	Write-Host "Installing Reflex SDK $Version ($Platform) from $Repo ..."
-	Get-Asset "reflex-libs-$Platform.zip"  (Join-Path $Root 'bin\lib')
-	Get-Asset "reflex-tools-$Platform.zip" (Join-Path $Root 'bin\tools')
-	Get-Asset "reflex-docs-$Platform.zip"  (Join-Path $Root 'bin\tools')
+	Get-Asset "reflex-libs-$AssetPlatform.zip"  (Join-Path $Root 'bin\lib')
+	Get-Asset "reflex-tools-$AssetPlatform.zip" (Join-Path $Root 'bin\tools')
+	Get-Asset "reflex-docs-$AssetPlatform.zip"  (Join-Path $Root 'bin\tools')
 
 	# Record the installed version (resolve "latest" from the stamp baked into libs).
 	$resolved = $Version
 	$libVer = Join-Path $Root "bin\lib\$Platform\version.txt"
 	if (($resolved -eq 'latest') -and (Test-Path $libVer)) { $resolved = (Get-Content $libVer -Raw).Trim() }
 	New-Item -ItemType Directory -Force -Path (Join-Path $Root 'bin') | Out-Null
+	# Keep the downloaded binaries out of a consumer's git status (the export strips
+	# bin/ and its .gitignore, so the install output would otherwise show as changes).
+	Set-Content -Path (Join-Path $Root 'bin\.gitignore') -Value '*'
 	Set-Content -Path $InstalledVersionFile -Value $resolved
 	Write-Host "Reflex SDK $resolved binaries installed."
 }

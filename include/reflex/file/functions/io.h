@@ -16,6 +16,11 @@ namespace Reflex::File
 	bool Save(const WString & filename, const Data::Archive::View & data);
 
 
+	Pair < WString, Reference <System::FileHandle> > AcquireTempFile(const WString::View & prefix);
+
+	bool DeleteTempFile(Pair < WString, Reference <System::FileHandle> > & temp_file);
+
+
 	UInt64 GetRemainder(const System::FileHandle & file_handle);
 
 	Data::Archive ReadBytes(System::FileHandle & file_handle);
@@ -55,6 +60,26 @@ namespace Reflex::File
 
 //
 //impl
+
+REFLEX_NS(Reflex::File::Detail)
+
+Pair < WString, Reference <System::FileHandle> > AcquireTempFile(const WString::View & filename, UInt max_tries);
+
+REFLEX_END
+
+inline Reflex::Pair < Reflex::WString, Reflex::Reference <Reflex::System::FileHandle> > Reflex::File::AcquireTempFile(const WString::View & prefix)
+{
+	REFLEX_ASSERT(!Search(prefix, kStroke));	//prefix must be a simple string, not path
+
+	return Detail::AcquireTempFile(Join(System::GetPath(System::kPathTemp), prefix, ToWString(System::GetProcessID())), 1024);
+}
+
+inline bool Reflex::File::DeleteTempFile(Pair < WString, Reference <System::FileHandle> > & temp_file)
+{
+	temp_file.b.Clear();
+
+	return Delete(temp_file.a);
+}
 
 inline Reflex::UInt64 Reflex::File::GetRemainder(const System::FileHandle & file_handle) 
 { 

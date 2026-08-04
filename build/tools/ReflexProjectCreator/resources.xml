@@ -1,0 +1,11 @@
+<resources output="code/resources.cpp">
+
+	<Config public="true">
+		<bool id="ide.texteditor.tab_spaces" value="false"/>
+	</Config>
+
+	<ReflexProjectCreator>
+		<Folder path="resources" public="true" compress="true"/>
+	</ReflexProjectCreator>
+
+</resources>

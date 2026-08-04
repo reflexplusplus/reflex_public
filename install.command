@@ -123,6 +123,9 @@ if [[ "$RESOLVED" == "latest" && -f "$ROOT/bin/lib/$PLATFORM/version.txt" ]]; th
 	RESOLVED="$(tr -d '[:space:]' < "$ROOT/bin/lib/$PLATFORM/version.txt")"
 fi
 mkdir -p "$ROOT/bin"
+# Keep the downloaded binaries out of a consumer's git status (the export strips
+# bin/ and its .gitignore, so the install output would otherwise show as changes).
+printf '*\n' > "$ROOT/bin/.gitignore"
 echo "$RESOLVED" > "$INSTALLED_VERSION_FILE"
 
 echo "Reflex SDK $RESOLVED binaries installed."
