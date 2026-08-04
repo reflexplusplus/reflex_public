@@ -30,9 +30,9 @@
 #include "glx/widgets/paginator.cpp"
 #include "glx/widgets/accordion.cpp"
 
-#include "glx/functions/layout.cpp"
 #include "glx/functions/dialogs.cpp"
-#include "glx/functions/state.cpp"
+#include "glx/functions/layout.cpp"
+#include "glx/functions/style.cpp"
 #include "glx/functions/focus.cpp"
 #include "glx/functions/drag_drop.cpp"
 #include "glx/functions/hotkey.cpp"

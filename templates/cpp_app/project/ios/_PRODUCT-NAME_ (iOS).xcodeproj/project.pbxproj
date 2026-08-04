@@ -120,6 +120,7 @@
 			buildConfigurationList = 17839E852B8EE7FD001E3A78 /* Build configuration list for PBXNativeTarget "App" */;
 			buildPhases = (
 				175245602CEA63CB00587791 /* ShellScript */,
+				1B3450012FF1000000A00001 /* Build Plist */,
 				17839E682B8EE7FB001E3A78 /* Sources */,
 				17839E692B8EE7FB001E3A78 /* Frameworks */,
 				17839E6A2B8EE7FB001E3A78 /* Resources */,
@@ -197,6 +198,26 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "\"$REFLEX_PATH/bin/tools/macos/reflex\" build-resources --path \"$PROJECT_DIR/../../resources.xml\"\n";
+			showEnvVarsInLog = 0;
+		};
+		1B3450012FF1000000A00001 /* Build Plist */ = {
+			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			name = "Build Plist";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"$REFLEX_PATH/bin/tools/macos/reflex\" build-plist \\\n  --target ios_app \\\n  --output \"$PROJECT_DIR/Info.plist\" \\\n  --product \"$PRODUCT_NAME\" \\\n  --bundle_id \"$PRODUCT_BUNDLE_IDENTIFIER\" \\\n  --version \"$MARKETING_VERSION\"\n";
 			showEnvVarsInLog = 0;
 		};
 /* End PBXShellScriptBuildPhase section */
@@ -382,8 +403,8 @@
 					REFLEX_BOOTSTRAP_TYPE_APP,
 					"$(inherited)",
 				);
-				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = Info.plist;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = "$(PROJECT_DIR)/Info.plist";
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "_PRODUCT-NAME_ would like to access the microphone";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
@@ -419,8 +440,8 @@
 					REFLEX_BOOTSTRAP_TYPE_APP,
 					"$(inherited)",
 				);
-				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = Info.plist;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = "$(PROJECT_DIR)/Info.plist";
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "_PRODUCT-NAME_ would like to access the microphone";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;

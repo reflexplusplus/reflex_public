@@ -1,9 +1,0 @@
-<resources output="../resources.cpp" format="reflex_minimal">
-
-	<Reflex::System::Win>
-
-		<file path="direct3d.hlsl" id="kDirect3dShader"/>
-
-	</>
-
-</resources>

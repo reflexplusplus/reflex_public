@@ -13,7 +13,7 @@
 namespace Reflex
 {
 
-	template <class KEY, class VALUE = NullType, class COMPARE = StandardCompare, bool CONTIGUOUS = false> class Sequence;
+	template <class KEY, class VALUE = NullType, class COMPARE = StandardCompare, bool CONTIGUOUS = false> class Sequence;		//sorted heap with indexed access
 
 }
 
@@ -50,7 +50,7 @@ public:
 
 	//lifetime
 
-	Sequence();	//VC workaround
+	Sequence();
 
 	Sequence(Allocator & allocator);
 

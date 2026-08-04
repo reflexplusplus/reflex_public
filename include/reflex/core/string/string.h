@@ -13,6 +13,7 @@ namespace Reflex
 
 	template <class CHARACTER> using String = Array <CHARACTER>;
 
+
 	using CString = String <char>;
 
 	using CString16 = String <char16_t>;

@@ -12,7 +12,7 @@
 namespace Reflex
 {
 
-	template <class TYPE, class BASE = Object, bool RETAIN = true> class Node;
+	template <class TYPE, class BASE = Object, bool RETAIN = true> class Node;		//intrusive node
 
 
 	template <class TYPE> Idx LookupBranchIndex(const TYPE & root, const TYPE & node);

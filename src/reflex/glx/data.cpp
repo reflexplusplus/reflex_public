@@ -1,2 +1,0 @@
-
-#include "data/text.cpp"

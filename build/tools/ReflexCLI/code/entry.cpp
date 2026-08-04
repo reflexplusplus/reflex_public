@@ -115,15 +115,19 @@ const CLI::TaskDef kCommands[] =
 				{ "list-templates", "" },
 				{ "list-targets", "" },
 				{ "build-resources", "--path <path>" },
+				{ "build-plist", "--target <app|audioapp|ios_app|ios_audioapp|vst2|vst3|clap|au|auv3> --output <path> --product <name> --bundle_id <id> --version <x.y.z> [--app_store_category <id>] [--vendor <name>] [--au_type <4cc>] [--au_subtype <4cc>] [--au_manufacturer <4cc>] [--au_description <text>]" },
 				{ "set-default", "[--template <id>] [--vendor <vendor>] [--targets <list>] [--output <folder>]" },
 				{ "get-defaults", "" },
 				{ "set-reflex-path", "--path <reflex-root>" },
 				{ "get-reflex-path", "" },
 			};
 
+			const auto kColourDefault = CLI::Detail::kColours[CLI::kColourWhite];
+			const auto kColourBrightBlack = CLI::Detail::kColours[CLI::kColourBrightBlack];
+
 			for (auto & command : kCommands)
 			{
-				File::WriteLine(std_out, Join(CLI::Detail::kColours[CLI::kColourWhite], command.a, ' ', CLI::Detail::kColours[CLI::kColourBrightBlack], command.b));
+				File::WriteLine(std_out, Join(kColourDefault, command.a, ' ', kColourBrightBlack, command.b, kColourDefault));
 			}
 		}
 	},
@@ -378,6 +382,13 @@ const CLI::TaskDef kCommands[] =
 			BuildResources(path, progress);
 		}
 	},
+	{
+		.id = K32("build-plist"),
+		.fn = [](const Data::PropertySet & args, System::FileHandle & std_out)
+		{
+			BuildPlist(args, std_out);
+		}
+	},
 #if REFLEX_DEBUG
 	{
 		.id = K32("test-progress-bar"),
@@ -411,6 +422,16 @@ const CLI::TaskDef kCommands[] =
 REFLEX_END_INTERNAL
 
 Reflex::Output ReflexCLI::output("Reflex");
+
+void ReflexCLI::ThrowError(CString::View msg, CString::View error)
+{
+	Bootstrap::CLI::ThrowError(Join(msg, ':', ' ', error));
+}
+
+void ReflexCLI::ThrowError(CString::View msg, WString::View error)
+{
+	ThrowError(msg, ToCString(error));
+}
 
 Reflex::UInt8 Reflex::System::OnStart(const ArrayView <CString::View> & cmdline)
 {

@@ -168,34 +168,36 @@ Control:
 			margin: 14,0;
 			size: 64,36;
 
-			color: 128;
-	
 			bg: 
-			Border(colour: 255; width: 2; corner: 8),
-			Text(font: Medium; value: &value; justify: center; indent: 2,8; colour: 72);
+			Text(font: Medium; value: &value; justify: center; indent: 2,8; colour: 72),
+			Border(colour: 128; width: 2; corner: 8);
 	
 			@State hover:
 			{
-				color: 255;
-
 				bg:
 				Blur(radius: 16; opacity: 0.25; content: Fill(corner: 8)),
 				CircleGradient(from: 255,16; to: 255,0),
-				Border(colour: 96; width: 2; corner: 8),
-				Text(font: Medium; value: &value; justify: center; indent: 2,8; colour: 32);
+				Text(font: Medium; value: &value; justify: center; indent: 2,8; colour: 32),
+				Border(colour: 96; width: 2; corner: 8);
 			};
 	
 			@State selected:
 			{
-				color: 255;
-
 				bg:
 				Blur(radius: 16; opacity: 0.5; content: Fill(corner: 8)),
 				Fill(indent: 1; colour: 255,128; corner: 8),
 				CircleGradient(from: 255,128; to: 255,0),
-				Border(colour: 0,16; width: 3; corner: 8),
-				Border(colour: 128; width: 2; corner: 8),
-				Text(font: Medium; value: &value; justify: center; _indent: 2,8; colour: 72);
+				Text(font: Medium; value: &value; justify: center; indent: 2,8; colour: 32),
+				Border(colour: 0,16; width: 3; corner: 8);
+
+				fg:
+				Border(colour: 128; width: 2; corner: 8);
+
+				@State hover:
+				{
+					fg:
+					Border(colour: 96; width: 2; corner: 8);
+				};
 			};
 			
 			@Alias active: { source: hover; };

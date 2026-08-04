@@ -47,7 +47,7 @@ template <class CHARACTER> inline Array <CHARACTER> PadLeft(const ArrayView <CHA
 
 		Fill({ t.GetData(), n }, c);
 
-		Copy({ t.GetData() + n, view.size }, view.data);
+		Copy(view, { t.GetData() + n, view.size });
 
 		return t;
 	}

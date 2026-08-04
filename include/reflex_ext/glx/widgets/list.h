@@ -6,7 +6,7 @@
 
 
 //
-//Addon API
+//Experimental API
 
 namespace Reflex::GLX
 {

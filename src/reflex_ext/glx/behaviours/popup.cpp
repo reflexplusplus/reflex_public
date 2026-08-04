@@ -84,7 +84,7 @@ struct PopupBehaviourImpl : public PopupBehaviour
 				{
 					if (auto popup = object->QueryProperty<WeakRef>(kowner))
 					{
-						popup->Load()->ClearState(kActiveState);
+						popup->Load()->UnsetState(kActiveState);
 					}
 				}
 			};

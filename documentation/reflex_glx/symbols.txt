@@ -632,6 +632,12 @@
 					Name: "offset";
 				},
 
+				{
+					@UInt64 TypeID: 8976997392607876357;
+
+					Name: "dynamic";
+				},
+
 			];
 
 		},
@@ -1816,6 +1822,63 @@
 
 	@UInt32 Index: 47;
 
+	@UInt64 Symbol: 16430351434697938181;
+
+	Name: "ImageMask";
+
+	Category: "function";
+
+	Overloads:
+	[
+		{
+			Return:
+			{
+				@UInt64 TypeID: 8980083472638940421;
+			};
+
+			Arguments:
+			[
+				{
+					@UInt64 TypeID: 13854888937195050245;
+
+					Name: "content";
+				},
+
+				{
+					IsRef: true;
+
+					@UInt64 TypeID: 974353888473781509;
+
+					Name: "autofit";
+				},
+
+				{
+					@UInt64 TypeID: 8976997392607876357;
+
+					Name: "dynamic";
+				},
+
+				{
+					IsRef: true;
+
+					@UInt64 TypeID: 10000786217219659013;
+
+					Name: "source";
+				},
+
+			];
+
+		},
+
+	];
+};
+
+48:
+{
+	Indexed: true;
+
+	@UInt32 Index: 48;
+
 	@UInt64 Symbol: 16429307426932528389;
 
 	Name: "ImageFill";
@@ -1863,11 +1926,11 @@
 	];
 };
 
-48:
+49:
 {
 	Indexed: true;
 
-	@UInt32 Index: 48;
+	@UInt32 Index: 49;
 
 	@UInt64 Symbol: 18413114587156059397;
 
@@ -1938,11 +2001,11 @@
 	];
 };
 
-49:
+50:
 {
 	Indexed: true;
 
-	@UInt32 Index: 49;
+	@UInt32 Index: 50;
 
 	@UInt64 Symbol: 965297026512196869;
 
@@ -2011,68 +2074,15 @@
 	];
 };
 
-50:
-{
-	Indexed: true;
-
-	@UInt32 Index: 50;
-
-	@UInt64 Symbol: 3111336564773360901;
-
-	Name: "GraphicCanvas";
-
-	Category: "function";
-
-	Overloads:
-	[
-		{
-			Return:
-			{
-				@UInt64 TypeID: 8980083472638940421;
-			};
-
-			Arguments:
-			[
-				{
-					IsRef: true;
-
-					@UInt64 TypeID: 14021901789926790405;
-
-					Name: "indent";
-				},
-
-				{
-					IsRef: true;
-
-					@UInt64 TypeID: 12411471392468374789;
-
-					Name: "color";
-				},
-
-				{
-					IsRef: true;
-
-					@UInt64 TypeID: 974353888473781509;
-
-					Name: "id";
-				},
-
-			];
-
-		},
-
-	];
-};
-
 51:
 {
 	Indexed: true;
 
 	@UInt32 Index: 51;
 
-	@UInt64 Symbol: 1377939582888187141;
+	@UInt64 Symbol: 3111336564773360901;
 
-	Name: "ColorCanvas";
+	Name: "GraphicCanvas";
 
 	Category: "function";
 
@@ -2123,9 +2133,9 @@
 
 	@UInt32 Index: 52;
 
-	@UInt64 Symbol: 1646520676934227205;
+	@UInt64 Symbol: 1377939582888187141;
 
-	Name: "ColourCanvas";
+	Name: "ColorCanvas";
 
 	Category: "function";
 
@@ -2176,9 +2186,9 @@
 
 	@UInt32 Index: 53;
 
-	@UInt64 Symbol: 12340501112351102213;
+	@UInt64 Symbol: 1646520676934227205;
 
-	Name: "Canvas";
+	Name: "ColourCanvas";
 
 	Category: "function";
 
@@ -2228,6 +2238,59 @@
 	Indexed: true;
 
 	@UInt32 Index: 54;
+
+	@UInt64 Symbol: 12340501112351102213;
+
+	Name: "Canvas";
+
+	Category: "function";
+
+	Overloads:
+	[
+		{
+			Return:
+			{
+				@UInt64 TypeID: 8980083472638940421;
+			};
+
+			Arguments:
+			[
+				{
+					IsRef: true;
+
+					@UInt64 TypeID: 14021901789926790405;
+
+					Name: "indent";
+				},
+
+				{
+					IsRef: true;
+
+					@UInt64 TypeID: 12411471392468374789;
+
+					Name: "color";
+				},
+
+				{
+					IsRef: true;
+
+					@UInt64 TypeID: 974353888473781509;
+
+					Name: "id";
+				},
+
+			];
+
+		},
+
+	];
+};
+
+55:
+{
+	Indexed: true;
+
+	@UInt32 Index: 55;
 
 	@UInt64 Symbol: 248109501796848901;
 
@@ -2282,11 +2345,11 @@
 	];
 };
 
-55:
+56:
 {
 	Indexed: true;
 
-	@UInt32 Index: 55;
+	@UInt32 Index: 56;
 
 	@UInt64 Symbol: 15063430568932807941;
 
@@ -2349,11 +2412,11 @@
 	];
 };
 
-56:
+57:
 {
 	Indexed: true;
 
-	@UInt32 Index: 56;
+	@UInt32 Index: 57;
 
 	@UInt64 Symbol: 15868944856299607301;
 
@@ -2408,11 +2471,11 @@
 	];
 };
 
-57:
+58:
 {
 	Indexed: true;
 
-	@UInt32 Index: 57;
+	@UInt32 Index: 58;
 
 	@UInt64 Symbol: 3672027794893706501;
 
@@ -2475,11 +2538,11 @@
 	];
 };
 
-58:
+59:
 {
 	Indexed: true;
 
-	@UInt32 Index: 58;
+	@UInt32 Index: 59;
 
 	@UInt64 Symbol: 11434150497636848901;
 
@@ -2544,11 +2607,11 @@
 	];
 };
 
-59:
+60:
 {
 	Indexed: true;
 
-	@UInt32 Index: 59;
+	@UInt32 Index: 60;
 
 	@UInt64 Symbol: 8974154334711321861;
 
@@ -2631,11 +2694,11 @@
 	];
 };
 
-60:
+61:
 {
 	Indexed: true;
 
-	@UInt32 Index: 60;
+	@UInt32 Index: 61;
 
 	@UInt64 Symbol: 2073253062503306501;
 
@@ -2690,11 +2753,11 @@
 	];
 };
 
-61:
+62:
 {
 	Indexed: true;
 
-	@UInt32 Index: 61;
+	@UInt32 Index: 62;
 
 	@UInt64 Symbol: 8973573496219112709;
 
@@ -2759,11 +2822,11 @@
 	];
 };
 
-62:
+63:
 {
 	Indexed: true;
 
-	@UInt32 Index: 62;
+	@UInt32 Index: 63;
 
 	@UInt64 Symbol: 4954868727309931781;
 
@@ -2828,11 +2891,11 @@
 	];
 };
 
-63:
+64:
 {
 	Indexed: true;
 
-	@UInt32 Index: 63;
+	@UInt32 Index: 64;
 
 	@UInt64 Symbol: 1689799709461320965;
 
@@ -2889,11 +2952,11 @@
 	];
 };
 
-64:
+65:
 {
 	Indexed: true;
 
-	@UInt32 Index: 64;
+	@UInt32 Index: 65;
 
 	@UInt64 Symbol: 12381779072370349317;
 
@@ -2956,11 +3019,11 @@
 	];
 };
 
-65:
+66:
 {
 	Indexed: true;
 
-	@UInt32 Index: 65;
+	@UInt32 Index: 66;
 
 	@UInt64 Symbol: 633738152695043333;
 
@@ -3009,11 +3072,11 @@
 	];
 };
 
-66:
+67:
 {
 	Indexed: true;
 
-	@UInt32 Index: 66;
+	@UInt32 Index: 67;
 
 	@UInt64 Symbol: 12244258531699594501;
 
@@ -3068,11 +3131,11 @@
 	];
 };
 
-67:
+68:
 {
 	Indexed: true;
 
-	@UInt32 Index: 67;
+	@UInt32 Index: 68;
 
 	@UInt64 Symbol: 8972647153377744133;
 

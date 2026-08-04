@@ -37,13 +37,15 @@ public:
 
 	class Lock;
 
+	struct Token;
+
+	struct TokenView;
+
 	struct StreamContext;
 
 
 
 	//declarations
-
-	struct Token;
 
 	using Ctr = FunctionPointer <TRef<Object>(const StreamContext & ctx, System::FileHandle & stream)>;
 
@@ -97,7 +99,7 @@ public:
 
 	template <class TYPE> TRef <TYPE> Retrieve(const WString::View & path, const Data::PropertySet & options = Data::PropertySet::null, Ctr ctr = &TYPE::Open);
 
-	const Token & RetrieveToken(TypeID type_id, const WString::View & path, const Data::PropertySet & options, Ctr ctr);
+	TokenView Retrieve(TypeID type_id, const WString::View & path, const Data::PropertySet & options, Ctr ctr);
 
 
 
@@ -113,7 +115,7 @@ public:
 
 	//advanced access
 
-	Token & Insert(const WString::View & path, const Attributes & attributes, TypeID type_id, TRef <Object> object);
+	TokenView Insert(const WString::View & path, const Attributes & attributes, TypeID type_id, TRef <Object> object);
 
 	bool Remove(Address address);
 
@@ -130,23 +132,6 @@ public:
 	VirtualFileSystem::Lock lock;
 
 	const TRef <ResourcePool> resourcepool;
-};
-
-
-
-
-//
-//ResourcePool::StreamContext
-
-struct Reflex::File::ResourcePool::StreamContext
-{
-	Lock & lock;
-
-	const Data::PropertySet & options;
-
-	WString::View path;
-
-	Attributes::Status status;
 };
 
 
@@ -170,6 +155,40 @@ struct Reflex::File::ResourcePool::Token
 
 
 //
+//ResourcePool::TokenView
+
+struct Reflex::File::ResourcePool::TokenView
+{
+	Address address;
+
+	WString::View path;
+
+	Attributes attributes;
+
+	TRef <Object> object;
+};
+
+
+
+
+//
+//ResourcePool::StreamContext
+
+struct Reflex::File::ResourcePool::StreamContext
+{
+	Lock & lock;
+
+	const Data::PropertySet & options;
+
+	WString::View path;
+
+	Attributes::Status status;
+};
+
+
+
+
+//
 //impl
 
 inline Reflex::File::ResourcePool::Lock::Lock(ResourcePool & resourcepool)
@@ -180,5 +199,5 @@ inline Reflex::File::ResourcePool::Lock::Lock(ResourcePool & resourcepool)
 
 template <class TYPE> REFLEX_INLINE Reflex::TRef <TYPE> Reflex::File::ResourcePool::Lock::Retrieve(const WString::View & path, const Data::PropertySet & options, Ctr open)
 {
-	return Cast<TYPE>(RetrieveToken(GetTypeID<TYPE>(), path, options, open).object);
+	return Cast<TYPE>(Retrieve(GetTypeID<TYPE>(), path, options, open).object);
 }

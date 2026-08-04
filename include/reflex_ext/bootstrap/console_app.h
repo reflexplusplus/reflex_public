@@ -173,7 +173,7 @@ inline void Reflex::Bootstrap::CLI::ThrowMissingArg(const CString::View & id, co
 {
 	REFLEX_ASSERT(false);
 
-	throw(Join("missing arg ", Detail::kColours[kColourBrightWhite], "--", id, ' ', Detail::kColours[kColourBrightBlack], example));
+	throw(Join("missing arg ", Detail::kColours[kColourBrightWhite], "--", id, ' ', Detail::kColours[kColourBrightBlack], example, Detail::kColours[kColourDefault]));
 }
 
 inline void Reflex::Bootstrap::CLI::ThrowError(const CString & error)

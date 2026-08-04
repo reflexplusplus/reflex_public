@@ -11,7 +11,7 @@
 namespace Reflex::Data
 {
 
-	class History;
+	class History;		//edit history (undo/redo) helper
 
 }
 

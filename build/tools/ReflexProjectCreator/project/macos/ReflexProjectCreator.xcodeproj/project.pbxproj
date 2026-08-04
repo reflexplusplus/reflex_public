@@ -249,7 +249,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				INFOPLIST_FILE = "$(REFLEX_PATH)/resources/macos/App.plist";
+				INFOPLIST_FILE = "$(PROJECT_DIR)/app.plist";
 			};
 			name = Debug;
 		};
@@ -257,7 +257,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				INFOPLIST_FILE = "$(REFLEX_PATH)/resources/macos/App.plist";
+				INFOPLIST_FILE = "$(PROJECT_DIR)/app.plist";
 			};
 			name = Release;
 		};
@@ -324,7 +324,7 @@
 					"-fpermissive",
 					"$(OTHER_CFLAGS)",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.reflexmultimedia.reflexprojectcreator;
+				PRODUCT_BUNDLE_IDENTIFIER = com.reflexplusplus.reflexprojectcreator;
 				PRODUCT_NAME = "$(PROJECT_NAME)";
 				STANDARD_C_PLUS_PLUS_LIBRARY_TYPE = static;
 				USER_HEADER_SEARCH_PATHS = "$(REFLEX_PATH)/include";
@@ -395,7 +395,7 @@
 					"-fpermissive",
 					"$(OTHER_CFLAGS)",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.reflexmultimedia.reflexprojectcreator;
+				PRODUCT_BUNDLE_IDENTIFIER = com.reflexplusplus.reflexprojectcreator;
 				PRODUCT_NAME = "$(PROJECT_NAME)";
 				STANDARD_C_PLUS_PLUS_LIBRARY_TYPE = static;
 				USER_HEADER_SEARCH_PATHS = "$(REFLEX_PATH)/include";

@@ -167,7 +167,7 @@ void Reflex::GLX::Enter(Object & object, UInt8 flags)
 
 				UnsetBounds(object, kentering);
 
-				object.ClearState(kentering);
+				object.UnsetState(kentering);
 			});
 		}
 		else
@@ -176,7 +176,7 @@ void Reflex::GLX::Enter(Object & object, UInt8 flags)
 			{
 				UnsetOpacity(object, kentering);
 
-				object.ClearState(kentering);
+				object.UnsetState(kentering);
 			});
 		}
 
@@ -243,7 +243,7 @@ void Reflex::GLX::Exit(Object & object, bool detach, UInt8 or_flags)
 			{
 				UnsetClip(object, kentering);
 
-				object.ClearState(kentering);
+				object.UnsetState(kentering);
 
 				object.Detach();
 			});
@@ -258,7 +258,7 @@ void Reflex::GLX::Exit(Object & object, bool detach, UInt8 or_flags)
 
 				Detail::Hide(object);
 
-				object.ClearState(kentering);
+				object.UnsetState(kentering);
 			});
 		}
 		else
@@ -267,7 +267,7 @@ void Reflex::GLX::Exit(Object & object, bool detach, UInt8 or_flags)
 			{
 				//EnableMouse(object, false, false);
 
-				object.ClearState(kentering);
+				object.UnsetState(kentering);
 			});
 		}
 

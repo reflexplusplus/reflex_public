@@ -113,7 +113,7 @@ void ViewImpl::OnUpdate()
 
 	auto xml_bytes = File::Open(app->GetPath());
 
-	auto xml = Make<Data::PropertySet>(Data::DecodePropertySet(Data::kReflexXmlFormat, xml_bytes));	//use a reference as we need to keep alive
+	auto xml = Make<Data::PropertySet>(Data::DecodePropertySet(Data::kReflexXmlFormat, xml_bytes));	//Make to use a reference, we need to keep xml alive
 
 	if (auto svgs = GLX::Detail::InspectSVG(xml))
 	{
@@ -124,7 +124,7 @@ void ViewImpl::OnUpdate()
 			GLX::Detail::DecodeSVG(ctx.output, svg, ctx.size);	//SVG decoding is expensive, so its recommending to decode once to kNormalSize, but for best quality decode to actual size
 		});
 
-		ClearState("empty");
+		UnsetState("empty");
 	}
 	else
 	{

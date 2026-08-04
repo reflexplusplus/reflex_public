@@ -11,7 +11,7 @@ const Reflex::UInt64 kConfig_view_allow_init_animations[1] =
 	0x0000000000000001ull, 
 };
 
-const Reflex::File::EnumerableEmbeddedResource Config::view_allow_init_animations(K32("Config"), K32("view.allow_init_animations"), reinterpret_cast<const Reflex::UInt8*>(&kConfig_view_allow_init_animations), 1u, 0u);
+const Reflex::File::EnumerableEmbeddedResource Config::view_allow_init_animations(Reflex::K32("Config"), Reflex::K32("view.allow_init_animations"), reinterpret_cast<const Reflex::UInt8*>(&kConfig_view_allow_init_animations), 1u, 0u);
 
 
 
@@ -227,7 +227,7 @@ const Reflex::UInt64 kDragAndDrop_fonts_Roboto_Mono_static_RobotoMono_Regular_tt
 	0x0000000075f856e6ull, 
 };
 
-const Reflex::File::EnumerableEmbeddedResource DragAndDrop::fonts_Roboto_Mono_static_RobotoMono_Regular_ttf(K32("DragAndDrop"), K32("fonts/Roboto_Mono/static/RobotoMono-Regular.ttf"), reinterpret_cast<const Reflex::UInt8*>(&kDragAndDrop_fonts_Roboto_Mono_static_RobotoMono_Regular_ttf), 12996u, 15748u);
+const Reflex::File::EnumerableEmbeddedResource DragAndDrop::fonts_Roboto_Mono_static_RobotoMono_Regular_ttf(Reflex::K32("DragAndDrop"), Reflex::K32("fonts/Roboto_Mono/static/RobotoMono-Regular.ttf"), reinterpret_cast<const Reflex::UInt8*>(&kDragAndDrop_fonts_Roboto_Mono_static_RobotoMono_Regular_ttf), 12996u, 15748u);
 
 
 
@@ -284,7 +284,7 @@ const Reflex::UInt64 kDragAndDrop_fonts_Roboto_Mono_OFL_txt[354] =
 	0x2e45524150002c0aull, 0x000000000000000aull, 
 };
 
-const Reflex::File::EnumerableEmbeddedResource DragAndDrop::fonts_Roboto_Mono_OFL_txt(K32("DragAndDrop"), K32("fonts/Roboto_Mono/OFL.txt"), reinterpret_cast<const Reflex::UInt8*>(&kDragAndDrop_fonts_Roboto_Mono_OFL_txt), 2825u, 4303u);
+const Reflex::File::EnumerableEmbeddedResource DragAndDrop::fonts_Roboto_Mono_OFL_txt(Reflex::K32("DragAndDrop"), Reflex::K32("fonts/Roboto_Mono/OFL.txt"), reinterpret_cast<const Reflex::UInt8*>(&kDragAndDrop_fonts_Roboto_Mono_OFL_txt), 2825u, 4303u);
 
 
 
@@ -321,7 +321,7 @@ const Reflex::UInt64 kDragAndDrop_fonts_Roboto_Mono_README_txt[194] =
 	0x6c69617465649005ull, 0x00000000000a2e73ull, 
 };
 
-const Reflex::File::EnumerableEmbeddedResource DragAndDrop::fonts_Roboto_Mono_README_txt(K32("DragAndDrop"), K32("fonts/Roboto_Mono/README.txt"), reinterpret_cast<const Reflex::UInt8*>(&kDragAndDrop_fonts_Roboto_Mono_README_txt), 1547u, 2550u);
+const Reflex::File::EnumerableEmbeddedResource DragAndDrop::fonts_Roboto_Mono_README_txt(Reflex::K32("DragAndDrop"), Reflex::K32("fonts/Roboto_Mono/README.txt"), reinterpret_cast<const Reflex::UInt8*>(&kDragAndDrop_fonts_Roboto_Mono_README_txt), 1547u, 2550u);
 
 
 
@@ -336,7 +336,7 @@ const Reflex::UInt64 kDragAndDrop_common_glx[17] =
 	0x000000000a657265ull, 
 };
 
-const Reflex::File::EnumerableEmbeddedResource DragAndDrop::common_glx(K32("DragAndDrop"), K32("common.glx"), reinterpret_cast<const Reflex::UInt8*>(&kDragAndDrop_common_glx), 132u, 132u);
+const Reflex::File::EnumerableEmbeddedResource DragAndDrop::common_glx(Reflex::K32("DragAndDrop"), Reflex::K32("common.glx"), reinterpret_cast<const Reflex::UInt8*>(&kDragAndDrop_common_glx), 132u, 132u);
 
 
 
@@ -361,7 +361,7 @@ const Reflex::UInt64 kDragAndDrop_styles_glx[102] =
 	0x03004d2934362c30ull, 0x23391100180300b8ull, 0x24003903007b0600ull, 0x63090a2302a12e32ull, 0x7d0a3b786f427001ull, 0x000000000000003bull, 
 };
 
-const Reflex::File::EnumerableEmbeddedResource DragAndDrop::styles_glx(K32("DragAndDrop"), K32("styles.glx"), reinterpret_cast<const Reflex::UInt8*>(&kDragAndDrop_styles_glx), 809u, 1277u);
+const Reflex::File::EnumerableEmbeddedResource DragAndDrop::styles_glx(Reflex::K32("DragAndDrop"), Reflex::K32("styles.glx"), reinterpret_cast<const Reflex::UInt8*>(&kDragAndDrop_styles_glx), 809u, 1277u);
 
 
 

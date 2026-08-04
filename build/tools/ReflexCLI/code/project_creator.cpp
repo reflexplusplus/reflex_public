@@ -1,15 +1,9 @@
 #include "tasks.h"
-#include "common.h"
 
 
-using namespace Reflex;
+
 
 REFLEX_BEGIN_INTERNAL(ReflexCLI)
-
-void ThrowError(CString::View msg, WString::View path)
-{
-	Bootstrap::CLI::ThrowError(Join(msg, ':', ' ', ToCString(path)));
-}
 
 struct Generator
 {
@@ -291,6 +285,28 @@ bool HasListedExtension(const WString::View & path, const Array <WString> & exte
 	return false;
 }
 
+bool CanWrite(const WString::View & path, bool overwrite)
+{
+	constexpr WString::View kProtected[] =
+	{
+		L"h",
+		L"cpp",
+		L"c",
+		L"glx"
+	};
+
+	if (overwrite) return true;
+
+	if (System::Exists(path))
+	{
+		auto ext = File::SplitExtension(path);
+
+		return !Search(kProtected, ext.b);
+	}
+
+	return true;
+}
+
 WString RenamePath(const WString::View & path, const Array <Substitution> & substitutions)
 {
 	auto renamed = ReplaceAll(Data::EncodeUTF8(path), substitutions);
@@ -332,7 +348,7 @@ WString InstallFolder(const TemplateDefinitionEx & tmpl, const Array <Variable> 
 			auto file_renamed = RenamePath(file.key, /*tmpl.targets.rename_types,*/ rename_substitutions);
 			auto dst_path = Join(dst, file_renamed);
 
-			if (System::Exists(dst_path) && !overwrite)
+			if (!CanWrite(dst_path, overwrite))
 			{
 				File::WriteLine(std_out, Join(L"skipping: ", dst_path));
 			}
@@ -393,7 +409,7 @@ bool ReflexCLI::StringCompare::eq(CString::View a, CString::View b)
 	return true;
 }
 
-WString ReflexCLI::CreateProject(const TemplateDefinition & base_tmpl, ArrayView <Variable> string_inputs, ArrayView <Variable> path_inputs, ArrayView <CString> targets, const WString::View & output_root, bool overwrite, System::FileHandle & std_out)
+Reflex::WString ReflexCLI::CreateProject(const TemplateDefinition & base_tmpl, ArrayView <Variable> string_inputs, ArrayView <Variable> path_inputs, ArrayView <CString> targets, const WString::View & output_root, bool overwrite, System::FileHandle & std_out)
 {
 	auto tmpl = OpenTemplateDefinitionEx(base_tmpl.folder);
 		

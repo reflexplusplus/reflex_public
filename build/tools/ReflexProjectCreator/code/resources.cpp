@@ -11,7 +11,7 @@ const Reflex::UInt64 kConfig_ide_texteditor_tab_spaces[1] =
 	0x0000000000000000ull, 
 };
 
-const Reflex::File::EnumerableEmbeddedResource Config::ide_texteditor_tab_spaces(K32("Config"), K32("ide.texteditor.tab_spaces"), reinterpret_cast<const Reflex::UInt8*>(&kConfig_ide_texteditor_tab_spaces), 1u, 0u);
+const Reflex::File::EnumerableEmbeddedResource Config::ide_texteditor_tab_spaces(Reflex::K32("Config"), Reflex::K32("ide.texteditor.tab_spaces"), reinterpret_cast<const Reflex::UInt8*>(&kConfig_ide_texteditor_tab_spaces), 1u, 0u);
 
 
 
@@ -270,7 +270,7 @@ const Reflex::UInt64 kReflexProjectCreator_fonts_OpenSans_static_OpenSans_OpenSa
 	0x00c7f556e6000000ull, 
 };
 
-const Reflex::File::EnumerableEmbeddedResource ReflexProjectCreator::fonts_OpenSans_static_OpenSans_OpenSans_Regular_ttf(K32("ReflexProjectCreator"), K32("fonts/OpenSans/static/OpenSans/OpenSans-Regular.ttf"), reinterpret_cast<const Reflex::UInt8*>(&kReflexProjectCreator_fonts_OpenSans_static_OpenSans_OpenSans_Regular_ttf), 15751u, 19476u);
+const Reflex::File::EnumerableEmbeddedResource ReflexProjectCreator::fonts_OpenSans_static_OpenSans_OpenSans_Regular_ttf(Reflex::K32("ReflexProjectCreator"), Reflex::K32("fonts/OpenSans/static/OpenSans/OpenSans-Regular.ttf"), reinterpret_cast<const Reflex::UInt8*>(&kReflexProjectCreator_fonts_OpenSans_static_OpenSans_OpenSans_Regular_ttf), 15751u, 19476u);
 
 
 
@@ -328,7 +328,7 @@ const Reflex::UInt64 kReflexProjectCreator_fonts_OpenSans_OFL_txt[362] =
 	0x2c0a013b53474e49ull, 0x000a2e4552415000ull, 
 };
 
-const Reflex::File::EnumerableEmbeddedResource ReflexProjectCreator::fonts_OpenSans_OFL_txt(K32("ReflexProjectCreator"), K32("fonts/OpenSans/OFL.txt"), reinterpret_cast<const Reflex::UInt8*>(&kReflexProjectCreator_fonts_OpenSans_OFL_txt), 2895u, 4391u);
+const Reflex::File::EnumerableEmbeddedResource ReflexProjectCreator::fonts_OpenSans_OFL_txt(Reflex::K32("ReflexProjectCreator"), Reflex::K32("fonts/OpenSans/OFL.txt"), reinterpret_cast<const Reflex::UInt8*>(&kReflexProjectCreator_fonts_OpenSans_OFL_txt), 2895u, 4391u);
 
 
 
@@ -367,7 +367,7 @@ const Reflex::UInt64 kReflexProjectCreator_fonts_OpenSans_README_txt[212] =
 	0x9a65732200d97265ull, 0x012d0a140c4f000bull, 0x6490056e0000e100ull, 0x0a2e736c69617465ull, 
 };
 
-const Reflex::File::EnumerableEmbeddedResource ReflexProjectCreator::fonts_OpenSans_README_txt(K32("ReflexProjectCreator"), K32("fonts/OpenSans/README.txt"), reinterpret_cast<const Reflex::UInt8*>(&kReflexProjectCreator_fonts_OpenSans_README_txt), 1696u, 3518u);
+const Reflex::File::EnumerableEmbeddedResource ReflexProjectCreator::fonts_OpenSans_README_txt(Reflex::K32("ReflexProjectCreator"), Reflex::K32("fonts/OpenSans/README.txt"), reinterpret_cast<const Reflex::UInt8*>(&kReflexProjectCreator_fonts_OpenSans_README_txt), 1696u, 3518u);
 
 
 
@@ -392,7 +392,7 @@ const Reflex::UInt64 kReflexProjectCreator_menu_txt[103] =
 	0x636f667000af0401ull, 0x060000a664657375ull, 0x07027b04031b0804ull, 0x0200bd39312102b5ull, 0x09a000f9331000acull, 0x7d0a3b7d090a3b7dull, 0x000000000000003bull, 
 };
 
-const Reflex::File::EnumerableEmbeddedResource ReflexProjectCreator::menu_txt(K32("ReflexProjectCreator"), K32("menu.txt"), reinterpret_cast<const Reflex::UInt8*>(&kReflexProjectCreator_menu_txt), 817u, 1275u);
+const Reflex::File::EnumerableEmbeddedResource ReflexProjectCreator::menu_txt(Reflex::K32("ReflexProjectCreator"), Reflex::K32("menu.txt"), reinterpret_cast<const Reflex::UInt8*>(&kReflexProjectCreator_menu_txt), 817u, 1275u);
 
 
 
@@ -433,7 +433,7 @@ const Reflex::UInt64 kReflexProjectCreator_styles_glx[229] =
 	0x00f80404d8010500ull, 0x4000004d0003e501ull, 0xff040701f4331f0dull, 0x0a3b296001100903ull, 0x00000000000a3b7dull, 
 };
 
-const Reflex::File::EnumerableEmbeddedResource ReflexProjectCreator::styles_glx(K32("ReflexProjectCreator"), K32("styles.glx"), reinterpret_cast<const Reflex::UInt8*>(&kReflexProjectCreator_styles_glx), 1827u, 3702u);
+const Reflex::File::EnumerableEmbeddedResource ReflexProjectCreator::styles_glx(Reflex::K32("ReflexProjectCreator"), Reflex::K32("styles.glx"), reinterpret_cast<const Reflex::UInt8*>(&kReflexProjectCreator_styles_glx), 1827u, 3702u);
 
 
 

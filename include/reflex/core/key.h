@@ -11,7 +11,7 @@
 namespace Reflex
 {
 
-	template <class UINT> class Key;
+	template <class UINT> class Key;		//hashed string identifier
 
 
 	using Key64 = Key <UInt64>;

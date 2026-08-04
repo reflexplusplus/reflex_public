@@ -112,7 +112,7 @@ void Reflex::GLX::AbstractList::SelectNone()
 
 	auto e = MakeIndexedEvent(kListSelect, 0, false);
 
-	REFLEX_RFOREACH(idx, selection)
+	for (auto & idx : ReverseIterate(selection))
 	{
 		Data::SetUInt32(e, kindex, idx);
 

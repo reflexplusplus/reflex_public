@@ -11,6 +11,8 @@
 		1A78F8E12C46B1A40082B727 /* DiskArbitration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1A78F8E02C46B1A40082B727 /* DiskArbitration.framework */; };
 		1AB907D22C43B13F00C7668A /* project_creator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1AB907D12C43B13F00C7668A /* project_creator.cpp */; };
 		1AC320E42DE879A60052AF30 /* entry.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1AC320E32DE879A60052AF30 /* entry.cpp */; };
+		1AC320E62FF100010052AF30 /* plist_builder.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1AC320E52FF100010052AF30 /* plist_builder.cpp */; };
+		1AC320E82FF100020052AF30 /* resources.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1AC320E72FF100020052AF30 /* resources.cpp */; };
 		1AE2E5062FC5DBA600279ADD /* resource_builder.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1AE2E5052FC5DBA600279ADD /* resource_builder.cpp */; };
 		1AE2E50A2FC5DCA600279ADD /* reflex_ext_file.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1AE2E5092FC5DCA600279ADD /* reflex_ext_file.cpp */; };
 		1AE2E50B2FC5DCA600279ADD /* reflex_ext_bootstrap.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1AE2E5082FC5DCA600279ADD /* reflex_ext_bootstrap.cpp */; };
@@ -24,6 +26,8 @@
 		1AB907C22C43AF1800C7668A /* reflex */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = reflex; sourceTree = BUILT_PRODUCTS_DIR; };
 		1AB907D12C43B13F00C7668A /* project_creator.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = project_creator.cpp; path = ../../code/project_creator.cpp; sourceTree = SOURCE_ROOT; };
 		1AC320E32DE879A60052AF30 /* entry.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = entry.cpp; path = ../../code/entry.cpp; sourceTree = SOURCE_ROOT; };
+		1AC320E52FF100010052AF30 /* plist_builder.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = plist_builder.cpp; path = ../../code/plist_builder.cpp; sourceTree = SOURCE_ROOT; };
+		1AC320E72FF100020052AF30 /* resources.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = resources.cpp; path = ../../code/resources.cpp; sourceTree = SOURCE_ROOT; };
 		1AE2E5052FC5DBA600279ADD /* resource_builder.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = resource_builder.cpp; path = ../../code/resource_builder.cpp; sourceTree = SOURCE_ROOT; };
 		1AE2E5072FC5DCA600279ADD /* reflex_ext_async.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = reflex_ext_async.cpp; path = ../../../../../src/reflex_ext/reflex_ext_async.cpp; sourceTree = SOURCE_ROOT; };
 		1AE2E5082FC5DCA600279ADD /* reflex_ext_bootstrap.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = reflex_ext_bootstrap.cpp; path = ../../../../../src/reflex_ext/reflex_ext_bootstrap.cpp; sourceTree = SOURCE_ROOT; };
@@ -61,6 +65,8 @@
 				1A35FF6A2DE8725700474805 /* paths.xcconfig */,
 				1A78F8DD2C46B17F0082B727 /* Frameworks */,
 				1AB907D12C43B13F00C7668A /* project_creator.cpp */,
+				1AC320E52FF100010052AF30 /* plist_builder.cpp */,
+				1AC320E72FF100020052AF30 /* resources.cpp */,
 				1AE2E5052FC5DBA600279ADD /* resource_builder.cpp */,
 				1AC320E32DE879A60052AF30 /* entry.cpp */,
 				1AB907C32C43AF1800C7668A /* Products */,
@@ -159,6 +165,8 @@
 				1AE2E50B2FC5DCA600279ADD /* reflex_ext_bootstrap.cpp in Sources */,
 				1AE2E50C2FC5DCA600279ADD /* reflex_ext_async.cpp in Sources */,
 				1AB907D22C43B13F00C7668A /* project_creator.cpp in Sources */,
+				1AC320E62FF100010052AF30 /* plist_builder.cpp in Sources */,
+				1AC320E82FF100020052AF30 /* resources.cpp in Sources */,
 				1AE2E5062FC5DBA600279ADD /* resource_builder.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

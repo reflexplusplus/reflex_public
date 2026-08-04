@@ -224,6 +224,7 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 1A2642BC2991802B00DD1D7D /* Build configuration list for PBXNativeTarget "VST3" */;
 			buildPhases = (
+				1AA032E92FEA370E00E06C23 /* Build Plist */,
 				1A26429C2991802B00DD1D7D /* Sources */,
 				1A2642B62991802B00DD1D7D /* Frameworks */,
 			);
@@ -240,6 +241,7 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 1AA66B402F45E33B00163CAA /* Build configuration list for PBXNativeTarget "CLAP" */;
 			buildPhases = (
+				1AA032EA2FEA377200E06C23 /* Build Plist */,
 				1AA66B322F45E33B00163CAA /* Sources */,
 				1AA66B382F45E33B00163CAA /* Frameworks */,
 			);
@@ -256,7 +258,8 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 1AE4E42B2B18E11300DCE355 /* Build configuration list for PBXNativeTarget "App" */;
 			buildPhases = (
-				175245602CEA63CB00587791 /* ShellScript */,
+				1AA032E72FEA367200E06C23 /* Build Plist */,
+				175245602CEA63CB00587791 /* Build Resources */,
 				1AE4E41F2B18E11300DCE355 /* Frameworks */,
 				1AE4E4152B18E11300DCE355 /* Sources */,
 				1AE4E4132B18E11300DCE355 /* Resources */,
@@ -275,6 +278,7 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = C5FA328A1251584300DF4FD4 /* Build configuration list for PBXNativeTarget "AudioUnit" */;
 			buildPhases = (
+				1AA032E82FEA36D200E06C23 /* Build Plist */,
 				C5FA32831251584200DF4FD4 /* Sources */,
 				C5FA32841251584200DF4FD4 /* Frameworks */,
 			);
@@ -344,7 +348,7 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
-		175245602CEA63CB00587791 /* ShellScript */ = {
+		175245602CEA63CB00587791 /* Build Resources */ = {
 			isa = PBXShellScriptBuildPhase;
 			alwaysOutOfDate = 1;
 			buildActionMask = 2147483647;
@@ -354,13 +358,94 @@
 			);
 			inputPaths = (
 			);
+			name = "Build Resources";
 			outputFileListPaths = (
 			);
 			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "\"$REFLEX_PATH/bin/tools/macos/reflex\" build-resources --path \"$PROJECT_DIR/../../resources.xml\"";
+			shellScript = "\"$REFLEX_PATH/bin/tools/macos/reflex\" build-resources --path \"$PROJECT_DIR/../../resources.xml\"\n";
+			showEnvVarsInLog = 0;
+		};
+		1AA032E72FEA367200E06C23 /* Build Plist */ = {
+			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			name = "Build Plist";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"$REFLEX_PATH/bin/tools/macos/reflex\" build-plist \\\n  --target audioapp \\\n  --output \"$PROJECT_DIR/standalone.plist\" \\\n  --product \"$PRODUCT_NAME\" \\\n  --bundle_id \"$PRODUCT_BUNDLE_IDENTIFIER\" \\\n  --version \"$PRODUCT_VERSION\"\n";
+			showEnvVarsInLog = 0;
+		};
+		1AA032E82FEA36D200E06C23 /* Build Plist */ = {
+			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			name = "Build Plist";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"$REFLEX_PATH/bin/tools/macos/reflex\" build-plist \\\n  --target au \\\n  --output \"$PROJECT_DIR/audiounit.plist\" \\\n  --product \"$PRODUCT_NAME\" \\\n  --bundle_id \"$PRODUCT_BUNDLE_IDENTIFIER\" \\\n  --version \"$PRODUCT_VERSION\" \\\n  --vendor \"$VENDOR_NAME\" \\\n  --au_type \"$AU_TYPE_4CC\" \\\n  --au_subtype \"$AU_UID_4CC\" \\\n  --au_manufacturer \"$AU_VENDOR_4CC\"\n";
+			showEnvVarsInLog = 0;
+		};
+		1AA032E92FEA370E00E06C23 /* Build Plist */ = {
+			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			name = "Build Plist";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"$REFLEX_PATH/bin/tools/macos/reflex\" build-plist \\\n  --target vst3 \\\n  --output \"$PROJECT_DIR/vst3.plist\" \\\n  --product \"$PRODUCT_NAME\" \\\n  --bundle_id \"$PRODUCT_BUNDLE_IDENTIFIER\" \\\n  --version \"$PRODUCT_VERSION\"\n";
+			showEnvVarsInLog = 0;
+		};
+		1AA032EA2FEA377200E06C23 /* Build Plist */ = {
+			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			name = "Build Plist";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"$REFLEX_PATH/bin/tools/macos/reflex\" build-plist \\\n  --target clap \\\n  --output \"$PROJECT_DIR/clap.plist\" \\\n  --product \"$PRODUCT_NAME\" \\\n  --bundle_id \"$PRODUCT_BUNDLE_IDENTIFIER\" \\\n  --version \"$PRODUCT_VERSION\"\n";
 			showEnvVarsInLog = 0;
 		};
 /* End PBXShellScriptBuildPhase section */
@@ -434,7 +519,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				EXPORTED_SYMBOLS_FILE = "$(REFLEX_PATH)/resources/macos/vst3_exports.txt";
-				INFOPLIST_FILE = "$(REFLEX_PATH)/resources/macos/VST.plist";
+				INFOPLIST_FILE = "$(PROJECT_DIR)/vst3.plist";
 				MACH_O_TYPE = mh_dylib;
 				OTHER_LDFLAGS = (
 					"-lReflexCommon",
@@ -451,7 +536,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				EXPORTED_SYMBOLS_FILE = "$(REFLEX_PATH)/resources/macos/vst3_exports.txt";
-				INFOPLIST_FILE = "$(REFLEX_PATH)/resources/macos/VST.plist";
+				INFOPLIST_FILE = "$(PROJECT_DIR)/vst3.plist";
 				MACH_O_TYPE = mh_dylib;
 				OTHER_LDFLAGS = (
 					"-lReflexCommon",
@@ -468,7 +553,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				EXPORTED_SYMBOLS_FILE = "$(REFLEX_PATH)/resources/macos/clap_exports.txt";
-				INFOPLIST_FILE = "$(REFLEX_PATH)/resources/macos/CLAP.plist";
+				INFOPLIST_FILE = "$(PROJECT_DIR)/clap.plist";
 				MACH_O_TYPE = mh_dylib;
 				OTHER_LDFLAGS = (
 					"-lReflexCommon",
@@ -485,7 +570,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				EXPORTED_SYMBOLS_FILE = "$(REFLEX_PATH)/resources/macos/clap_exports.txt";
-				INFOPLIST_FILE = "$(REFLEX_PATH)/resources/macos/CLAP.plist";
+				INFOPLIST_FILE = "$(PROJECT_DIR)/clap.plist";
 				MACH_O_TYPE = mh_dylib;
 				OTHER_LDFLAGS = (
 					"-lReflexCommon",
@@ -502,7 +587,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				INFOPLIST_FILE = "$(REFLEX_PATH)/resources/macos/App.plist";
+				INFOPLIST_FILE = "$(PROJECT_DIR)/standalone.plist";
 				OTHER_LDFLAGS = (
 					"-lReflexCommon",
 					"-lReflexCommonUi",
@@ -517,7 +602,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				INFOPLIST_FILE = "$(REFLEX_PATH)/resources/macos/App.plist";
+				INFOPLIST_FILE = "$(PROJECT_DIR)/standalone.plist";
 				OTHER_LDFLAGS = (
 					"-lReflexCommon",
 					"-lReflexCommonUi",
@@ -565,7 +650,7 @@
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
-				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GCC_ENABLE_CPP_RTTI = NO;
 				GCC_FAST_MATH = YES;
 				GCC_NO_COMMON_BLOCKS = YES;
@@ -573,6 +658,7 @@
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"DEBUG=1",
 					REFLEX_BOOTSTRAP_TYPE_AUDIOPLUGIN,
+					"PRODUCT_VERSION=$(PRODUCT_VERSION)",
 					"$(inherited)",
 				);
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
@@ -598,6 +684,7 @@
 				STANDARD_C_PLUS_PLUS_LIBRARY_TYPE = static;
 				USER_HEADER_SEARCH_PATHS = "\"$(REFLEX_PATH)/include\"";
 				VENDOR_NAME = "_VENDOR-NAME_";
+				PRODUCT_VERSION = 1.0.0;
 			};
 			name = Debug;
 		};
@@ -639,7 +726,7 @@
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
-				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GCC_ENABLE_CPP_RTTI = NO;
 				GCC_FAST_MATH = YES;
 				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
@@ -647,6 +734,7 @@
 				GCC_OPTIMIZATION_LEVEL = 2;
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					REFLEX_BOOTSTRAP_TYPE_AUDIOPLUGIN,
+					"PRODUCT_VERSION=$(PRODUCT_VERSION)",
 					"$(inherited)",
 				);
 				GCC_UNROLL_LOOPS = YES;
@@ -672,6 +760,7 @@
 				STANDARD_C_PLUS_PLUS_LIBRARY_TYPE = static;
 				USER_HEADER_SEARCH_PATHS = "\"$(REFLEX_PATH)/include\"";
 				VENDOR_NAME = "_VENDOR-NAME_";
+				PRODUCT_VERSION = 1.0.0;
 			};
 			name = Release;
 		};
@@ -683,7 +772,7 @@
 					"AU_TYPE_4CC=$(AU_TYPE_4CC)",
 					"$(inherited)",
 				);
-				INFOPLIST_FILE = "$(REFLEX_PATH)/resources/macos/AudioUnit.plist";
+				INFOPLIST_FILE = "$(PROJECT_DIR)/audiounit.plist";
 				MACH_O_TYPE = mh_dylib;
 				OTHER_LDFLAGS = (
 					"-lReflexCommon",
@@ -704,7 +793,7 @@
 					"AU_TYPE_4CC=$(AU_TYPE_4CC)",
 					"$(inherited)",
 				);
-				INFOPLIST_FILE = "$(REFLEX_PATH)/resources/macos/AudioUnit.plist";
+				INFOPLIST_FILE = "$(PROJECT_DIR)/audiounit.plist";
 				MACH_O_TYPE = mh_dylib;
 				OTHER_LDFLAGS = (
 					"-lReflexCommon",

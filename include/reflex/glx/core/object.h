@@ -257,8 +257,6 @@ private:
 
 	Flags8 m_attach_flags;
 
-	Flags8 m_upward_flags;
-
 	Flags8 m_refresh_flags;
 
 	Flags8 m_refresh_flags_guard;

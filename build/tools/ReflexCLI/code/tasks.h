@@ -23,7 +23,10 @@ namespace ReflexCLI
 
 	WString CreateProject(const TemplateDefinition & tmpl, ArrayView <Variable> string_inputs, ArrayView <Variable> path_inputs, ArrayView <CString> targets, const WString::View & output_root, bool overwrite, Reflex::System::FileHandle & std_out);
 
+
 	void BuildResources(const WString::View & filename, Float & progress);
+	
+	void BuildPlist(const Data::PropertySet & args, Reflex::System::FileHandle & std_out);
 
 
 	extern Output output;

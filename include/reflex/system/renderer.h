@@ -47,14 +47,19 @@ public:
 		kNumPrimitiveType,
 	};
 
-	enum FilterMode : UInt8
+	enum TextureEffect : UInt8
 	{
-		kFilterModeNone,
+		kTextureEffectNone,
+	
+		kTextureEffectPixelate,		//2 parameters: block size in bitmap-space pixels.
+		kTextureEffectBlur,			//3 to 32 parameters: step.xy in bitmap-space pixels ({1.0f, 0.0f} for horizontal, {0.0f, 1.0f} for vertical), the radius, then the gaussian weights (_radius+1_ entries).
 
-		kFilterModePixelate,	//2 parameters: block size in bitmap-space pixels.
-		kFilterModeBlur,		//3 to 32 parameters: step.xy in bitmap-space pixels ({1.0f, 0.0f} for horizontal, {0.0f, 1.0f} for vertical), the radius, then the gaussian weights (_radius+1_ entries).
+		kNumTextureEffect,
+	};
 
-		kNumFilterMode,
+	enum TextureComposite : UInt8
+	{
+		kTextureCompositeMask = kNumTextureEffect,		//0 parameters: multiply content alpha by input_b alpha. Luminance masks use their single channel as alpha.
 	};
 
 	struct Transform;
@@ -105,9 +110,9 @@ public:
 
 	//Graphic
 
-	[[nodiscard]] virtual TRef <Graphic> CreatePrimitives(PrimitiveType primitive, const ArrayView <fPoint> & points) = 0;
+	[[nodiscard]] virtual TRef <Graphic> CreatePrimitives(PrimitiveType primitive, ArrayView <fPoint> points) = 0;
 
-	[[nodiscard]] virtual TRef <Graphic> CreatePrimitives(PrimitiveType primitive, const ArrayView <ColourPoint> & points) = 0;
+	[[nodiscard]] virtual TRef <Graphic> CreatePrimitives(PrimitiveType primitive, ArrayView <ColourPoint> points) = 0;
 
 
 
@@ -119,7 +124,7 @@ public:
 
 	virtual void SetDitheringAmount(Float amount) = 0;
 
-	virtual void SetColourTransform(const ArrayView <Float> & m) = 0;
+	virtual void SetColourTransform(ArrayView <Float> m) = 0;
 
 	virtual void SetClip(const iRect & rect) = 0;
 
@@ -194,15 +199,17 @@ public:
 
 	//write (does nothing on window canvases)
 
-	virtual void Write(ImageFormat format, const ArrayView <UInt8> & data) = 0;
+	virtual void Write(ImageFormat format, ArrayView <UInt8> data) = 0;
 
 
 
 	//create texture
 
-	virtual TRef <Graphic> CreateTextures(const ArrayView < Pair <fRect> >& rects) const = 0;
+	virtual TRef <Graphic> CreateTextures(ArrayView < Pair <fRect> > rects) const = 0;
 
-	virtual TRef <Graphic> CreateTexturesWithFilter(const ArrayView < Pair <fRect> >& rects, FilterMode mode, const ArrayView <Float>& parameters) const = 0;
+	virtual TRef <Graphic> CreateTextures(ArrayView < Pair <fRect> > rects, TextureEffect mode, ArrayView <Float> parameters) const = 0;
+
+	virtual TRef <Graphic> CreateTextures(ArrayView < Pair <fRect> > rects, TextureComposite mode, ConstTRef <Canvas> bitmap_source, ArrayView <Float> parameters) const = 0;
 };
 
 

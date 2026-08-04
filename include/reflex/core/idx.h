@@ -12,7 +12,7 @@
 namespace Reflex
 {
 
-	class Idx;
+	class Idx;		//optional index value
 
 }
 

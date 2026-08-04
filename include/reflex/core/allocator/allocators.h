@@ -19,8 +19,6 @@ namespace Reflex
 
 	class StandardAllocator;
 
-	class NonAllocator;	//used in null-instances, allows debug of invalid null instance write
-
 
 	TRef <Allocator> CreateAllocator(Key32 type, const Object & params);
 
@@ -68,11 +66,11 @@ public:
 
 protected:
 
-	virtual void * OnAlloc(UIntNative n, const AllocInfo & info) override;
+	void * OnAlloc(UIntNative n, const AllocInfo & info) override;
 
-	virtual void OnFree(void * ptr) override;
+	void OnFree(void * ptr) override;
 
-	virtual void OnSetProperty(Address address, Object & object) override;
+	void OnSetProperty(Address address, Object & object) override;
 
 	
 
@@ -102,37 +100,33 @@ struct Reflex::StandardAllocator::Lock
 
 
 //
-//NonAllocator 
+//impl
 
-class Reflex::NonAllocator : public Allocator
+#define REFLEX_CHECK_DEFAULT_ALLOCATOR static_assert(sizeof(::g_reflex_allocator_instantiated), "REQUIRE_CHECK_DEFAULT_ALLOCATOR")
+
+REFLEX_NS(Reflex::Detail)
+
+class NonAllocator : public Allocator	//used by null-instances, allows debug of invalid write access
 {
 public:
 
 	REFLEX_OBJECT(NonAllocator, Allocator);
 
+	void * OnAlloc(UIntNative n, const AllocInfo & info) override { REFLEX_ASSERT(false); return nullptr; }
 
-
-	virtual void * OnAlloc(UIntNative n, const AllocInfo & info) override { REFLEX_ASSERT(false); return nullptr; }
-
-	virtual void OnFree(void * ptr) override { REFLEX_ASSERT(false); }
+	void OnFree(void * ptr) override { REFLEX_ASSERT(false); }
 
 };
 
+inline NonAllocator g_non_allocator;
 
-
-
-//
-//impl
-
-#define REFLEX_CHECK_DEFAULT_ALLOCATOR static_assert(sizeof(::g_reflex_allocator_instantiated), "REQUIRE_CHECK_DEFAULT_ALLOCATOR")
+REFLEX_END
 
 REFLEX_NS(Reflex)
 
 TRef <StandardAllocator> GetDefaultAllocator();
 
 inline TRef <StandardAllocator> g_default_allocator = GetDefaultAllocator();
-
-inline NonAllocator g_non_allocator;
 
 REFLEX_END
 

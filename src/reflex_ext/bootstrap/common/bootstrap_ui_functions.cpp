@@ -44,7 +44,7 @@ REFLEX_BEGIN_INTERNAL(Reflex::Bootstrap)
 //
 //			ConstTRef <GLX::Style> style = stylesheet;
 //
-//			REFLEX_RFOREACH(id, path)
+//			for (auto & id : ReverseIterate(path))
 //			{
 //				if (auto pchild_style = style->QuerySubStyle(id))
 //				{

@@ -14,25 +14,18 @@ namespace Reflex
 	constexpr UInt32 MakeKey32(const CString::View & string);
 
 
+	consteval UInt32 K32(const char * string);
+
+	consteval UInt64 K64(const char * string);
+
+	consteval UInt32 ID32(const char * string);
+
+	consteval UInt64 ID64(const char * string);
+
+	consteval UInt32 CC32(const char * string);
+
+
 }
-
-
-
-
-//
-//Secondary API
-
-#define K32(x) Reflex::Detail::MakeHashFromNullTerminatedString<Reflex::UInt32>(x)
-
-#define K64(x) Reflex::Detail::MakeHashFromNullTerminatedString<Reflex::UInt64>(x)
-
-#define ID32(x) Reflex::Detail::MakeCCFromNullTerminatedString<Reflex::UInt32,false>(x)
-
-#define ID64(x) Reflex::Detail::MakeCCFromNullTerminatedString<Reflex::UInt64,false>(x)
-
-#define CC32(x) Reflex::Detail::MakeCCFromNullTerminatedString<Reflex::UInt32,true>(x)
-
-#define CC64(x) Reflex::Detail::MakeCCFromNullTerminatedString<Reflex::UInt64,true>(x)
 
 
 
@@ -132,6 +125,31 @@ template <class UINT, bool IS_LITTLE_ENDIAN> consteval UINT Reflex::Detail::Make
 inline constexpr Reflex::UInt32 Reflex::MakeKey32(const CString::View & string)
 {
 	return Detail::MakeHash<UInt32>(string);
+}
+
+consteval Reflex::UInt32 Reflex::K32(const char * string)
+{
+	return Detail::MakeHashFromNullTerminatedString<UInt32>(string);
+}
+
+consteval Reflex::UInt64 Reflex::K64(const char * string)
+{
+	return Detail::MakeHashFromNullTerminatedString<UInt64>(string);
+}
+
+consteval Reflex::UInt32 Reflex::ID32(const char * string)
+{
+	return Detail::MakeCCFromNullTerminatedString<UInt32, false>(string);
+}
+
+consteval Reflex::UInt64 Reflex::ID64(const char * string)
+{
+	return Detail::MakeCCFromNullTerminatedString<UInt64, false>(string);
+}
+
+consteval Reflex::UInt32 Reflex::CC32(const char * string)
+{
+	return Detail::MakeCCFromNullTerminatedString<UInt32, true>(string);
 }
 
 

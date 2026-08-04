@@ -423,17 +423,7 @@ private:
 
 		File::ResourcePool::Lock lock(Bootstrap::global->resourcepool);
 
-		Array <Address> adrs;
-
-		lock.Enumerate(GetTypeID<GLX::StyleSheet>(), [&lock, &adrs](const File::ResourcePool::Token & token)
-		{
-			adrs.Push(token.address);
-		});
-
-		for (auto adr : adrs)
-		{
-			lock.Remove(adr);
-		}
+		lock.Clear(GetTypeID<GLX::StyleSheet>());
 
 		GetWindow()->AutoFit();
 	}

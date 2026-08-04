@@ -55,6 +55,8 @@ extern const File::ResourcePool::Ctr kDecodeBitmap;
 extern bool (&VerifyBitmap)(const System::BitmapInfo & info, const Data::Archive::View & data);
 
 
+constexpr UInt32 kGLX = 193456912ul;
+
 constexpr UInt32 kPNG = UInt32(1196314761ul);
 
 constexpr UInt16 kJPG = UInt16(55551);

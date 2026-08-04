@@ -60,6 +60,8 @@ private:
 	bool m_is_initalised;	//static variables are zero-initialised
 
 	mutable UInt8 m_num_module, m_num_member;
+	
+	mutable Int8 m_ordered_members;
 
 	mutable Module * m_first_module;
 
@@ -83,7 +85,7 @@ public:
 	REFLEX_NONCOPYABLE(AbstractMember);
 
 
-	AbstractMember(Module & module);
+	AbstractMember(Module & module, Int8 priority = 0);	//AbstractModule must already be instantiantiaed, and in same TU so that it is guaranteed to be ordered after
 
 	virtual ~AbstractMember() = default;
 
@@ -99,13 +101,15 @@ private:
 
 	
 	AbstractMember * m_next;
+
+	const Int8 m_priority;
 };
 
 
 
 
 //
-// Detail::Module::Member
+//Detail::Module::Member
 
 template <class TYPE>
 class Reflex::Detail::Module::Member :
@@ -144,11 +148,13 @@ inline Reflex::Detail::Module::Module(const char * name, const Module & parent)
 	parent.m_num_module++;
 }
 
-inline Reflex::Detail::Module::AbstractMember::AbstractMember(Module & module)	//AbstractModule must already be instantiantiaed, and in same TU so that it is guaranteed to be ordered after
+inline Reflex::Detail::Module::AbstractMember::AbstractMember(Module & module, Int8 priority)
 	: m_next(module.m_first_member)
+	, m_priority(priority)
 {
 	module.m_first_member = this;
 	module.m_num_member++;
+	module.m_ordered_members |= priority;
 }
 
 template <class TYPE> inline void Reflex::Detail::Module::Member<TYPE>::OnInit()

@@ -26,6 +26,11 @@ cmake_minimum_required(VERSION 3.22)
 
 get_filename_component(REFLEX_ROOT "${CMAKE_CURRENT_LIST_DIR}/.." ABSOLUTE)
 
+# Cache REFLEX_ROOT so the reflex_add_* helpers (which read it at call time)
+# resolve it even when find_package ran in a subproject scope — e.g. when the
+# SDK is pulled in via FetchContent/CPM and consumed from the parent project.
+set(REFLEX_ROOT "${REFLEX_ROOT}" CACHE INTERNAL "Reflex SDK root directory" FORCE)
+
 # =========================================================
 # Validate installation
 # =========================================================
@@ -196,6 +201,22 @@ endif()
 
 if(APPLE AND NOT CMAKE_SYSTEM_NAME STREQUAL "iOS")
     _reflex_import_lib(TargetAU  ReflexTargetAU)
+endif()
+
+# =========================================================
+# Source-build toggle
+# =========================================================
+# When ON, plugin format targets compile their platform system-entry TU
+# (src/reflex/system/<plat>_<fmt>) from source instead of linking the prebuilt
+# Reflex::Target* lib — so SDK devs editing system code rebuild without a lib
+# refresh. Defaults ON when the source tree is present (full checkout /
+# reflex_master), OFF for prebuilt-only distributions (reflex_public). A
+# consumer may set it explicitly before find_package(Reflex). The helper falls
+# back to the prebuilt lib if a unity source is absent, so ON is always safe.
+if(EXISTS "${REFLEX_ROOT}/src/reflex/system")
+    option(REFLEX_BUILD_TARGETS_FROM_SOURCE "Build Reflex target libs from source" ON)
+else()
+    option(REFLEX_BUILD_TARGETS_FROM_SOURCE "Build Reflex target libs from source" OFF)
 endif()
 
 # =========================================================
