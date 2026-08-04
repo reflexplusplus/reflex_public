@@ -6,7 +6,7 @@
 
 
 //
-//Primary API
+//Addon API
 
 namespace Reflex::File
 {
@@ -39,9 +39,9 @@ public:
 
 	//lifetime
 
-	[[nodiscard]] static TRef <Monolith> Create(const WString::View & filename, UInt32 clientheader, bool write);
+	[[nodiscard]] static TRef <Monolith> Create(const WString::View & filename, UInt32 client_header, bool write);
 
-	[[nodiscard]] static TRef <Monolith> Create(System::FileHandle & file, UInt32 clientheader);
+	[[nodiscard]] static TRef <Monolith> Create(System::FileHandle & file, UInt32 client_header);
 
 
 
@@ -61,7 +61,7 @@ public:
 
 	virtual TRef <System::FileHandle> Write(Key64 partitionid, UInt32 size) = 0;
 
-	virtual void Commit() = 0;
+	virtual bool Commit() = 0;
 
 
 

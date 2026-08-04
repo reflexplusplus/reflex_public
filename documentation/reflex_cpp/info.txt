@@ -149,74 +149,41 @@
 {
 	Group: true;
 
-	@WString Description: "#p In Reflex, strings are arrays.
+	@WString Description: "#p CString and WString are typedefs of Array<char> and Array<wchar_t> respectively, while CString::View and WString::View are typedefs of ArrayView<char> and ArrayView<wchar_t>.
 
-#p CString and WString are typedefs of Array<char> and Array<wchar_t> respectively, while CString::View and WString::View are typedefs of ArrayView<char> and ArrayView<wchar_t>.
+#p Because of this, most string utilities operate generically on Array and ArrayView rather than on dedicated string-only types. Array-view helpers such as Mid(), Splice(), Search(), and Split() work directly on strings as well as on byte arrays and other contiguous sequences.
 
-#p Because of this, most string utilities operate generically on Array and ArrayView rather than on dedicated string-only types.
-
-#p Functions such as Split, Splice, Search, Replace, Trim, and tokenization helpers therefore work uniformly across strings, byte arrays, and other contiguous sequences.
+<span>
+#p See$spc
+#link symbol: [$qReflex$q, $qContainers$q, $qArray$q]; text: $qReflex/Containers/Array$q;
+#p $spcfor the generic Array-family model and functions.
+</span>
 
 #h1 String Storage
 
-#p CString and WString are specialised Array types which guarantee null termination after all modifications.
+#p CString and WString are owning string types which guarantee null termination after all modifications; generic Array<T> containers do not.
 
-#p This allows safe interoperability with traditional APIs expecting const char* or const wchar_t* buffers.
-
-<code>
-#p CString text = $qhello$q;
-#p SomeAPI(text.GetData());
-</code>
-
-#p Generic Array<T> containers do not provide this guarantee.
+<span>
+#p See$spc
+#link symbol: [$qReflex$q, $qCString$q]; text: $qCString$q;
+#p $spcand$spc
+#link symbol: [$qReflex$q, $qWString$q]; text: $qWString$q;
+#p $spcfor storage and C API interoperability details.
+</span>
 
 #h1 Views
 
-#p Many string operations return lightweight non-owning views rather than allocating new strings.
+#p Many string operations return lightweight ArrayView values instead of allocating new strings.
 
-#p This allows substring and tokenization operations to occur without copying or heap allocation.
-
-<code>
-#p CString str = $qHelloWorld$q;
-#p auto [a, b] = Splice(str, 5);
-</code>
-
-#p In this example, both a and b reference memory owned by str.
-
-#p If str is modified or destroyed, the views immediately become invalid.
-
-#p This behaviour is intentional and allows high-performance zero-copy APIs throughout the framework.
+<span>
+#p See$spc
+#link symbol: [$qReflex$q, $qArrayView$q]; text: $qArrayView$q;
+#p $spcfor borrowing and invalidation rules.
+</span>
 
 #h1 Ownership
 
-#p When ownership of a substring or slice is required, the view must be explicitly copied into an owning string:
-
-<code>
-#p CString str = $qHelloWorld$q;
-#p auto [a, b] = Splice(str, 5);
-#p
-#p CString owned = b;
-</code>
-
-#p Explicit copying keeps ownership semantics visible and avoids hidden allocations in performance-sensitive code paths.
-
-#h1 Generic Sequence Utilities
-
-#p Because strings are simply specialised arrays, most helper functions are implemented generically for contiguous sequences rather than specifically for text.
-
-#p This keeps the API surface small and consistent while avoiding duplicate implementations for strings, byte buffers, and related container types.
-
-#h1 Iteration
-
-#p Strings and views support standard range-based iteration:
-
-<code>
-#p for (auto c : text)
-#p {
-#p }
-</code>
-
-#p Reverse iteration helpers are also available via rbegin() and rend().
+#p When ownership of a substring or slice is required, explicitly copy its view into CString or WString. This keeps allocations and ownership visible.
 ";
 
 	Path: ["Reflex", "String"];
@@ -631,7 +598,7 @@
 {
 	Path: ["Reflex", "ToRegion"];
 
-	Module: ["Reflex", "Containers"];
+	Module: ["Reflex", "Containers", "Array"];
 };
 
 13:
@@ -1649,7 +1616,7 @@ See also Bootstrap::Detail::SetStyle.
 #p Stylesheets support preprocessor-style conditionals using #if, #elif, and #else. Each branch body must be wrapped in { ... }.
 
 <code>
-#p #if (dark)
+#p #if (theme == dark)
 #p {
 #p 	background: $202124;
 #p 	colour: $f5f5f5;
@@ -1661,15 +1628,15 @@ See also Bootstrap::Detail::SetStyle.
 #p }
 </code>
 
-#p Conditions can use boolean flags, numeric comparisons, and $qand$q / $qor$q:
+#p Conditions can use symbolic comparisons, numeric comparisons, and $qand$q / $qor$q:
 
 <code>
-#p #if (desktop) and (screen_width >= 1200)
+#p #if (environment == desktop) and (screen_width >= 1200)
 #p {
 #p 	padding: 24;
 #p }
 #p
-#p #if (mobile) or (screen_width < 700)
+#p #if (environment == mobile) or (screen_width < 700)
 #p {
 #p 	padding: 12;
 #p }
@@ -1680,37 +1647,35 @@ See also Bootstrap::Detail::SetStyle.
 #p When using the Bootstrap styling path, the default conditional variables are:
 
 <code>
-#p windows, macos, linux, android, ios
-#p
-#p desktop, mobile, plugin
-#p
-#p light, dark
-#p
+#p platform (windows, macos, linux, android, ios, webasm)
+#p environment (desktop, mobile, plugin)
+#p theme (light, dark)
 #p screen_width, screen_height
 #p font_scale
 </code>
 
-#p Boolean flags can be checked directly:
+#p Symbolic values can be compared with $q==$q and $q!=$q:
 
 <code>
-#p #if (windows) { ... }
-#p #if (dark) { ... }
-#p #if (plugin) { ... }
+#p #if (platform == windows) { ... }
+#p #if (theme == dark) { ... }
+#p #if (environment == plugin) { ... }
+#p #if (environment == desktop) or (environment == plugin) { ... }
 </code>
 
 #p Numeric values can be compared:
 
 <code>
-#p #if (screen_width > 1400) { ... }
+#p #if (screen_width < 1400) { ... }
 #p #if (screen_height >= 900) { ... }
 #p #if (font_scale > 1.0) { ... }
 </code>
 
-#p These values reflect the current platform, environment type, screen size, theme, and UI font scale.
+#p These values reflect the current platform, environment type, theme, screen size, and UI font scale.
 
-#p Custom conditional variables can also be supplied, allowing you to define additional flags or numeric values for use in stylesheet conditionals. This can be used for app modes, product editions, feature flags, layout variants, or custom breakpoints.
+#p Custom conditional variables can also be supplied, allowing you to define additional symbolic or numeric values for use in stylesheet conditionals. This can be used for app modes, product editions, feature flags, layout variants, or custom breakpoints.
 
-#p Note: the 'Emulate Mobile' option available in the Config -> Graphics panel of the dev console is useful for testing screen_w, screen_h and the mobile flag, which are emulated in that mode.
+#p Note: the 'Emulate Mobile' option available in the Config -> Graphics panel of the dev console is useful for testing screen_w, screen_h and the mobile environment, which are emulated in that mode.
 
 #h1 Patterns and tips
 
@@ -1730,7 +1695,7 @@ See also Bootstrap::Detail::SetStyle.
 {
 	Path: ["Reflex", "ToView"];
 
-	Module: ["Reflex", "Containers"];
+	Module: ["Reflex", "Containers", "Array"];
 };
 
 21:
@@ -1767,94 +1732,69 @@ See also Bootstrap::Detail::SetStyle.
 
 #h2 Array
 
-#p Array<T> is the primary dynamic container in Reflex.
+#p Array<T> is the primary owning dynamic container in Reflex. It provides contiguous storage, explicit allocation control, and fast iteration.
 
-#p It provides a contiguous dynamically-sized buffer with explicit allocation control and fast iteration.
-
-#p CString and WString are typedefs of Array<char> and Array<wchar_t>.
-
-<list>
-	#p Push / Insert / Remove operations
-	#p Explicit allocation policies such as kAllocateOver, kAllocateExact, and kAllocateNone
-	#p Runtime allocator selection without affecting the container type itself
-	#p Contiguous storage
-</list>
-
-<code>
-#p Array<Int32> values;
-#p values.Push(10);
-#p values.Push(20);
-</code>
+<span>
+#p See$spc
+#link symbol: [$qReflex$q, $qArray$q]; text: $qReflex::Array$q;
+#p $spcfor storage, allocation, mutation, and usage details.
+</span>
 
 #h2 Strings
 
 #p CString and WString are specialised Array types with guaranteed null termination after all modifications.
 
-#p This allows direct interoperability with traditional C APIs while preserving the Array API model.
-
-<code>
-#p CString text = $qhello$q;
-#p FILE * file = fopen(path.GetData(), $qr$q);
-</code>
-
-#p Unlike generic Array<T>, string containers always maintain an additional null terminator internally.
+<span>
+#p See$spc
+#link symbol: [$qReflex$q, $qString$q]; text: $qReflex/String$q;
+#p $spcfor the string model, and$spc
+#link symbol: [$qReflex$q, $qCString$q]; text: $qReflex::CString$q;
+#p $spcand$spc
+#link symbol: [$qReflex$q, $qWString$q]; text: $qReflex::WString$q;
+#p $spcfor the owning string types.
+</span>
 
 #h2 Views
 
-#p ArrayView<T> provides a lightweight non-owning slice into contiguous memory.
+#p ArrayView<T> and ArrayRegion<T> provide lightweight non-owning read-only and mutable slices into contiguous memory.
 
-#p CString::View and WString::View are typedefs of ArrayView<char> and ArrayView<wchar_t>.
-
-#p Views are passed by value, never allocate, and are commonly used for substring operations, tokenization, temporary references, and zero-copy APIs.
-
-<list>
-	#p Zero-allocation slicing
-	#p Efficient substring and buffer operations
-	#p Lightweight function arguments and return values
-	#p Does not own memory
-</list>
-
-<code>
-#p auto [a, b] = Splice(str, 5);
-#p CString copy = a; // promote to owning string if needed
-</code>
-
-#p The referenced memory must remain valid for the lifetime of the view.
+<span>
+#p See$spc
+#link symbol: [$qReflex$q, $qArrayView$q]; text: $qReflex::ArrayView$q;
+#p $spcand$spc
+#link symbol: [$qReflex$q, $qArrayRegion$q]; text: $qReflex::ArrayRegion$q;
+#p $spcfor lifetime, constness, and usage details.
+</span>
 
 #h2 Sequence
 
 #p Sequence<TKey, TValue> is a contiguous associative container where keys are not required to be unique.
 
-#p It is useful when insertion order matters or when multiple entries may share the same identifier.
-
-<list>
-	#p Supports repeated keys
-	#p Contiguous storage
-	#p Fast iteration
-	#p Shares the same allocator model as Array
-</list>
+<span>
+#p See$spc
+#link symbol: [$qReflex$q, $qSequence$q]; text: $qReflex::Sequence$q;
+#p $spcfor ordering, duplicate-key, and lookup semantics.
+</span>
 
 #h2 Map
 
 #p Map<TKey, TValue> is a simplified unique-key associative container built on top of Sequence.
 
-<list>
-	#p Unique keys
-	#p Linear contiguous storage
-	#p Simple map[key] syntax
-</list>
+<span>
+#p See$spc
+#link symbol: [$qReflex$q, $qMap$q]; text: $qReflex::Map$q;
+#p $spcfor lookup and mutation semantics.
+</span>
 
 #h2 Queue
 
-#p Queue<T> is a fixed-size SPSC (single producer / single consumer) ring buffer.
+#p Queue<T> is a fixed-size SPSC (single producer / single consumer) ring buffer intended for deterministic real-time and multi-threaded pipelines.
 
-#p It is designed for real-time and multi-threaded systems such as audio processing pipelines.
-
-<list>
-	#p Lock-free and wait-free operations
-	#p Zero allocations after creation
-	#p Deterministic runtime behaviour
-</list>
+<span>
+#p See$spc
+#link symbol: [$qReflex$q, $qQueue$q]; text: $qReflex::Queue$q;
+#p $spcfor its concurrency and capacity contract.
+</span>
 
 #h1 Allocation Model
 
@@ -1863,18 +1803,6 @@ See also Bootstrap::Detail::SetStyle.
 #p Reflex containers use allocator objects at runtime rather than allocator template parameters.
 
 #p This allows containers to move across API and module boundaries without allocator-dependent types.
-
-#h2 Allocation Policies
-
-#p Write operations such as Push() and Insert() accept explicit allocation policies.
-
-#p Common policies include:
-
-<list>
-	#p kAllocateOver - grow capacity automatically
-	#p kAllocateExact - resize exactly as requested
-	#p kAllocateNone - forbid allocation
-</list>
 
 #h1 Iteration
 
@@ -2525,16 +2453,37 @@ See also Bootstrap::Detail::SetStyle.
 
 36:
 {
+	@WString Description: "#p Searches a contiguous sequence from back to front and returns the last matching position as an Idx.
+
+#p The first argument may be an Array, ArrayView, ArrayRegion, or another type accepted by ToView(). The second argument may be either a single element or an Array/view-compatible sequence. A sequence needle must not be empty.
+
+#p Although matching proceeds from the back, the returned index is still measured forward from the beginning of the supplied array or view:
+
+<code>
+#p if (auto idx = ReverseSearch(values, needle))
+#p {
+#p 	auto & last_match = values[idx.value];
+#p }
+</code>
+
+#p ReverseSearch intentionally has no start-position or sub-range arguments. Compose the desired search range first with ArrayView/ArrayRegion helpers such as Left(), Mid(), Right(), Splice(), or Nudge(), then search that view. The returned index is relative to the supplied view.
+
+<span>
+#p See$spc
+#link symbol: [$qReflex$q, $qSearch$q]; text: $qReflex::Search$q;
+#p $spcfor forward searching and an iterative view-based example.
+</span>";
+
 	Path: ["Reflex", "ReverseSearch"];
 
-	Module: ["Reflex", "Containers"];
+	Module: ["Reflex", "Containers", "Array"];
 };
 
 37:
 {
 	Path: ["Reflex", "ReverseSplice"];
 
-	Module: ["Reflex", "String"];
+	Module: ["Reflex", "Containers", "Array"];
 };
 
 38:
@@ -2962,14 +2911,14 @@ See also Bootstrap::Detail::SetStyle.
 
 	Path: ["Reflex", "Join"];
 
-	Module: ["Reflex", "String"];
+	Module: ["Reflex", "Containers", "Array"];
 };
 
 75:
 {
 	Path: ["Reflex", "Left"];
 
-	Module: ["Reflex", "String"];
+	Module: ["Reflex", "Containers", "Array"];
 };
 
 76:
@@ -3013,6 +2962,16 @@ See also Bootstrap::Detail::SetStyle.
 
 77:
 {
+	@WString Description: "#p Creates a Reflex object and immediately returns an owning Reference<T>.
+
+#p Make<T>(args...) is the owning companion to New<T>(args...). It is equivalent to creating with New<T>() and constructing a Reference<T> from the result.
+
+<code>
+#p auto object = Make<MyClass>(args...);
+</code>
+
+#p Prefer Make<T>() for local variables, members, or captured values which must keep the object alive. Use New<T>() when the surrounding API or owner will retain the returned object.";
+
 	Path: ["Reflex", "Make"];
 
 	Module: ["Reflex", "Object"];
@@ -3090,8 +3049,28 @@ See also Bootstrap::Detail::SetStyle.
 <list>
 	#p Return values from Create() factory functions
 	#p Getter return values where ownership remains with the parent object
-	#p Function parameters indicating the receiver will retain the object
-</list>";
+	#p Temporary function parameters and calls where another object retains the value
+</list>
+
+#h2 Lifetime
+
+#p TRef<T> does not extend lifetime. It becomes invalid as soon as the object is destroyed, including when an owning Reference is cleared or leaves scope.
+
+#p Store Reference<T>, not TRef<T>, whenever the object must survive beyond the current expression, callback, or owner-controlled lifetime.
+
+#p Construction from a temporary Reference is intentionally rejected because the owner would be destroyed immediately, leaving a dangling TRef.
+
+#h2 Null Instances and Deferred Assignment
+
+#p TRef<T> default-constructs to the type's null-instance rather than nullptr. If T has no null-instance, default construction is unavailable.
+
+#p Construction with kNoValue permits advanced deferred assignment, but the TRef must be assigned a logically valid object before use. Prefer ordinary construction whenever possible.
+
+<span>
+#p See$spc
+#link symbol: [$qReflex$q, $qReference$q]; text: $qReflex::Reference$q;
+#p $spcwhen ownership is required.
+</span>";
 
 	Path: ["Reflex", "TRef"];
 
@@ -3190,6 +3169,14 @@ See also Bootstrap::Detail::SetStyle.
 
 88:
 {
+	@WString Description: "#p Sorted contiguous associative container which permits duplicate keys.
+
+#p Sequence<TKey, TValue> stores key/value pairs in comparator order and shares the contiguous runtime allocator model used by Array. It is useful when sorted traversal matters or when several entries may have the same key.
+
+#p Search(...) and SearchValue(...) locate matching keys. Set(...) updates an existing match or adds an entry according to the Sequence contract, while Insert(...) adds another entry and therefore supports repeated keys.
+
+#p Lookup uses the sorted key order. Insertions may move later elements, while iteration remains compact and cache-friendly.";
+
 	Path: ["Reflex", "Sequence"];
 
 	Module: ["Reflex", "Containers"];
@@ -3654,7 +3641,7 @@ See also Bootstrap::Detail::SetStyle.
 #p Note, SHA-1 is not considered secure for cryptographic purposes but remains useful for non-security-critical fingerprinting or deduplication.
 
 <code>
-#p Archive hash = SHA1(fileData);
+#p Data::Archive hash = Data::SHA1(File::Open(filepath));
 </code>
 ";
 
@@ -3857,7 +3844,7 @@ See also Bootstrap::Detail::SetStyle.
 {
 	Path: ["Reflex", "Replace"];
 
-	Module: ["Reflex", "String"];
+	Module: ["Reflex", "Containers", "Array"];
 };
 
 133:
@@ -4563,181 +4550,61 @@ See also Bootstrap::Detail::SetStyle.
 {
 	Group: true;
 
-	@WString Description: "#p Reflex makes a primary, explicit distinction between object-types and value-types. All object-types derive from Reflex::Object, are shared, reference counted, typically heap-based (although they can also be instantiated on the stack), and non-copyable by default.
+	@WString Description: "#p Reflex distinguishes reference-counted Object types from ordinary value types such as UInt32 and Array. Object types derive from Reflex::Object, are dynamically typed and non-copyable, and may participate in generic object APIs and dynamic properties.
 
-#p Value types (non-Objects such as UInt32 or Array) are lightweight stack-based primitives. To promote a value into an object so it can participate in reference counting, heap allocation, dynamic properties, or generic object APIs, use ObjectOf<TYPE>.
+#p Use ObjectOf<T> when a plain value must be promoted into an Object for those APIs.
 
-#p Reflex::Object provides two foundational capabilities:
+#h1 Lifetime at a Glance
 
-<list>
-	#p Deterministic lifetime management via intrusive reference counting
-	#p A generic interface for attaching and querying typed properties dynamically
-</list>
-
-#h1 Object Lifetime
-
-#p Reflex uses an intrusive reference counting model built directly into Object.
-
-#p Unlike std::shared_ptr, COM, or Objective-C, there are no external control blocks or hidden allocations - the reference count lives inside the object itself.
-
-#h2 Core Principles
-
-<list>
-	#p All reference-counted types derive from Object
-	#p The reference count is stored inside the object itself
-	#p Newly created objects always start with a reference count of zero
-	#p Every Release() must therefore correspond to a previous Retain()
-	#p Ownership semantics are primarily expressed through Reference<T> and TRef<T>
-</list>
-
-#h2 Reference <TYPE>
-
-#p Reference<T> is the primary ownership wrapper for Reflex objects. It retains on construction, releases on destruction, and guarantees a valid object reference over its lifetime.
+#p Object lifetime uses intrusive reference counting. Reference<T> owns an object and keeps it alive; TRef<T> is a temporary non-owning reference. Create with New<T>() when the receiving API owns the result, or Make<T>() when the caller needs immediate ownership.
 
 <span>
 #p See$spc
-#link symbol: [$qReflex$q, $qReference$q]; text: $qReflex::Reference$q;
-#p $spcfor full semantics and usage.
+#link symbol: [$qReflex$q, $qReference$q]; text: $qReference$q;
+#p ,$spc
+#link symbol: [$qReflex$q, $qTRef$q]; text: $qTRef$q;
+#p ,$spc
+#link symbol: [$qReflex$q, $qNew$q]; text: $qNew$q;
+#p , and$spc
+#link symbol: [$qReflex$q, $qMake$q]; text: $qMake$q;
+#p $spcfor the ownership and creation contracts.
 </span>
 
-#h2 TRef <TYPE>
+#h2 Stack Objects
 
-#p TRef<T> is the lightweight non-owning counterpart to Reference<T>. It does not retain or release, but still follows the Reflex convention of representing a valid object reference rather than a nullable pointer.
+#p Objects may also be instantiated on the stack. Such objects are destroyed by scope lifetime, and no Reference<T> or TRef<T> may outlive the stack object it refers to.
+
+#h1 Object Values
+
+#p ObjectOf<T> wraps a value inside an Object for reference-counted storage, dynamic properties, and generic object APIs.
 
 <span>
 #p See$spc
-#link symbol: [$qReflex$q, $qTRef$q]; text: $qReflex::TRef$q;
-#p $spcfor full semantics and usage.
+#link symbol: [$qReflex$q, $qObjectOf$q]; text: $qObjectOf$q;
+#p $spcfor construction and value access.
 </span>
 
-#h2 Object Creation
+#h1 Dynamic Properties
 
-#p Reflex objects should never be created with raw new/delete directly.
-
-#p Instead, object creation is performed through the Reflex helper APIs:
-
-<code>
-#p auto a = New<MyClass>(args...);
-#p auto b = Make<MyClass>(args...);
-</code>
-
-<list>
-	#p New<T>() returns a TRef<T>
-	#p Make<T>() returns a Reference<T>
-	#p If T is abstract, New<T>() automatically resolves through T::Create()
-</list>
-
-#p Make<T>() is generally the most convenient form when immediate ownership is required.
-
-#h2 AutoRelease Helpers
-
-#p AutoRelease() provides a shorthand for constructing temporary Reference<T> wrappers.
-
-#p The following examples are equivalent:
-
-<code>
-#p Reference<HttpConnection> conn = HttpConnection::Create(...);
-#p auto conn = AutoRelease(HttpConnection::Create(...));
-#p auto conn = Make<HttpConnection>(...);
-</code>
-
-#h2 Stack-Allocated Objects
-
-#p Unlike traditional COM-style systems, Reflex objects may be instantiated directly on the stack.
-
-<code>
-#p Data::PropertySet node;
-</code>
-
-#p Stack objects ignore Retain() and Release() calls and are destroyed normally via scope lifetime.  
-
-#p This flexibility is useful and efficient for temporaries and embedded members, however ownership must remain explicit: any retained reference must not outlive the stack object it refers to. For example, storing a Reference or TRef to a stack object beyond its lifetime is invalid:
-
-<code>
-#p Data::PropertySet node;
-#p auto props = New<Data::PropertySet>();
-#p props->SetProperty($qchild$q, node); // invalid after node leaves scope
-</code>
-
-#h2 Null Instances
-
-#p Reference<T> and TRef<T> default construct using the type's null-instance rather than nullptr.
-
-#p If a type does not define a null-instance, the wrappers cannot be default-constructed, enforcing validity at compile time.
-
-#p User-defined object types therefore often require explicit construction:
-
-<code>
-#p Reference <View> view1 = New<View>();
-#p Reference <View> view2 = kNewObject;	//shorthand helper
-</code>
-
-#p TRef<T> also supports construction using kNoValue for deferred assignment, however this should only be used sparingly.
-
-#h2 Manual Retain/Release
-
-#p Object exposes Retain() and Release(), however direct usage is uncommon.
-
-#p If manual lifetime management is required:
-
-<list>
-	#p New objects begin with refcount = 0
-	#p Every Release() must correspond to a previous Retain()
-	#p Double-release will assert
-	#p Retaining in constructors and releasing in destructors is the standard pattern
-</list>
-
-#h2 Circular References
-
-#p Reflex is not a garbage collected system. Circular references will leak unless explicitly broken:
-
-<code>
-#p auto a = New<Data::PropertySet>();
-#p auto b = New<Data::PropertySet>();
-#p a->SetProperty($qfoo$q, b);
-#p b->SetProperty($qfoo$q, a);
-</code>
-
-#p Some advanced systems inside Reflex (such as Reflex::VM) provide explicit cycle-breaking mechanisms, however application code should generally avoid circular ownership through design.
-
-#h2 Best Practices
-
-<list>
-	#p Prefer Reference<T> for ownership
-	#p Use TRef<T> for temporary non-owning references
-	#p Avoid manual Retain()/Release() where possible
-	#p Avoid circular ownership relationships
-	#p Prefer clear ownership hierarchies
-</list>
-
-#h2 ObjectOf<T>
-
-#p ObjectOf<T> wraps a value type inside an Object, allowing values to participate in reference counting, dynamic properties, and generic object-based APIs.
-
-#h1 Generic Properties
-
-#p Reflex::Object defines a virtual interface for attaching, querying, and removing typed properties dynamically via Object::SetProperty, Object::QueryProperty, and Object::UnsetProperty.
-
-#p This allows sub-objects and arbitrary typed values to be attached to objects at runtime, reducing the need for deep subclassing and enabling highly data-driven systems.
-
-#p Properties are identified by both id AND type, rather than by id alone. This complements C++'s strong typing model by allowing multiple typed views of the same conceptual property.
+#p Object declares a typed runtime property interface through SetProperty(), QueryProperty(), and UnsetProperty(). A property is identified by both its id and its type.
 
 <warn>
-#p Important: Object Does Not Implement the Interface
+#p Object itself does not store properties. A derived type must implement the property callbacks; otherwise SetProperty() discards the supplied property.
 </warn>
 
-#p Reflex::Object itself does not provide a concrete property implementation. Calling SetProperty() on a derived type which does not implement the property callbacks will silently discard the property.
-
-#p Typically, dynamic properties are implemented through Data::PropertySet, which fully implements the property system for arbitrary types.
-
-#p Many primary framework classes (such as GLX::Object) derive from Data::PropertySet and therefore support dynamic properties automatically.
+#p Data::PropertySet is the standard implementation and is the usual choice when dynamic properties are needed.
 
 <span>
-#p For more information on dynamic properties, see$spc
+#p See$spc
+#link symbol: [$qReflex$q, $qObject$q, $qSetProperty$q]; text: $qObject::SetProperty$q;
+#p ,$spc
+#link symbol: [$qReflex$q, $qObject$q, $qQueryProperty$q]; text: $qObject::QueryProperty$q;
+#p ,$spc
+#link symbol: [$qReflex$q, $qObject$q, $qUnsetProperty$q]; text: $qObject::UnsetProperty$q;
+#p , and$spc
 #link symbol: [$qReflex$q, $qData$q, $qPropertySet$q]; text: $qData::PropertySet$q;
 #p .
-</span>
-";
+</span>";
 
 	Path: ["Reflex", "Object"];
 };
@@ -4889,7 +4756,7 @@ See also Bootstrap::Detail::SetStyle.
 {
 	Path: ["Reflex", "Remove"];
 
-	Module: ["Reflex", "String"];
+	Module: ["Reflex", "Containers", "Array"];
 };
 
 184:
@@ -4983,9 +4850,116 @@ See also Bootstrap::Detail::SetStyle.
 
 187:
 {
+	@WString Description: "#p Searches a contiguous sequence from front to back and returns the first matching position as an Idx.
+
+#p The signature displayed by the documentation is simplified because Search is heavily templated. The first argument may be an Array, ArrayView, ArrayRegion, or another type accepted by ToView(). The second argument may be either a single element or an Array/view-compatible sequence. A sequence needle must not be empty.
+
+#p Idx converts to bool in a condition, making found/not-found handling concise. Its value member contains the zero-based position:
+
+<code>
+#p if (auto idx = Search(values, needle))
+#p {
+#p 	auto [before, from_match] = Splice(values, idx.value);
+#p 	// use the matching position or the two composed views
+#p }
+</code>
+
+#h2 Comparison Policies
+
+#p Search uses StandardCompare by default. Supply a comparison policy as the first template argument to change how each candidate is compared with the needle.
+
+<list>
+#p KeyCompare compares the .a member of each tuple-like element with the needle. It is convenient for Arrays of Pair or Tuple values keyed by their first field.
+#p FieldCompare<&TYPE::member> compares a selected data member with the needle, allowing an Array of structures to be searched without constructing a complete structure value.
+#p CaseInsensitive compares character sequences without case sensitivity. CaseSensitive is the explicit alias for the default case-sensitive policy.
+</list>
+
+#p KeyCompare can search Tuple values directly by their first field:
+
+<code>
+#p Array<Tuple<Key32, CString>> properties =
+#p {
+#p 	{ K32($qname$q), $qOscillator$q },
+#p 	{ K32($qgain$q), $q0.5$q },
+#p };
+#p
+#p if (auto idx = Search<KeyCompare>(properties, K32($qgain$q)))
+#p {
+#p 	auto & value = properties[idx.value].b;
+#p }
+</code>
+
+#p FieldCompare searches a named field of an ordinary structure:
+
+<code>
+#p struct Parameter
+#p {
+#p 	Key32 id;
+#p 	Float32 value;
+#p };
+#p
+#p Array<Parameter> parameters =
+#p {
+#p 	{ K32($qgain$q), 0.5f },
+#p 	{ K32($qmix$q), 1.0f },
+#p };
+#p
+#p if (auto idx = Search<FieldCompare<&Parameter::id>>(parameters, K32($qmix$q)))
+#p {
+#p 	parameters[idx.value].value = 0.75f;
+#p }
+</code>
+
+#p For case-insensitive text searching:
+
+<code>
+#p Array<CString> names = { $qInput$q, $qOutput$q };
+#p auto idx = Search<CaseInsensitive>(names, $qoutput$q);
+</code>
+
+<span>
+#p See$spc
+#link symbol: [$qReflex$q, $qKeyCompare$q]; text: $qReflex::KeyCompare$q;
+#p ,$spc
+#link symbol: [$qReflex$q, $qFieldCompare$q]; text: $qReflex::FieldCompare$q;
+#p , and$spc
+#link symbol: [$qReflex$q, $qCaseInsensitive$q]; text: $qReflex::CaseInsensitive$q;
+#p $spcfor their individual contracts.
+</span>
+
+#p Search intentionally has no start-position or sub-range arguments. Reflex composes ranges with lightweight views instead. Search the required ArrayView or ArrayRegion, and the returned index is relative to that supplied view.
+
+#p For example, repeatedly find a single element by advancing the remaining view beyond each match:
+
+<code>
+#p auto remaining = ToView(values);
+#p
+#p while (auto idx = Search(remaining, needle))
+#p {
+#p 	auto [before, from_match] = Splice(remaining, idx.value);
+#p 	// process from_match[0]
+#p
+#p 	remaining = Nudge(from_match); // advance one element beyond this match
+#p }
+</code>
+
+#p When the needle is itself a sequence, advance by its view size rather than one element if overlapping matches are not wanted.
+
+<span>
+#p Use$spc
+#link symbol: [$qReflex$q, $qSearchValue$q]; text: $qSearchValue()$q;
+#p $spcinstead when the matching element itself is needed rather than its index.
+</span>
+
+<span>
+#p See$spc
+#link symbol: [$qReflex$q, $qReverseSearch$q]; text: $qReflex::ReverseSearch$q;
+#p $spcfor the last matching occurrence.
+</span>";
+
 	Path: ["Reflex", "Search"];
 
-	Module: ["Reflex", "Containers"];
+	Module: ["Reflex", "Containers", "Array"];
 };
 
 188:
@@ -5066,7 +5040,7 @@ See also Bootstrap::Detail::SetStyle.
 {
 	Path: ["Reflex", "Splice"];
 
-	Module: ["Reflex", "String"];
+	Module: ["Reflex", "Containers", "Array"];
 };
 
 191:
@@ -5212,7 +5186,7 @@ See also Bootstrap::Detail::SetStyle.
 #p Note, SHA-256 is suitable for cryptographic use cases, including secure hashing of content, signatures, and tokens.
 
 <code>
-#p Archive hash = SHA256(fileData);
+#p Data::Archive hash = Data::SHA256(File::Open(filepath));
 </code>
 ";
 
@@ -5368,9 +5342,29 @@ See also Bootstrap::Detail::SetStyle.
 
 212:
 {
+	@WString Description: "#p Lightweight read-only non-owning view of contiguous data.
+
+#p ArrayView<T> is an alias of ArrayRegion<const T>. It stores only a data pointer and size, is cheap to pass by value, and never allocates or owns the referenced elements.
+
+#p Views are commonly used for function parameters, array slices, substrings, tokenization, and zero-copy return values.
+
+<code>
+#p CString str = $qHelloWorld$q;
+#p auto [a, b] = Splice(str, 5);
+#p CString owned = b;
+</code>
+
+#p In this example, a and b borrow memory owned by str. A view becomes invalid when its source is destroyed, reallocated, or modified in a way which moves or replaces the referenced storage. Copy the view into an owning Array, CString, or WString when it must outlive the source.
+
+<span>
+#p For a mutable borrowed slice, see$spc
+#link symbol: [$qReflex$q, $qArrayRegion$q]; text: $qReflex::ArrayRegion$q;
+#p .
+</span>";
+
 	Path: ["Reflex", "ArrayView"];
 
-	Module: ["Reflex", "Containers"];
+	Module: ["Reflex", "Containers", "Array"];
 };
 
 213:
@@ -5402,7 +5396,9 @@ See also Bootstrap::Detail::SetStyle.
 
 216:
 {
-	@WString Description: "#p Sets an opacity mod value on the object.";
+	@WString Description: "#p Sets an opacity mod value on the object.
+
+#p Each id stores a separate opacity mod. When multiple opacity mods are active at once, their values are multiplied together to produce the final opacity.";
 
 	Path: ["Reflex", "GLX", "SetOpacity"];
 
@@ -5411,6 +5407,23 @@ See also Bootstrap::Detail::SetStyle.
 
 217:
 {
+	@WString Description: "#p Owning null-terminated narrow-character string, defined as String<char>.
+
+#p CString uses the Array API and maintains an additional trailing null character after every modification, allowing direct use with C APIs which accept const char*.
+
+<code>
+#p CString text = $qhello$q;
+#p SomeAPI(text.GetData());
+</code>
+
+#p CString::View is the corresponding non-owning ArrayView<char>. Views into a CString become invalid if the string is destroyed or a modification reallocates or replaces its storage.
+
+<span>
+#p See$spc
+#link symbol: [$qReflex$q, $qString$q]; text: $qReflex/String$q;
+#p $spcfor generic string operations and conventions.
+</span>";
+
 	Path: ["Reflex", "CString"];
 
 	Module: ["Reflex", "String"];
@@ -5432,6 +5445,18 @@ See also Bootstrap::Detail::SetStyle.
 
 220:
 {
+	@WString Description: "#p Owning null-terminated wide-character string, defined as String<WChar>.
+
+#p WString uses the Array API and maintains an additional trailing null character after every modification, allowing direct use with APIs which accept const WChar*.
+
+#p WString::View is the corresponding non-owning ArrayView<WChar>. Views into a WString become invalid if the string is destroyed or a modification reallocates or replaces its storage.
+
+<span>
+#p See$spc
+#link symbol: [$qReflex$q, $qString$q]; text: $qReflex/String$q;
+#p $spcfor generic string operations and conventions.
+</span>";
+
 	Path: ["Reflex", "WString"];
 
 	Module: ["Reflex", "String"];
@@ -5590,6 +5615,14 @@ See also Bootstrap::Detail::SetStyle.
 
 234:
 {
+	@WString Description: "#p Contiguous unique-key associative container built on Sequence.
+
+#p Map<TKey, TValue> stores at most one value for each key in comparator order while retaining compact contiguous storage and straightforward iteration.
+
+#p Set(key, value) inserts or replaces a value, Search(key, fallback) queries without insertion, Unset(key) removes a key, and map[key] acquires a value, inserting a default value when the key is absent.
+
+#p Insertions may move later elements. Map is intended for collections where compact storage and ordered iteration are valuable.";
+
 	Path: ["Reflex", "Map"];
 
 	Module: ["Reflex", "Containers"];
@@ -5599,11 +5632,28 @@ See also Bootstrap::Detail::SetStyle.
 {
 	Path: ["Reflex", "Mid"];
 
-	Module: ["Reflex", "String"];
+	Module: ["Reflex", "Containers", "Array"];
 };
 
 236:
 {
+	@WString Description: "#p Creates a Reflex object and returns a non-owning TRef<T> to it.
+
+#p Objects created by New<T>() begin with a reference count of zero. The result must be retained by a Reference<T> or by the receiving API whenever it needs to outlive the current operation.
+
+<code>
+#p auto child = New<MyClass>(args...);
+#p Reference<MyClass> owner = New<MyClass>(args...);
+</code>
+
+#p New<T>(allocator, args...) selects an explicit allocator. When T is abstract, creation is dispatched through T::Create(args...).
+
+<span>
+#p Use$spc
+#link symbol: [$qReflex$q, $qMake$q]; text: $qReflex::Make$q;
+#p $spcwhen immediate ownership is required.
+</span>";
+
 	Path: ["Reflex", "New"];
 
 	Module: ["Reflex", "Object"];
@@ -5613,7 +5663,9 @@ See also Bootstrap::Detail::SetStyle.
 {
 	@WString Description: "#p Sets programmatic min and max bounds on the object for the supplied id.
 
-#p This is the programmatic equivalent of stylesheet size and max values, and affects computed content size, which is derived from child objects, style layers, and the current min and max properties.";
+#p This is the programmatic equivalent of stylesheet size and max values, and affects computed content size, which is derived from child objects, style layers, and the current min and max properties.
+
+#p Each id stores a separate bounds mod. When multiple bounds mods are active, their constraints are combined by intersecting them: the effective minimum becomes the largest active minimum, and the effective maximum becomes the smallest active maximum.";
 
 	Path: ["Reflex", "GLX", "SetBounds"];
 
@@ -5622,61 +5674,41 @@ See also Bootstrap::Detail::SetStyle.
 
 238:
 {
-	@WString Description: "#p Type-safe dynamic contiguous container.
+	@WString Description: "#p Owning dynamic container with contiguous storage, explicit size and capacity management, and a runtime Allocator.
 
-#p Array stores elements in contiguous memory with explicit size and capacity management. It supports value types and object types, with optimized paths for raw-copyable items.
+#p Array<T> owns its elements. Any operation which reallocates its storage invalidates pointers, ArrayView values, and ArrayRegion values which borrow that storage.
 
-#h2 Storage and Allocation
+#h2 Adding and Removing
 
-#p Array owns its storage through an Allocator reference.
+#p Use Push() for one element and Append() for a contiguous region, view, or another Array. SetSize(), Insert(), Remove(), Pop(), and Shrink() provide the remaining direct size and mutation operations.
 
-<list>
-#p Capacity grows on demand via Allocate(...) or automatically via push/append operations.
-#p Over-allocation mode is supported to reduce reallocations during growth.
-#p Compact() reallocates to current size.
-</list>
+#h2 Capacity and Allocation
 
-#p Clear() destroys active elements and keeps capacity. The destructor clears elements and releases owned memory.
+#p Reserve() and Allocate() ensure capacity without changing size; Compact() releases unused capacity. kAllocateOver is the normal growth policy, kAllocateExact grows exactly as required, and kAllocateNone skips the allocation path when the caller has already reserved sufficient capacity.
 
-#h2 Size and Mutation
+#p kAllocateNone is intended for known-capacity hot paths, such as filling point geometry with Extend(). The capacity precondition remains the caller's responsibility.
 
-#p Array supports SetSize(...), Expand(...), Shrink(...), Push(...), Pop(), Insert(...), Remove(...), and Append(...).
+#h2 Element Lifetime
 
-#p For non-trivial element types, constructors and destructors are called correctly during growth, shrink, and relocation.
+#p Clear() destroys active elements while retaining capacity; the destructor also releases the owned storage. Growth, shrink, and relocation correctly construct and destroy non-trivial elements, while raw element types use bulk paths where possible.
 
-#p For raw-constructible/copyable element types, operations use bulk memory paths for performance.
+#h2 Access
 
-#h2 Null-Terminated Mode
+#p Array provides indexed access, GetFirst(), GetLast(), GetData(), and standard forward/reverse iteration. Indexed access requires an active index and is asserted in debug builds.
 
-#p If TYPE is marked null-terminated, Array keeps an additional trailing terminator element that is maintained after each mutation.
-
-#p This mode enables string-like usage from the same container type while preserving explicit size.
-
-#h2 Access and Iteration
-
-#p Array provides indexed access, first/last accessors, direct data pointer access, and forward/reverse iteration.
-
-#p Bounds are validated with assertions for index-based operations.
-
-#h2 Usage Example
-
-<code>
-#p Array<int> values;
-#p values.Push(10);
-#p values.Push(20);
-#p values.Insert(1, 15);
-#p values.Remove(0);
-#p
-#p for (auto & v : values)
-#p {
-#p 	// v = 15, then 20
-#p }
-</code>
-";
+<span>
+#p See also$spc
+#link symbol: [$qReflex$q, $qContainers$q, $qArray$q]; text: $qReflex/Containers/Array$q;
+#p ,$spc
+#link symbol: [$qReflex$q, $qArrayView$q]; text: $qArrayView$q;
+#p , and$spc
+#link symbol: [$qReflex$q, $qArrayRegion$q]; text: $qArrayRegion$q;
+#p .
+</span>";
 
 	Path: ["Reflex", "Array"];
 
-	Module: ["Reflex", "Containers"];
+	Module: ["Reflex", "Containers", "Array"];
 };
 
 239:
@@ -5725,7 +5757,7 @@ See also Bootstrap::Detail::SetStyle.
 {
 	Path: ["Reflex", "Merge"];
 
-	Module: ["Reflex", "String"];
+	Module: ["Reflex", "Containers", "Array"];
 };
 
 244:
@@ -5786,14 +5818,14 @@ See also Bootstrap::Detail::SetStyle.
 {
 	Path: ["Reflex", "Right"];
 
-	Module: ["Reflex", "String"];
+	Module: ["Reflex", "Containers", "Array"];
 };
 
 246:
 {
 	Path: ["Reflex", "Split"];
 
-	Module: ["Reflex", "String"];
+	Module: ["Reflex", "Containers", "Array"];
 };
 
 247:
@@ -5919,7 +5951,51 @@ See also Bootstrap::Detail::SetStyle.
 #p ptr->Release();
 </code>
 
-#p In practice, Reference<T> is safer, clearer, and strongly preferred over manual retain/release handling.";
+#p In practice, Reference<T> is safer, clearer, and strongly preferred over manual retain/release handling.
+
+#h2 When to Use Reference
+
+#p Use Reference<T> for members, local variables, captures, and returned values which must keep an object alive. Use TRef<T> for temporary borrowed access where another owner already guarantees lifetime.
+
+#p Copying or assigning a Reference retains the new object and releases the previous object. Clear() resets it to the type's null-instance and releases its current ownership.
+
+#h2 Null Instances
+
+#p Reference<T> and TRef<T> represent the type's null-instance rather than nullptr. If a type does not define a null-instance, the wrappers cannot be default-constructed, enforcing validity at compile time.
+
+#h2 Unsafe References
+
+#p Normal Reference<T> default construction works for standard framework types such as GLX::Object and Data::PropertySet because they provide null-instances. ObjectOf<SCALAR> also provides one automatically.
+
+#p The second Reference template argument is a ReferenceSafeFlags value. Reference<T, false> selects unsafe mode, which is needed when a user-defined object type has no null-instance but its storage must still be default-constructed.
+
+#p An unsafe Reference uses Object::null as its default sentinel. That sentinel is not a T instance, so test the reference with if (ref) before dereferencing it and assign a real T before using it. Treat an unsafe Reference like a nullable pointer.
+
+#p Normal Reference<T> remains preferred. Use unsafe mode only when default-constructible storage is required and the code can maintain the validity check.
+
+<code>
+#p Reference<View> view1 = New<View>();
+#p Reference<View> view2 = kNewObject;	// shorthand helper
+</code>
+
+#h2 Circular Ownership
+
+#p Reflex is not garbage collected. A cycle of owning references leaks unless it is explicitly broken:
+
+<code>
+#p auto a = Make<Data::PropertySet>();
+#p auto b = Make<Data::PropertySet>();
+#p a->SetProperty($qfoo$q, b);
+#p b->SetProperty($qfoo$q, a);
+</code>
+
+#p Prefer clear ownership hierarchies and non-owning TRef relationships where the surrounding lifetime makes borrowing safe.
+
+<span>
+#p See$spc
+#link symbol: [$qReflex$q, $qTRef$q]; text: $qReflex::TRef$q;
+#p $spcfor non-owning reference semantics.
+</span>";
 
 	Path: ["Reflex", "Reference"];
 
@@ -6492,9 +6568,23 @@ See also Bootstrap::Detail::SetStyle.
 
 277:
 {
+	@WString Description: "#p Lightweight mutable non-owning view of contiguous data.
+
+#p ArrayRegion<T> stores a data pointer and size. It is cheap to pass by value, never allocates, and permits mutation of the referenced elements. ArrayView<T> is the read-only alias ArrayRegion<const T>.
+
+#p A region does not own or retain its source. It becomes invalid when the source is destroyed, reallocated, or modified in a way which moves or replaces the referenced storage.
+
+#p Use ArrayRegion for temporary writable buffer access. Store an owning Array when the data must survive independently of its source.
+
+<span>
+#p For a read-only borrowed slice, see$spc
+#link symbol: [$qReflex$q, $qArrayView$q]; text: $qReflex::ArrayView$q;
+#p .
+</span>";
+
 	Path: ["Reflex", "ArrayRegion"];
 
-	Module: ["Reflex", "Containers"];
+	Module: ["Reflex", "Containers", "Array"];
 };
 
 278:
@@ -7606,13 +7696,32 @@ See also Bootstrap::Detail::SetStyle.
 <code>
 #p switch (MakeKey32(some_received_string))
 #p {
-#p case MakeKey32($qone$q):
+#p case K32($qone$q):
 #p 	break;
 #p
-#p case MakeKey32($qtwo$q):
+#p case K32($qtwo$q):
 #p 	break;
 #p }
 </code>
+
+<warn>
+#p Although Key32 effectively stores a UInt32, its default value is kNullKey (5381), the hash algorithm's output for an empty string. Do not test whether a Key32 is set by testing its value for zero.
+
+<code>
+#p Key32 test = something;
+#p if (!test.value)
+#p {
+#p }
+</code>
+
+#p Use IsSet(test) or IsUnset(test) instead.
+<code>
+#p if (IsSet(test))
+#p {
+#p }
+</code>
+
+</warn>
 
 #p Because Key32 stores only the hash value, reverse lookup to the original text is not available unless you explicitly maintain that mapping elsewhere, for example in a KeyMap.";
 
@@ -9142,6 +9251,30 @@ See also Bootstrap::Detail::SetStyle.
 
 515:
 {
+	@WString Description: "#p Extends an Array by n elements and returns a mutable ArrayRegion covering exactly the newly added elements.
+
+#p Extend is useful when several adjacent elements will be populated together. It performs one size expansion and exposes the resulting region, avoiding a separate Push() operation and allocation check for every element.
+
+<code>
+#p auto region = Extend(points, 6);
+#p region[0] = { x0, y0 };
+#p region[1] = { x1, y1 };
+#p region[2] = { x2, y2 };
+#p region[3] = { x3, y3 };
+#p region[4] = { x4, y4 };
+#p region[5] = { x5, y5 };
+</code>
+
+#p The default kAllocateOver policy grows capacity when required. In a hot geometry-building path, reserve the total capacity first and use kAllocateNone to bypass the allocation/capacity-growth path:
+
+<code>
+#p points.Reserve(points.GetSize() + 6);
+#p auto region = Extend<kAllocateNone>(points, 6);
+#p // fill region
+</code>
+
+#p With kAllocateNone, the caller must guarantee sufficient capacity. The unchecked Extend path does not validate that precondition.";
+
 	Path: ["Reflex", "Extend"];
 
 	Module: ["Reflex", "Containers"];
@@ -9151,7 +9284,7 @@ See also Bootstrap::Detail::SetStyle.
 {
 	Path: ["Reflex", "GetArraySize"];
 
-	Module: ["Reflex", "Containers"];
+	Module: ["Reflex", "Containers", "Array"];
 };
 
 517:
@@ -9177,6 +9310,23 @@ See also Bootstrap::Detail::SetStyle.
 
 520:
 {
+	@WString Description: "#p Constructs an owning Reference<T> from an existing Reflex object or factory result.
+
+#p AutoRelease(object) retains the supplied object through the returned Reference and releases it automatically when that Reference is destroyed.
+
+<code>
+#p Reference<HttpConnection> conn1 = HttpConnection::Create(...);
+#p auto conn2 = AutoRelease(HttpConnection::Create(...));
+</code>
+
+#p When the object is created directly through the standard creation helpers, Make<T>(args...) is the shorter equivalent owning form:
+
+<code>
+#p auto conn = Make<HttpConnection>(...);
+</code>
+
+#p AutoRelease is most useful for adopting results from named Create(...) factories or other APIs which return TRef<T>.";
+
 	Path: ["Reflex", "AutoRelease"];
 
 	Module: ["Reflex", "Object"];
@@ -9417,7 +9567,7 @@ See also Bootstrap::Detail::SetStyle.
 {
 	Path: ["Reflex", "Sort"];
 
-	Module: ["Reflex", "Containers"];
+	Module: ["Reflex", "Containers", "Array"];
 };
 
 555:
@@ -9431,14 +9581,14 @@ See also Bootstrap::Detail::SetStyle.
 {
 	Path: ["Reflex", "Reorder"];
 
-	Module: ["Reflex", "Logic"];
+	Module: ["Reflex", "Containers", "Array"];
 };
 
 557:
 {
 	Path: ["Reflex", "Reverse"];
 
-	Module: ["Reflex", "Containers"];
+	Module: ["Reflex", "Containers", "Array"];
 };
 
 558:
@@ -9474,5 +9624,1338 @@ See also Bootstrap::Detail::SetStyle.
 	Path: ["Reflex", "RoundDown"];
 
 	Module: ["Reflex", "Math"];
+};
+
+563:
+{
+	Group: true;
+
+	@WString Description: "#p 'Reflex::Data::Table' is a lightweight, in-memory, typed table for structured application datasets.
+
+#p It is intended for moderate-sized working sets that need direct C++ access, typed columns, compact storage, and a small set of practical query-style operations such as filter, sort, slice, group, count, and aggregate.
+
+#p It is not a relational database engine. It does not aim to provide SQL, joins, transactions, or durable multi-user storage. Its role is closer to a fast Reflex-native working table for UI data, caches, imported datasets, tooling, and transformation pipelines.
+
+#h1 Core model
+
+#p A table has:
+<list>
+#p A fixed schema.
+#p Zero or more rows.
+#p Typed columns identified by 'Key32'.
+</list>
+
+#p Each column stores metadata such as its id, data type, flags, and byte offset within a row. The schema is fixed for the lifetime of the table.
+
+#p Fixed-width values are stored directly in row memory. Variable-width payloads such as strings, binary data, and arrays are stored in heap-backed table storage.
+
+#h1 Access model
+
+#p Rows are accessed through cursor-style objects such as 'RowCursor' and 'ConstRowCursor', with typed read/write helpers on resolved column descriptors.
+
+#p In normal usage, callers resolve frequently used columns once with 'QueryColumn()' or 'GetColumns()', then reuse those descriptors while iterating rows or writing values.
+
+#h1 Query helpers
+
+#p The surrounding table API provides explicit query-style helpers rather than SQL strings:
+<list>
+#p 'FindFirst' for the first matching row.
+#p 'SelectRows' for matching row indices.
+#p 'Select' for producing a filtered table.
+#p 'Slice' for projection and row subset copying.
+#p 'SortBy' for in-place ordering by one column.
+#p 'CountBy', 'GroupBy', and 'Aggregate' for summary/result tables.
+</list>
+
+#h1 Constraints
+
+#p Structural mutations may invalidate existing row and cell cursors. A good mental model is that normal iterator invalidation rules apply: adding, removing, shrinking, or reallocating table storage should be assumed to invalidate previously held row/cell handles.
+
+#p 'Key32' comparisons are numeric by default, but some query and sort operations can use a supplied keymap to compare by key string instead.
+
+#p Ordering of variable-width values is pragmatic and bytewise/lexicographic.
+
+#p Individual variable-width cell payloads are currently limited to 'UInt16' size, so a single stored string, blob, or array cell cannot exceed roughly 65 KB of payload data.
+
+#p Low-level serialize/deserialize support exists for compact persistence, but callers are expected to wrap that with their own versioning, schema checks, and application-level file logic where durability matters.
+
+#p In practice, persistent table storage is often organized by placing one or more tables inside a 'File::Monolith'. When payloads are larger than the practical per-cell limit, the typical pattern is to store the large blob in its own monolith partition and keep only an id or lookup key in the table cell.";
+
+	Path: ["Reflex", "Data", "Table"];
+};
+
+564:
+{
+	@WString Description: "#p Describes a table column's storage and schema metadata.
+
+#p A 'ColumnInfo' identifies the column 'id', logical 'type', column 'flags', and byte 'offset' within each row.
+
+#p Callers typically resolve a 'ColumnInfo' once, then reuse it for repeated typed row access via 'ReadValue', 'ReadArray', 'WriteValue', and 'WriteArray'.";
+
+	Path: ["Reflex", "Data", "Table", "ColumnInfo"];
+
+	Module: ["Reflex", "Data", "Table"];
+};
+
+565:
+{
+	@WString Description: "#p Enumerates the logical storage types supported by 'Data::Table'.
+
+#p It includes common scalar and variable-width dataset types such as booleans, integers, floating point values, 'Key32', dates, binary blobs, arrays of primitive values, and ASCII / UTF-8 / UCS2 strings.
+
+#p 'ColumnType' defines the schema-level meaning of a column, while the table implementation chooses the corresponding compact in-memory layout.";
+
+	Path: ["Reflex", "Data", "Table", "ColumnType"];
+
+	Module: ["Reflex", "Data", "Table"];
+};
+
+566:
+{
+	@WString Description: "#p Small explicit query clause used by the table selection helpers.
+
+#p A 'QueryData' value stores:
+<list>
+#p The target column id.
+#p The query operator.
+#p The comparison value packed into a binary archive.
+</list>
+
+#p Use helpers such as 'MakeQuery()' and 'Equals()' rather than building the packed form manually.";
+
+	Path: ["Reflex", "Data", "QueryData"];
+
+	Module: ["Reflex", "Data", "Table"];
+};
+
+567:
+{
+	@WString Description: "#p Query operators used by 'QueryData' and the table selection helpers.
+
+#p The built-in operations are intentionally small and explicit: equals, not-equals, less-than, greater-than, and greater-than-or-equal.";
+
+	Path: ["Reflex", "Data", "QueryOp"];
+
+	Module: ["Reflex", "Data", "Table"];
+};
+
+568:
+{
+	@WString Description: "#p Aggregate operators used by 'Aggregate()' and 'GroupBy()'.
+
+#p The current surface is intentionally narrow and focused on practical summary operations such as 'min', 'max', and 'most' (most frequent).";
+
+	Path: ["Reflex", "Data", "AggregateOp"];
+
+	Module: ["Reflex", "Data", "Table"];
+};
+
+569:
+{
+	@WString Description: "#p Looks up a column descriptor by 'Key32' id.
+
+#p This is the normal way to resolve schema columns once and then reuse the returned 'ColumnInfo' for repeated typed row access.
+
+#p The pointer overload returns null when the column is absent. Use 'AssumeColumn()' when absence or type mismatch should be treated as an error.";
+
+	Path: ["Reflex", "Data", "QueryColumn"];
+
+	Module: ["Reflex", "Data", "Table"];
+};
+
+570:
+{
+	@WString Description: "#p Creates a new table from a subset of columns and/or rows from another table.
+
+#p This is the main projection/copy helper for table data. Typical uses include building UI result sets, exporting a smaller shape, or materialising a selected row subset.
+
+#p Passing an empty column list typically means all columns.";
+
+	Path: ["Reflex", "Data", "Slice"];
+
+	Module: ["Reflex", "Data", "Table"];
+};
+
+571:
+{
+	@WString Description: "#p Returns the first row matching the supplied query clauses.
+
+#p This is the simplest way to perform a table lookup when only one match is needed. 'match_all = true' means all clauses must match; otherwise the query behaves as match-any.
+
+#p When a 'KeyMap*' is supplied, 'Key32' comparisons can use registered key strings rather than raw numeric key values.
+
+#p When no row matches, the returned cursor is null/invalid.";
+
+	Path: ["Reflex", "Data", "FindFirst"];
+
+	Module: ["Reflex", "Data", "Table"];
+};
+
+572:
+{
+	@WString Description: "#p Evaluates a query and returns the matching row indices.
+
+#p This is useful when the caller wants selection semantics without immediately materialising a new table. The resulting row list can then be reused for slicing, custom iteration, or downstream summarisation.
+
+#p When a 'KeyMap*' is supplied, 'Key32' comparisons can use registered key strings rather than raw numeric key values.";
+
+	Path: ["Reflex", "Data", "SelectRows"];
+
+	Module: ["Reflex", "Data", "Table"];
+};
+
+573:
+{
+	@WString Description: "#p Produces a filtered result table from query clauses.
+
+#p Conceptually this combines 'SelectRows()' with 'Slice()': it finds the matching rows, then materialises a new table containing those rows and the requested columns.
+
+#p Use this when the next stage wants a table result rather than just row indices.
+
+#p When a 'KeyMap*' is supplied, 'Key32' comparisons can use registered key strings rather than raw numeric key values.";
+
+	Path: ["Reflex", "Data", "Select"];
+
+	Module: ["Reflex", "Data", "Table"];
+};
+
+574:
+{
+	@WString Description: "#p Sorts a table in place by a single column.
+
+#p This is intended for practical application ordering such as ranked outputs, UI result lists, grouped summaries, and exported views.
+
+#p For 'Key32' columns, a supplied 'KeyMap*' causes ordering to use registered key strings instead of raw numeric key values.";
+
+	Path: ["Reflex", "Data", "SortBy"];
+
+	Module: ["Reflex", "Data", "Table"];
+};
+
+575:
+{
+	@WString Description: "#p Groups rows by one column and returns per-value counts.
+
+#p This is the lightweight table equivalent of a 'GROUP BY ... COUNT(*)' style summary.
+
+#p The result typically includes the grouped key column plus the standard 'count' output column, and optionally 'ratio' when ratio mode is enabled.";
+
+	Path: ["Reflex", "Data", "CountBy"];
+
+	Module: ["Reflex", "Data", "Table"];
+};
+
+576:
+{
+	@WString Description: "#p Groups rows by one column and computes aggregate outputs over the grouped data.
+
+#p Use this when the result should preserve grouping keys while also deriving summary values such as 'min', 'max', or 'most' over other columns.";
+
+	Path: ["Reflex", "Data", "GroupBy"];
+
+	Module: ["Reflex", "Data", "Table"];
+};
+
+577:
+{
+	@WString Description: "#p Computes one or more aggregate summary values across a table.
+
+#p This is the table-wide summary helper for operations such as 'min', 'max', and 'most' (most frequent).
+
+#p The result is returned as a new table, making it easy to pass through the same downstream table/view/export paths as ordinary result sets.";
+
+	Path: ["Reflex", "Data", "Aggregate"];
+
+	Module: ["Reflex", "Data", "Table"];
+};
+
+578:
+{
+	@WString Description: "#p Deletes rows that match a table query.
+
+#p This is a convenience wrapper for query-driven removal when the caller does not want to manually build a row-index list first.
+
+#p When a 'KeyMap*' is supplied, 'Key32' comparisons can use registered key strings rather than raw numeric key values.";
+
+	Path: ["Reflex", "Data", "Delete"];
+
+	Module: ["Reflex", "Data", "Table"];
+};
+
+579:
+{
+	@WString Description: "#p Imports a row from a 'PropertySet'.
+
+#p This is the main bridge from dynamic structured data into a rigid table row. Matching properties are converted according to the target column schema and written into the row.
+
+#p It is best understood as an integration helper around the table layer rather than the central access path for performance-sensitive table code.";
+
+	Path: ["Reflex", "Data", "ImportRow"];
+
+	Module: ["Reflex", "Data", "Table"];
+};
+
+580:
+{
+	@WString Description: "#p Exports a table row into a 'PropertySet'.
+
+#p This is the inverse of 'ImportRow()': it converts typed row data back into a dynamic object-style representation.
+
+#p This is useful when moving between table-backed working data and more schema-light Reflex APIs.";
+
+	Path: ["Reflex", "Data", "ExportRow"];
+
+	Module: ["Reflex", "Data", "Table"];
+};
+
+581:
+{
+	@WString Description: "#p UTF-16 string typedef used by the table layer where 16-bit string storage is needed independently of platform 'wchar_t' width.
+
+#p It is primarily used by UCS2-oriented table helpers and conversion functions such as 'ToWString()' and 'ToWString16()'.";
+
+	Path: ["Reflex", "Data", "WString16"];
+
+	Module: ["Reflex", "Data", "Table"];
+};
+
+582:
+{
+	@WString Description: "#p Table-oriented state base used for lightweight mutation/change tracking.
+
+#p 'Data::State' is an alias over Reflex change-count state machinery and is used by table-related objects to expose inexpensive pull-based change notification.";
+
+	Path: ["Reflex", "Data", "State"];
+
+	Module: ["Reflex", "Data", "Table"];
+};
+
+583:
+{
+	Path: ["Reflex", "Data", "AcquirePropertySet"];
+
+	Module: ["Reflex", "Data", "PropertySet"];
+};
+
+584:
+{
+	Path: ["Reflex", "Data", "WriteLine"];
+
+	Module: ["Reflex", "Data", "Serialization"];
+};
+
+585:
+{
+	Path: ["Reflex", "Data", "AssumeColumn"];
+
+	Module: ["Reflex", "Data", "Table"];
+};
+
+586:
+{
+	Path: ["Reflex", "Data", "MakeAllRows"];
+
+	Module: ["Reflex", "Data", "Table"];
+};
+
+587:
+{
+	Path: ["Reflex", "Data", "kcount"];
+
+	Module: ["Reflex", "Data", "Table"];
+};
+
+588:
+{
+	Path: ["Reflex", "Data", "kratio"];
+
+	Module: ["Reflex", "Data", "Table"];
+};
+
+589:
+{
+	Path: ["Reflex", "Data", "Table", "RowCursor"];
+
+	Module: ["Reflex", "Data", "Table"];
+};
+
+590:
+{
+	Path: ["Reflex", "Data", "ToWString"];
+
+	Module: ["Reflex", "Data", "Table"];
+};
+
+591:
+{
+	Path: ["Reflex", "Data", "ToWString16"];
+
+	Module: ["Reflex", "Data", "Table"];
+};
+
+592:
+{
+	Path: ["Reflex", "Data", "Table", "ConstRowCursor"];
+
+	Module: ["Reflex", "Data", "Table"];
+};
+
+593:
+{
+	@WString Description: "#p 'File::Monolith' is a compact container utility for storing multiple binary payloads inside a single file.
+
+#p Its main benefit is partitioned storage: multiple large resources can live in one file while still being updated as separate partitions. This avoids rewriting an entire combined resource file every time one payload changes, which is where it offers a practical advantage over simply serializing many resources into one ordinary blob.
+
+#p It is commonly used alongside 'Data::Table' for persistent application datasets, where one monolith can hold one or more stored tables plus related metadata or auxiliary payloads. It is also useful for application data files with embedded resources or other grouped binary content that should travel together as one physical file.
+
+#p Large payloads that are awkward to store directly in a table cell are typically written to their own monolith partition, with the table keeping only an id or lookup key for that externalized blob.
+
+#p Monolith partition access is exclusive at the file-handle level: only one active 'FileHandle' created through 'Read()' or 'Write()' can exist at a time. Attempting to open another concurrent monolith read/write handle returns the null instance instead.
+
+#p It is possible to define a custom 'File::Locator' so that the virtual file system can resolve resources from a monolith-backed store.";
+
+	Path: ["Reflex", "File", "Monolith"];
+
+	Module: ["Reflex", "File", "IO"];
+};
+
+594:
+{
+	Path: ["Reflex", "File", "WriteLine"];
+
+	Module: ["Reflex", "File", "IO"];
+};
+
+595:
+{
+	Path: ["Reflex", "File", "kPathDelimiter"];
+
+	Module: ["Reflex", "File", "Path"];
+};
+
+596:
+{
+	Path: ["Reflex", "File", "DeletePath"];
+
+	Module: ["Reflex", "File", "Path"];
+};
+
+597:
+{
+	@WString Description: "#p Comparison policy which compares the .a member of a tuple-like candidate with the supplied value.
+
+#p KeyCompare is designed for Pair, Tuple, and similar records whose first field is the lookup key. It allows Search<KeyCompare>(values, key) and SearchValue<KeyCompare>(values, key) without constructing a complete tuple as the needle.
+
+#p Equality and ordering both use candidate.a, so the policy can also be used by APIs which require ordered comparison.";
+
+	Path: ["Reflex", "KeyCompare"];
+
+	Module: ["Reflex", "Containers"];
+};
+
+598:
+{
+	Path: ["Reflex", "Key64"];
+
+	Module: ["Reflex", "Types"];
+};
+
+599:
+{
+	Path: ["Reflex", "GLX", "GetKeyCode"];
+
+	Module: ["Reflex", "GLX", "Events"];
+};
+
+600:
+{
+	Path: ["Reflex", "GLX", "AddRectFill"];
+
+	Module: ["Reflex", "GLX", "Styling", "Canvas"];
+};
+
+601:
+{
+	Path: ["Reflex", "GLX", "SetState"];
+
+	Module: ["Reflex", "GLX", "Styling"];
+};
+
+602:
+{
+	Path: ["Reflex", "GLX", "CreateDragDropEndListener"];
+
+	Module: ["Reflex", "GLX", "Events"];
+};
+
+603:
+{
+	@WString Description: "#p Comparison policy for case-insensitive character-sequence equality and ordering.
+
+#p Use it as the policy template argument to generic algorithms such as Search<CaseInsensitive>(values, needle). Both candidates are converted to views before comparison, so it works with compatible string, Array, and view forms.";
+
+	Path: ["Reflex", "CaseInsensitive"];
+
+	Module: ["Reflex", "Containers"];
+};
+
+604:
+{
+	@WString Description: "#p Explicit name for the standard case-sensitive comparison policy.
+
+#p CaseSensitive is an alias of StandardCompare and is normally unnecessary because generic search and ordering APIs use StandardCompare by default.";
+
+	Path: ["Reflex", "CaseSensitive"];
+
+	Module: ["Reflex", "Containers"];
+};
+
+605:
+{
+	@WString Description: "#p Comparison policy which compares a selected data member of each candidate with the supplied value.
+
+#p Pass a member-object pointer as the template argument, for example Search<FieldCompare<&Parameter::id>>(parameters, id). This searches an Array of structures by one field without constructing a complete structure as the needle.
+
+#p FieldCompare provides equality comparison and is intended for lookup-style algorithms such as Search and SearchValue.";
+
+	Path: ["Reflex", "FieldCompare"];
+
+	Module: ["Reflex", "Containers"];
+};
+
+606:
+{
+	@WString Description: "#p Searches for a single matching element and returns a pointer to that element.
+
+#p SearchValue differs from Search in returning the item directly rather than an Idx. Use it when the caller needs the matching item and does not need its position; this avoids calculating and then using an intermediate index, and is slightly faster in that case.
+
+#p The first argument may be an Array, ArrayRegion, ArrayView, or another type accepted by ToRegion()/ToView(). The result is mutable for a mutable input and const for a const input. Like Search, an optional comparison policy may be supplied as the first template argument.
+
+#p The optional fallback pointer defaults to nullptr and is returned when no match is found. This can simplify branch handling when a suitable default already exists:
+
+<code>
+#p Item default_value = ...;
+#p auto pitem = SearchValue(arr, needle, &default_value);
+#p // pitem is either the matching item or default_value
+</code>
+
+#p SearchValue compares one element at a time; use Search when a matching sequence or its index is required.
+
+<span>
+#p See$spc
+#link symbol: [$qReflex$q, $qSearch$q]; text: $qReflex::Search$q;
+#p $spcfor index-returning and sequence searches.
+</span>";
+
+	Path: ["Reflex", "SearchValue"];
+
+	Module: ["Reflex", "Containers", "Array"];
+};
+
+607:
+{
+	@WString Description: "#p Removes the final element. The Array must not be empty. The removed element is destroyed when necessary, while allocated capacity is retained.";
+
+	Path: ["Reflex", "Array", "Pop"];
+
+	Module: ["Reflex", "Containers"];
+};
+
+608:
+{
+	@WString Description: "#p Removes all active elements while retaining the allocated storage for reuse. For null-terminated Array types, the terminating element is maintained.";
+
+	Path: ["Reflex", "Array", "Clear"];
+
+	Module: ["Reflex", "Containers"];
+};
+
+609:
+{
+	@WString Description: "#p Returns true when the Array has no active elements. It is equivalent to testing whether GetSize() is zero.";
+
+	Path: ["Reflex", "Array", "Empty"];
+
+	Module: ["Reflex", "Containers"];
+};
+
+610:
+{
+	@WString Description: "#p Reallocates storage down to the current size, releasing unused capacity. Use it when reducing memory use matters more than preserving spare room for future growth.";
+
+	Path: ["Reflex", "Array", "Compact"];
+
+	Module: ["Reflex", "Containers"];
+};
+
+611:
+{
+	@WString Description: "#p Returns true when the Array is non-empty. This is a shorthand for !Empty().";
+
+	Path: ["Reflex", "Array", "operator bool"];
+
+	Module: ["Reflex", "Containers"];
+};
+
+612:
+{
+	@WString Description: "#p Returns a pointer to the first element of the contiguous storage. Only the first GetSize() elements are active; pointers and views may be invalidated by operations which reallocate the Array.";
+
+	Path: ["Reflex", "Array", "GetData"];
+
+	Module: ["Reflex", "Containers"];
+};
+
+613:
+{
+	@WString Description: "#p Returns the final active element. The Array must not be empty.";
+
+	Path: ["Reflex", "Array", "GetLast"];
+
+	Module: ["Reflex", "Containers"];
+};
+
+614:
+{
+	@WString Description: "#p Returns the number of active elements. This excludes unused capacity and any internal null terminator maintained by string Arrays.";
+
+	Path: ["Reflex", "Array", "GetSize"];
+
+	Module: ["Reflex", "Containers"];
+};
+
+615:
+{
+	@WString Description: "#p Returns true when this Array and the supplied compatible view differ in size or element values.";
+
+	Path: ["Reflex", "Array", "operator!="];
+
+	Module: ["Reflex", "Containers"];
+};
+
+616:
+{
+	@WString Description: "#p Returns true when this Array and the supplied compatible view have equal sizes and equal element values.";
+
+	Path: ["Reflex", "Array", "operator=="];
+
+	Module: ["Reflex", "Containers"];
+};
+
+617:
+{
+	@WString Description: "#p Returns the element at a zero-based active index. The index must be smaller than GetSize(); bounds are asserted in debug builds.";
+
+	Path: ["Reflex", "Array", "operator[]"];
+
+	Module: ["Reflex", "Containers"];
+};
+
+618:
+{
+	@WString Description: "#p Returns the number of elements the currently allocated storage can hold without another allocation. Capacity is at least GetSize().";
+
+	Path: ["Reflex", "Array", "GetCapacity"];
+
+	Module: ["Reflex", "Containers"];
+};
+
+619:
+{
+	@WString Description: "#p Returns the first active element. The Array must not be empty.";
+
+	Path: ["Reflex", "Array", "GetFirst"];
+
+	Module: ["Reflex", "Containers"];
+};
+
+620:
+{
+	@WString Description: "#p Assigns value to every active element without changing the Array size or capacity.";
+
+	Path: ["Reflex", "Array", "Fill"];
+
+	Module: ["Reflex", "Containers"];
+};
+
+621:
+{
+	@WString Description: "#p Appends one element and returns a reference to the new final element. Push() grows storage when required according to its allocation policy.";
+
+	Path: ["Reflex", "Array", "Push"];
+
+	Module: ["Reflex", "Containers"];
+};
+
+622:
+{
+	@WString Description: "#p Resets every active element to its default state without changing the Array size or capacity. For raw element types this clears their storage; other element types are reconstructed.";
+
+	Path: ["Reflex", "Array", "Wipe"];
+
+	Module: ["Reflex", "Containers"];
+};
+
+623:
+{
+	@WString Description: "#p Ensures that the Array has capacity for at least the requested number of elements without changing its size. Reserve is the naming alias of Allocate().";
+
+	Path: ["Reflex", "Array", "Reserve"];
+
+	Module: ["Reflex", "Containers"];
+};
+
+624:
+{
+	@WString Description: "#p Copies all elements from a compatible view onto the end of the Array. Use Append() for regions, views, and other Arrays; it may grow storage according to its allocation policy.";
+
+	Path: ["Reflex", "Array", "Append"];
+
+	Module: ["Reflex", "Containers"];
+};
+
+625:
+{
+	@WString Description: "#p Inserts a new element at a zero-based position and returns a reference to it. Existing elements at and after the position are shifted; inserting at the end appends.";
+
+	Path: ["Reflex", "Array", "Insert"];
+
+	Module: ["Reflex", "Containers"];
+};
+
+626:
+{
+	@WString Description: "#p Removes one element, or n consecutive elements, beginning at a zero-based index. Later elements are shifted down and capacity is retained.";
+
+	Path: ["Reflex", "Array", "Remove"];
+
+	Module: ["Reflex", "Containers"];
+};
+
+627:
+{
+	@WString Description: "#p Removes n elements from the end of the Array. The Array must contain at least n elements; capacity is retained.";
+
+	Path: ["Reflex", "Array", "Shrink"];
+
+	Module: ["Reflex", "Containers"];
+};
+
+628:
+{
+	@WString Description: "#p Changes the number of active elements. Growing the Array constructs new elements, optionally with constructor arguments; shrinking destroys removed elements. Storage grows according to the selected allocation policy when required.";
+
+	Path: ["Reflex", "Array", "SetSize"];
+
+	Module: ["Reflex", "Containers"];
+};
+
+629:
+{
+	@WString Description: "#p Ensures capacity for at least the requested number of elements without changing the Array size. The allocation policy controls whether growth is exact, over-allocated, or skipped when capacity is known to be sufficient.";
+
+	Path: ["Reflex", "Array", "Allocate"];
+
+	Module: ["Reflex", "Containers"];
+};
+
+630:
+{
+	@WString Description: "#p Consumes the next n elements from a mutable ArrayRegion and returns them as a region. Inc updates its itr argument to the remaining elements, making it useful for low-level, non-allocating tokenisation, parsing, and stream-style iteration.
+
+<code>
+#p auto token = Inc(remaining, token_size);
+#p // token is the consumed prefix; remaining now starts after it
+</code>
+
+#p By default, n must not exceed the remaining size and is asserted in debug builds. Inc<true> instead clamps n to the remaining size.
+
+#p For general-purpose slicing where the source should remain unchanged, prefer Mid(), Left(), Right(), or Splice().";
+
+	Path: ["Reflex", "Inc"];
+
+	Module: ["Reflex", "Containers", "Array"];
+};
+
+631:
+{
+	@WString Description: "#p Returns a region shifted by n elements without modifying the supplied region. The default n of one skips its first element; positive values advance forward, while negative values move the region backward within its backing storage.
+
+#p Nudge is a low-level, non-allocating iteration primitive used by tokenisers, parsers, and binary stream readers. The caller is responsible for ensuring that a shifted region remains within valid backing storage.
+
+#p Nudge<true> clamps a forward shift to the remaining size. A region does not retain a lower bound, so a negative shift cannot be fully bounds-checked.
+
+#p For general-purpose slicing, prefer Mid(), which expresses the desired subrange without relying on iterator-style advancement.";
+
+	Path: ["Reflex", "Nudge"];
+
+	Module: ["Reflex", "Containers", "Array"];
+};
+
+632:
+{
+	@WString Description: "#p Converts compatible contiguous data to a read-only ArrayView without allocating or copying.
+
+#p ToView() accepts arrays, regions, views, null-terminated character pointers, and other supported wrappers. The returned view borrows its source, so it must not outlive that source or survive a reallocation.";
+
+	Path: ["Reflex", "ToView"];
+
+	Module: ["Reflex", "Containers"];
+};
+
+633:
+{
+	@WString Description: "#p Converts a mutable Array, Allocation, or ArrayRegion to an ArrayRegion without allocating or copying.
+
+#p The result borrows writable storage. Use ToView() when mutation is not required.";
+
+	Path: ["Reflex", "ToRegion"];
+
+	Module: ["Reflex", "Containers"];
+};
+
+634:
+{
+	@WString Description: "#p Copies an iterable into a new owning Array<T>.
+
+#p Supply the destination element type as the template argument, for example ToArray<Int32>(values). The iterable must provide begin() and end().";
+
+	Path: ["Reflex", "ToArray"];
+
+	Module: ["Reflex", "Containers"];
+};
+
+635:
+{
+	@WString Description: "#p Returns the first n elements as a non-owning view. Left<true>() clamps n to the available size; otherwise n must be within bounds.
+
+#p For a general subrange beginning at an offset, use Mid().";
+
+	Path: ["Reflex", "Left"];
+
+	Module: ["Reflex", "Containers"];
+};
+
+636:
+{
+	@WString Description: "#p Returns a non-owning view beginning at position, optionally limited to length elements. Mid<true>() clamps the requested range; otherwise the range must be within bounds.
+
+#p Mid() is the preferred general-purpose slicing operation.";
+
+	Path: ["Reflex", "Mid"];
+
+	Module: ["Reflex", "Containers"];
+};
+
+637:
+{
+	@WString Description: "#p Returns the final n elements as a non-owning view. Right<true>() clamps n to the available size; otherwise n must be within bounds.";
+
+	Path: ["Reflex", "Right"];
+
+	Module: ["Reflex", "Containers"];
+};
+
+638:
+{
+	@WString Description: "#p Splits a view at a zero-based position and returns its prefix and suffix as a Pair of non-owning views.
+
+#p Splice<true>() clamps the position; otherwise it must be within the view.";
+
+	Path: ["Reflex", "Splice"];
+
+	Module: ["Reflex", "Containers"];
+};
+
+639:
+{
+	@WString Description: "#p Splits a view position elements from its end and returns the prefix and suffix as a Pair of non-owning views.
+
+#p ReverseSplice<true>() clamps the position; otherwise it must be within the view.";
+
+	Path: ["Reflex", "ReverseSplice"];
+
+	Module: ["Reflex", "Containers"];
+};
+
+640:
+{
+	@WString Description: "#p Splits an array or view around a single delimiter element or delimiter sequence.
+
+#p The returned Array contains non-owning views into the original input and does not copy the sections.";
+
+	Path: ["Reflex", "Split"];
+
+	Module: ["Reflex", "Containers"];
+};
+
+641:
+{
+	@WString Description: "#p Combines an array or view of compatible arrays/views into a new owning Array, inserting delimiter between adjacent values.
+
+#p Use Join() when the inputs are already listed as separate arguments.";
+
+	Path: ["Reflex", "Merge"];
+
+	Module: ["Reflex", "Containers"];
+};
+
+642:
+{
+	@WString Description: "#p Concatenates compatible elements, arrays, and views into a new owning Array. CString and WString inputs may also include null-terminated character pointers.
+
+#p Join() performs the required allocation and copies its arguments in order.";
+
+	Path: ["Reflex", "Join"];
+
+	Module: ["Reflex", "Containers"];
+};
+
+643:
+{
+	@WString Description: "#p Returns a new owning Array with each matching element or matching sequence replaced. The source is not modified.
+
+#p The optional comparison policy controls match semantics, such as CaseInsensitive.";
+
+	Path: ["Reflex", "Replace"];
+
+	Module: ["Reflex", "Containers"];
+};
+
+644:
+{
+	@WString Description: "#p Removes matching elements or matching sequences from an Array in place. Capacity is retained.
+
+#p The optional comparison policy controls matching semantics.";
+
+	Path: ["Reflex", "Remove"];
+
+	Module: ["Reflex", "Containers"];
+};
+
+645:
+{
+	@WString Description: "#p Sorts a mutable Array or ArrayRegion in place using StandardCompare by default.
+
+#p Supply a comparison policy or a less-than callable overload to customise the ordering. Sort() is not stable.";
+
+	Path: ["Reflex", "Sort"];
+
+	Module: ["Reflex", "Containers"];
+};
+
+646:
+{
+	@WString Description: "#p Reverses the elements of a mutable Array or ArrayRegion in place.";
+
+	Path: ["Reflex", "Reverse"];
+
+	Module: ["Reflex", "Containers"];
+};
+
+647:
+{
+	@WString Description: "#p Moves the element at from to the zero-based position to, shifting intervening elements to preserve their order.
+
+#p Reorder() modifies an Array or ArrayRegion in place.";
+
+	Path: ["Reflex", "Reorder"];
+
+	Module: ["Reflex", "Containers"];
+};
+
+648:
+{
+	@WString Description: "#p Resets every element in a mutable ArrayRegion to its default state. Raw-constructible elements are cleared; other elements are reconstructed.
+
+#p Array::Wipe() applies the same operation to an entire Array.";
+
+	Path: ["Reflex", "Wipe"];
+
+	Module: ["Reflex", "Containers", "Array"];
+};
+
+649:
+{
+	@WString Description: "#p Assigns value to every element in a mutable ArrayRegion without changing its size.
+
+#p Array::Fill() applies the same operation to an entire Array.";
+
+	Path: ["Reflex", "Fill"];
+
+	Module: ["Reflex", "Containers", "Array"];
+};
+
+650:
+{
+	@WString Description: "#p Copies all elements from src into the equally sized mutable destination region. The source and destination sizes must match.";
+
+	Path: ["Reflex", "Copy"];
+
+	Module: ["Reflex", "Containers", "Array"];
+};
+
+651:
+{
+	@WString Description: "#p Returns a new owning Array containing the source values with matching elements or sequences removed. The source is not modified.
+
+#p Filter() is the copying counterpart to Remove(), and supports the same comparison policies.";
+
+	Path: ["Reflex", "Filter"];
+
+	Module: ["Reflex", "Containers", "Array"];
+};
+
+652:
+{
+	@WString Description: "#p Removes leading characters which satisfy the supplied test and returns the remaining non-owning string view.
+
+#p The default test is IsWhiteSpace(). No string allocation is performed.";
+
+	Path: ["Reflex", "TrimLeft"];
+
+	Module: ["Reflex", "Containers", "Array"];
+};
+
+653:
+{
+	@WString Description: "#p Removes trailing characters which satisfy the supplied test and returns the remaining non-owning string view.
+
+#p The default test is IsWhiteSpace(). No string allocation is performed.";
+
+	Path: ["Reflex", "TrimRight"];
+
+	Module: ["Reflex", "Containers", "Array"];
+};
+
+654:
+{
+	@WString Description: "#p Removes leading and trailing characters which satisfy the supplied test and returns the remaining non-owning string view.
+
+#p The default test is IsWhiteSpace(). No string allocation is performed.";
+
+	Path: ["Reflex", "Trim"];
+
+	Module: ["Reflex", "Containers", "Array"];
+};
+
+655:
+{
+	@WString Description: "#p Returns true when a character has a value below 33. This treats ASCII space and control characters as whitespace and is the default predicate used by Trim(), TrimLeft(), and TrimRight().";
+
+	Path: ["Reflex", "IsWhiteSpace"];
+
+	Module: ["Reflex", "String"];
+};
+
+656:
+{
+	@WString Description: "#p Returns a new owning Array with each character converted to lowercase, or converts one char or WChar value directly.
+
+#p The input string is not modified.";
+
+	Path: ["Reflex", "Lowercase"];
+
+	Module: ["Reflex", "String"];
+};
+
+657:
+{
+	@WString Description: "#p Returns a new owning Array with each character converted to uppercase, or converts one char or WChar value directly.
+
+#p The input string is not modified.";
+
+	Path: ["Reflex", "Uppercase"];
+
+	Module: ["Reflex", "String"];
+};
+
+658:
+{
+	@WString Description: "#p Returns the 32-bit key/hash of a null-terminated string literal and requires that evaluation occur at compile time.
+
+#p Most APIs which accept Key32 already convert string literals at compile time, so K32() is usually optional. Use it when compile-time evaluation must be made explicit, when implicit conversion cannot be evaluated in the required context, or when it makes the key intent clearer.
+
+<code>
+#p constexpr Key32 keys[] = { K32($qa$q), K32($qb$q) };
+</code>
+
+#p For converting a CString::View such as an input string, use MakeKey32().
+
+<span>
+#p See also$spc
+#link symbol: [$qReflex$q, $qMakeKey32$q]; text: $qMakeKey32$q;
+#p .
+</span>";
+
+	Path: ["Reflex", "K32"];
+
+	Module: ["Reflex", "String"];
+};
+
+659:
+{
+	@WString Description: "#p Computes the 32-bit key/hash for a CString::View. MakeKey32() is constexpr, so it can be evaluated at compile time when its input is constant, while also accepting ordinary runtime string views.
+
+#p It is commonly used to switch on a string value. Pair it with K32() case labels, which are guaranteed to be compile-time constants:
+
+<code>
+#p switch (MakeKey32(string))
+#p {
+#p case K32($qapple$q):
+#p 	break;
+#p case K32($qorange$q):
+#p 	break;
+#p }
+</code>
+
+#p As with all hashed-key comparisons, distinct strings can theoretically collide; use it where the surrounding key domain handles that appropriately.
+
+<span>
+#p See also$spc
+#link symbol: [$qReflex$q, $qK32$q]; text: $qK32$q;
+#p .
+</span>";
+
+	Path: ["Reflex", "MakeKey32"];
+
+	Module: ["Reflex", "String"];
+};
+
+660:
+{
+	Path: ["Reflex", "CC32"];
+
+	Module: ["Reflex", "String"];
+};
+
+661:
+{
+	Path: ["Reflex", "ID32"];
+
+	Module: ["Reflex", "String"];
+};
+
+662:
+{
+	Path: ["Reflex", "ID64"];
+
+	Module: ["Reflex", "String"];
+};
+
+663:
+{
+	@WString Description: "#p Creates a 32-bit packed character identifier from a compile-time string literal. Unlike K32(), ID32() does not hash the text; it packs up to four characters in identifier byte order.
+
+<code>
+#p constexpr UInt32 kRiff = ID32($qRIFF$q);
+</code>
+
+#p Use it for fixed binary-format identifiers and other compact four-character tags.";
+
+	Path: ["Reflex", "ID32"];
+
+	Module: ["Reflex", "String"];
+};
+
+664:
+{
+	@WString Description: "#p Creates a 64-bit packed character identifier from a compile-time string literal. Unlike K64(), ID64() does not hash the text; it packs up to eight characters in identifier byte order.
+
+#p Use it for fixed binary-format identifiers and compact eight-character tags.";
+
+	Path: ["Reflex", "ID64"];
+
+	Module: ["Reflex", "String"];
+};
+
+665:
+{
+	@WString Description: "#p Creates a 32-bit FourCC value from a compile-time string literal, packing up to four characters in little-endian byte order.
+
+#p Use CC32() for external FourCC-style codes, such as format, plugin, or API identifiers. Unlike K32(), it packs characters directly rather than hashing them.";
+
+	Path: ["Reflex", "CC32"];
+
+	Module: ["Reflex", "String"];
+};
+
+666:
+{
+	Group: true;
+
+	@WString Description: "#p Reflex uses one contiguous-sequence model for owning arrays, borrowed views, and strings. Most free functions accept compatible Arrays, ArrayView values, ArrayRegion values, and strings through their view conversion.
+
+#h1 Array
+
+#p Array<T> owns contiguous, dynamically sized storage. Use it when the data must have an independent lifetime or be grown and modified.
+
+<span>
+#p See$spc
+#link symbol: [$qReflex$q, $qArray$q]; text: $qArray$q;
+#p $spcfor capacity, allocation, and member operations.
+</span>
+
+#h1 View/Region
+
+#p ArrayView<T> is a read-only borrowed range, while ArrayRegion<T> is its mutable counterpart. Both are lightweight pointer-and-size values which never allocate; they remain valid only while their source storage remains valid and unmoved.
+
+<span>
+#p See$spc
+#link symbol: [$qReflex$q,$qArrayView$q]; text: $qArrayView$q;
+#p $spcand$spc
+#link symbol: [$qReflex$q, $qArrayRegion$q]; text: $qArrayRegion$q;
+#p $spcfor borrowing and lifetime details.
+</span>
+
+#h1 Strings Are Arrays
+
+#p CString and WString are owning null-terminated specialisations of Array. Their View types are ordinary character ArrayView values, so generic array and view functions work directly on strings.
+
+<span>
+#p See$spc
+#link symbol: [$qReflex$q, $qString$q]; text: $qString$q;
+#p $spcfor string-specific details.
+</span>
+
+#h1 Common Workflows
+
+#p Build an owning Array with Push for individual elements, Append for another contiguous range, or Extend when filling a known-size region in bulk.
+
+<span>
+#link symbol: [$qReflex$q, $qArray$q, $qPush$q]; text: $qArray::Push$q;
+#p ,$spc
+#link symbol: [$qReflex$q, $qArray$q, $qAppend$q]; text: $qArray::Append$q;
+#p , and$spc
+#link symbol: [$qReflex$q, $qExtend$q]; text: $qExtend$q;
+#p .
+</span>
+
+#p Borrow with ToView or ToRegion, then slice without allocation with Mid, Left, Right, or Splice.
+
+<span>
+#link symbol: [$qReflex$q, $qToView$q]; text: $qToView$q;
+#p ,$spc
+#link symbol: [$qReflex$q, $qToRegion$q]; text: $qToRegion$q;
+#p ,$spc
+#link symbol: [$qReflex$q, $qMid$q]; text: $qMid$q;
+#p , and$spc
+#link symbol: [$qReflex$q, $qSplice$q]; text: $qSplice$q;
+#p .
+</span>
+
+#p Search and transform compatible sequences with Search, SearchValue, Replace, Filter, Sort, and related free functions.
+
+<span>
+#link symbol: [$qReflex$q, $qSearch$q]; text: $qSearch$q;
+#p ,$spc
+#link symbol: [$qReflex$q, $qSearchValue$q]; text: $qSearchValue$q;
+#p ,$spc
+#link symbol: [$qReflex$q, $qReplace$q]; text: $qReplace$q;
+#p , and$spc
+#link symbol: [$qReflex$q, $qSort$q]; text: $qSort$q;
+#p .
+</span>
+
+#h1 Iteration
+
+#p Arrays, views, regions, and strings support standard range-based iteration. Use ReverseIterate() when traversing the same contiguous sequence from its final element to its first.
+
+<code>
+#p for (auto & i : arr)
+#p {
+#p 	// forward
+#p }
+#p
+#p for (auto & i : ReverseIterate(arr))
+#p {
+#p 	// reverse
+#p }
+</code>
+
+<span>
+#p See$spc
+#link symbol: [$qReflex$q, $qReverseIterate$q]; text: $qReverseIterate$q;
+#p $spcfor the reverse-iteration helper.
+</span>";
+
+	Path: ["Reflex", "Containers", "Array"];
+};
+
+667:
+{
+	@WString Description: "#p Low-level non-atomic retain operation for objects known to be single-thread exclusive.
+
+#p Do not normally call this directly. Reference<T> selects the correct retain operation automatically; every manual retain must be paired with one release.";
+
+	Path: ["Reflex", "Object", "RetainSt"];
+
+	Module: ["Reflex", "Object"];
+};
+
+668:
+{
+	@WString Description: "#p Low-level non-atomic release operation for objects known to be single-thread exclusive. It must correspond to a previous retain and may destroy the object when the retain count reaches zero.
+
+#p Prefer Reference<T> for ordinary ownership management.";
+
+	Path: ["Reflex", "Object", "ReleaseSt"];
+
+	Module: ["Reflex", "Object"];
+};
+
+669:
+{
+	@WString Description: "#p Low-level thread-safe retain operation.
+
+#p Do not normally call this directly. Reference<T> selects the correct retain operation automatically; every manual retain must be paired with one release.";
+
+	Path: ["Reflex", "Object", "RetainMt"];
+
+	Module: ["Reflex", "Object"];
+};
+
+670:
+{
+	@WString Description: "#p Low-level thread-safe release operation. It must correspond to a previous retain and may destroy the object when the retain count reaches zero.
+
+#p Prefer Reference<T> for ordinary ownership management.";
+
+	Path: ["Reflex", "Object", "ReleaseMt"];
+
+	Module: ["Reflex", "Object"];
+};
+
+671:
+{
+	@WString Description: "#p Attaches or replaces an Object-derived property under id. The property's static type is part of its address, so different Object types may use the same id independently.
+
+#p The receiving object must implement the dynamic-property callbacks, normally by deriving from Data::PropertySet; Object itself discards properties.";
+
+	Path: ["Reflex", "Object", "SetProperty"];
+
+	Module: ["Reflex", "Object"];
+};
+
+672:
+{
+	@WString Description: "#p Returns the Object-derived property of the requested type and id, or fallback when it is absent. The requested type is part of the lookup address.
+
+#p The receiving object must implement the dynamic-property callbacks, normally through Data::PropertySet.";
+
+	Path: ["Reflex", "Object", "QueryProperty"];
+
+	Module: ["Reflex", "Object"];
+};
+
+673:
+{
+	@WString Description: "#p Removes the Object-derived property identified by the requested type and id.
+
+#p The receiving object must implement the dynamic-property callbacks, normally through Data::PropertySet.";
+
+	Path: ["Reflex", "Object", "UnsetProperty"];
+
+	Module: ["Reflex", "Object"];
 };
 

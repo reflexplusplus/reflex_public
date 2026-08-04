@@ -14,10 +14,7 @@ struct PropertyEditorImpl : public PropertyEditor
 {
 	struct WeakRef : public Reflex::Detail::AbstractWeakRef
 	{
-		WeakRef(Reflex::Detail::DynamicTypeRef object_t, Object & null)
-			: AbstractWeakRef(object_t, null, null)
-		{
-		}
+		using AbstractWeakRef::AbstractWeakRef;
 
 		using AbstractWeakRef::Store;
 

@@ -70,6 +70,10 @@ public:
 	void Clear();
 
 
+	Reference & operator=(NullObjectToken);
+
+	Reference & operator=(NewObjectToken);
+
 	Reference & operator=(TYPE * object);
 
 	Reference & operator=(TYPE & object);
@@ -128,11 +132,46 @@ REFLEX_NS(Reflex)
 
 template <class TYPE> inline void ByRef(Reference <TYPE> value);	//intentionally not implemented
 
+// The shared null instance is a sentinel, not a participant in reference
+// counting: nothing owns it, it can never legitimately be destroyed, and every
+// default-constructed Reference <TYPE> points at it. Refcounting it is both
+// pointless and unsafe.
+//
+// Unsafe because a null instance is not necessarily constructed. Module-owned
+// nulls (e.g. GLX::Menu::null, which lives in the GLX-ext module's Globals) sit
+// in Detail::Initialiser raw storage and are placement-new'd on Module::Init().
+// A process that never brings that module up -- any headless plugin instance,
+// no editor -- leaves the storage zero-filled: no vtable, retain count 0. Retain
+// then increments raw bytes and the matching Release decrements back to zero and
+// dispatches OnDestruct() through a NULL vtable.
+//
+// DEV-921: entonal::App holds two default-constructed Reference <GLX::Menu>
+// members. Measured under clap-validator, the null Menu had vptr=0 and retain=2
+// -- those two members and nothing else -- so destroying them went 2 -> 1 -> 0
+// and faulted (0xC0000005 on Windows, EXC_BAD_ACCESS on macOS). 12 of 21 tests
+// crashed: precisely the ones that instantiate a plugin.
+//
+// Guarding here covers every refcounting path, since Reference's constructor,
+// its destructor and SetReferenceCountedPointer all funnel through these two.
+template <class auto_t> REFLEX_INLINE bool IsNullInstance(auto_t && objectref)
+{
+	auto & object = Deref(objectref);
+
+	using ObjectType = NonConstT<NonRefT<decltype(object)>>;
+
+	return static_cast<const void *>(&object) == static_cast<const void *>(&Detail::GetNullInstance<ObjectType>());
+}
+
 template <class auto_t> REFLEX_INLINE void Retain(auto_t && objectref)
 {
 	auto & object = Deref(objectref);
 
 	using ObjectType = NonConstT<NonRefT<decltype(object)>>;
+
+	if (IsNullInstance(object))
+	{
+		return;
+	}
 
 	if constexpr (kIsSingleThreadExclusive<ObjectType>)
 	{
@@ -149,6 +188,11 @@ template <class auto_t> REFLEX_INLINE void Release(auto_t && objectref)
 	auto & object = Deref(objectref);
 
 	using ObjectType = NonConstT<NonRefT<decltype(object)>>;
+
+	if (IsNullInstance(object))
+	{
+		return;
+	}
 
 	if constexpr (kIsSingleThreadExclusive<ObjectType>)
 	{
@@ -296,6 +340,15 @@ template <class TYPE, Reflex::ReferenceSafeFlags SAFE> REFLEX_INLINE Reflex::Ref
 	Validate(object);
 
 	Detail::SetReferenceCountedPointer(Base::m_object, &object);
+
+	return *this;
+}
+
+template <class TYPE, Reflex::ReferenceSafeFlags SAFE> REFLEX_INLINE Reflex::Reference <TYPE,SAFE> & Reflex::Reference<TYPE,SAFE>::operator=(NullObjectToken)
+{
+	auto null = Detail::NullAccess<TYPE,kNullable>::Get();
+
+	Detail::SetReferenceCountedPointer(Base::m_object, null);
 
 	return *this;
 }

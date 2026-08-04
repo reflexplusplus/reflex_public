@@ -25,9 +25,9 @@ namespace Reflex
 	template <bool BOUNDS_CHECK = false, class ARRAY> /*Pair <ArrayView>*/ auto ReverseSplice(ARRAY && array, UInt position);
 
 
-	template <class TYPE> ArrayRegion <TYPE> Inc(ArrayRegion <TYPE> & itr, UInt n);
+	template <bool BOUNDS_CHECK = false, class TYPE> ArrayRegion <TYPE> Inc(ArrayRegion <TYPE> & itr, UInt n);
 
-	template <bool BOUNDS_CHECK = false, class TYPE> ArrayRegion <TYPE> Nudge(const ArrayRegion <TYPE> & itr, Int n = 1);
+	template <bool BOUNDS_CHECK = false, class TYPE> ArrayRegion <TYPE> Nudge(ArrayRegion <TYPE> itr, Int n = 1);
 
 }
 
@@ -171,20 +171,27 @@ template <bool BOUNDS_CHECK, class ARRAY> inline auto Reflex::ReverseSplice(ARRA
 	return Detail::Splice<BOUNDS_CHECK>(view, view.size - position);
 }
 
-template <class TYPE> REFLEX_INLINE Reflex::ArrayRegion <TYPE> Reflex::Inc(ArrayRegion <TYPE> & itr, UInt n)
+template <bool BOUNDS_CHECK, class TYPE> REFLEX_INLINE Reflex::ArrayRegion <TYPE> Reflex::Inc(ArrayRegion <TYPE> & itr, UInt n)
 {
-	REFLEX_ASSERT(itr.size >= n);
+	if constexpr (BOUNDS_CHECK)
+	{
+		n = Min(n, itr.size);
+	}
+	else
+	{
+		REFLEX_ASSERT(itr.size >= n);
+	}
 
 	auto t = itr;
 
 	t.size = n;
 
-	itr = Nudge(itr, n);
+	itr = Nudge<BOUNDS_CHECK>(itr, n);
 
 	return t;
 }
 
-template <bool BOUNDS_CHECK, class TYPE> REFLEX_INLINE Reflex::ArrayRegion <TYPE> Reflex::Nudge(const ArrayRegion <TYPE> & itr, Int n)
+template <bool BOUNDS_CHECK, class TYPE> REFLEX_INLINE Reflex::ArrayRegion <TYPE> Reflex::Nudge(ArrayRegion <TYPE> itr, Int n)
 {
 	if constexpr (BOUNDS_CHECK)
 	{

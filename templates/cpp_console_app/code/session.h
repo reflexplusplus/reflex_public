@@ -18,7 +18,7 @@ namespace _PRODUCT-NAME-SYMBOL_
 
 		//lifetime
 
-		ConsoleSession(const Reflex::ArrayView <Reflex::CString::View> & cmdline, const Reflex::CString::View & vendor, const Reflex::CString::View & product);
+		ConsoleSession(Reflex::ArrayView <Reflex::CString::View> cmdline, Reflex::CString::View vendor, Reflex::CString::View product);
 
 
 		//access
@@ -29,7 +29,7 @@ namespace _PRODUCT-NAME-SYMBOL_
 
 		template <class ... ARGS> void PrintEx(ARGS && ... args);
 
-		Reflex::CString::View GetInput(const Reflex::CString::View & prompt);
+		Reflex::CString::View GetInput(Reflex::CString::View prompt);
 
 
 
@@ -71,7 +71,7 @@ template <class ... ARGS> inline void _PRODUCT-NAME-SYMBOL_::ConsoleSession::Pri
 {
 	auto text = Reflex::Detail::DebugJoin(Reflex::kSpace, std::forward<ARGS>(args)...);
 
-	output.LogEx(Reflex::kLogNormal, text);
+	output.LogEx(Reflex::kLogNormal, {}, text);
 
 	Reflex::File::WriteLine(m_standard_out, text);
 }
@@ -80,7 +80,7 @@ template <class ... ARGS> inline void _PRODUCT-NAME-SYMBOL_::ConsoleSession::Pri
 {
 	auto text = Reflex::Detail::DebugJoin({}, std::forward<ARGS>(args)...);
 
-	output.LogEx(Reflex::kLogNormal, text);
+	output.LogEx(Reflex::kLogNormal, {}, text);
 
 	Reflex::File::WriteLine(m_standard_out, text);
 }

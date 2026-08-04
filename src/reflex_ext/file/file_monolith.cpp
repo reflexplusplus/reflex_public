@@ -111,7 +111,7 @@ struct MonolithImpl : public Monolith
 	{
 		UInt32 monolithid;
 		UInt32 clientheader;
-		UInt32 version_reserved;
+		UInt32 version;
 	};
 
 	struct PartitionInfo
@@ -141,7 +141,7 @@ struct MonolithImpl : public Monolith
 
 	TRef <System::FileHandle> Read(Key64 partitionid) const override;
 
-	void Commit() override;
+	bool Commit() override;
 
 
 	Sequence <UInt, Pair <UInt8, UInt> > Analyse() const;
@@ -196,9 +196,9 @@ const UInt32 MonolithImpl::kVersion = 1;
 
 const System::FileHandle::Mode MonolithImpl::kOpenModes[] = { System::FileHandle::kModeRead, System::FileHandle::kModeAppend };
 
-MonolithImpl::MonolithImpl(System::FileHandle & file, UInt32 clientheader)
+MonolithImpl::MonolithImpl(System::FileHandle & file, UInt32 client_header)
 	: m_stream(file),
-	m_clientheader(clientheader),
+	m_clientheader(client_header),
 	m_writeable(file.IsWriteable()),
 	m_status(false),
 	m_nstreams(0)
@@ -220,7 +220,7 @@ MonolithImpl::MonolithImpl(System::FileHandle & file, UInt32 clientheader)
 
 		stream.Read(&header, sizeof(Header));
 
-		if (header.monolithid == kHeader && header.version_reserved == kVersion)
+		if (header.monolithid == kHeader && header.version == kVersion)
 		{
 			//m_write_count = header.writecount;
 
@@ -232,22 +232,25 @@ MonolithImpl::MonolithImpl(System::FileHandle & file, UInt32 clientheader)
 
 			auto archive = ReadBytes(stream, m_index.size);
 
-			auto stream = ToView(archive);
-
-			Data::Deserialize(stream, m_partitions, m_deleted);
-
-			if (m_status)
+			if (archive.GetSize() == m_index.size)
 			{
-				Validate();
-			}
-			else
-			{
-				Clear();
+				auto stream = ToView(archive);
 
-				m_status = m_writeable;
-			}
+				Data::Deserialize(stream, m_partitions, m_deleted);
 
-			return;
+				if (m_status)
+				{
+					Validate();
+				}
+				else
+				{
+					Clear();
+
+					m_status = m_writeable;
+				}
+
+				return;
+			}
 		}
 		else if (Reinterpret<UInt64>(header) == kLegacyHeaderID)
 		{
@@ -483,11 +486,11 @@ bool MonolithImpl::Remove(Key64 partitionid)
 	return false;
 }
 
-void MonolithImpl::Commit()
+bool MonolithImpl::Commit()
 {
 	REFLEX_ASSERT(!m_nstreams);
 
-	if (m_writeable)
+	if (m_writeable && !m_nstreams)
 	{
 		Data::Archive archive;
 		
@@ -523,9 +526,13 @@ void MonolithImpl::Commit()
 		WriteBytes(m_stream, archive);
 
 		m_stream->Flush(false);
+
+		Validate();
+
+		return true;
 	}
 
-	Validate();
+	return false;
 }
 
 void MonolithImpl::Enumerate(const Function <void(Key64,UInt32)> & callback) const
@@ -534,14 +541,17 @@ void MonolithImpl::Enumerate(const Function <void(Key64,UInt32)> & callback) con
 
 	auto ptr = Extend(partitions, m_partitions.GetSize()).data;
 
-	for (auto & i : m_partitions) *ptr = { i.key, i.value.size };
+	for (auto & i : m_partitions) *ptr++ = { i.key, i.value.size };
 
 	for (auto & i : partitions) callback(i.a, i.b);
 }
 
 REFLEX_INLINE TRef <System::FileHandle> MonolithImpl::Read_ReadPartition(const PartitionInfo & partitioninfo) const
 {
-	REFLEX_ASSERT(!m_nstreams);
+	if (m_nstreams)
+	{
+		return REFLEX_NULL(System::FileHandle);
+	}
 
 	return REFLEX_CREATE(FileRegion, *this, m_nstreams, m_stream, partitioninfo.position, partitioninfo.size);
 }
@@ -768,7 +778,7 @@ struct NullMonolith : public Monolith
 	bool Status() const override { return false; }
 	void Clear() override {}
 	bool Remove(Key64 partitionid) override { return false; }
-	void Commit() override {}
+	bool Commit() override { return false; }
 	void Enumerate(const Function <void(Key64,UInt32)> & callback) const override {};
 	TRef <System::FileHandle> Read(Key64 partitionid) const override { return {}; }
 	TRef <System::FileHandle> Write(Key64 partitionid, UInt size) override { return {}; }

@@ -11,7 +11,9 @@ void Reflex::Async::Detail::AttachAwait(Data::PropertySet & object, Key32 id, TR
 
 		if (status != Task::kStatusPending)
 		{
-			Reflex::Detail::AbstractWeakRef weakref(object_t, Data::PropertySet::null, object);
+			Reflex::Detail::AbstractWeakRef weakref(object_t, Data::PropertySet::null);
+
+			weakref.Store(object);
 
 			callback(status == Task::kStatusCompleted, task->GetResult());
 

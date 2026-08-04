@@ -12,6 +12,7 @@
 #include <memory>
 #include <atomic>
 #include <source_location>
+#include <bit>
 
 
 

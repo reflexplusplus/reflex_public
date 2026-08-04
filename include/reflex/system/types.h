@@ -59,9 +59,9 @@ struct Reflex::System::Colour
 
 struct Reflex::System::BitmapInfo
 {
+	ImageFormat format = kImageFormatRGBA;
+	Int pixel_density = 1;
 	iSize size;
-	Int32 pixdensity;
-	ImageFormat format;
 };
 
 

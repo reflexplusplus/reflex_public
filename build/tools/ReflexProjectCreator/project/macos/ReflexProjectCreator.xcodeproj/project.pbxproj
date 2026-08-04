@@ -15,10 +15,8 @@
 		1A4E4DE12F0A5459008E9455 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 1A4E4DE02F0A5459008E9455 /* Assets.xcassets */; };
 		1A5FA1D42D0A8FC4008BFB1B /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1A5FA1D32D0A8FC4008BFB1B /* QuartzCore.framework */; };
 		1A5FA1D62D0A8FCB008BFB1B /* Metal.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1A5FA1D52D0A8FCB008BFB1B /* Metal.framework */; };
-		1ACD4FC42C46884D00421F70 /* libReflexCommonVm.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 1ACD4FBD2C46884D00421F70 /* libReflexCommonVm.a */; };
 		1ACD4FC62C46884D00421F70 /* libReflexCommon.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 1ACD4FBE2C46884D00421F70 /* libReflexCommon.a */; };
 		1ACD4FC82C46884D00421F70 /* libReflexCommonUi.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 1ACD4FBF2C46884D00421F70 /* libReflexCommonUi.a */; };
-		1ACD4FCA2C46884D00421F70 /* libReflexCommonVmUi.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 1ACD4FC02C46884D00421F70 /* libReflexCommonVmUi.a */; };
 		1ACD4FCE2C46884D00421F70 /* libReflexTargetApp.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 1ACD4FC22C46884D00421F70 /* libReflexTargetApp.a */; };
 		1ACD4FD22C468A4100421F70 /* entry.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1ACD4FD12C468A4100421F70 /* entry.cpp */; };
 		1AE2E5112FC837DE00279ADD /* app.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1AE2E5102FC837DE00279ADD /* app.cpp */; };
@@ -35,10 +33,8 @@
 		1A5FA1D32D0A8FC4008BFB1B /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = System/Library/Frameworks/QuartzCore.framework; sourceTree = SDKROOT; };
 		1A5FA1D52D0A8FCB008BFB1B /* Metal.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Metal.framework; path = System/Library/Frameworks/Metal.framework; sourceTree = SDKROOT; };
 		1AB85F512B1EF023003B7EA1 /* reflex_ext.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = reflex_ext.cpp; path = ../../../../../src/reflex_ext.cpp; sourceTree = SOURCE_ROOT; };
-		1ACD4FBD2C46884D00421F70 /* libReflexCommonVm.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libReflexCommonVm.a; path = ../../../../../bin/lib/macos/Release/libReflexCommonVm.a; sourceTree = SOURCE_ROOT; };
 		1ACD4FBE2C46884D00421F70 /* libReflexCommon.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libReflexCommon.a; path = ../../../../../bin/lib/macos/Release/libReflexCommon.a; sourceTree = SOURCE_ROOT; };
 		1ACD4FBF2C46884D00421F70 /* libReflexCommonUi.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libReflexCommonUi.a; path = ../../../../../bin/lib/macos/Release/libReflexCommonUi.a; sourceTree = SOURCE_ROOT; };
-		1ACD4FC02C46884D00421F70 /* libReflexCommonVmUi.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libReflexCommonVmUi.a; path = ../../../../../bin/lib/macos/Release/libReflexCommonVmUi.a; sourceTree = SOURCE_ROOT; };
 		1ACD4FC22C46884D00421F70 /* libReflexTargetApp.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libReflexTargetApp.a; path = ../../../../../bin/lib/macos/Release/libReflexTargetApp.a; sourceTree = SOURCE_ROOT; };
 		1ACD4FD12C468A4100421F70 /* entry.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = entry.cpp; path = ../../code/entry.cpp; sourceTree = SOURCE_ROOT; };
 		1AE2E5102FC837DE00279ADD /* app.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = app.cpp; path = ../../code/app.cpp; sourceTree = SOURCE_ROOT; };
@@ -61,8 +57,6 @@
 				1ACD4FCE2C46884D00421F70 /* libReflexTargetApp.a in Frameworks */,
 				1A06E4242B18E29100E25636 /* OpenGL.framework in Frameworks */,
 				1ACD4FC82C46884D00421F70 /* libReflexCommonUi.a in Frameworks */,
-				1ACD4FC42C46884D00421F70 /* libReflexCommonVm.a in Frameworks */,
-				1ACD4FCA2C46884D00421F70 /* libReflexCommonVmUi.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -110,8 +104,6 @@
 			children = (
 				1ACD4FBE2C46884D00421F70 /* libReflexCommon.a */,
 				1ACD4FBF2C46884D00421F70 /* libReflexCommonUi.a */,
-				1ACD4FBD2C46884D00421F70 /* libReflexCommonVm.a */,
-				1ACD4FC02C46884D00421F70 /* libReflexCommonVmUi.a */,
 				1ACD4FC22C46884D00421F70 /* libReflexTargetApp.a */,
 				1AB85F512B1EF023003B7EA1 /* reflex_ext.cpp */,
 			);

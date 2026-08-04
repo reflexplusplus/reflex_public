@@ -1,7 +1,7 @@
 #include "tasks.h"
 
 #if defined(REFLEX_OS_MACOS) || defined(REFLEX_OS_LINUX) || defined(REFLEX_OS_IOS)
-	#include <sys/stat.h>
+#include <sys/stat.h>
 #endif
 
 
@@ -119,14 +119,27 @@ void AddTargetExcludes(TemplateDefinitionEx & tmpl, ArrayView <CString> targets)
 		tmpl.targets.exclude_files.Push(L"CMakeLists.txt");
 	}
 
-	if (!Search<StringCompare>(targets, "visual_studio")) tmpl.targets.exclude_folders.Push(Join(L"win", File::kStroke));
-	
-	if (!Search<StringCompare>(targets, "android_studio")) tmpl.targets.exclude_folders.Push(Join(L"android", File::kStroke));
-
-	if (!Search<StringCompare>(targets, "xcode"))
+	for (auto & i : kTargets)
 	{
-		tmpl.targets.exclude_folders.Push(Join(L"macos", File::kStroke));
-		tmpl.targets.exclude_folders.Push(Join(L"ios", File::kStroke));
+		if (!Search<StringCompare>(targets, i))
+		{
+			CString::View folder = i;
+
+			switch (MakeKey32(i))
+			{
+			case K32("cmake"):
+				tmpl.targets.exclude_files.Push(L"CMakeLists.txt");
+				break;
+
+			case K32("windows"):
+				folder = "win";
+				//fallthru
+
+			default:
+				tmpl.targets.exclude_folders.Push(Join(ToWString(folder), File::kStroke));
+				break;
+			}
+		}
 	}
 }
 
@@ -146,30 +159,6 @@ WString::View FindVariable(const Array <Variable> & variables, CString::View tok
 	}
 
 	return {};
-}
-
-WString StripValue(WString value, char allowed_dash)
-{
-	auto idx = value.GetSize();
-
-	while (idx--)
-	{
-		auto w = value[idx];
-
-		if (w < 255)
-		{
-			auto c = char(w);
-
-			if (!(Data::Detail::IsAlphaNumericCharacter(c) || c == allowed_dash))
-			{
-				value.Remove(idx);
-			}
-		}
-	}
-
-	if (value.Empty()) Bootstrap::CLI::ThrowError("strip characters resulting in empty string");
-
-	return value;
 }
 
 WString Generate4CC(const WString::View & value)
@@ -301,15 +290,7 @@ Data::Archive ReplaceAll(const Data::Archive::View & input, const Array <Substit
 
 bool HasListedExtension(const WString::View & path, const Array <WString> & extensions)
 {
-	for (auto & extension : extensions)
-	{
-		if (File::CheckExtension(path, extension))
-		{
-			return true;
-		}
-	}
-
-	return false;
+	return True(Search<CaseInsensitive>(extensions, File::SplitExtension(path).b));
 }
 
 bool CanWrite(const WString::View & path, bool overwrite)
@@ -326,9 +307,7 @@ bool CanWrite(const WString::View & path, bool overwrite)
 
 	if (System::Exists(path))
 	{
-		auto ext = File::SplitExtension(path);
-
-		return !Search(kProtected, ext.b);
+		return !Search<CaseInsensitive>(kProtected, File::SplitExtension(path).b);
 	}
 
 	return true;
@@ -391,31 +370,31 @@ WString InstallFolder(const TemplateDefinitionEx & tmpl, const Array <Variable> 
 					}
 				}
 
-					if (HasListedExtension(file_renamed, tmpl.targets.replace_types))
-					{
-						auto bytes = ReplaceAll(File::Open(file_path), content_substitutions);
+				if (HasListedExtension(file_renamed, tmpl.targets.replace_types))
+				{
+					auto bytes = ReplaceAll(File::Open(file_path), content_substitutions);
 
-						if (!SaveGeneratedFile(dst_path, bytes))
-						{
-							ThrowError("failed to write", dst_path);
-						}
-
-						if (!CopyTemplatePermissions(file_path, dst_path))
-						{
-							ThrowError("failed to copy permissions", dst_path);
-						}
-					}
-					else if (!File::Copy(file_path, dst_path))
+					if (!SaveGeneratedFile(dst_path, bytes))
 					{
-						ThrowError("failed to copy", file_path);
+						ThrowError("failed to write", dst_path);
 					}
-					else if (!CopyTemplatePermissions(file_path, dst_path))
+
+					if (!CopyTemplatePermissions(file_path, dst_path))
 					{
 						ThrowError("failed to copy permissions", dst_path);
 					}
 				}
+				else if (!File::Copy(file_path, dst_path))
+				{
+					ThrowError("failed to copy", file_path);
+				}
+				else if (!CopyTemplatePermissions(file_path, dst_path))
+				{
+					ThrowError("failed to copy permissions", dst_path);
+				}
 			}
 		}
+	}
 
 	wrote_files = wrote_files_here;
 
@@ -445,7 +424,7 @@ bool ReflexCLI::StringCompare::eq(CString::View a, CString::View b)
 	return true;
 }
 
-Reflex::WString ReflexCLI::CreateProject(const TemplateDefinition & base_tmpl, ArrayView <Variable> string_inputs, ArrayView <Variable> path_inputs, ArrayView <CString> targets, const WString::View & output_root, bool overwrite, System::FileHandle & std_out)
+Reflex::WString ReflexCLI::CreateProject(const TemplateDefinition & base_tmpl, ArrayView <Variable> string_inputs, ArrayView <Variable> path_inputs, ArrayView <CString> targets, const WString & destination, bool overwrite, System::FileHandle & std_out)
 {
 	auto tmpl = OpenTemplateDefinitionEx(base_tmpl.folder);
 		
@@ -453,23 +432,11 @@ Reflex::WString ReflexCLI::CreateProject(const TemplateDefinition & base_tmpl, A
 
 	Array <Variable> expanded = Join(ExpandStringVariables(tmpl, string_inputs), ExpandPathVariables(tmpl, path_inputs));
 
-	WString name = FindVariable(expanded, "PRODUCT-NAME");
+	File::MakePath(destination);
 
-	if (!name) Bootstrap::CLI::ThrowError("product undefined");
-
-	name = Replace(name, L' ', L'_');
-
-	name = StripValue(name, '-');
-
-	auto repo_name = Lowercase(name);
-
-	auto dest_root = File::CorrectTrailingStroke(output_root);
-
-	File::MakePath(dest_root);
-
-	if (!System::IsDirectory(dest_root)) Bootstrap::CLI::ThrowError("could not create dest_folder");
+	if (!System::IsDirectory(destination)) Bootstrap::CLI::ThrowError("could not create dest_folder");
 
 	bool wrote_files = false;
 
-	return InstallFolder(tmpl, expanded, tmpl.folder, dest_root, Join(repo_name, File::kStroke), overwrite, std_out, wrote_files);
+	return InstallFolder(tmpl, expanded, tmpl.folder, destination, {}, overwrite, std_out, wrote_files);
 }

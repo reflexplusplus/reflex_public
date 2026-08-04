@@ -8,10 +8,6 @@ REFLEX_BEGIN_INTERNAL(ReflexCLI)
 
 namespace CLI = Bootstrap::CLI;
 
-constexpr CString::View kVisualStudio = "visual_studio";
-constexpr CString::View kXcode = "xcode";
-constexpr CString::View kTargets[] = { "cmake", kXcode, kVisualStudio, "android_studio" };
-
 CString GetTemplateID(const TemplateDefinition & tmpl)
 {
 	return ToCString(File::SplitFilename(File::RemoveTrailingStroke(tmpl.folder)).b);
@@ -52,18 +48,7 @@ Array <CString> FindTargets(const CString::View & arg)
 	{
 		auto value = Trim(raw);
 
-		if (StringCompare::eq(value, "all"))
-		{
-			targets.Clear();
-
-			for (auto target : kTargets)
-			{
-				targets.Push(target);
-			}
-
-			return targets;
-		}
-		else if (Search<StringCompare>(kTargets, value))
+		if (Search<StringCompare>(kTargets, value))
 		{
 			targets.Push(value);
 		}
@@ -115,11 +100,11 @@ void Create(const Data::PropertySet & args, System::FileHandle & std_out)
 		switch (System::kPlatform)
 		{
 		case System::kPlatformWindows:
-			return kVisualStudio;
+			return kTargets[0];
 
 		case System::kPlatformMacOS:
-			return kXcode;
-		
+			return kTargets[1];
+
 		default:
 			return "";
 		}
@@ -129,8 +114,10 @@ void Create(const Data::PropertySet & args, System::FileHandle & std_out)
 	
 	auto std_in = Make<System::FileHandle>(System::FileHandle::kStandardStreamIn);
 
-	const auto prompt_required = [&std_out, std_in](WString::View default_value = {}) -> WString
+	const auto prompt_required = [&std_out, std_in](CString::View title, WString::View default_value = {}) -> WString
 	{
+		File::WriteLine(std_out, Join(title, ':'));
+
 		while (true)
 		{
 			if (auto value = PromptValue(*std_in, std_out, default_value))
@@ -143,6 +130,7 @@ void Create(const Data::PropertySet & args, System::FileHandle & std_out)
 	auto prefs = Data::AcquirePropertySet(Bootstrap::global->prefs, K32("create"));
 
 	Array <Variable> prompted_inputs;
+	Array <Pair<CString>> string_inputs;
 
 	auto select = [&args, &std_out, std_in, prefs](CString::View id, bool multi, ArrayView <CString> valid) -> CString
 	{
@@ -176,7 +164,7 @@ void Create(const Data::PropertySet & args, System::FileHandle & std_out)
 
 				if (i)
 				{
-					if (Data::Detail::kChar2Type[char(i.GetFirst())] == Data::Detail::kCharTypeNumber)
+					if (Data::Detail::CharToType(char(i.GetFirst())) == Data::Detail::kCharTypeNumber)
 					{
 						auto idx = ToUInt32(i);
 
@@ -245,8 +233,6 @@ void Create(const Data::PropertySet & args, System::FileHandle & std_out)
 	{
 		for (auto & token : group.b)
 		{
-			File::WriteLine(std_out, Join(token.id, ':'));
-
 			WString value;
 
 			if (group.a)
@@ -257,7 +243,7 @@ void Create(const Data::PropertySet & args, System::FileHandle & std_out)
 				}
 				else
 				{
-					value = prompt_required(Data::GetWString(prefs, token.id));
+					value = prompt_required(token.id, Data::GetWString(prefs, token.id));
 
 					value = File::CorrectStrokes(value);
 
@@ -272,28 +258,54 @@ void Create(const Data::PropertySet & args, System::FileHandle & std_out)
 				}
 				else
 				{
-					value = prompt_required(Data::GetWString(prefs, token.id));
+					value = prompt_required(token.id, Data::GetWString(prefs, token.id));
 					
 					prompted_inputs.Push({ Join(token.id), value });
 				}
 			}
+
+			if (!group.a) string_inputs.Push({ token.id, ToCString(value) });
 
 			group.c.Push({ token.token, value });
 		}
 	}
 
 	auto output = CLI::GetFolder(args, "output", false);
-	
+
 	if (output.Empty())
 	{
-		File::WriteLine(std_out, Join("output", ':'));
+		auto output_parent = Data::GetWString(prefs, "output", System::GetCurrentDirectory());
+		auto folder_name = GetProjectFolderName(*ptmpl, string_inputs);
 
-		output = prompt_required(System::GetCurrentDirectory());
+		if (folder_name.Empty()) CLI::ThrowError("product undefined");
+
+		output = prompt_required("output", Join(output_parent, folder_name));
 
 		output = File::CorrectStrokes(output);
+
+		if (!System::IsAbsolutePath(output))
+		{
+			output = Join(output_parent, output);
+		}
+		else
+		{
+			output_parent = File::SplitFilename(File::RemoveTrailingStroke(output)).a;
+		}
+
+		Data::SetWString(prefs, "output", output_parent);
 	}
 
-	if (CaseInsensitive::eq(Left<true>(output, reflex_path.GetSize()), reflex_path)) CLI::ThrowError("invalid output path, pass --output <folder> to a location outside the reflex repository");
+	output = File::CorrectTrailingStroke(output);
+
+	//check not in REFLEX_PATH path, except REFLEX_PATH/temp/...
+
+	if (CaseInsensitive::eq(Left<true>(output, reflex_path.GetSize()), reflex_path))
+	{
+		if (!CaseInsensitive::eq(Mid<true>(output, reflex_path.GetSize(), 4), ToView(L"tmp/")))
+		{
+			CLI::ThrowError("invalid output path, pass --output <folder> to a location outside the reflex repository");
+		}
+	}
 
 	auto folder = CreateProject(*ptmpl, groups[0].c, groups[1].c, targets, output, CLI::GetBool(args, "overwrite"), std_out);
 
@@ -311,11 +323,6 @@ const CLI::TaskDef kCommands[] =
 		.id = K32("help"),
 		.fn = [](const Data::PropertySet & args, System::FileHandle & std_out)
 		{
-			const auto print_overview_command_summary = [&std_out](CString::View name, CString::View description)
-			{
-				File::WriteLine(std_out, Join(kColourDefault, name, ' ', kColourDim, description, kColourDefault));
-			};
-
 			const auto print_arg = [&std_out](bool optional, CString::View name, CString::View description)
 			{
 				const auto kColourWhite = CLI::Detail::kColours[CLI::kColourWhite];
@@ -328,21 +335,26 @@ const CLI::TaskDef kCommands[] =
 			const auto show_overview = [&]()
 			{
 				CLI::Print(std_out, CLI::kColourBrightBlack, "Project Creation:");
-				print_overview_command_summary("create", "create a new Reflex project from a template");
-				print_overview_command_summary("templates", "list available Reflex project templates");
-				print_overview_command_summary("targets", "list available project generation targets");
+				PrintCommandWithDescription(std_out, "create", "create a new project from a template");
+				PrintCommandWithDescription(std_out, "templates", "list available project templates");
+				PrintCommandWithDescription(std_out, "targets", "list available project generation targets");
+
+				File::WriteLine(std_out);
+				CLI::Print(std_out, CLI::kColourBrightBlack, "Documentation:");
+				PrintCommandWithDescription(std_out, "doc", "browse documentation");
 
 				File::WriteLine(std_out);
 				CLI::Print(std_out, CLI::kColourBrightBlack, "SDK Install:");
-				print_overview_command_summary("install", "install or update the SDK");
-				print_overview_command_summary("version", "show the installed SDK version");
-				print_overview_command_summary("versions", "list available SDK versions");
-				print_overview_command_summary("where", "show the install location");
+				PrintCommandWithDescription(std_out, "install", "install or update the SDK");
+				PrintCommandWithDescription(std_out, "version", "show the installed SDK version");
+				PrintCommandWithDescription(std_out, "versions", "list available SDK versions");
+				PrintCommandWithDescription(std_out, "where", "show the install location");
+				PrintCommandWithDescription(std_out, "set-path", "select the SDK installation used by new terminal sessions");
 
 				File::WriteLine(std_out);
 				CLI::Print(std_out, CLI::kColourBrightBlack, "Build Phases:");
-				print_overview_command_summary("build-resources", "build Reflex resource output for a source file");
-				print_overview_command_summary("build-plist", "generate an Info.plist file for a supported target");
+				PrintCommandWithDescription(std_out, "build-resources", "build Reflex++ resource output for a source file");
+				PrintCommandWithDescription(std_out, "build-plist", "generate an Info.plist file for a supported target");
 
 				File::WriteLine(std_out);
 				File::WriteLine(std_out, Join(kColourDim, "use ", kColourDefault, "reflex help [command]", kColourDim, " for more info", kColourDefault));
@@ -357,7 +369,7 @@ const CLI::TaskDef kCommands[] =
 					print_arg(false, "--vendor <vendor>", "the vendor name for the new project");
 					print_arg(false, "--product <product>", "the product name for the new project");
 					print_arg(false, "--output <folder>", "the destination folder for the generated project");
-					print_arg(true, "--target <list>", "the project format(s) to generate");
+					print_arg(true, "--target <list>", "the platform project(s) to generate");
 					print_arg(true, "--overwrite false", "allow overwriting source files");
 					return;
 
@@ -368,8 +380,12 @@ const CLI::TaskDef kCommands[] =
 					print_arg(true, "--test true", "download and extract packages without moving files into place");
 					return;
 
+				case K32("doc"):
+					DocHelp(std_out);
+					return;
+
 				case K32("build-resources"):
-					print_arg(false, "--path <path>", "build Reflex resource output for a source file");
+					print_arg(false, "--path <path>", "build Reflex++ resource output for a source file");
 					return;
 
 				case K32("build-plist"):
@@ -394,6 +410,10 @@ const CLI::TaskDef kCommands[] =
 					print_arg(true, "no arguments", "");
 					return;
 
+				case K32("set-path"):
+					print_arg(false, "<folder>", "the Reflex++ repository to select");
+					return;
+
 				default:
 					show_overview();
 					return;
@@ -415,6 +435,13 @@ const CLI::TaskDef kCommands[] =
 		.fn = [](const Data::PropertySet & args, System::FileHandle & std_out)
 		{
 			File::WriteLine(std_out, GetReflexPath());
+		}
+	},
+	{
+		.id = K32("set-path"),
+		.fn = [](const Data::PropertySet & args, System::FileHandle & std_out)
+		{
+			SetPath(CLI::GetFolder(args, "value", true), std_out);
 		}
 	},
 	{
@@ -485,6 +512,13 @@ const CLI::TaskDef kCommands[] =
 		.fn = [](const Data::PropertySet & args, System::FileHandle & std_out)
 		{
 			ListVersions(std_out);
+		}
+	},
+	{
+		.id = K32("doc"),
+		.fn = [](const Data::PropertySet & args, System::FileHandle & std_out)
+		{
+			Doc(args, std_out);
 		}
 	},
 	{

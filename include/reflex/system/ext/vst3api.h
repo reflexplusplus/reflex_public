@@ -429,7 +429,7 @@ namespace Reflex::VST3API
 		kCtrlPitchBend = 129,
 
 		//for kLegacyMIDICCOutEvent
-		//kCtrlProgramChange = 130,
+		kCtrlProgramChange = 130,
 		//kCtrlPolyPressure = 131,
 	};
 

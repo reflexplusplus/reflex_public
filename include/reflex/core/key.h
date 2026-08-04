@@ -157,8 +157,12 @@ constexpr Key32 kNullKey = kHashSeed;
 
 constexpr Key32 kZeroKey = UInt32(0ul);
 
-inline constexpr bool IsValidKey(Key32 key) { return key.value != kHashSeed; }
+inline constexpr bool IsSet(Key32 key) { return key.value != kHashSeed; }
 
-inline constexpr bool IsNullKey(Key32 key) { return key.value == kHashSeed; }
+inline constexpr bool IsUnset(Key32 key) { return key.value == kHashSeed; }
+
+/*[[deprecated("use IsSet")]]*/ inline constexpr bool IsValidKey(Key32 key) { return IsSet(key); }	//deprecation deferred until after VM refactor
+
+/*[[deprecated("use IsUnset")]]*/ inline constexpr bool IsNullKey(Key32 key) { return IsUnset(key); }
 
 REFLEX_END

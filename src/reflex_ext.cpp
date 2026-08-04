@@ -2,6 +2,7 @@
 
 #include "reflex_ext/reflex_ext_core.cpp"
 #include "reflex_ext/reflex_ext_async.cpp"
+#include "reflex_ext/reflex_ext_data.cpp"
 #include "reflex_ext/reflex_ext_file.cpp"
 #if (!defined(REFLEX_BOOTSTRAP_TYPE_CONSOLE_APP))
 #include "reflex_ext/reflex_ext_glx.cpp"

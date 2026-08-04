@@ -1,6 +1,23 @@
 # Release Notes
 
-## Unreleased
+## v0.3.12
+
+### Data table and documentation tooling
+
+- Added `Reflex::Data::Table` as a first-class `Reflex::Data` API, including typed in-memory table storage plus query, filter, sort, slice, group, count, and aggregate helpers.
+- Added a new `reflex doc` documentation mode to `ReflexCLI`.
+- Added template-local `AGENTS.md` files and refreshed the root agent guidance.
+
+## v0.3.10
+
+### GLX image and styling improvements
+
+- Added `GLX::BilinearResizeBitmap` and moved bitmap helper functionality into `reflex_ext`.
+- Added indent support for the `ImageMask` style layer.
+- Improved GLX stylesheet conditional-variable error reporting and related documentation coverage.
+- Renamed `GLX::Detail::ClearImage` to `UnsetImage`.
+
+## v0.3.8
 
 ### IDE and logging cleanup
 

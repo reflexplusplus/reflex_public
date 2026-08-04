@@ -75,7 +75,7 @@ Reflex::File::EnumerableEmbeddedResource::EnumerableEmbeddedResource(Key32 group
 
 const Reflex::File::EnumerableEmbeddedResource * Reflex::File::EnumerableEmbeddedResource::Retrieve(Pair <Key32> id)
 {
-	if (IsValidKey(id.b))
+	if (IsSet(id.b))
 	{
 		auto id64 = Reinterpret<UInt64>(id);
 
@@ -126,4 +126,3 @@ Reflex::TRef <Reflex::System::FileHandle> Reflex::File::EnumerableEmbeddedResour
 
 	return {};
 }
-

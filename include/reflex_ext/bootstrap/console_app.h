@@ -1,6 +1,7 @@
 #pragma once
 
 #include "common/global.h"
+#include "common/functions.h"
 #include "reflex_ext/async.h"
 
 
@@ -127,8 +128,6 @@ REFLEX_NS(Reflex::Bootstrap::CLI::Detail)
 
 extern const CString::View kColours[kNumColour];
 
-Data::PropertySet PackArgs(ArrayView <CString::View> cmdline);
-
 REFLEX_END
 
 inline Reflex::CString::View Reflex::Bootstrap::CLI::GetString(const Data::PropertySet & args, Key32 id)
@@ -138,7 +137,9 @@ inline Reflex::CString::View Reflex::Bootstrap::CLI::GetString(const Data::Prope
 
 inline bool Reflex::Bootstrap::CLI::GetBool(const Data::PropertySet & args, Key32 id)
 {
-	return Data::GetCString(args, id) == Reflex::Detail::kFalseTrue[1];
+	if (auto value = Data::GetCString(args, id)) return value == Reflex::Detail::kFalseTrue[1];
+
+	return Data::GetBool(args, id);
 }
 
 inline void Reflex::Bootstrap::CLI::RequireArgs(const Data::PropertySet & args, const ArrayView <CString::View> & ids)

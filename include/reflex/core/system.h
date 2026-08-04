@@ -16,8 +16,6 @@ namespace Reflex::System
 	
 	UIntNative GetThreadID();
 
-	void DebugLog(bool brk, const char * msg);
-
 	Float64 GetElapsedTime();
 
 }

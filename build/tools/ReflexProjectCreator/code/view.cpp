@@ -402,20 +402,27 @@ void ViewImpl::EnableTarget(CString::View target, bool enabled)
 
 WString ViewImpl::GetTargetDisplayName(CString::View target)
 {
-	constexpr Pair <CString::View> kTargets[] =
+	constexpr Pair <Key32,CString::View> kStylised[] =
 	{
-		{ "visual_studio", "Visual Studio" },
-		{ "android_studio", "Android Studio" },
-		{ "xcode", "Xcode" },
+		{ "macos", "macOS" },
+		{ "ios", "iOS" },
 		{ "cmake", "CMake" }
 	};
 
-	if (auto match = SearchValue<KeyCompare>(ToView(kTargets), target))
+	if (auto match = SearchValue<KeyCompare>(ToView(kStylised), MakeKey32(target)))
 	{
 		return ToWString(match->b);
 	}
+	else
+	{
+		auto capitalised = ToWString(target);
 
-	return ToWString(target);
+		auto & first = capitalised.GetFirst();
+
+		first = Uppercase(first);
+
+		return capitalised;
+	}
 }
 
 TRef <GLX::Object> ViewImpl::ParseMarkup(Data::Archive::View desc, const GLX::Style & style)

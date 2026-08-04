@@ -146,7 +146,7 @@ bool GraphicsSettings::OnEvent(GLX::Object & src, GLX::Event & e)
 	}
 	else if (e.id == GLX::kMouseDown)
 	{
-		if (IsValidKey(src.id))
+		if (IsSet(src.id))
 		{
 			ToggleOption(src.id);
 

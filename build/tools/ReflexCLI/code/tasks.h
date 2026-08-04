@@ -23,6 +23,14 @@ namespace ReflexCLI
 
 	void GetVersion(System::FileHandle & std_out);
 
+	void SetPath(const WString & path, System::FileHandle & std_out);
+
+	void Doc(const Data::PropertySet & args, System::FileHandle & std_out);
+
+	void DocHelp(System::FileHandle & std_out);
+
+
+	constexpr CString::View kTargets[] = { "windows", "macos", "ios", "android", "cmake" };
 
 	struct Variable
 	{
@@ -30,7 +38,7 @@ namespace ReflexCLI
 		WString value;
 	};
 
-	WString CreateProject(const TemplateDefinition & tmpl, ArrayView <Variable> string_inputs, ArrayView <Variable> path_inputs, ArrayView <CString> targets, const WString::View & output_root, bool overwrite, Reflex::System::FileHandle & std_out);
+	WString CreateProject(const TemplateDefinition & tmpl, ArrayView <Variable> string_inputs, ArrayView <Variable> path_inputs, ArrayView <CString> targets, const WString & destination, bool overwrite, Reflex::System::FileHandle & std_out);
 
 
 	void BuildResources(const WString::View & filename, Float & progress);
@@ -44,5 +52,11 @@ namespace ReflexCLI
 	inline const auto & kColourDim = Bootstrap::CLI::Detail::kColours[Bootstrap::CLI::kColourBrightBlack];
 
 	inline const auto & kColourDefault = Bootstrap::CLI::Detail::kColours[Bootstrap::CLI::kColourDefault];
+
+
+	inline void PrintCommandWithDescription(System::FileHandle & std_out, CString::View name, CString::View description)
+	{
+		File::WriteLine(std_out, Join(kColourDefault, name, ' ', kColourDim, description, kColourDefault));
+	}
 
 }

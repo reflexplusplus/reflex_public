@@ -46,6 +46,8 @@ bool IsAlphaCharacter(char c);
 
 bool IsAlphaNumericCharacter(char c);
 
+bool IsNumericOrPeriod(char c, bool & contains_period);
+
 
 template <auto FN, class ... VARGS> CString::View IterateWhile(CString::View & buffer, VARGS &&... v);
 
@@ -55,6 +57,9 @@ template <auto FN, class ... VARGS> CString::View ExtractWhile(CString::View & b
 CString::View ReadLine(CString::View & itr);
 
 WString::View ReadLine(WString::View & itr);
+
+
+CharType CharToType(char c);
 
 
 extern CharType kChar2Type[128];
@@ -106,9 +111,16 @@ REFLEX_SET_TRAIT(Data::Detail::Tokeniser, IsSingleThreadExclusive);
 //
 //impl
 
+REFLEX_INLINE Reflex::Data::Detail::CharType Reflex::Data::Detail::CharToType(char c)
+{
+	auto idx = UInt8(c);
+
+	return idx < 128 ? kChar2Type[idx] : kCharTypeNull;
+}
+
 REFLEX_INLINE bool Reflex::Data::Detail::IsAlphaCharacter(char c)
 {
-	//return kChar2Type[c] == kCharTypeWord;
+	//return CharToType(c) == kCharTypeWord;
 
 	UInt32 lo = (UInt(c) | 0x20) - UInt32('a');
 
@@ -117,9 +129,25 @@ REFLEX_INLINE bool Reflex::Data::Detail::IsAlphaCharacter(char c)
 
 REFLEX_INLINE bool Reflex::Data::Detail::IsAlphaNumericCharacter(char c)
 {
-	auto type = kChar2Type[c];
+	auto type = CharToType(c);
 
 	return type == kCharTypeWord || type == kCharTypeNumber;
+}
+
+REFLEX_INLINE bool Reflex::Data::Detail::IsNumericOrPeriod(char c, bool & contains_period)
+{
+	if (CharToType(c) == kCharTypeNumber)
+	{
+		return true;
+	}
+	else if (c == '.')
+	{
+		contains_period = true;
+
+		return true;
+	}
+
+	return false;
 }
 
 template <auto FN, class ... VARGS> REFLEX_INLINE Reflex::CString::View Reflex::Data::Detail::IterateWhile(CString::View & buffer, VARGS &&... v)

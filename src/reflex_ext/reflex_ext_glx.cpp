@@ -38,6 +38,7 @@
 #include "glx/functions/hotkey.cpp"
 #include "glx/functions/enter_exit.cpp"
 #include "glx/functions/overlay.cpp"
+#include "glx/functions/bitmap.cpp"
 
 #include "glx/detail/functions.cpp"
 #include "glx/detail/recycler.cpp"

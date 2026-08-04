@@ -10,29 +10,22 @@
 
 REFLEX_NS(Reflex::GLX::Detail)
 
-ConstTRef <System::Renderer::Canvas> RetrieveBitmap(const WString::View & path, UInt pixeldensity, bool antialias);
-
-ConstTRef <System::Renderer::Canvas> OpenBitmap(const System::BitmapInfo & info, const Data::Archive::View & data, bool antialias);
-
-ConstTRef <System::Renderer::Canvas> OpenBitmap(const Data::Archive::View & data, UInt pixeldensity, bool antialias);
-
-
-System::RawBitmap DecodeBitmap(const Data::Archive::View & data, UInt pixeldensity);
+System::RawBitmap DecodeBitmap(const Data::Archive::View & data, UInt pixel_density);
 
 void PreMultAlpha(const System::BitmapInfo & info, Data::Archive & data);
 
 
-System::RawBitmap DecodePNG(const Data::Archive::View & data, UInt pixeldensity);
+System::RawBitmap DecodePNG(const Data::Archive::View & data, UInt pixel_density);
 
 Data::Archive EncodePNG(const System::BitmapInfo & info, const Data::Archive::View & data, UInt8 compress = true);
 
 
-System::RawBitmap DecodeBMP(const Data::Archive::View & data, UInt pixeldensity);
+System::RawBitmap DecodeBMP(const Data::Archive::View & data, UInt pixel_density);
 
 Data::Archive EncodeBMP(const System::BitmapInfo & info, const Data::Archive::View & data, UInt8 flags = 0);
 
 
-System::RawBitmap DecodeJPG(const Data::Archive::View & data, UInt pixeldensity);
+System::RawBitmap DecodeJPG(const Data::Archive::View & data, UInt pixel_density);
 
 Data::Archive EncodeJPG(const System::BitmapInfo & info, const Data::Archive::View & data, UInt8 quality = 90);
 
@@ -44,15 +37,15 @@ Data::Archive EncodeGLX(const System::BitmapInfo & info, const Data::Archive::Vi
 
 void AllocateBitmap(const System::BitmapInfo & info, Data::Archive & archive);
 
+void RemapToSupportedFormat(System::ImageFormat & format, Data::Archive & pixels);
 
-System::RawBitmap CropBitmap(const System::BitmapInfo & info, const Data::Archive::View & data, const System::iRect & rect);
-
-System::RawBitmap HalveBitmap(const System::BitmapInfo & info, const Data::Archive::View & data);
-
-
-extern const File::ResourcePool::Ctr kDecodeBitmap;
 
 extern bool (&VerifyBitmap)(const System::BitmapInfo & info, const Data::Archive::View & data);
+
+
+extern const FunctionPointer <void(System::ImageFormat&, Data::Archive&)> kRemapBitmapFns[System::kNumImageFormat];
+
+extern const bool * const kSupportsImageFormat;
 
 
 constexpr UInt32 kGLX = 193456912ul;
@@ -69,12 +62,12 @@ REFLEX_END
 //
 //impl
 
-inline Reflex::ConstTRef <Reflex::System::Renderer::Canvas> Reflex::GLX::Detail::OpenBitmap(const Data::Archive::View & archive, UInt pixeldensity, bool antialias)
+REFLEX_INLINE void Reflex::GLX::Detail::RemapToSupportedFormat(System::ImageFormat & format, Data::Archive & pixels)
 {
-	auto bitmap = DecodeBitmap(archive, pixeldensity);
+	REFLEX_LOOP(idx, 2)
+	{
+		if (kSupportsImageFormat[format]) return;
 
-	PreMultAlpha(bitmap.a, bitmap.b);
-
-	return OpenBitmap(bitmap.a, bitmap.b, antialias);
+		kRemapBitmapFns[format](format, pixels);
+	}
 }
-

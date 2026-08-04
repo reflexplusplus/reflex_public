@@ -32,7 +32,7 @@ public:
 	
 	static TRef <SplitBehaviour> Create();
 
-	void EnableSplit(GLX::Object & item) { Data::SetBool(item, kresize, true); }
+	void EnableSplit(GLX::Object & item) { Data::SetBool(item, kresizable, true); }
 
 	virtual void ClearSplitSize(GLX::Object & item) = 0;
 

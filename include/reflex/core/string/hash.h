@@ -11,7 +11,9 @@
 namespace Reflex
 {
 
-	constexpr UInt32 MakeKey32(const CString::View & string);
+	constexpr UInt32 MakeKey32(CString::View string);
+
+	constexpr UInt32 MakeKey32(WString::View string);
 
 
 	consteval UInt32 K32(const char * string);
@@ -23,7 +25,6 @@ namespace Reflex
 	consteval UInt64 ID64(const char * string);
 
 	consteval UInt32 CC32(const char * string);
-
 
 }
 
@@ -122,7 +123,12 @@ template <class UINT, bool IS_LITTLE_ENDIAN> consteval UINT Reflex::Detail::Make
 	return cc;
 }
 
-inline constexpr Reflex::UInt32 Reflex::MakeKey32(const CString::View & string)
+inline constexpr Reflex::UInt32 Reflex::MakeKey32(CString::View string)
+{
+	return Detail::MakeHash<UInt32>(string);
+}
+
+inline constexpr Reflex::UInt32 Reflex::MakeKey32(WString::View string)
 {
 	return Detail::MakeHash<UInt32>(string);
 }

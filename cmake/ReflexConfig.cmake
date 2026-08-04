@@ -138,6 +138,14 @@ function(_reflex_import_lib alias name)
     set(_dbg_lib  "${_REFLEX_LIB_DIR_DBG}/${_REFLEX_LIB_PREFIX}${name}${_REFLEX_LIB_SUFFIX}")
     set(_rel_lib  "${_REFLEX_LIB_DIR_REL}/${_REFLEX_LIB_PREFIX}${name}${_REFLEX_LIB_SUFFIX}")
 
+    # Not every distribution ships every library (the public SDK has no VM), so
+    # only define the target when the library is actually present. Consumers can
+    # test with if(TARGET Reflex::Vm); defining it unconditionally would instead
+    # fail much later with a confusing missing-input link error.
+    if(NOT EXISTS "${_dbg_lib}" AND NOT EXISTS "${_rel_lib}")
+        return()
+    endif()
+
     add_library(Reflex::${alias} STATIC IMPORTED GLOBAL)
 
     set_target_properties(Reflex::${alias} PROPERTIES
@@ -217,6 +225,16 @@ if(EXISTS "${REFLEX_ROOT}/src/reflex/system")
     option(REFLEX_BUILD_TARGETS_FROM_SOURCE "Build Reflex target libs from source" ON)
 else()
     option(REFLEX_BUILD_TARGETS_FROM_SOURCE "Build Reflex target libs from source" OFF)
+endif()
+
+# =========================================================
+# macOS code signing
+# =========================================================
+
+# Linker ad-hoc signatures seal no resources, so strict verification fails and hosts skip the plug-in.
+if(APPLE AND NOT CMAKE_SYSTEM_NAME STREQUAL "iOS")
+    option(REFLEX_CODESIGN "Sign macOS bundles after build" ON)
+    set(REFLEX_CODESIGN_IDENTITY "-" CACHE STRING "codesign identity for macOS bundles ('-' = ad-hoc)")
 endif()
 
 # =========================================================

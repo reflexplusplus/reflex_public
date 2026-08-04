@@ -42,7 +42,7 @@ public:
 
 
 
-	AbstractWeakRef(DynamicTypeRef object_t, Object & null, Object & init_target);
+	AbstractWeakRef(DynamicTypeRef object_t, Object & null);
 
 	void Clear();
 
@@ -85,9 +85,9 @@ public:
 	REFLEX_STATIC_ASSERT(kIsNullable<NonConstT<TYPE>>);
 
 	
-	WeakRef() : Base(TYPE::kDynamicTypeInfo, GetNullInstance<NonConstT<TYPE>>(), GetNullInstance<NonConstT<TYPE>>()) {}
+	WeakRef() : Base(TYPE::kDynamicTypeInfo, GetNullInstance<NonConstT<TYPE>>()) {}
 
-	WeakRef(TYPE & target) : Base(TYPE::kDynamicTypeInfo, GetNullInstance<NonConstT<TYPE>>(), target) {}
+	WeakRef(TYPE & target) : WeakRef() { Store(target); }
 
 	WeakRef(const WeakRef & weakref) = delete;
 

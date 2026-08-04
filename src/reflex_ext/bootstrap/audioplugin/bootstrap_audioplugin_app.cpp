@@ -94,9 +94,9 @@ void Reflex::Bootstrap::AudioPlugin::Parameters::OnRestore(Data::Archive::View &
 
 	Map <Key32,Value32> values;
 
-	auto pstored = Reinterpret<Value32>(info.GetData() + (nstoredparam * 4));
+	auto pstored = Reinterpret<Value32>(pdata + (nstoredparam * 4));
 
-	REFLEX_LOOP_PTR(Reinterpret<Key32>(info.GetData()), pid, nstoredparam) values[*pid] = *pstored++;
+	REFLEX_LOOP_PTR(Reinterpret<Key32>(pdata), pid, nstoredparam) values[*pid] = *pstored++;
 
 	auto pinfos = info.GetData();
 

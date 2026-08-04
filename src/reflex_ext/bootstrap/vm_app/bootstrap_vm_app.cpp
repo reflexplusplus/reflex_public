@@ -26,24 +26,53 @@ struct VmAppDelegate : public App
 		m_vm(VM::Start()),
 		m_compiler(VM::Compiler::Create()),
 		m_path(path),
+		m_onreset(nullptr),
+		m_onrestore(nullptr),
 		m_buildcount(0)
 	{
 		Compile();
 	}
 
-	void Compile()
+	void Compile(TRef <IDE::ResourceGroup> resources = {})
 	{
-		Unload();
-
 		File::ResourcePool::Lock lock(global->resourcepool);
 
-		ScriptExternals externals;
+		Array < Tuple < CString::View, TRef<Object> > > externals;
 
-		externals.objects.Push({ "prefs", global->prefs });
+		externals.Push({ "prefs", global->prefs });
 
-		externals.objects.Push({ "self", this });
+		externals.Push({ "self", this });
 
-		auto program = m_compiler->Compile(lock, m_path, VM::kContextFlagMain, externals, { g_bindings, g_externals });
+		auto prebindings = AutoRelease(VM::Compiler::Context::Create(*m_compiler, New<VM::Bindings>(VM::kContextFlagMain)));
+
+		prebindings->Instantiate(g_bindings);
+
+		if (!Detail::RegisterScriptGlobals(prebindings->bindings, externals)) return;
+
+		auto program = AutoRelease(m_compiler->Compile(lock, m_path, VM::kContextFlagMain, prebindings));
+
+		if (IDE::kIsAwake)
+		{
+			if (!resources)
+			{
+				resources = New<IDE::ResourceGroup>(lock.resourcepool, K32("instance"), L"instance", [this](IDE::ResourceGroup & self)
+				{
+					auto data = Data::ToBinary(*this);
+
+					Compile(self);
+
+					Data::FromBinary(data, *this);
+				});
+
+				m_resourcemonitor = resources;
+			}
+
+			for (auto & i : program->sources) resources->AddItem(i.address, i.object);
+		}
+
+		if (!program->Status()) return;
+
+		Unload();
 
 		auto contextid = Reflex::Detail::AcquireContextID();
 
@@ -53,19 +82,22 @@ struct VmAppDelegate : public App
 
 		Reflex::Detail::Constructor<Data::PropertySet>::Reconstruct(m_shared, contextid);
 
-		m_context = New<VM::Context>(contextid);
-
 		m_onreset = nullptr;
 		
 		m_binaryobject_t = nullptr;
 		
 		m_onrestore = nullptr;
 
-		if (program)
 		{
+			m_context = VM::Context::Create(*program, contextid);
+
 			m_context->SetProperty(kNullKey, lock.resourcepool);	//For VM::Thread
 
-			m_context->Initialise(program, *this);
+			VM::Context::Scope scope(*m_context);
+
+			if (!Detail::SetScriptGlobals(*m_context, externals)) return;
+
+			if (!m_context->Run(*this)) return;
 
 			auto bindings = program->bindings;
 
@@ -77,22 +109,6 @@ struct VmAppDelegate : public App
 			{
 				m_onrestore = VM::QueryFunction(program, { VM::kGlobal, K32("OnRestore") }, void_t, { m_binaryobject_t });
 			}
-		}
-
-		if (IDE::kIsAwake)	//set up resource monitoring / reloading
-		{
-			auto resources = New<IDE::ResourceGroup>(lock.resourcepool, K32("instance"), L"instance", [this](IDE::ResourceGroup & self)
-			{
-				auto data = Data::ToBinary(*this);
-
-				Compile();
-			   
-				Data::FromBinary(data, *this);
-			});
-
-			for (auto & i : program->sources) resources->AddItem(i.address, i.object);
-
-			m_resourcemonitor = resources;
 		}
 
 		RemoveConst(m_buildcount)++;
@@ -170,7 +186,7 @@ struct VmAppDelegate : public App
 		m_context.Clear();
 	}
 
-	static void BindVM(VM::Compiler::State & cstate, UInt8 contextflags, Object & client);
+	static void BindVM(VM::Compiler::Context & cstate, UInt8 contextflags);
 
 	
 	
@@ -194,7 +210,7 @@ struct VmAppDelegate : public App
 
 };
 
-void Reflex::Bootstrap::VmAppDelegate::BindVM(VM::Compiler::State & cstate, UInt8 contextflags, Object & client)
+void Reflex::Bootstrap::VmAppDelegate::BindVM(VM::Compiler::Context & cstate, UInt8 contextflags)
 {
 	struct AppAccessor : public App
 	{
@@ -308,7 +324,7 @@ Reflex::TRef <Reflex::Bootstrap::Global> Reflex::Bootstrap::StartVmApp(System::A
 
 const Reflex::VM::Module Reflex::Bootstrap::VmAppDelegate::g_bindings("Bootstrap::App", { VM::gDataPropertySet }, VM::kContextFlagMain | VM::kContextFlagUi, &VmAppDelegate::BindVM);
 
-//void Reflex::Bootstrap::AudioPlugin::BindVM(VM::Compiler::State & cstate, UInt8 contextflags, Object & client, const CString::View & self)
+//void Reflex::Bootstrap::AudioPlugin::BindVM(VM::Compiler::Context & cstate, UInt8 contextflags, Object & client, const CString::View & self)
 //{
 //	if (auto audioplugin = DynamicCast<AudioPlugin>(client))
 //	{

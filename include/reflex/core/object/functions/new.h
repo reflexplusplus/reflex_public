@@ -71,6 +71,11 @@ template <class TYPE, Reflex::ReferenceSafeFlags SAFE> REFLEX_INLINE Reflex::Ref
 {
 }
 
+template <class TYPE, Reflex::ReferenceSafeFlags SAFE> REFLEX_INLINE Reflex::Reference<TYPE,SAFE> & Reflex::Reference<TYPE,SAFE>::operator=(NewObjectToken)
+{
+	return operator=(New<NonConstT<TYPE>>());
+}
+
 template <class TYPE> template <class ... VARGS> REFLEX_INLINE Reflex::TRef <TYPE> Reflex::Detail::Constructor<TYPE>::New(Allocator & allocator, VARGS && ... vargs)
 {
 	if constexpr (kIsAbstract<TYPE>)

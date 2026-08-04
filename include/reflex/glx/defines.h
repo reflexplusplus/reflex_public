@@ -142,7 +142,7 @@ namespace Reflex::GLX
 
 REFLEX_NS(Reflex::GLX)
 
-constexpr Key32 kresize = kresizable;
+[[deprecated("use kresizable")]] constexpr Key32 kresize = kresizable;
 
 [[deprecated("Use kTransactionStageNull")]] constexpr auto kTransactionNull = kTransactionStageNull;
 [[deprecated("Use kTransactionStageBegin")]] constexpr auto kTransactionBegin = kTransactionStageBegin;

@@ -140,7 +140,7 @@ TRef <Object> GlobalImpl::EnableIde(bool enable)
 
 			if (logfile)
 			{
-				Output::SetOutputFile(New<System::FileHandle>(logfile, System::FileHandle::kModeOverwrite));
+				Output::SetLogFile(New<System::FileHandle>(logfile, System::FileHandle::kModeOverwrite));
 			}
 
 			m_ide = IDE::Start(resourcepool, prefs);

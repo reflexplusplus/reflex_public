@@ -45,11 +45,11 @@ template <class TYPE, class OUTPUT> void Split(const ArrayView <TYPE> & view, co
 	output.Push(Right<false>(view, UInt(end - prev)));
 }
 
-template <class TYPE, class OUTPUT> void SplitArray(const ArrayView <TYPE> & view, const ArrayView <TYPE> & delimiter, OUTPUT & output)
+template <class POLICY = StandardCompare, class TYPE, class OUTPUT> void SplitArray(const ArrayView <TYPE> & view, const ArrayView <TYPE> & delimiter, OUTPUT & output)
 {
 	auto itr = view;
 
-	while (auto idx = SearchRegion<StandardCompare>(itr, delimiter))
+	while (auto idx = SearchRegion<POLICY>(itr, delimiter))
 	{
 		auto section = Left(itr, idx.value);
 
@@ -89,7 +89,7 @@ template <class ARRAY, class VALUE> inline auto Reflex::Split(ARRAY && array, co
 
 	if constexpr (std::is_convertible_v<VALUE, ArrayViewType>)
 	{
-		Detail::SplitArray(view, ToView(delimiter), rtn);
+		Detail::SplitArray<StandardCompare>(view, ToView(delimiter), rtn);
 	}
 	else
 	{

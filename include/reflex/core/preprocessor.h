@@ -76,7 +76,7 @@
 
 #define REFLEX_USE(x) using namespace x;
 
-#define REFLEX_USE_ENUM(NS, ENUM) using ENUM = NS::ENUM; using enum NS::ENUM;
+#define REFLEX_USE_ENUM(NS, ENUM) using ENUM = NS::ENUM; using enum ENUM;
 
 
 #define REFLEX_NS(NS) namespace NS {

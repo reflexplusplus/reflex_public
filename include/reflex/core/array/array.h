@@ -1027,8 +1027,6 @@ template <class TYPE> REFLEX_INLINE bool Reflex::Array<TYPE>::operator!=(const V
 
 template <class TYPE> template <bool OVER> inline bool Reflex::Array<TYPE>::DoAllocate(UInt capacity)
 {
-	REFLEX_ASSERT(capacity > m_capacity);
-
 	m_capacity = OVER ? Detail::CalculateExpandedCapacity(capacity) : capacity;
 
 	if (auto ptr = Detail::NullTerminator<TYPE,kIsNullTerminated>::Allocate(allocator, m_capacity, AllocInfo(Detail::GetDebugTypeName<TYPE>(), "Array::DoAllocate")))

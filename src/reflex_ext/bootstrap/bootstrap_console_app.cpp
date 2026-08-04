@@ -142,48 +142,48 @@ Reflex::TRef <Reflex::Bootstrap::CLI::ProgressBar> Reflex::Bootstrap::CLI::Progr
 	}
 }
 
-Reflex::Data::PropertySet Reflex::Bootstrap::CLI::Detail::PackArgs(ArrayView <CString::View> cmdline)
-{
-	Data::PropertySet args;
-
-	if (cmdline && !IsKey(cmdline.GetFirst()))
-	{
-		Data::SetCString(args, kcommand, cmdline.GetFirst());
-
-		cmdline = Mid(cmdline, 1);
-	}
-
-	CString::View key;
-	Key32 value_key = K32("value");
-
-	for (auto token : cmdline)
-	{
-		bool expect_value = True(key);
-
-		if (expect_value)
-		{
-			if (IsKey(token)) ThrowError(Join("missing value for ", key));
-
-			Data::SetCString(args, key, token);
-
-			key = {};
-		}
-		else if (IsKey(token))
-		{
-			key = Mid(token, 2);
-		}
-		else
-		{
-			Data::SetCString(args, value_key, token);
-
-			value_key.value++;
-		}
-	}
-
-	if (key) ThrowError(Join("missing value for ", key));
-
-	return args;
-}
+//Reflex::Data::PropertySet Reflex::Bootstrap::CLI::Detail::PackArgs(ArrayView <CString::View> cmdline)
+//{
+//	Data::PropertySet args;
+//
+//	if (cmdline && !IsKey(cmdline.GetFirst()))
+//	{
+//		Data::SetCString(args, kcommand, cmdline.GetFirst());
+//
+//		cmdline = Mid(cmdline, 1);
+//	}
+//
+//	CString::View key;
+//	Key32 value_key = K32("value");
+//
+//	for (auto token : cmdline)
+//	{
+//		bool expect_value = True(key);
+//
+//		if (expect_value)
+//		{
+//			if (IsKey(token)) ThrowError(Join("missing value for ", key));
+//
+//			Data::SetCString(args, key, token);
+//
+//			key = {};
+//		}
+//		else if (IsKey(token))
+//		{
+//			key = Mid(token, 2);
+//		}
+//		else
+//		{
+//			Data::SetCString(args, value_key, token);
+//
+//			value_key.value++;
+//		}
+//	}
+//
+//	if (key) ThrowError(Join("missing value for ", key));
+//
+//	return args;
+//}
 
 Reflex::Array <Reflex::CString::View> Reflex::Bootstrap::CLI::GetStringArray(const Data::PropertySet & args, Key32 id)
 {
@@ -345,7 +345,7 @@ Reflex::UInt8 Reflex::Bootstrap::CLI::Dispatch(const ArrayView <CString::View> &
 
 	try
 	{
-		auto args = Detail::PackArgs(cmdline);
+		auto args = ParseCmdlineArgs(cmdline, false, 0);
 
 		LoadArgsFile(args);
 
@@ -353,7 +353,7 @@ Reflex::UInt8 Reflex::Bootstrap::CLI::Dispatch(const ArrayView <CString::View> &
 
 		if (verbose)
 		{
-			Output::SetOutputFile(std_out);
+			Output::SetLogFile(std_out);
 		}
 		else
 		{

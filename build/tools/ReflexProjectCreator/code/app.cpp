@@ -68,7 +68,7 @@ ArrayView <Pair<CString,bool>> AppImpl::GetTargets() const
 
 void AppImpl::OnReset(Key32 context)
 {
-	RunTask("list-templates", {}, [this](const Data::Archive & output)
+	RunTask("templates", {}, [this](const Data::Archive & output)
 	{
 		Array <TemplateDefinition> templates;
 
@@ -82,7 +82,7 @@ void AppImpl::OnReset(Key32 context)
 		return SetFiltered(m_templates, templates);
 	});
 
-	RunTask("list-targets", {}, [this](const Data::Archive & output)
+	RunTask("targets", {}, [this](const Data::Archive & output)
 	{
 		Array <Pair<CString,bool>> targets;
 
@@ -96,15 +96,16 @@ void AppImpl::OnReset(Key32 context)
 
 			switch (MakeKey32(target.a))
 			{
-			case K32("android_studio"):
+			case K32("android"):
 				target.b = true;
 				break;
 
-			case K32("visual_studio"):
+			case K32("windows"):
 				target.b = System::kPlatform == System::kPlatformWindows;
 				break;
 
-			case K32("xcode"):
+			case K32("macos"):
+			case K32("ios"):
 				target.b = System::kPlatform == System::kPlatformMacOS;
 				break;
 			}
@@ -116,6 +117,16 @@ void AppImpl::OnReset(Key32 context)
 
 void AppImpl::InstantiateTemplate(const TemplateDefinition & tmpl, ArrayView <Pair<CString>> inputs, ArrayView <CString> targets, const WString & dest, bool overwrite)
 {
+	auto folder_name = ReflexCLI::GetProjectFolderName(tmpl, inputs);
+
+	if (!folder_name)
+	{
+		ReflexProjectCreator::output.Error("product undefined");
+		return;
+	}
+
+	auto path = Join(dest, folder_name);
+
 	Array <WString> args;
 
 	args.Push(L"--template");
@@ -130,7 +141,7 @@ void AppImpl::InstantiateTemplate(const TemplateDefinition & tmpl, ArrayView <Pa
 	args.Push(L"--target");
 	args.Push(ToWString(Merge(targets, ',')));
 	args.Push(L"--output");
-	args.Push(dest);
+	args.Push(path);
 
 	if (overwrite)
 	{
@@ -138,31 +149,9 @@ void AppImpl::InstantiateTemplate(const TemplateDefinition & tmpl, ArrayView <Pa
 		args.Push(L"true");
 	}
 
-	RunTask("create", std::move(args), [dest](const Data::Archive & output)
+	RunTask("create", std::move(args), [path](const Data::Archive & output)
 	{
-		constexpr CString::View kProjectCreatedAt = "project created at ";
-
-		WString created_path = dest;
-		
-		auto itr = ToView(output);
-		
-		CString line;
-
-		while (Data::ReadLine(itr, line))
-		{
-			auto trimmed = Trim(line);
-
-			if (Left<true>(trimmed, kProjectCreatedAt.size) == kProjectCreatedAt)
-			{
-				created_path = ToWString(Mid<true>(trimmed, kProjectCreatedAt.size));
-			}
-			else if (trimmed)
-			{
-				ReflexProjectCreator::output.Error(trimmed);
-			}
-		}
-
-		System::Open(created_path);
+		System::Open(path);
 
 		return true;
 	});

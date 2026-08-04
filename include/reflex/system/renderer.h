@@ -181,9 +181,9 @@ public:
 
 	//size
 
-	virtual bool SetSize(const iSize & size, Int32 dpifactor) = 0;
+	virtual bool SetSize(iSize size, Int32 pixel_density) = 0;
 
-	virtual const iSize & GetSize() const = 0;
+	virtual iSize GetSize() const = 0;
 
 	virtual Int32 GetPixelDensity() const = 0;
 

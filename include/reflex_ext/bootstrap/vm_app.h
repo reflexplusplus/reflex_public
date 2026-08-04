@@ -1,7 +1,6 @@
 #pragma once
 
-#include "common/global.h"
-#include "common/vm.h"
+#include "common.h"
 
 
 

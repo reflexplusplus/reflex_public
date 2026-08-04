@@ -282,7 +282,6 @@
 					"-lReflexCommon",
 					"-lReflexCommonUi",
 					"-lReflexCommonVm",
-					"-lReflexCommonVmUi",
 					"-lReflexTargetApp",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.reflexplusplus.customdrawing;
@@ -363,7 +362,6 @@
 					"-lReflexCommon",
 					"-lReflexCommonUi",
 					"-lReflexCommonVm",
-					"-lReflexCommonVmUi",
 					"-lReflexTargetApp",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.reflexplusplus.customdrawing;

@@ -1,5 +1,6 @@
 /third_party/
 **/*.cache
+.DS_Store
 code/resources.h
 code/resources.cpp
 reflex_log.txt

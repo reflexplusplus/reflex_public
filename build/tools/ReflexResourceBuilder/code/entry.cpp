@@ -43,7 +43,7 @@ Reflex::TRef <Reflex::Object> Reflex::System::App::OnStart(const ArrayView <CStr
 {
 	if (cmdline)
 	{
-		Output::SetOutputFile(New<System::FileHandle>(System::FileHandle::kStandardStreamOut));
+		Output::SetLogFile(New<System::FileHandle>(System::FileHandle::kStandardStreamOut));
 
 		ResourceBuilder::CompileFromCmdLine(cmdline);
 

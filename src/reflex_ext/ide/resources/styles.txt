@@ -1028,3 +1028,10 @@ ButtonProperty:
 		};
 	};
 };
+
+PluginResizeGrip:
+{
+	size: 16;
+
+	bg: Canvas(colour: 128,160);
+};

@@ -49,6 +49,8 @@ struct PluginWindowClient :
 	{
 		SetContent(view);
 
+		if (m_resizable) AddResizeGrip(view);
+
 		Streamable::RestoreState();
 
 		SetDisplayMode(System::kWindowDisplayWindowed);	//TODO this should not be neccesary on plugin
@@ -57,6 +59,62 @@ struct PluginWindowClient :
 	~PluginWindowClient()
 	{
 		Streamable::StoreState();
+	}
+
+	//some hosts offer no window-frame resizing for plugin editors (Logic/AUv2), so a
+	//resizable editor must provide its own drag affordance and drive SetRect itself
+
+	void AddResizeGrip(GLX::Object & view)
+	{
+		auto grip = New<GLX::Object>();
+
+		GLX::SetText(*grip, L"PluginResizeGrip");
+
+		m_grip_styles = IDE::Detail::RetrieveStyleSheet();
+
+		grip->SetStyle(m_grip_styles["PluginResizeGrip"]);
+
+		grip->SetMouseCursor(System::kMouseCursorTopLeftBottomRight);
+
+		GLX::SetCanvas(*grip, {}, [](GLX::CanvasContext & ctx)
+		{
+			REFLEX_LOOP(idx, 3)
+			{
+				auto offset = (idx + 1) * 4.0f;
+
+				const GLX::Point line[2] = { { ctx.size.w - offset, ctx.size.h - 1.0f }, { ctx.size.w - 1.0f, ctx.size.h - offset } };
+
+				GLX::AddPath(ctx.output, { line, 2 }, false, 1.0f, ctx.pixel_size);
+			}
+		});
+
+		GLX::SetEventDelegate(*grip, MakeKey32("plugin_resize_grip"), [this](GLX::Object & src, GLX::Event & e)
+		{
+			if (e.id == GLX::kMouseDown && GLX::IsLeftClick(e))
+			{
+				m_grip_drag_size = GetRect().size;
+
+				m_grip_drag_scale = 1.0f / src.GetComputedStyle()->GetScale();
+
+				return true;
+			}
+
+			if (e.id == GLX::kMouseDrag)
+			{
+				auto delta = GLX::GetDelta(e);	//cumulative since mousedown
+
+				System::fSize size = { m_grip_drag_size.w + delta.x * m_grip_drag_scale,
+				                       m_grip_drag_size.h + delta.y * m_grip_drag_scale };
+
+				SetRect({ {}, Max(GetContent()->contentsize, size) });
+
+				return true;
+			}
+
+			return e.id == GLX::kMouseUp;
+		});
+
+		GLX::AddFloat(view, *grip, GLX::kAlignmentBottomRight);
 	}
 
 	void OnReset(Key32 context) override
@@ -84,6 +142,12 @@ struct PluginWindowClient :
 	}
 
 	bool m_resizable;
+
+	System::fSize m_grip_drag_size;
+
+	Float m_grip_drag_scale = 1.0f;
+
+	TRef <const GLX::StyleSheet> m_grip_styles;
 };
 
 struct DesktopAppWindowClient : public WindowClient

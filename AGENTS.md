@@ -1,108 +1,64 @@
-# Reflex Agent Notes
+# Reflex++ Agent Notes
 
+## Install
 
-## Intro
+- Use the `reflex` CLI to install and update the SDK and obtain required binary packages: `reflex install [version] --platforms <win|macos|android|ios[,..]>`.
+- Use `reflex versions` to list available SDK versions, `reflex version` to check the installed version, and `reflex where` to find its installation directory.
+- Source users can build libraries and tools with the platform scripts in `build/lib/[platform]` and `build/tools/[platform]`.
 
-- Use `include/` as the primary reference surface for API intent, type semantics, and expected usage. This remains the canonical first stop.
-- Use `src/reflex_ext/` and `examples/` to see real, working usage examples. Prefer copying patterns from there over inventing usage from headers alone.
-- Avoid reading `src/reflex/` unless strictly necessary, as it is primarily low-level implementation detail.
-- The generated manual under [documentation/reflex_cpp/info.txt](/D:/devt/reflex/documentation/reflex_cpp/info.txt) is also a useful reference index. Symbols are organized by `Path`, for example:
-  - `Path: ["Reflex", "Object"]`
-  - `Path: ["Reflex", "TRef"]`
-  - `Path: ["Reflex", "Reference"]`
-- When orienting in the codebase, prefer looking up symbols by their documented `Path`, then confirming the corresponding header in `include/`, then checking `src/reflex_ext/` for concrete usage.
+## Finding APIs
 
+- Start with `reflex doc tree` to see the available documentation roots, then run `reflex doc info Reflex` for the framework overview and links to its fundamental guides.
+- Follow the relevant guide before searching individual APIs, for example `reflex doc info Reflex/Object`, `reflex doc info Reflex/Containers`, or `reflex doc info Reflex/String`.
+- Use `reflex doc info <symbol>` for exact types and functions, for example `reflex doc info Reflex::Reference` or `reflex doc info Reflex::Array`. The shorter `reflex doc <symbol>` form is equivalent for direct symbol lookup.
+- If the symbol name is uncertain, use `reflex doc list <query>` to search the documentation index.
+- After finding the documented API, confirm declarations and detailed type semantics in `_REFLEX-PATH_/include`, then check `_REFLEX-PATH_/src/reflex_ext/` and `_REFLEX-PATH_/examples/` for established usage patterns.
+- !IMPORTANT: The `reflex doc` command stores its selected codebase and tree location in the user's preferences. For consistent results, pass `--root <codebase>` (normally `--root reflex_cpp`) with all queries. This overrides the stored codebase and location.
 
-## Namespace Guide
+## Namespace Overview
 
-- `Reflex`: Core framework layer. Common types, containers, intrusive object model, allocation, references, utilities, and shared conventions live here.
-- `Reflex::Data`: Structured data, `PropertySet`, serialization/encoding, hashing, and format conversion. Used broadly across the framework for schema-light, portable data.
-- `Reflex::File`: Path utilities, file I/O, virtualized/shared resource access, and file-backed resource infrastructure. This is the normal file/resource API for application code.
-- `Reflex::GLX`: UI, layout, styling, events, widgets, animation, and rendering-oriented object composition.
-- `Reflex::System`: Low-level OS-facing abstraction layer. Files, windows, rendering backends, app/platform services, and native integration points live here. Prefer higher-level namespaces when possible.
-- `Reflex::Bootstrap`: Standard application bootstrapping, global app state, and common app/plugin integration glue.
-- `Reflex::Async`: Higher-level async helpers built on lower-level system primitives.
+- `Reflex`: Core object model, containers, allocation, references, and utilities.
+- `Reflex::Data`: Structured data, serialization, hashing, and format conversion.
+- `Reflex::File`: Paths, file I/O, and resource access; prefer this for application-level file work.
+- `Reflex::GLX`: UI, layout, styling, events, widgets, animation, and rendering.
+- `Reflex::System`: Low-level platform services, windows, files, and rendering backends; prefer higher-level APIs when available.
+- `Reflex::Bootstrap`: Application bootstrapping and common app/plugin integration.
+- `Reflex::Async`: Higher-level asynchronous helpers.
 
+## Project Creation
 
-## Setup
+- Create apps and tests with the CLI: `reflex create --template <id> --vendor <vendor> --product <product> --target <id[,..]> --output <folder>`.
+- List available options with `reflex templates` and `reflex targets`.
 
-- To install the pre-built binaries, run the `install` script at the repo root
-- Users with access to the source tree, can optionally build the libraries and tools locally via the appropriate platform build scripts under: `build/lib/[platform]` and `build/tools/[platform]`
+## Object Lifetimes
 
+- Reflex++ distinguishes reference-counted `Object`s from stack-based values. Do not use raw `new` for either: create objects with `New<T>()`, and heap-allocate a value only by promoting it to `ObjectOf<T>`.
+- `Reflex::Object` is dynamically typed and uses intrusive retain/release lifetime management. Do not call `Retain*` or `Release*` directly in normal code.
+- `TRef<T>` is a non-owning, non-null transient reference. It does not change retain count and does not extend lifetime; use it for temporary arguments and factory-style returns.
+- `Reference<T>` is the strong owning reference. Store one whenever an object must outlive the current expression or callback.
+- `New<T>(...)` returns `TRef<T>`; `Make<T>(...)` returns `Reference<T>`. If `New` cannot deduce an untyped argument such as `{}`, use `REFLEX_CREATE(TYPE, ...)`.
+- `Reflex::Detail::WeakRef<T>` is primarily an internal lifecycle tool; application code should normally use `Reference<T>` instead.
 
-## Creating Projects
+## Common Mistakes
 
-- When creating a new Reflex app or test project, use the reflex CLI instead of attempting to manually set up projects.
-- Use `reflex create --template <id> --vendor <vendor> --product <product> --target <id[,..]> --output <folder>`.
-- Check available templates with `reflex templates`.
-- Check available targets with `reflex targets`.
-
-
-## Fundamentals
-
-### `Reflex::Object`
-
-- `Reflex::Object` is the common base class for the framework object model.
-- It is dynamically typed and retain/release based.
-- It has built-in intrusive lifetime management via `Retain*` / `Release*`.
-- In normal code, avoid calling `Retain*` / `Release*` manually. Prefer `Reference`, `TRef`, and helper APIs such as `Make<T>()` / `New<T>()`.
-- Objects are generally created with `New<T>(...)`, which enables automatic destruction when retain count reaches zero.
-- `New<T>(...)` returns a `TRef<T>`, not a `Reference<T>`.
-- `Make<T>(...)` is the convenience wrapper that returns a strong owning `Reference<T>` instead of `TRef<T>`.
-- `New<T>(...)` uses forwarding, so there are cases where argument deduction cannot resolve the call cleanly, especially with untyped brace arguments such as `{}`.
-- In those cases, prefer `REFLEX_CREATE(TYPE, ...)`.
-- `Object` also provides the generic object-property mechanism used widely across Reflex and GLX.
-
-### `Reflex::TRef`
-
-- `TRef<T>` is one of the 2 primary Reflex smart-pointer/reference types, and it is critical to understand that it is **not** the owning one.
-- `TRef<T>` is a lightweight, non-owning, non-null reference wrapper over a retainable object pointer.
-- `T` denotes transitory or temporary, it is generally used for transient arguments and return values, not for long-lived storage.
-- `TRef<T>` does **not** affect retain count.
-- Think of `TRef<T>` as a raw pointer with stronger semantics:
-  - the pointer is logically non-null
-  - the target is a Reflex retainable object
-  - callers must retain or store into an owning reference type if they need to guarantee lifetime
-- `TRef<T>` is therefore commonly used:
-  - as the return type of factory-style `Create` / `New` APIs
-  - as a function argument when the API contract implies the receiver may retain it if needed
-- Do not describe `TRef` as owning.
-- Do not infer that returning `TRef` extends lifetime.
-- `TRef` is pointer-sized and is intended to be cheap to pass around.
-
-### `Reflex::Reference`
-
-- `Reference<T>` is the other primary Reflex smart-pointer type, and it is the strong owning/retaining one.
-- `Reference<T>` increments retain count on construction/assignment and decrements it on destruction/clear.
-- Unlike COM-style conventions, Reflex objects are created with a retain count of `0`, so `Reference<T>` has straightforward paired retain/release behavior.
-- When code needs to keep an object alive beyond an immediate expression or callback, `Reference<T>` is typically the right tool.
-- If you need to turn a `TRef<T>` into an owning reference, use `Reference<T>`.
-
-### `WeakRef`
-
-- `Reflex::Detail::WeakRef<T>` is the weak-reference mechanism for retainable Reflex objects.
-- `WeakRef` should be used sparingly.
-- In client-side application code, `WeakRef` is almost never needed.
-- `WeakRef` is typically a library/framework-internals tool for event systems, object graphs, and lifecycle-sensitive infrastructure.
-- Generally, prefer `Reference` for retained ownership.
-
-
-## Repeated Misunderstandings
-
-- `TRef` is non-owning. `Reference` is owning/retaining.
-- `include/` is the best first source of truth for meaning; `src/reflex_ext/` is usually the best place to confirm intended real-world usage.
-- `src/reflex/` often explains how something works internally, but should not be the default source for deciding how higher-level code is meant to use an API.
-- If a symbol is unclear, search the generated manual by documented `Path` and then inspect the corresponding header.
-
+- Match the reference type to ownership: use `Reference<T>` for retained storage. Incorrect ownership can cause leaks or premature destruction; in particular, do not return a newly created object through a `TRef<T>` signature via a temporary `Reference<T>`.
+- Do not include individual reflex headers in standard project templates; the framework API is already available.
+- Keep `ArrayView` and string views within the lifetime of their source data.
+- `ArrayView::size` is not `Array::GetSize`; use the appropriate API for the type in hand.
 
 ## Debugging
 
-### Logging
+- Use the project namespace's `output` symbol for logging. If it is unavailable in the current scope, use `Reflex::File::output`.
+- Debug builds write runtime output to `reflex_log.txt` and leak reports to `reflex_leaks.txt` in the project folder.
+- For automated window screenshots, use `Reflex::GLX::CaptureWindow`; see the documentation for a working example.
+- For autonomous UI-app testing, the C++ App, C++ Audio Plugin, and ReflexVm App debug templates support `--auto-quit <seconds>` (for example, `--auto-quit 0.5`). It closes the app through its normal quit path after the requested duration, allowing agents to launch and verify UI apps without UI interaction.
+- For autonomous assertion debugging, use `--terminate-on-assert`. An assertion then flushes its message and any available stack trace to `reflex_log.txt` before terminating with exit code 1, rather than waiting at a debug break.
+- When a supporting template's UI launcher cannot pass command-line arguments, create `reflex_cmdline.json` in the project directory before launch. It contains a JSON argument object, for example `{ "auto-quit": 0.5, "terminate-on-assert": true }`; the template reads and deletes this one-shot request at startup. The file takes the place of the normal command line for agent-option parsing.
+- See `code/entry.cpp`, `System::App::OnStart`, in the C++ App, C++ Audio Plugin, and ReflexVm App templates for command-line parsing, automatic exit, and the installed `OnDebugBreak` handler.
 
-- In debug builds, Reflex writes debug log output to `reflex_log.txt` in the project folder.
-- If memory leaks are detected, they are written separately to `reflex_leaks.txt`.
-- Check these files when investigating runtime warnings or errors, including issues such as stylesheet compilation failures.
+## Resources and Hot Reload
 
-### Visual Verification
-
-- For automated window capture and saving to PNG for verification, see the docs for `Reflex::GLX::CaptureWindow`
+- Template builds run `reflex build-resources` automatically. It compiles `resources.xml` into `code/resources.h` and `code/resources.cpp`; edit the XML and source resources, not generated output.
+- For Xcode builds, disable **User Script Sandboxing** so the resource build phase can write generated files into the project directory.
+- In debug Bootstrap maps `:res:<subdomain>/...` paths to the local `resources/` folder, which enables resource (for example, stylesheet) hot reload. Embedded resources are used when local files are unavailable, including release builds.
+- If you rename the project/resource namespace, keep the resource subdomain aligned in the root element of `resources.xml`, the `K32("...")` argument to `Bootstrap::StartApp` in `code/entry.cpp`, and every `:res:<subdomain>/...` path.

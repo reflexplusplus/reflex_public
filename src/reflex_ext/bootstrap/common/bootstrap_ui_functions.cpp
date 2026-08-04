@@ -142,23 +142,20 @@ Reflex::TRef <Reflex::Data::PropertySet> Reflex::Bootstrap::Detail::CreateStyles
 {
 	constexpr Key32 kmobile = K32("mobile");
 
-	constexpr Key32 kLightDark[] = { K32("light"), K32("dark") };
-
 	constexpr Key32 kOperatingSystems[System::kNumPlatform] = { K32("windows"), K32("macos"), K32("linux"), K32("android"), K32("ios"), K32("webasm") };
 
 	const Key32 kEnvironments[System::kNumEnvironmentType] = { kNullKey, kNullKey, GLX::kIsMobile ? kmobile : K32("desktop"), kmobile, K32("plugin") };
 
 	auto options = New<Data::PropertySet>();
 
-	Data::SetBool(options, kOperatingSystems[System::kPlatform], true);
+	Data::SetKey32(options, K32("platform"), kOperatingSystems[System::kPlatform]);
 
-	Data::SetBool(options, kEnvironments[System::kEnvironmentType], true);
+	Data::SetKey32(options, K32("environment"), kEnvironments[System::kEnvironmentType]);
 
 	Data::SetFloat32(options, "screen_width", ToFloat32(screen_size.w));
-
 	Data::SetFloat32(options, "screen_height", ToFloat32(screen_size.h));
 
-	Data::SetBool(options, kLightDark[dark_theme], true);	
+	Data::SetKey32(options, K32("theme"), dark_theme ? K32("dark") : K32("light"));
 
 	Data::SetFloat32(options, "font_scale", font_scale);
 

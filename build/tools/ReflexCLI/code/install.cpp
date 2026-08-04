@@ -1,6 +1,11 @@
 #include "tasks.h"
 #include "reflex_ext/async/http.h"
 
+#if defined(REFLEX_OS_WINDOWS)
+#define WIN32_LEAN_AND_MEAN
+#include <windows.h>
+#undef GetEnvironmentVariable
+#endif
 
 
 using namespace Reflex;
@@ -12,6 +17,165 @@ namespace CLI = Bootstrap::CLI;
 constexpr CString::View kReleasesApiUrl = "https://reflexplusplus.dev/api/releases/reflex_public";
 constexpr CString::View kCoreFilesLabel = "core files";
 constexpr CString::View kUnexpectedApiResponse = "unexpected api response";
+
+constexpr WString::View kReflexRepositoryNames[] = { L"reflex", L"reflex_public", L"reflex_private" };
+
+bool IsReflexRepositoryPath(WString::View path)
+{
+	auto t1 = File::CorrectStrokes(path);
+
+	auto t2 = Split(t1, File::kPathDelimiter);
+
+	for (auto i : kReflexRepositoryNames)
+	{
+		if (Search<CaseInsensitive>(t2, i)) return true;
+	}
+
+	return false;
+}
+
+#if defined(REFLEX_OS_MACOS)
+WString SetPathImpl(WString::View reflex_path)
+{
+	static constexpr WString::View kExportPath = L"export PATH=";
+
+	auto IsPathExport = [](WString::View line)
+	{
+		const WString::View paths[2] = { kExportPath, L"PATH=" };
+
+		auto trimmed = Trim(line);
+
+		for (auto & i : paths)
+		{
+			if (Left<true>(trimmed, i.size) == i) return true;
+		}
+
+		return false;
+	};
+
+	auto home = File::CorrectTrailingStroke(System::GetEnvironmentVariable(L"HOME"));
+	auto shell = System::GetEnvironmentVariable(L"SHELL");
+
+	if (!home) CLI::ThrowError("HOME environment variable is not set");
+
+	WString profile_path;
+
+	switch (MakeKey32(File::SplitFilename(shell).b))
+	{
+	case K32("zsh"):
+		profile_path = Join(home, L".zshrc");
+		break;
+
+	case K32("bash"):
+		profile_path = Join(home, L".bash_profile");
+		break;
+
+	default:
+		profile_path = Join(home, L".profile");
+	}
+
+	Data::Archive output;
+
+	if (System::Exists(profile_path))
+	{
+		auto source = File::Open(profile_path);
+		Data::Archive::View input = source;
+		WString line;
+
+		while (Data::ReadLine(input, line))
+		{
+			if (!(IsPathExport(line) && IsReflexRepositoryPath(line)))
+			{
+				Data::WriteLine(output, line);
+			}
+		}
+	}
+
+	auto cli_path = Join(reflex_path, L"bin/tools/macos");
+
+	Data::WriteLine(output, Join(kExportPath, WChar(kDoubleQuote), cli_path, L":$PATH", WChar(kDoubleQuote)));
+
+	if (!File::Save(profile_path, output)) ThrowError("failed to update shell profile", profile_path);
+
+	return cli_path;
+}
+#elif defined(REFLEX_OS_WINDOWS)
+WString ReadWindowsUserPath(HKEY key)
+{
+	DWORD type = 0;
+	DWORD size = 0;
+	DWORD flags = RRF_RT_REG_SZ | RRF_RT_REG_EXPAND_SZ | RRF_NOEXPAND;
+
+	auto result = RegGetValueW(key, nullptr, L"Path", flags, &type, nullptr, &size);
+
+	if (result == ERROR_FILE_NOT_FOUND) return {};
+
+	if (result == ERROR_SUCCESS /*&& (type == REG_SZ || type == REG_EXPAND_SZ)*/)
+	{
+		WString value(size / sizeof(WChar));
+
+		result = RegGetValueW(key, nullptr, L"Path", flags, &type, Reinterpret<BYTE>(value.GetData()), &size);
+
+		if (result == ERROR_SUCCESS)
+		{
+			if (UInt length = size / sizeof(WChar))
+			{
+				value.SetSize(length - 1);
+			}
+			else
+			{
+				value.Clear();
+			}
+
+			return value;
+		}
+	}
+
+	CLI::ThrowError("failed to read user PATH");
+
+	return {};
+}
+
+WString SetPathImpl(WString::View reflex_path)
+{
+	HKEY key = nullptr;
+
+	if (RegCreateKeyExW(HKEY_CURRENT_USER, L"Environment", 0, nullptr, 0, KEY_QUERY_VALUE | KEY_SET_VALUE, nullptr, &key, nullptr) != ERROR_SUCCESS)
+	{
+		CLI::ThrowError("failed to open user environment settings");
+	}
+
+	auto path = ReadWindowsUserPath(key);
+
+	Array <WString> entries;
+
+	for (auto & raw : Split(path, L';'))
+	{
+		auto entry = Trim(raw);
+
+		if (entry && !IsReflexRepositoryPath(entry)) entries.Push(entry);
+	}
+
+	entries.Push(Join(Replace(reflex_path, System::kPathDelimiter, L'\\'), L"bin\\tools\\win"));
+
+	auto updated_path = Merge(entries, L';');
+
+	auto size = DWORD((updated_path.GetSize() + 1) * sizeof(WChar));
+
+	if (RegSetValueExW(key, L"Path", 0, REG_SZ, Reinterpret<const BYTE>(updated_path.GetData()), size) != ERROR_SUCCESS)
+	{
+		RegCloseKey(key);
+		CLI::ThrowError("failed to update user PATH");
+	}
+
+	RegCloseKey(key);
+
+	DWORD_PTR unused;
+	SendMessageTimeoutW(HWND_BROADCAST, WM_SETTINGCHANGE, 0, reinterpret_cast<LPARAM>(L"Environment"), SMTO_ABORTIFHUNG, 5000, &unused);
+
+	return entries.GetLast();
+}
+#endif
 
 void WaitForProcess(CString::View label, const WString & process_path, ArrayView <WString> args)
 {
@@ -600,6 +764,23 @@ void ReflexCLI::GetVersion(System::FileHandle & std_out)
 	else
 	{
 		CLI::ThrowError("version info not found");
+	}
+}
+
+void ReflexCLI::SetPath(const WString & path, System::FileHandle & std_out)
+{
+	auto reflex_path = File::CorrectTrailingStroke(path);
+
+	if (System::Exists(GetReflexExecutablePath(reflex_path)))
+	{
+		auto cli_path = SetPathImpl(reflex_path);
+
+		File::WriteLine(std_out, Join(L"PATH updated to ", cli_path));
+		File::WriteLine(std_out, "Restart your terminal session for the change to take effect.");
+	}
+	else
+	{
+		ThrowError("reflex executable not found", reflex_path);
 	}
 }
 

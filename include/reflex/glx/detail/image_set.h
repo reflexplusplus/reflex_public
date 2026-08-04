@@ -6,7 +6,7 @@
 
 
 //
-//De
+//Detail
 
 REFLEX_NS(Reflex::GLX::Detail)
 
@@ -22,7 +22,7 @@ void SetImage(GLX::Object & object, Key32 id, ConstTRef <System::Renderer::Canva
 
 void SetImage(GLX::Object & object, Key32 id, ConstTRef <Graphic> graphic, Size content_size);
 
-void ClearImage(GLX::Object & object, Key32 id);
+void UnsetImage(GLX::Object & object, Key32 id);
 
 REFLEX_END
 
@@ -73,3 +73,12 @@ private:
 	Array <Frame> m_frames;
 
 };
+
+
+
+
+REFLEX_NS(Reflex::GLX::Detail)
+
+inline void ClearImage(GLX::Object & object, Key32 id) { UnsetImage(object, id); }
+
+REFLEX_END

@@ -61,6 +61,8 @@ namespace Reflex::System
 
 	WString GetExecutablePath();
 
+	WString GetEnvironmentVariable(const WString & variable);
+
 
 	WString GetCurrentDirectory();
 
@@ -102,11 +104,26 @@ namespace Reflex::System
 
 	bool IsDebuggerPresent();
 
-	void DebugLog(bool brk, const char * msg);
+}
 
-	void Log(const char * string);
 
-	extern FunctionPointer <void(const char * msg)> g_on_debug_break;
+
+
+//
+//Tertiary API
+
+namespace Reflex::System::Detail
+{
+
+	void Log(const char * msg);
+
+
+	void EnumerateStackTrace(void * client, FunctionPointer<void(void *, UInt frame, const void * address, const char * symbol)> callback);
+
+	extern FunctionPointer <void(const char * msg)> DebugBreak;
+
+
+	[[noreturn]] void Terminate(Int32 exit_code);
 
 }
 
@@ -128,5 +145,7 @@ inline bool Reflex::System::GetFileAttributes(const WString & path, Tuple <UInt6
 }
 
 #if (!REFLEX_DEBUG)
-inline void Reflex::System::DebugLog(bool brk, const char * msg) {}
+inline void Reflex::System::Detail::EnumerateStackTrace(void * client, FunctionPointer<void(void *, UInt frame, const void * address, const char * symbol)> callback)
+{
+}
 #endif

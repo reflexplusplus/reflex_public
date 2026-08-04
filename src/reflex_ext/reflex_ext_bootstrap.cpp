@@ -1,5 +1,6 @@
 
 #include "bootstrap/common/bootstrap_global.cpp"
+#include "bootstrap/common/bootstrap_functions.cpp"
 
 #if defined(REFLEX_BOOTSTRAP_TYPE_CONSOLE_APP)
 #include "bootstrap/bootstrap_console_app.cpp"

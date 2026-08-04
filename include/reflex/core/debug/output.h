@@ -39,7 +39,9 @@ public:
 
 	//setup
 
-	static void SetOutputFile(TRef <System::FileHandle> logfile);
+	static void SetLogFile(TRef <System::FileHandle> logfile);
+
+	static TRef <System::FileHandle> GetLogFile();
 
 	static void Disable();	//disables capture of logs to queue
 

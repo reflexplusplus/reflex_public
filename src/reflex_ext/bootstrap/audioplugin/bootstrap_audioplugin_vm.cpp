@@ -3,7 +3,7 @@
 
 
 
-//const VM::Module Reflex::Bootstrap::gView(K32("Control"), VM::kContextFlagUi, [](VM::Compiler::State & cstate, UInt8 contextflags, Object & object)
+//const VM::Module Reflex::Bootstrap::gView(K32("Control"), VM::kContextFlagUi, [](VM::Compiler::Context & cstate, UInt8 contextflags, Object & object)
 //{
 //	cstate.Instantiate(GLXVM::gGLX);
 //
@@ -11,8 +11,8 @@
 //
 //	auto & bindings = cstate.bindings;
 //
-//	auto void_t = bindings.void_t;
-//	auto int32_t = bindings.int32_t;
+//	auto void_t = bindings.builtins.void_t;
+//	auto int32_t = bindings.builtins.int32_t;
 //	auto audioplugin_t = VM::GetType<Bootstrap::AudioPlugin>(bindings);
 //
 //	if (audioplugin_t)	//for documentation

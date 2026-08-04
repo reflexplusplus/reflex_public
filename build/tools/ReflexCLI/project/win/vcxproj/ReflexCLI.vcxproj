@@ -102,7 +102,10 @@
   <ItemGroup>
     <ClCompile Include="..\..\..\..\..\..\src\reflex_ext\reflex_ext_async.cpp" />
     <ClCompile Include="..\..\..\..\..\..\src\reflex_ext\reflex_ext_bootstrap.cpp" />
+    <ClCompile Include="..\..\..\..\..\..\src\reflex_ext\reflex_ext_data.cpp" />
     <ClCompile Include="..\..\..\..\..\..\src\reflex_ext\reflex_ext_file.cpp" />
+    <ClCompile Include="..\..\..\code\doc.cpp" />
+    <ClCompile Include="..\..\..\code\documentation.cpp" />
     <ClCompile Include="..\..\..\code\entry.cpp" />
     <ClCompile Include="..\..\..\code\install.cpp" />
     <ClCompile Include="..\..\..\code\plist_builder.cpp">

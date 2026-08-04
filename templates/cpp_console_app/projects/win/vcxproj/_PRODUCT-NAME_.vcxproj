@@ -37,11 +37,11 @@
 	</ImportGroup>
 	<ImportGroup Label="PropertySheets">
 		<Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-		<Import Project="Paths.props" />
+		<Import Project="..\Paths.props" />
 	</ImportGroup>
 	<PropertyGroup>
 		<IntDir>$(Configuration)\$(Platform)\$(ProjectName)\</IntDir>
-		<TargetName>$(SolutionName)</TargetName>
+		<TargetName>_PRODUCT-NAME_</TargetName>
 		<OutDir>$(OUTPUT)\$(Configuration)\$(Platform)\$(ProjectName)\</OutDir>
 		<IncludePath>$(REFLEX_PATH)\include;$(IncludePath)</IncludePath>
 	</PropertyGroup>
@@ -65,7 +65,7 @@
 			<GenerateDebugInformation>true</GenerateDebugInformation>
 		</Link>
 		<PreBuildEvent>
-		  <Command>"$(REFLEX_PATH)/bin/tools/win/reflex.exe" build-resources --path "$(SolutionDir)..\..\resources.xml"</Command>
+		  <Command>"$(REFLEX_PATH)/bin/tools/win/reflex.exe" build-resources --path "$(ProjectDir)..\..\..\resources.xml"</Command>
 		</PreBuildEvent>
 	</ItemDefinitionGroup>
 	<ItemDefinitionGroup Condition="'$(Configuration)'=='Release'">

@@ -118,6 +118,8 @@ public:
 
 	bool DataReleased() const;
 
+	bool IsDestructing() const;
+
 
 	TRef <Object> GetBase();												//for REFLEX_OBJECT_EX (workaround for Android studio, using BASE::SetOnHeap doesnt work)
 
@@ -352,4 +354,9 @@ REFLEX_INLINE bool Reflex::Object::DataReleased() const
 #else
 	return m_released; 
 #endif
+}
+
+REFLEX_INLINE bool Reflex::Object::IsDestructing() const
+{
+	return m_released & 0x80;
 }

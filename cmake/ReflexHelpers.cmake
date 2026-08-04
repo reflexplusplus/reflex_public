@@ -255,6 +255,20 @@ endfunction()
 
 
 # =========================================================
+# Internal: derive a reverse-DNS-safe identifier segment
+# =========================================================
+# Mirrors the CLI's PackageIdentifier generator: underscores to hyphens,
+# drop anything but alphanumerics and hyphens, lowercase.
+
+function(_reflex_sanitize_id output_var value)
+    string(REPLACE "_" "-" _s "${value}")
+    string(REGEX REPLACE "[^A-Za-z0-9-]" "" _s "${_s}")
+    string(TOLOWER "${_s}" _s)
+    set(${output_var} "${_s}" PARENT_SCOPE)
+endfunction()
+
+
+# =========================================================
 # Internal: resolve package identifier
 # =========================================================
 
@@ -262,8 +276,8 @@ function(_reflex_resolve_package_id output_var vendor name package_id_vendor pac
     if(package_id_vendor AND package_id_product)
         set(_package_id "com.${package_id_vendor}.${package_id_product}")
     else()
-        string(REPLACE " " "" _vendor_id "${vendor}")
-        string(REPLACE " " "" _name_id "${name}")
+        _reflex_sanitize_id(_vendor_id "${vendor}")
+        _reflex_sanitize_id(_name_id "${name}")
         set(_package_id "com.${_vendor_id}.${_name_id}")
     endif()
 
@@ -513,6 +527,14 @@ endfunction()
 #   )
 
 function(reflex_add_vm_app target)
+    # The public SDK ships without the VM, so fail here with an explanation
+    # rather than deep inside the link step on a missing Reflex::Vm target.
+    if(NOT TARGET Reflex::Vm)
+        message(FATAL_ERROR
+            "reflex_add_vm_app(${target}) requires the Reflex VM, which is not "
+            "present in this SDK distribution.")
+    endif()
+
     cmake_parse_arguments(A "" "NAME;VENDOR;VERSION;PACKAGE_ID_VENDOR;PACKAGE_ID_PRODUCT" "SOURCES" ${ARGN})
 
     if(NOT A_VERSION)
@@ -661,6 +683,20 @@ function(_reflex_generate_plist output_var target name vendor version bundle_typ
             "(${_tool_target}):\n${_out}${_err}")
     endif()
     set(${output_var} "${_plist_path}" PARENT_SCOPE)
+endfunction()
+
+
+# =========================================================
+# Internal: sign a macOS bundle after build
+# =========================================================
+function(_reflex_codesign_bundle target label)
+    if(NOT APPLE OR CMAKE_SYSTEM_NAME STREQUAL "iOS" OR NOT REFLEX_CODESIGN)
+        return()
+    endif()
+    add_custom_command(TARGET ${target} POST_BUILD
+        COMMAND codesign --force --sign "${REFLEX_CODESIGN_IDENTITY}" "$<TARGET_BUNDLE_DIR:${target}>"
+        COMMENT "Signing ${label}"
+    )
 endfunction()
 
 
@@ -1087,16 +1123,10 @@ function(_reflex_add_plugin_format base_target format sources name vendor versio
             )
         endif()
 
-        # Ad-hoc sign the .appex so macOS AU host registration picks up dev
-        # builds. Skipped on iOS: Xcode signs the .appex with the dev team as
-        # part of the app-extension product type, and re-signing ad-hoc
-        # afterwards invalidates the container .app's signature.
-        if(NOT CMAKE_SYSTEM_NAME STREQUAL "iOS")
-            add_custom_command(TARGET ${_t} POST_BUILD
-                COMMAND codesign --force --sign - "$<TARGET_BUNDLE_DIR:${_t}>"
-                COMMENT "Ad-hoc signing AUv3 extension"
-            )
-        endif()
+        # Skipped on iOS: Xcode signs the .appex with the dev team as part of
+        # the app-extension product type, and re-signing afterwards invalidates
+        # the container .app's signature.
+        _reflex_codesign_bundle(${_t} "AUv3 extension")
 
     else()
         message(WARNING "Reflex: unknown plugin format '${format}' — skipped")
@@ -1131,6 +1161,11 @@ function(_reflex_add_plugin_format base_target format sources name vendor versio
     get_filename_component(_resources_xml
         "${CMAKE_CURRENT_SOURCE_DIR}/resources.xml" ABSOLUTE)
     _reflex_add_resource_build(${_t} "${_resources_xml}")
+
+    # After every step that writes into the bundle, and before the copy below.
+    if(NOT format STREQUAL "AUv3")
+        _reflex_codesign_bundle(${_t} "${format}")
+    endif()
 
     # Optional: copy built plugins to user plugin folders after build
     if(REFLEX_COPY_PLUGINS_AFTER_BUILD AND APPLE AND NOT format STREQUAL "Standalone")

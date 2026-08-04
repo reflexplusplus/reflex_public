@@ -35,6 +35,11 @@ namespace ReflexCLI
 	bool SaveGeneratedFile(const WString & path, Data::Archive::View data);
 
 
+	WString StripValue(WString value, char allowed_dash);
+
+	WString GetProjectFolderName(const TemplateDefinition & tmpl, ArrayView <Pair<CString>> inputs);
+
+
 	void ThrowError(CString::View msg, CString::View error);
 
 	void ThrowError(CString::View msg, WString::View error);
@@ -178,6 +183,27 @@ inline ReflexCLI::TemplateDefinition ReflexCLI::DecodeTemplate(const Data::Prope
 	return tmpl;
 }
 
+inline Reflex::WString ReflexCLI::GetProjectFolderName(const TemplateDefinition & tmpl, ArrayView <Pair<CString>> inputs)
+{
+	for (auto & token : tmpl.strings)
+	{
+		if (token.token == "PRODUCT-NAME")
+		{
+			for (auto & input : inputs)
+			{
+				if (input.a == token.id)
+				{
+					auto name = ToWString(input.b);
+
+					return Lowercase(StripValue(Replace(name, L' ', L'_'), '-'));
+				}
+			}
+		}
+	}
+
+	return {};
+}
+
 inline Reflex::WString ReflexCLI::GetReflexPath()
 {
 	constexpr WString::View kRepositories[] = { L"reflex_public", L"reflex" };
@@ -196,8 +222,6 @@ inline Reflex::WString ReflexCLI::GetReflexPath()
 		}
 	}
 
-	REFLEX_ASSERT(false);
-
 	return {};
 }
 
@@ -213,4 +237,28 @@ inline Reflex::WString ReflexCLI::GetReflexExecutablePath(WString::View reflex_p
 	REFLEX_ASSERT(false);
 	return {};
 #endif
+}
+
+inline Reflex::WString ReflexCLI::StripValue(WString value, char allowed_dash)
+{
+	auto idx = value.GetSize();
+
+	while (idx--)
+	{
+		auto w = value[idx];
+
+		if (w < 255)
+		{
+			auto c = char(w);
+
+			if (!(Data::Detail::IsAlphaNumericCharacter(c) || c == allowed_dash))
+			{
+				value.Remove(idx);
+			}
+		}
+	}
+
+	if (value.Empty()) Bootstrap::CLI::ThrowError("strip characters resulting in empty string");
+
+	return value;
 }

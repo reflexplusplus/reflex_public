@@ -9,7 +9,7 @@ struct VmViewWrapperImpl : public VmViewWrapper
 {
 	VmViewWrapperImpl(App & app, const WString::View & path, const ArrayView < Tuple <CString::View, TRef<Reflex::Object>> > & externals, UInt8 flags, const ArrayView <ConstTRef<VM::Module>> & modules)
 		: VmViewWrapper(app),
-		m_monitor(CreateScriptObject(path, modules, externals, [this](VM::Context & context, GLX::Object & object)
+		m_monitor(CreateScriptObject(path, flags, modules, externals, [this](VM::Context & context, GLX::Object & object)
 		{
 			auto chunk = Data::ToBinary(Cast<Data::iStreamable>(*this));
 
@@ -89,9 +89,7 @@ struct VmViewWrapperImpl : public VmViewWrapper
 
 			if (auto archiveobject_t = VM::GetType<Data::ArchiveObject>(bindings))
 			{
-				auto onrestore = VM::QueryFunction(program, { VM::kGlobal, MakeKey32("OnRestore") }, bindings->void_t, { archiveobject_t });
-
-				if (onrestore)
+				if (auto onrestore = VM::QueryFunction(program, { VM::kGlobal, K32("OnRestore") }, bindings->void_t, { archiveobject_t }))
 				{
 					auto binary = AutoRelease(New<Data::ArchiveObject>(stream));
 
@@ -105,7 +103,7 @@ struct VmViewWrapperImpl : public VmViewWrapper
 		OnResetState(context);
 	}
 
-	virtual void OnStoreState(Data::Archive & stream) const override
+	void OnStoreState(Data::Archive & stream) const override
 	{
 		auto program = m_context->program;
 
@@ -113,9 +111,7 @@ struct VmViewWrapperImpl : public VmViewWrapper
 
 		if (auto archiveobject_t = VM::GetType<Data::ArchiveObject>(bindings))
 		{
-			auto onstore = VM::QueryFunction(program, { VM::kGlobal, K32("OnStore") }, archiveobject_t, {});
-
-			if (onstore)
+			if (auto onstore = VM::QueryFunction(program, { VM::kGlobal, K32("OnStore") }, archiveobject_t, {}))
 			{
 				auto chunkref = AutoRelease(VM::CallReturningObject<Data::ArchiveObject>(m_context, *onstore));
 
@@ -130,7 +126,7 @@ struct VmViewWrapperImpl : public VmViewWrapper
 		}
 	}
 	
-	virtual bool OnEvent(GLX::Object & src, GLX::Event & e) override
+	bool OnEvent(GLX::Object & src, GLX::Event & e) override
 	{
 		if (e.id == GLX::kKeyDown)
 		{
@@ -152,7 +148,7 @@ struct VmViewWrapperImpl : public VmViewWrapper
 		return GLX::Object::OnEvent(src, e);
 	}
 
-	virtual void Rebuild() override
+	void Rebuild() override
 	{
 		File::ResourcePool::Lock lock(global->resourcepool);
 
