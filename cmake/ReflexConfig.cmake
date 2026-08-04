@@ -5,7 +5,6 @@
 #   Reflex::Common             ReflexCommon
 #   Reflex::CommonUi           ReflexCommonUi
 #   Reflex::Vm                 ReflexCommonVm
-#   Reflex::VmUi               ReflexCommonVmUi
 #   Reflex::TargetApp          ReflexTargetApp
 #   Reflex::TargetAudioApp     ReflexTargetAudioApp
 #   Reflex::TargetConsole      ReflexTargetConsole
@@ -45,6 +44,10 @@ endif()
 # Platform detection + library path resolution
 # =========================================================
 
+# Cleared rather than defaulted, so a nested find_package against a different
+# SDK root does not inherit the enclosing scope's probe directories.
+unset(_REFLEX_LIB_PROBE_DIRS)
+
 if(WIN32)
 
     set(_REFLEX_PLATFORM    "win")
@@ -71,6 +74,17 @@ elseif(APPLE)
 
     if(CMAKE_SYSTEM_NAME STREQUAL "iOS")
         set(_REFLEX_PLATFORM "ios")
+        # Only Xcode substitutes $(EFFECTIVE_PLATFORM_NAME); under any other
+        # generator the link paths below reach the build system verbatim and the
+        # first link fails on a path containing a literal '$('. Refuse here
+        # rather than emitting a project that cannot build.
+        if(NOT CMAKE_GENERATOR STREQUAL "Xcode")
+            message(FATAL_ERROR
+                "Reflex: iOS requires the Xcode generator (got '${CMAKE_GENERATOR}').\n"
+                "The iOS libraries are laid out per-sdk and are selected with Xcode's "
+                "$(EFFECTIVE_PLATFORM_NAME), which other generators do not substitute.\n"
+                "Re-run with -G Xcode.")
+        endif()
         # iOS libs are built per-config-per-sdk: bin/lib/ios/<Config>-<sdk>.
         # Use Xcode's native $(EFFECTIVE_PLATFORM_NAME) (-iphoneos /
         # -iphonesimulator) so the right slice is linked for the active
@@ -78,6 +92,14 @@ elseif(APPLE)
         # device <-> simulator in Xcode.
         set(_REFLEX_LIB_DIR_DBG "${REFLEX_ROOT}/bin/lib/ios/Debug$(EFFECTIVE_PLATFORM_NAME)")
         set(_REFLEX_LIB_DIR_REL "${REFLEX_ROOT}/bin/lib/ios/Release$(EFFECTIVE_PLATFORM_NAME)")
+        # $(EFFECTIVE_PLATFORM_NAME) is substituted by Xcode at build time, so the
+        # paths above never resolve during configuration. Probe the concrete
+        # per-sdk directories instead when testing whether a library exists.
+        set(_REFLEX_LIB_PROBE_DIRS
+            "${REFLEX_ROOT}/bin/lib/ios/Debug-iphoneos"
+            "${REFLEX_ROOT}/bin/lib/ios/Debug-iphonesimulator"
+            "${REFLEX_ROOT}/bin/lib/ios/Release-iphoneos"
+            "${REFLEX_ROOT}/bin/lib/ios/Release-iphonesimulator")
     else()
         set(_REFLEX_PLATFORM "macos")
         set(_REFLEX_LIB_DIR_DBG "${REFLEX_ROOT}/bin/lib/macos/Debug")
@@ -117,6 +139,24 @@ else()
     message(FATAL_ERROR "Reflex: unsupported platform '${CMAKE_SYSTEM_NAME}'")
 endif()
 
+# Directories to test for the presence of a library. These are the link paths
+# themselves on every platform whose link paths are fully resolved at configure
+# time; platforms using generator-time substitution set this above.
+if(NOT _REFLEX_LIB_PROBE_DIRS)
+    set(_REFLEX_LIB_PROBE_DIRS "${_REFLEX_LIB_DIR_DBG}" "${_REFLEX_LIB_DIR_REL}")
+endif()
+
+# Sets <out_var> to TRUE when <name> is present in any probe directory.
+function(_reflex_lib_exists out_var name)
+    foreach(_dir IN LISTS _REFLEX_LIB_PROBE_DIRS)
+        if(EXISTS "${_dir}/${_REFLEX_LIB_PREFIX}${name}${_REFLEX_LIB_SUFFIX}")
+            set(${out_var} TRUE PARENT_SCOPE)
+            return()
+        endif()
+    endforeach()
+    set(${out_var} FALSE PARENT_SCOPE)
+endfunction()
+
 # =========================================================
 # Fetch prebuilt binaries (exported consumer repos)
 # =========================================================
@@ -142,7 +182,8 @@ function(_reflex_import_lib alias name)
     # only define the target when the library is actually present. Consumers can
     # test with if(TARGET Reflex::Vm); defining it unconditionally would instead
     # fail much later with a confusing missing-input link error.
-    if(NOT EXISTS "${_dbg_lib}" AND NOT EXISTS "${_rel_lib}")
+    _reflex_lib_exists(_present "${name}")
+    if(NOT _present)
         return()
     endif()
 
@@ -161,9 +202,8 @@ endfunction()
 # =========================================================
 
 _reflex_import_lib(Common             ReflexCommon)
-_reflex_import_lib(CommonUi           ReflexCommonUI)
+_reflex_import_lib(CommonUi           ReflexCommonUi)
 _reflex_import_lib(Vm                 ReflexCommonVm)
-_reflex_import_lib(VmUi               ReflexCommonVmUI)
 
 # =========================================================
 # Target libraries — available on all platforms
@@ -225,16 +265,6 @@ if(EXISTS "${REFLEX_ROOT}/src/reflex/system")
     option(REFLEX_BUILD_TARGETS_FROM_SOURCE "Build Reflex target libs from source" ON)
 else()
     option(REFLEX_BUILD_TARGETS_FROM_SOURCE "Build Reflex target libs from source" OFF)
-endif()
-
-# =========================================================
-# macOS code signing
-# =========================================================
-
-# Linker ad-hoc signatures seal no resources, so strict verification fails and hosts skip the plug-in.
-if(APPLE AND NOT CMAKE_SYSTEM_NAME STREQUAL "iOS")
-    option(REFLEX_CODESIGN "Sign macOS bundles after build" ON)
-    set(REFLEX_CODESIGN_IDENTITY "-" CACHE STRING "codesign identity for macOS bundles ('-' = ad-hoc)")
 endif()
 
 # =========================================================

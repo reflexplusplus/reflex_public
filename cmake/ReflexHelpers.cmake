@@ -318,9 +318,6 @@ function(_reflex_link_optional_vm_libraries target)
     if(TARGET Reflex::Vm)
         target_link_libraries(${target} PRIVATE Reflex::Vm)
     endif()
-    if(TARGET Reflex::VmUi)
-        target_link_libraries(${target} PRIVATE Reflex::VmUi)
-    endif()
 endfunction()
 
 
@@ -683,20 +680,6 @@ function(_reflex_generate_plist output_var target name vendor version bundle_typ
             "(${_tool_target}):\n${_out}${_err}")
     endif()
     set(${output_var} "${_plist_path}" PARENT_SCOPE)
-endfunction()
-
-
-# =========================================================
-# Internal: sign a macOS bundle after build
-# =========================================================
-function(_reflex_codesign_bundle target label)
-    if(NOT APPLE OR CMAKE_SYSTEM_NAME STREQUAL "iOS" OR NOT REFLEX_CODESIGN)
-        return()
-    endif()
-    add_custom_command(TARGET ${target} POST_BUILD
-        COMMAND codesign --force --sign "${REFLEX_CODESIGN_IDENTITY}" "$<TARGET_BUNDLE_DIR:${target}>"
-        COMMENT "Signing ${label}"
-    )
 endfunction()
 
 
@@ -1123,10 +1106,16 @@ function(_reflex_add_plugin_format base_target format sources name vendor versio
             )
         endif()
 
-        # Skipped on iOS: Xcode signs the .appex with the dev team as part of
-        # the app-extension product type, and re-signing afterwards invalidates
-        # the container .app's signature.
-        _reflex_codesign_bundle(${_t} "AUv3 extension")
+        # Ad-hoc sign the .appex so macOS AU host registration picks up dev
+        # builds. Skipped on iOS: Xcode signs the .appex with the dev team as
+        # part of the app-extension product type, and re-signing ad-hoc
+        # afterwards invalidates the container .app's signature.
+        if(NOT CMAKE_SYSTEM_NAME STREQUAL "iOS")
+            add_custom_command(TARGET ${_t} POST_BUILD
+                COMMAND codesign --force --sign - "$<TARGET_BUNDLE_DIR:${_t}>"
+                COMMENT "Ad-hoc signing AUv3 extension"
+            )
+        endif()
 
     else()
         message(WARNING "Reflex: unknown plugin format '${format}' — skipped")
@@ -1147,9 +1136,6 @@ function(_reflex_add_plugin_format base_target format sources name vendor versio
     _reflex_apply_apple_options(${_t})
 
     # Link order matters — higher-level libraries first, dependencies last
-    if(TARGET Reflex::VmUi)
-        target_link_libraries(${_t} PRIVATE Reflex::VmUi)
-    endif()
     if(TARGET Reflex::Vm)
         target_link_libraries(${_t} PRIVATE Reflex::Vm)
     endif()
@@ -1161,11 +1147,6 @@ function(_reflex_add_plugin_format base_target format sources name vendor versio
     get_filename_component(_resources_xml
         "${CMAKE_CURRENT_SOURCE_DIR}/resources.xml" ABSOLUTE)
     _reflex_add_resource_build(${_t} "${_resources_xml}")
-
-    # After every step that writes into the bundle, and before the copy below.
-    if(NOT format STREQUAL "AUv3")
-        _reflex_codesign_bundle(${_t} "${format}")
-    endif()
 
     # Optional: copy built plugins to user plugin folders after build
     if(REFLEX_COPY_PLUGINS_AFTER_BUILD AND APPLE AND NOT format STREQUAL "Standalone")

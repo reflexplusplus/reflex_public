@@ -81,7 +81,7 @@ Reflex::TRef <Reflex::IDE::ResourceGroup> Reflex::Bootstrap::CreateScriptObject(
 
 	state->modules.Append(modules);
 
-	state->modules.Push(GLXVM::gGLX);
+	state->modules.Push(GLXVM::g_glx);
 
 	state->on_create = on_create;
 
@@ -93,13 +93,13 @@ Reflex::TRef <Reflex::IDE::ResourceGroup> Reflex::Bootstrap::CreateScriptObject(
 
 		File::ResourcePool::Lock lock(resourcepool);
 
-		auto prebindings = AutoRelease(VM::Compiler::Context::Create(*compiler, New<VM::Bindings>(state->context_flags)));
+		auto prebindings = Make<VM::Compiler::Context>(New<VM::Bindings>(state->context_flags));
 
 		for (auto & module : state->modules) prebindings->Instantiate(module);
 
 		if (!Detail::RegisterScriptGlobals(prebindings->bindings, state->externals)) return;
 
-		auto self_t = VM::GetType<GLX::Object>(prebindings->bindings);
+		auto self_t = VM::QueryType<GLX::Object>(prebindings->bindings);
 
 		if (!self_t) return;
 
@@ -123,7 +123,7 @@ Reflex::TRef <Reflex::IDE::ResourceGroup> Reflex::Bootstrap::CreateScriptObject(
 
 		if (!vm_program->Status()) return;
 
-		auto vm_context = VM::Context::Create(*vm_program, GLX::Core::desktop->GetContextID());
+		auto vm_context = VM::Context::Create(*vm_program, { .context_id = GLX::Core::desktop->GetContextID() });
 
 		Array < Tuple < CString::View, TRef<Object> > > externals;
 
@@ -135,7 +135,7 @@ Reflex::TRef <Reflex::IDE::ResourceGroup> Reflex::Bootstrap::CreateScriptObject(
 
 		if (!Detail::SetScriptGlobals(*vm_context, externals)) return;
 
-		if (!vm_context->Run(Object::null)) return;
+		if (!vm_context->Run()) return;
 
 		state->self->Detach();
 

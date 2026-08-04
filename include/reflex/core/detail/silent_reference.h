@@ -13,7 +13,7 @@ namespace Reflex::Detail
 
 	template <class TYPE> struct SilentReference;
 
-	template <class auto_t> void SilentRelease(auto_t && objectref);
+	template <class auto_t> void ReleaseSilent(auto_t && objectref);
 
 }
 
@@ -50,7 +50,7 @@ public:
 
 	REFLEX_INLINE ~SilentReference()
 	{
-		SilentRelease(CommonReference<TYPE>::m_object);
+		ReleaseSilent(CommonReference<TYPE>::m_object);
 	}
 };
 
@@ -60,7 +60,7 @@ public:
 //
 //impl
 
-template <class auto_t> REFLEX_INLINE void Reflex::Detail::SilentRelease(auto_t && objectref)
+template <class auto_t> REFLEX_INLINE void Reflex::Detail::ReleaseSilent(auto_t && objectref)
 {
 	auto & object = Deref(objectref);
 

@@ -168,7 +168,7 @@ struct Reflex::System::AudioPlugin::Configuration::Class
 
 	CString vendor, product, version;
 
-	Pair <UInt8> channels_io;	//audio bus channels in/out; NOTE: Logic Pro shows a blank editor for an event processor (aumi) with {0,0} - declare nominal passthrough {2,2}
+	Pair <UInt8> channels_io;
 
 	Pair <bool> midi_io;
 
@@ -178,10 +178,7 @@ struct Reflex::System::AudioPlugin::Configuration::Class
 
 	Category category = kUncategorised;
 
-	bool resizable = false;	//editor window is user-resizable; reported to hosts (can_resize / resize hints) before the editor is lazily created
-
 	bool mpe = false;	//plugin sends/receives MPE (per-note expression via channel rotation); VST2 replies 1 to canDo "MPE" so hosts (e.g. Ableton Live) auto-enable MPE routing
-
 
 
 	//VST2 specific

@@ -43,7 +43,7 @@ struct VmAppDelegate : public App
 
 		externals.Push({ "self", this });
 
-		auto prebindings = AutoRelease(VM::Compiler::Context::Create(*m_compiler, New<VM::Bindings>(VM::kContextFlagMain)));
+		auto prebindings = Make<VM::Compiler::Context>(New<VM::Bindings>(VM::kContextFlagMain));
 
 		prebindings->Instantiate(g_bindings);
 
@@ -89,7 +89,7 @@ struct VmAppDelegate : public App
 		m_onrestore = nullptr;
 
 		{
-			m_context = VM::Context::Create(*program, contextid);
+			m_context = VM::Context::Create(*program, { .context_id = contextid });
 
 			m_context->SetProperty(kNullKey, lock.resourcepool);	//For VM::Thread
 
@@ -97,7 +97,7 @@ struct VmAppDelegate : public App
 
 			if (!Detail::SetScriptGlobals(*m_context, externals)) return;
 
-			if (!m_context->Run(*this)) return;
+			if (!m_context->Run()) return;
 
 			auto bindings = program->bindings;
 
@@ -105,7 +105,7 @@ struct VmAppDelegate : public App
 
 			m_onreset = VM::QueryFunction(program, { VM::kGlobal, K32("OnReset") }, void_t, {});
 
-			if ((m_binaryobject_t = VM::GetType<Data::ArchiveObject>(bindings)))
+			if ((m_binaryobject_t = VM::QueryType<Data::ArchiveObject>(bindings)))
 			{
 				m_onrestore = VM::QueryFunction(program, { VM::kGlobal, K32("OnRestore") }, void_t, { m_binaryobject_t });
 			}
@@ -120,7 +120,7 @@ struct VmAppDelegate : public App
 
 		if (auto onunload = VM::QueryFunction(program, { VM::kGlobal, K32("OnUnload") }, program->bindings->void_t, {}))
 		{
-			VM::CallReturningVoid(m_context, *onunload);
+			VM::Call<void>(m_context, *onunload);
 		}
 	}
 
@@ -128,7 +128,7 @@ struct VmAppDelegate : public App
 	{
 		if (m_onreset)
 		{
-			VM::CallReturningVoid(m_context, *m_onreset);
+			VM::Call<void>(m_context, *m_onreset);
 		}
 	}
 
@@ -138,7 +138,7 @@ struct VmAppDelegate : public App
 		{
 			auto binary = AutoRelease(New<Data::ArchiveObject>(chunk));
 
-			VM::CallReturningVoid(m_context, *m_onrestore, binary.Adr());
+			VM::Call<void>(m_context, *m_onrestore, binary.Adr());
 		}
 		else
 		{
@@ -152,7 +152,7 @@ struct VmAppDelegate : public App
 		
 		if (auto onstore = VM::QueryFunction(program, { VM::kGlobal, K32("OnStore") }, m_binaryobject_t, {}))
 		{
-			auto chunkref = AutoRelease(VM::CallReturningObject<Data::ArchiveObject>(m_context, *onstore));
+			auto chunkref = AutoRelease(VM::Call<Data::ArchiveObject>(m_context, *onstore));
 			
 			Data::Archive::View chunk = chunkref->value;
 
@@ -188,7 +188,8 @@ struct VmAppDelegate : public App
 
 	static void BindVM(VM::Compiler::Context & cstate, UInt8 contextflags);
 
-	
+	using App::Notify;
+
 	
 	Reference <Object> m_vm;
 
@@ -212,17 +213,10 @@ struct VmAppDelegate : public App
 
 void Reflex::Bootstrap::VmAppDelegate::BindVM(VM::Compiler::Context & cstate, UInt8 contextflags)
 {
-	struct AppAccessor : public App
-	{
-		using App::Notify;
-	};
-	
 	auto bindings = cstate.bindings;
 
 	auto void_t = bindings->void_t;
-
 	auto bool_t = bindings->bool_t;
-
 	auto string_t = bindings->string_t;
 
 
@@ -236,13 +230,11 @@ void Reflex::Bootstrap::VmAppDelegate::BindVM(VM::Compiler::Context & cstate, UI
 	VM::Detail::SetTypeFlag(app_t, VM::Type::kFlagExplicitNullable, false);	//prevent script creating instances
 
 
-	//app_t->members.Push(VM_BIND_MEMBER(App, prefs, cstate, propertyset_t)).b.is_const = true;
-
 	VM::AddMethod(bindings, "GetFilename", string_t, { app_t }, [](VM::Context & context)
 	{
-		VM_POP1(VmAppDelegate&);
+		auto app = VM::Pop<VmAppDelegate>(context);
 
-		VM_RTN(New<VM::String>(arg.GetFilename()));
+		VM::Return(context, New<VM::String>(app->GetFilename()));
 	});
 
 
@@ -251,23 +243,23 @@ void Reflex::Bootstrap::VmAppDelegate::BindVM(VM::Compiler::Context & cstate, UI
 
 	VM::AddMethod(bindings, "Reset", void_t, { app_t }, [](VM::Context & context)
 	{
-		VM_POP1(VmAppDelegate&);
+		auto app = VM::Pop<VmAppDelegate>(context);
 
-		arg.session->Reset();
+		app->session->Reset();
 	});
 
 	VM::AddMethod(bindings, "Open", bool_t, { app_t, string_t }, [](VM::Context & context)
 	{
-		VM_POP(VmAppDelegate&,VM::String&);
+		auto [app, filename] = VM::Pop<VmAppDelegate,VM::String>(context);
 			
-		VM_RTN(args.a.Open(args.b.GetView()));
+		VM::Return(context, app->Open(filename->GetView()));
 	});
 
 	VM::AddMethod(bindings, "Save", bool_t, { app_t, string_t }, [](VM::Context & context)
 	{
-		VM_POP(VmAppDelegate&,VM::String&);
-			
-		VM_RTN(args.a.Save(args.b.GetView()));
+		auto [app, filename] = VM::Pop<VmAppDelegate, VM::String>(context);
+
+		VM::Return(context, app->Save(filename->GetView()));
 	});
 
 		
@@ -275,7 +267,11 @@ void Reflex::Bootstrap::VmAppDelegate::BindVM(VM::Compiler::Context & cstate, UI
 
 	app_t->null = [](VM::Context & context, VM::TypeRef type) -> Object &
 	{
-		return context.clientdata;
+		//Instance has no type-correct null object. Context construction needs a
+		//temporary value for the registered global slot before the host can bind it.
+		//SetGlobal replaces this placeholder before Run, and Instance is non-nullable,
+		//so script code cannot explicitly obtain it.
+		return Object::null;
 	};
 
 
@@ -283,9 +279,9 @@ void Reflex::Bootstrap::VmAppDelegate::BindVM(VM::Compiler::Context & cstate, UI
 	{
 		VM::AddMethod(bindings, "Notify", void_t, { app_t, bool_t }, [](VM::Context & context)
 		{
-			VM_POP(VmAppDelegate&,bool);
+			auto [app, edited] = VM::Pop<VmAppDelegate,bool>(context);
 				
-			Cast<AppAccessor>(Cast<App>(args.a))->Notify(args.b);
+			app->Notify(edited);
 		});
 	}
 }
@@ -322,7 +318,7 @@ Reflex::TRef <Reflex::Bootstrap::Global> Reflex::Bootstrap::StartVmApp(System::A
 	return global;
 }
 
-const Reflex::VM::Module Reflex::Bootstrap::VmAppDelegate::g_bindings("Bootstrap::App", { VM::gDataPropertySet }, VM::kContextFlagMain | VM::kContextFlagUi, &VmAppDelegate::BindVM);
+const Reflex::VM::Module Reflex::Bootstrap::VmAppDelegate::g_bindings("Bootstrap::App", { VM::g_data_propertyset }, VM::kContextFlagMain | VM::kContextFlagUi, &VmAppDelegate::BindVM);
 
 //void Reflex::Bootstrap::AudioPlugin::BindVM(VM::Compiler::Context & cstate, UInt8 contextflags, Object & client, const CString::View & self)
 //{

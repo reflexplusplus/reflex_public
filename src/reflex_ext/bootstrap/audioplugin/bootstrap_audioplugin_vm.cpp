@@ -5,7 +5,7 @@
 
 //const VM::Module Reflex::Bootstrap::gView(K32("Control"), VM::kContextFlagUi, [](VM::Compiler::Context & cstate, UInt8 contextflags, Object & object)
 //{
-//	cstate.Instantiate(GLXVM::gGLX);
+//	cstate.Instantiate(GLXVM::g_glx);
 //
 //	cstate.Instantiate(AudioPlugin::gBindings);
 //
@@ -19,7 +19,7 @@
 //	{
 //		VM::AddFunction(bindings, kNullKey, "CreateControl", VM::GetType<GLX::Object>(bindings), { audioplugin_t, int32_t }, [](VM::Context & context)
 //		{
-//			VM_POP(AudioPlugin&, UInt32);
+//			VM::Pop<AudioPlugin,UInt32>(context);
 //
 //			auto values = args.a.GetParameterValues();
 //

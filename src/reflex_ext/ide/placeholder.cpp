@@ -19,7 +19,7 @@ REFLEX_END_INTERNAL
 
 const bool & Reflex::IDE::kIsAwake = g_is_awake;
 
-Reflex::TRef <Reflex::Object> Reflex::IDE::Start(File::ResourcePool & resourcepool, Data::PropertySet & prefs)
+Reflex::Reference <Reflex::Object> Reflex::IDE::Start(File::ResourcePool & resourcepool, Data::PropertySet & prefs)
 {
 	return {};
 }

@@ -75,7 +75,7 @@ struct VmViewWrapperImpl : public VmViewWrapper
 
 		if (auto onreset = VM::QueryFunction(program, { VM::kGlobal, MakeKey32("OnReset") }, program->bindings->void_t, {}))
 		{
-			VM::CallReturningVoid(m_context, *onreset);
+			VM::Call<void>(m_context, *onreset);
 		}
 	}
 	
@@ -87,13 +87,13 @@ struct VmViewWrapperImpl : public VmViewWrapper
 
 			auto bindings = program->bindings;
 
-			if (auto archiveobject_t = VM::GetType<Data::ArchiveObject>(bindings))
+			if (auto archiveobject_t = VM::QueryType<Data::ArchiveObject>(bindings))
 			{
 				if (auto onrestore = VM::QueryFunction(program, { VM::kGlobal, K32("OnRestore") }, bindings->void_t, { archiveobject_t }))
 				{
 					auto binary = AutoRelease(New<Data::ArchiveObject>(stream));
 
-					VM::CallReturningVoid(m_context, *onrestore, binary.Adr());
+					VM::Call<void>(m_context, *onrestore, binary.Adr());
 
 					return;
 				}
@@ -109,11 +109,11 @@ struct VmViewWrapperImpl : public VmViewWrapper
 
 		auto & bindings = program->bindings;
 
-		if (auto archiveobject_t = VM::GetType<Data::ArchiveObject>(bindings))
+		if (auto archiveobject_t = VM::QueryType<Data::ArchiveObject>(bindings))
 		{
 			if (auto onstore = VM::QueryFunction(program, { VM::kGlobal, K32("OnStore") }, archiveobject_t, {}))
 			{
-				auto chunkref = AutoRelease(VM::CallReturningObject<Data::ArchiveObject>(m_context, *onstore));
+				auto chunkref = AutoRelease(VM::Call<Data::ArchiveObject>(m_context, *onstore));
 
 				auto & chunk = chunkref->value;
 

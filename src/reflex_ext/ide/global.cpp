@@ -174,7 +174,7 @@ REFLEX_END_INTERNAL
 
 const bool & Reflex::IDE::kIsAwake = Reflex::IDE::TheGlobal::IsAwake();
 
-Reflex::TRef <Reflex::Object> Reflex::IDE::Start(File::ResourcePool & resourcepool, Data::PropertySet & prefs)
+Reflex::Reference <Reflex::Object> Reflex::IDE::Start(File::ResourcePool & resourcepool, Data::PropertySet & prefs)
 {
 	REFLEX_ASSERT(File::module.IsInitalised());
 	
