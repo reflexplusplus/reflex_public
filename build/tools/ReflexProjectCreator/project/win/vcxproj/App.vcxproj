@@ -22,7 +22,7 @@
   </PropertyGroup>
   <ItemDefinitionGroup>
     <ClCompile>
-      <PreprocessorDefinitions>REFLEX_BOOTSTRAP_TYPE_VM_APP;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>REFLEX_BOOTSTRAP_TYPE_APP;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <FunctionLevelLinking Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</FunctionLevelLinking>
       <FunctionLevelLinking Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</FunctionLevelLinking>
     </ClCompile>
@@ -31,14 +31,15 @@
       <AdditionalDependencies>$(REFLEX_PATH)\bin\lib\win\$(Configuration)\$(Platform)\ReflexTargetApp.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">xcopy /y "$(OutDir)$(TargetName)$(TargetExt)" "$(SolutionDir)\..\..\..\..\..\bin\tools\win\"
-</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">xcopy /y "$(OutDir)$(TargetName)$(TargetExt)" "$(ProjectDir)\..\..\..\..\..\..\bin\tools\win\"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="$(REFLEX_PATH)\src\reflex_ext.cpp" />
+    <ClCompile Include="..\..\..\code\app.cpp" />
     <ClCompile Include="..\..\..\code\entry.cpp" />
     <ClCompile Include="..\..\..\code\resources.cpp" />
+    <ClCompile Include="..\..\..\code\view.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Resource Include="$(REFLEX_PATH)\resources\win\reflex_system.res" />

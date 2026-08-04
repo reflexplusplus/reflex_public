@@ -10,6 +10,7 @@
 
 namespace Reflex::Bootstrap::CLI
 {
+
 	using TaskFn = FunctionPointer <void(Async::Worker::Context & ctx, const Data::PropertySet & args, System::FileHandle & std_out)>;
 
 	struct TaskDef
@@ -21,43 +22,38 @@ namespace Reflex::Bootstrap::CLI
 
 	enum Flags : UInt8
 	{
-		kFlagPrintDuration = 1 << 0,
-		kFlagForceVerbose = 1 << 1,
+		kFlagPrintDuration = MakeBit(0),
+		kFlagPrintError = MakeBit(1),
+		kFlagForceVerbose = MakeBit(2),
 	};
 
 
-	//for main
+
+	//input
+
+	CString::View GetString(const Data::PropertySet & args, Key32 id);
+
+	WString GetFilenameArg(const Data::PropertySet & args, CString::View id, bool check_exists);
+
+	WString GetFolderArg(const Data::PropertySet & args, CString::View id, bool check_exists);
+
+	bool GetBoolArg(const Data::PropertySet & args, Key32 id);
+
+
+
+	//errors
+
+	void ThrowError(const CString & error);
+
+	void ThrowMissingArg(const CString::View & id, const CString::View & example = {});
+
+	void RequireArgs(const Data::PropertySet & args, const ArrayView <CString::View> & ids);
+
+
+
+	//run
 
 	UInt8 Dispatch(const ArrayView <CString::View> & cmdline, const ArrayView <TaskDef> & tasks, UInt8 flags = 0);
-
-
-
-	//for tasks
-
-	inline WString GetPathArg(const Data::PropertySet & args, Key32 id)
-	{
-		return File::ResolveRelativePath(File::CorrectStrokes(ToWString(Data::GetCString(args, id))));
-	}
-
-	inline WString GetFolderArg(const Data::PropertySet & args, Key32 id)
-	{
-		return File::CorrectTrailingStroke(GetPathArg(args, id));
-	}
-
-	inline bool GetBoolArg(const Data::PropertySet & args, Key32 id)
-	{
-		return Data::GetCString(args, id) == Reflex::Detail::kFalseTrue[1];
-	}
-
-	inline void SetCompleted(Async::Worker::Context & ctx)
-	{
-		ctx.SetResult(true);
-	}
-
-	inline void SetError(Async::Worker::Context & ctx, CString::View error)
-	{
-		ctx.SetResult(false, New<Data::CStringProperty>(error));
-	}
 
 }
 
@@ -69,165 +65,38 @@ namespace Reflex::Bootstrap::CLI
 
 REFLEX_NS(Reflex::Bootstrap::CLI::Detail)
 
-inline Data::PropertySet PackArgs(ArrayView <CString::View> cmdline)
-{
-	Data::PropertySet args;
-
-	UInt count = cmdline.size & ~1u;
-
-	if (count != cmdline.size)
-	{
-		Data::SetCString(args, "task", cmdline.GetFirst());
-
-		cmdline = Nudge(cmdline, 1);
-	}
-
-	UInt idx = 0;
-
-	while (idx < count)
-	{
-		auto key = Mid<true>(cmdline[idx++], 2);
-
-		auto value = cmdline[idx++];
-
-		Data::SetCString(args, key, value);
-	}
-
-	return args;
-}
-
-inline void LoadArgsFile(Data::PropertySet & args)
-{
-	if (auto args_path = GetPathArg(args, "args"))
-	{
-		Data::Assimilate(args, Data::DecodePropertySet(Data::kJsonFormat, File::Open(args_path)));
-	}
-}
-
-inline const TaskDef * SelectTask(const ArrayView <TaskDef> & tasks, const Data::PropertySet & args)
-{
-	auto task_arg = Data::GetCString(args, "task");
-
-	Key32 id = task_arg ? MakeKey32(task_arg) : tasks[0].id;
-
-	for (auto & task : tasks)
-	{
-		if (task.id == id)
-		{
-			return &task;
-		}
-	}
-
-	return nullptr;
-}
-
-inline bool WaitForTask(System::FileHandle & std_out, bool verbose, Async::Task & task)
-{
-	constexpr const char kSpinner[] = "|/-\\";
-
-	UInt idx = 0;
-
-	if (verbose)
-	{
-		task.Wait();
-	}
-	else
-	{
-		while (!task.Completed())
-		{
-			auto line = Join("\rWaiting for task... ", kSpinner[idx++ % 4]);
-
-			File::WriteBytes(std_out, Data::Pack(line));
-
-			System::SuspendThread(100);
-		}
-
-		File::WriteLine(std_out);
-	}
-
-	return task.GetStatus() == Async::Task::kStatusCompleted;
-}
+Data::PropertySet PackArgs(ArrayView <CString::View> cmdline);
 
 REFLEX_END
 
-inline Reflex::UInt8 Reflex::Bootstrap::CLI::Dispatch(const ArrayView <CString::View> & cmdline, const ArrayView <TaskDef> & tasks, UInt8 flags)
+inline Reflex::CString::View Reflex::Bootstrap::CLI::GetString(const Data::PropertySet & args, Key32 id)
 {
-	auto time = System::GetElapsedTime();
+	return Data::GetCString(args, id);
+}
 
-	auto args = Detail::PackArgs(cmdline);
+inline bool Reflex::Bootstrap::CLI::GetBoolArg(const Data::PropertySet & args, Key32 id)
+{
+	return Data::GetCString(args, id) == Reflex::Detail::kFalseTrue[1];
+}
 
-	Detail::LoadArgsFile(args);
-
-	auto std_out = Make<System::FileHandle>(System::FileHandle::kStandardStreamOut);
-
-	bool verbose = (flags & kFlagForceVerbose) || GetBoolArg(args, "verbose");
-
-	if (verbose)
+inline void Reflex::Bootstrap::CLI::RequireArgs(const Data::PropertySet & args, const ArrayView <CString::View> & ids)
+{
+	for (auto & id : ids)
 	{
-		Output::SetOutputFile(std_out);
+		if (!Data::GetCString(args, id)) ThrowMissingArg(id);
 	}
-	else
-	{
-		Output::Disable();
-	}
+}
 
-	bool result = false;
+inline void Reflex::Bootstrap::CLI::ThrowMissingArg(const CString::View & id, const CString::View & example)
+{
+	REFLEX_ASSERT(false);
 
-	if (auto taskdef = Detail::SelectTask(tasks, args))
-	{
-		CString error_msg;
+	throw(Join("missing arg --", id, ' ', example));
+}
 
-		if (taskdef->async)
-		{
-			auto task = Make<Async::Worker>([&args, &std_out, fn = taskdef->fn](Async::Worker::Context & ctx)
-			{
-				fn(ctx, args, std_out);
-			});
+inline void Reflex::Bootstrap::CLI::ThrowError(const CString & error)
+{
+	REFLEX_ASSERT(false);
 
-			result = Detail::WaitForTask(std_out, verbose, task);
-
-			if (auto perror = DynamicCast<Data::CStringProperty>(task->GetResult()))
-			{
-				error_msg = perror->value;
-			}
-		}
-		else
-		{
-			struct TaskContext : Async::Worker::Context
-			{
-				using Context::m_result_ok;
-				using Context::m_result_payload;
-			}
-			ctx;
-
-			taskdef->fn(ctx, args, std_out);
-
-			result = ctx.m_result_ok;
-
-			if (auto perror = DynamicCast<Data::CStringProperty>(ctx.m_result_payload))
-			{
-				error_msg = perror->value;
-			}
-		}
-
-		if (result)
-		{
-			File::WriteLine(std_out, "ok");
-		}
-		else
-		{
-			File::WriteLine(std_out, error_msg);
-		}
-	}
-	else
-	{
-		File::WriteLine(std_out, "unknown task");
-	}
-
-	if (flags & kFlagPrintDuration)
-	{
-		File::WriteLine(std_out, Join("duration: ", ToCString(SetDelta(time, System::GetElapsedTime()), 2), " sec"));
-	}
-
-	return result ? 0 : 1;
+	throw(error);//ctx.SetResult(false, New<Data::CStringProperty>(error));
 }

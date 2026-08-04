@@ -23,5 +23,5 @@ reflex_add_app(CustomDrawing
         code/resources.cpp
         code/view.cpp
     NAME    "Custom Drawing"
-    VENDOR  "Reflex Multimedia"
+    VENDOR  "Reflex++"
 )

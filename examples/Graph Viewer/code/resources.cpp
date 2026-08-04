@@ -11,7 +11,7 @@ const Reflex::UInt64 kConfig_view_allow_init_animations[1] =
 	0x0000000000000001ull, 
 };
 
-const Reflex::Bootstrap::EnumerableEmbeddedResource Config::view_allow_init_animations(K32("Config"), K32("view.allow_init_animations"), reinterpret_cast<const Reflex::UInt8*>(&kConfig_view_allow_init_animations), 1u, 0u);
+const Reflex::File::EnumerableEmbeddedResource Config::view_allow_init_animations(K32("Config"), K32("view.allow_init_animations"), reinterpret_cast<const Reflex::UInt8*>(&kConfig_view_allow_init_animations), 1u, 0u);
 
 
 
@@ -19,9 +19,9 @@ const Reflex::Bootstrap::EnumerableEmbeddedResource Config::view_allow_init_anim
 //
 //styles.txt
 
-const Reflex::UInt64 kGraphViewer_styles_txt[147] =
+const Reflex::UInt64 kGraphViewer_styles_txt[146] =
 {
-	0x46402af200000905ull, 0x6964654d20746e6full, 0x70090a7b0a3a6d75ull, 0x723a22203a687461ull, 0x662f4544493a7365ull, 0x0a090a3b22746e6full, 0x31203a657a697309ull, 0x390a0a3b7d0a3b33ull, 
+	0x46402af2000008fdull, 0x6964654d20746e6full, 0x70090a7b0a3a6d75ull, 0x723a22203a687461ull, 0x662f4544493a7365ull, 0x0a090a3b22746e6full, 0x31203a657a697309ull, 0x390a0a3b7d0a3b33ull, 
 	0x003765646f434f00ull, 0x00376f6e6f6d4902ull, 0xf100450200373212ull, 0x3231352c38363712ull, 0x6f635f67620a0a3bull, 0x3532203a72756f6cull, 0x646165480a0a3b35ull, 0x40002c0200547265ull, 
 	0x648000970a3b3034ull, 0x0e36203a676e6964ull, 0xa000200100360900ull, 0x786554090a3a6762ull, 0x00d23a1300b12874ull, 0x7473756a203b0cf1ull, 0x6e6563203a796669ull, 0x6c6176203b726574ull, 
 	0x24000826203a6575ull, 0x323306f0007d203bull, 0x656e6e49090a2c29ull, 0x28776f6461685372ull, 0x2c3036010a646977ull, 0x36312c3052002632ull, 0x747475426100c929ull, 0x727401f700a86e6full, 
@@ -38,11 +38,11 @@ const Reflex::UInt64 kGraphViewer_styles_txt[147] =
 	0x09008865736c6166ull, 0x01080f02c9010109ull, 0x0352000106341004ull, 0x3831015b0501080dull, 0x2405f0000023382cull, 0x6e65723003a5646full, 0x01a23278203006cfull, 0x330547040001690full, 
 	0x03f6010672203b32ull, 0x29382c30c002dc02ull, 0x28726564726f422cull, 0x023d000013010014ull, 0x1600363315041704ull, 0x110088301002e932ull, 0x7505011400021a2cull, 0x570101710a202103ull, 
 	0x2f0903f2006c0502ull, 0x206d6f747375632full, 0x79747265706f7270ull, 0x2c313003df0200a8ull, 0x04fa00120100b831ull, 0x5609090a203a6762ull, 0x4774726f50776569ull, 0x6e75200095646972ull, 
-	0x06c60007020003f1ull, 0xc70903e00500290aull, 0xd001be0100320b00ull, 0x6172646e6f286369ull, 0x0001cf6726203a77ull, 0xd3591101df0302e2ull, 0x018b070301de0f02ull, 0x1e059400018b3011ull, 
-	0x7a090a095001e409ull, 0x2d203a78a001765full, 0x00000a3b7d0a3b31ull, 
+	0x06c60007020003f1ull, 0xc70903e00500290aull, 0x9001be0100320b00ull, 0x7361766e61436369ull, 0x591101d70302da28ull, 0x83070301d60f02cbull, 0x058c000183301101ull, 0x090a095001dc091eull, 
+	0x203a78a0016e5f7aull, 0x000a3b7d0a3b312dull, 
 };
 
-const Reflex::Bootstrap::EnumerableEmbeddedResource GraphViewer::styles_txt(K32("GraphViewer"), K32("styles.txt"), reinterpret_cast<const Reflex::UInt8*>(&kGraphViewer_styles_txt), 1174u, 2309u);
+const Reflex::File::EnumerableEmbeddedResource GraphViewer::styles_txt(K32("GraphViewer"), K32("styles.txt"), reinterpret_cast<const Reflex::UInt8*>(&kGraphViewer_styles_txt), 1167u, 2301u);
 
 
 

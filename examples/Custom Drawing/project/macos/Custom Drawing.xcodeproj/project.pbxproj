@@ -19,6 +19,7 @@
 		1A723AC42DE86C1C00111B9C /* paths.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = 1A723AC32DE86C1C00111B9C /* paths.xcconfig */; };
 		1A91D0ED2D11A78D00B547EE /* Metal.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1A91D0EC2D11A78D00B547EE /* Metal.framework */; };
 		1A91D0EF2D11A79400B547EE /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1A91D0EE2D11A79400B547EE /* QuartzCore.framework */; };
+		1ADB473C2FC926DB0041534F /* widget.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1ADB473B2FC926DB0041534F /* widget.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -36,6 +37,7 @@
 		1A723AC32DE86C1C00111B9C /* paths.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = paths.xcconfig; sourceTree = "<group>"; };
 		1A91D0EC2D11A78D00B547EE /* Metal.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Metal.framework; path = System/Library/Frameworks/Metal.framework; sourceTree = SDKROOT; };
 		1A91D0EE2D11A79400B547EE /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = System/Library/Frameworks/QuartzCore.framework; sourceTree = SDKROOT; };
+		1ADB473B2FC926DB0041534F /* widget.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = widget.cpp; path = ../../code/widget.cpp; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -65,6 +67,7 @@
 				1A4EDD722C436E0D0054FE64 /* resources.cpp */,
 				1A5967422C4382A400D8A7E8 /* app.cpp */,
 				1A5967432C4382A400D8A7E8 /* view.cpp */,
+				1ADB473B2FC926DB0041534F /* widget.cpp */,
 				1A4EDD572C43660B0054FE64 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -189,7 +192,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "\"$REFLEX_PATH/bin/tools/macos/ReflexResourceBuilder.app/Contents/MacOS/ReflexResourceBuilder\" \"$PROJECT_DIR/../../resources.xml\"";
+			shellScript = "\"$REFLEX_PATH/bin/tools/macos/reflex\" build-resources --path \"$PROJECT_DIR/../../resources.xml\"";
 			showEnvVarsInLog = 0;
 		};
 /* End PBXShellScriptBuildPhase section */
@@ -202,6 +205,7 @@
 				1A4EDD6D2C43675A0054FE64 /* reflex_ext.cpp in Sources */,
 				1A5967442C4382A400D8A7E8 /* app.cpp in Sources */,
 				1A4EDD742C436E0D0054FE64 /* resources.cpp in Sources */,
+				1ADB473C2FC926DB0041534F /* widget.cpp in Sources */,
 				1A5967452C4382A400D8A7E8 /* view.cpp in Sources */,
 				1A4EDD752C436E0D0054FE64 /* entry.cpp in Sources */,
 			);
@@ -285,7 +289,7 @@
 					"-lReflexCommonVmUi",
 					"-lReflexTargetApp",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = "com.reflexmultimedia.customdrawing";
+				PRODUCT_BUNDLE_IDENTIFIER = com.reflexmultimedia.customdrawing;
 				PRODUCT_NAME = "Custom Drawing";
 				SDKROOT = macosx;
 				STANDARD_C_PLUS_PLUS_LIBRARY_TYPE = static;
@@ -366,7 +370,7 @@
 					"-lReflexCommonVmUi",
 					"-lReflexTargetApp",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = "com.reflexmultimedia.customdrawing";
+				PRODUCT_BUNDLE_IDENTIFIER = com.reflexmultimedia.customdrawing;
 				PRODUCT_NAME = "Custom Drawing";
 				SDKROOT = macosx;
 				STANDARD_C_PLUS_PLUS_LIBRARY_TYPE = static;

@@ -1,5 +1,5 @@
 #include "app.h"
-#include "parser.h"
+#include "../../ReflexCLI/code/common.h"
 
 
 
@@ -7,32 +7,58 @@
 //
 //App impl
 
-REFLEX_BEGIN_INTERNAL(ResourceBuilder)
+namespace ResourceBuilder { namespace {	//begin internal namespace
 
 struct AppImpl : public App
 {
 	AppImpl()
-		: App(K32("ResourceBuilder"))	//generates 4 byte header for the file format
+		: App(MakeKey32("ResourceBuilder"), 0)
 	{
 	}
 
-	TRef <System::Thread> Compile(const WString & path, ObjectOf <Float> & progress) override
+	TRef <System::Task> Compile(const WString & path, ObjectOf <Float> & progress) override
 	{
-		m_thread = System::Thread::Create([path, progressref = AutoRelease(progress)]()
-		{
-			ResourceBuilder::Compile(path, progressref->value);
-		});
+		AutoRelease(progress);	//no longer supported as we are calling CLI app
+
+		m_thread = ResourceBuilder::Compile(path);
 
 		return m_thread;
 	}
 
+	void OnReset(Key32 context) override {}
 
-	Reference <System::Thread> m_thread;
+	void OnRestore(Data::Archive::View & stream, Key32 context) override {}
+
+	bool OnImport(UInt16 version, Data::Archive::View & stream, Key32 context) override { return false; }
+
+	void OnStore(Data::Archive & stream) const override {}
+
+
+	Reference <System::Task> m_thread;
 };
 
-REFLEX_END_INTERNAL
+} } //end internal namespace
 
-TRef <ResourceBuilder::App> ResourceBuilder::App::Create()
+Reflex::TRef <Reflex::System::Task> ResourceBuilder::Compile(const WString::View & path)
+{
+	Array <WString> args;
+	args.Push(L"build-resources");
+	args.Push(L"--path");
+	args.Push(path);
+
+	auto exe_path = ReflexCLI::GetReflexExecutablePath(ReflexCLI::GetReflexPath());
+
+	REFLEX_ASSERT(exe_path);
+	REFLEX_ASSERT(File::Exists(exe_path));
+
+	auto process = System::Process::Create(exe_path, args, { .allow_window = false });
+
+	REFLEX_ASSERT(process->Status());
+
+	return process;
+}
+
+Reflex::TRef <ResourceBuilder::App> ResourceBuilder::App::Create()
 {
 	return New<ResourceBuilder::AppImpl>();
 }

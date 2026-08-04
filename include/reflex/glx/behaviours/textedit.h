@@ -31,6 +31,8 @@ namespace Reflex::GLX
 
 		virtual void SetInputType(VirtualKeyboardInputType type) = 0;	//TODO currently kVirtualKeyboardInputMultiLine is ignored, that depends on Text type
 
+		virtual void SetTabSpaces(UInt8 spaces) = 0;	//0 for tab
+
 		virtual void SetCaret(UInt position, UInt selection_start, UInt selection_length) = 0;
 
 		virtual Tuple <UInt,UInt,UInt> GetCaret() const = 0;

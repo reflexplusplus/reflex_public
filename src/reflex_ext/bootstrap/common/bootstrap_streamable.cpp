@@ -9,7 +9,7 @@
 Reflex::Bootstrap::Streamable::Streamable(File::PersistentPropertySet & propertyset, Key32 chunkid, UInt16 chunkversion)
 	: Data::iStreamable(chunkversion),
 	propertyset(propertyset),
-	m_chunkid(chunkid),
+	chunkid(chunkid),
 	m_listener(propertyset.CreateListener([this](File::PersistentPropertySet::Notification n, Key32 context)
 {
 	switch (n)
@@ -35,7 +35,7 @@ Reflex::Bootstrap::Streamable::Streamable(File::PersistentPropertySet & property
 
 void Reflex::Bootstrap::Streamable::RestoreState(Key32 context)
 {
-	if (auto chunk = Data::GetBinary(propertyset, m_chunkid))
+	if (auto chunk = Data::GetBinary(propertyset, chunkid))
 	{
 		Data::iStreamable::Deserialize(chunk, context);
 	}
@@ -53,7 +53,7 @@ void Reflex::Bootstrap::Streamable::StoreState()
 
 		Data::iStreamable::Serialize(stream);
 
-		Data::SetBinary(propertyset, m_chunkid, stream);
+		Data::SetBinary(propertyset, chunkid, stream);
 	}
 	else if constexpr (REFLEX_DEBUG)
 	{

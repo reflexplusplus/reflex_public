@@ -11,6 +11,8 @@
 namespace CustomDrawing
 {
 	
+	using namespace Reflex;
+
 	class App;
 
 	extern Reflex::Output output;

@@ -5,6 +5,36 @@ ROOT="$(cd "$(dirname "$0")" && pwd)"
 VERSION_FILE="$ROOT/version.txt"
 INSTALLED_VERSION_FILE="$ROOT/bin/version.txt"
 
+find_reflex_tool() {
+	local candidate="$ROOT/bin/tools/macos/reflex"
+
+	if [[ -x "$candidate" ]]; then
+		printf '%s\n' "$candidate"
+		return 0
+	fi
+
+	return 1
+}
+
+verify_signed_tool() {
+	local tool_path="$1"
+	local -a verify_args=(--verify --verbose=4)
+
+	if [[ ! -e "$tool_path" ]]; then
+		echo "Expected tool was not installed: $tool_path"
+		exit 1
+	fi
+
+	if [[ "$tool_path" == *.app ]]; then
+		verify_args+=(--deep)
+	fi
+
+	if ! codesign "${verify_args[@]}" "$tool_path" >/dev/null 2>&1; then
+		echo "Installed tool is not correctly signed: $tool_path"
+		exit 1
+	fi
+}
+
 if [[ ! -f "$VERSION_FILE" ]]; then
 	echo "Missing version.txt"
 	exit 1
@@ -15,7 +45,7 @@ VERSION="$(<"$VERSION_FILE")"
 if [[ -f "$INSTALLED_VERSION_FILE" ]]; then
 	INSTALLED_VERSION="$(<"$INSTALLED_VERSION_FILE")"
 
-	if [[ "$INSTALLED_VERSION" == "$VERSION" ]]; then
+	if [[ "$INSTALLED_VERSION" == "$VERSION" ]] && find_reflex_tool > /dev/null; then
 		echo "Reflex SDK $VERSION binaries already installed."
 		exit 0
 	fi
@@ -51,6 +81,12 @@ if [[ -x "$EXTRACT_TOOLS" ]]; then
 elif [[ -f "$EXTRACT_TOOLS" ]]; then
 	bash "$EXTRACT_TOOLS"
 fi
+
+echo "Verifying installed macOS tool signatures..."
+verify_signed_tool "$ROOT/bin/tools/macos/reflex"
+verify_signed_tool "$ROOT/bin/tools/macos/ReflexDocumentation.app"
+verify_signed_tool "$ROOT/bin/tools/macos/ReflexProjectCreator.app"
+verify_signed_tool "$ROOT/bin/tools/macos/ReflexResourceBuilder.app"
 
 cp "$VERSION_FILE" "$ROOT/bin/version.txt"
 

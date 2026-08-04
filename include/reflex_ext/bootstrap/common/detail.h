@@ -28,7 +28,8 @@ namespace Reflex::Bootstrap::Detail
 	{
 		#if REFLEX_DEBUG
 		//allow reloading of edited script files from local machine in debug mode
-		return File::ResolveRelativePath(Join(File::SplitFilename(File::CorrectStrokes(ToWString(ToView(filepath)))).a, L"..", System::kPathDelimiter));
+		auto store = File::CorrectStrokes(ToWString(ToView(filepath)));
+		return File::ResolveRelativePath(Join(File::SplitFilename(store).a, L"..", System::kPathDelimiter));
 		#else
 		return {};
 		#endif

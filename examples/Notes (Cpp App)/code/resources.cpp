@@ -11,15 +11,15 @@ const Reflex::UInt64 kConfig_view_allow_init_animations[1] =
 	0x0000000000000001ull, 
 };
 
-const Reflex::Bootstrap::EnumerableEmbeddedResource Config::view_allow_init_animations(K32("Config"), K32("view.allow_init_animations"), reinterpret_cast<const Reflex::UInt8*>(&kConfig_view_allow_init_animations), 1u, 0u);
+const Reflex::File::EnumerableEmbeddedResource Config::view_allow_init_animations(K32("Config"), K32("view.allow_init_animations"), reinterpret_cast<const Reflex::UInt8*>(&kConfig_view_allow_init_animations), 1u, 0u);
 
 
 
 
 //
-//styles.txt
+//styles.glx
 
-const Reflex::UInt64 kNotesCppApp_styles_txt[115] =
+const Reflex::UInt64 kNotesCppApp_styles_glx[115] =
 {
 	0x6e6940f200000774ull, 0x5b203a6564756c63ull, 0x44493a7365723a22ull, 0x73656c7974732f45ull, 0x0a3b5d227478742eull, 0x35203a657a69730aull, 0x0a3b3438332c3231ull, 0x6f6c6f635f67620aull, 
 	0x3b353532203a7275ull, 0x7265646165480a0aull, 0xf0002c090a7b0a3aull, 0x70090a0a3b303401ull, 0x203a676e69646461ull, 0x2001003609000e36ull, 0x090a3a676222f100ull, 0x6e6f662874786554ull, 
@@ -38,7 +38,7 @@ const Reflex::UInt64 kNotesCppApp_styles_txt[115] =
 	0x4f321007256e6f69ull, 0x090a3b7d0909b001ull, 0x0000003b7d0a3b7dull, 
 };
 
-const Reflex::Bootstrap::EnumerableEmbeddedResource NotesCppApp::styles_txt(K32("NotesCppApp"), K32("styles.txt"), reinterpret_cast<const Reflex::UInt8*>(&kNotesCppApp_styles_txt), 917u, 1908u);
+const Reflex::File::EnumerableEmbeddedResource NotesCppApp::styles_glx(K32("NotesCppApp"), K32("styles.glx"), reinterpret_cast<const Reflex::UInt8*>(&kNotesCppApp_styles_glx), 917u, 1908u);
 
 
 

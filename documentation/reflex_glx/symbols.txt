@@ -1236,8 +1236,6 @@
 				},
 
 				{
-					IsRef: true;
-
 					@UInt64 TypeID: 974353888473781509;
 
 					Name: "op";
@@ -1671,8 +1669,6 @@
 				},
 
 				{
-					IsRef: true;
-
 					@UInt64 TypeID: 974353888473781509;
 
 					Name: "transform";
@@ -1784,8 +1780,6 @@
 				},
 
 				{
-					IsRef: true;
-
 					@UInt64 TypeID: 974353888473781509;
 
 					Name: "transform";
@@ -2001,8 +1995,6 @@
 				},
 
 				{
-					IsRef: true;
-
 					@UInt64 TypeID: 974353888473781509;
 
 					Name: "fit";
@@ -2614,6 +2606,18 @@
 					@UInt64 TypeID: 8976997392607876357;
 
 					Name: "closed";
+				},
+
+				{
+					@UInt64 TypeID: 974353888473781509;
+
+					Name: "join";
+				},
+
+				{
+					@UInt64 TypeID: 974353888473781509;
+
+					Name: "cap";
 				},
 
 			];

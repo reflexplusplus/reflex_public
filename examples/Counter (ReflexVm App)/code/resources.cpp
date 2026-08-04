@@ -11,7 +11,7 @@ const Reflex::UInt64 kConfig_view_allow_init_animations[1] =
 	0x0000000000000001ull, 
 };
 
-const Reflex::Bootstrap::EnumerableEmbeddedResource Config::view_allow_init_animations(K32("Config"), K32("view.allow_init_animations"), reinterpret_cast<const Reflex::UInt8*>(&kConfig_view_allow_init_animations), 1u, 0u);
+const Reflex::File::EnumerableEmbeddedResource Config::view_allow_init_animations(K32("Config"), K32("view.allow_init_animations"), reinterpret_cast<const Reflex::UInt8*>(&kConfig_view_allow_init_animations), 1u, 0u);
 
 
 
@@ -28,7 +28,7 @@ const Reflex::UInt64 kCounterReflexVmApp_helpers_h[39] =
 	0x0100cf7d7b2d00d9ull, 0x63656c655370009bull, 0xc974202301162874ull, 0xc262110008611300ull, 0x00997413008d0000ull, 0x50005d611b007903ull, 0x0000000a7d0a3b62ull, 
 };
 
-const Reflex::Bootstrap::EnumerableEmbeddedResource CounterReflexVmApp::helpers_h(K32("CounterReflexVmApp"), K32("helpers.h"), reinterpret_cast<const Reflex::UInt8*>(&kCounterReflexVmApp_helpers_h), 309u, 404u);
+const Reflex::File::EnumerableEmbeddedResource CounterReflexVmApp::helpers_h(K32("CounterReflexVmApp"), K32("helpers.h"), reinterpret_cast<const Reflex::UInt8*>(&kCounterReflexVmApp_helpers_h), 309u, 404u);
 
 
 
@@ -43,7 +43,7 @@ const Reflex::UInt64 kCounterReflexVmApp_interface_h[20] =
 	0x20293233746e492cull, 0x1d03000022636e49ull, 0x7d0a50003f471b00ull, 0x00000000000a0a3bull, 
 };
 
-const Reflex::Bootstrap::EnumerableEmbeddedResource CounterReflexVmApp::interface_h(K32("CounterReflexVmApp"), K32("interface.h"), reinterpret_cast<const Reflex::UInt8*>(&kCounterReflexVmApp_interface_h), 155u, 198u);
+const Reflex::File::EnumerableEmbeddedResource CounterReflexVmApp::interface_h(K32("CounterReflexVmApp"), K32("interface.h"), reinterpret_cast<const Reflex::UInt8*>(&kCounterReflexVmApp_interface_h), 155u, 198u);
 
 
 
@@ -62,7 +62,7 @@ const Reflex::UInt64 kCounterReflexVmApp_main_c[53] =
 	0x180a005409090a3bull, 0x9704005301009247ull, 0x90004e0201080300ull, 0x0a3b7d0a7d090a3bull, 0x000000000000000aull, 
 };
 
-const Reflex::Bootstrap::EnumerableEmbeddedResource CounterReflexVmApp::main_c(K32("CounterReflexVmApp"), K32("main.c"), reinterpret_cast<const Reflex::UInt8*>(&kCounterReflexVmApp_main_c), 417u, 618u);
+const Reflex::File::EnumerableEmbeddedResource CounterReflexVmApp::main_c(K32("CounterReflexVmApp"), K32("main.c"), reinterpret_cast<const Reflex::UInt8*>(&kCounterReflexVmApp_main_c), 417u, 618u);
 
 
 
@@ -81,7 +81,7 @@ const Reflex::UInt64 kCounterReflexVmApp_styles_txt[51] =
 	0x00960f02252c3030ull, 0x0a3b29353532d045ull, 0x000a3b7d0a3b7d09ull, 
 };
 
-const Reflex::Bootstrap::EnumerableEmbeddedResource CounterReflexVmApp::styles_txt(K32("CounterReflexVmApp"), K32("styles.txt"), reinterpret_cast<const Reflex::UInt8*>(&kCounterReflexVmApp_styles_txt), 407u, 738u);
+const Reflex::File::EnumerableEmbeddedResource CounterReflexVmApp::styles_txt(K32("CounterReflexVmApp"), K32("styles.txt"), reinterpret_cast<const Reflex::UInt8*>(&kCounterReflexVmApp_styles_txt), 407u, 738u);
 
 
 
@@ -110,7 +110,7 @@ const Reflex::UInt64 kCounterReflexVmApp_view_c[135] =
 	0x532e8100b4010037ull, 0x0020747865547465ull, 0x0287090a21001a00ull, 0x00d06f5422001805ull, 0x7465473203332812ull, 0x0a3b292929900333ull, 0x000000000a3b297dull, 
 };
 
-const Reflex::Bootstrap::EnumerableEmbeddedResource CounterReflexVmApp::view_c(K32("CounterReflexVmApp"), K32("view.c"), reinterpret_cast<const Reflex::UInt8*>(&kCounterReflexVmApp_view_c), 1076u, 1739u);
+const Reflex::File::EnumerableEmbeddedResource CounterReflexVmApp::view_c(K32("CounterReflexVmApp"), K32("view.c"), reinterpret_cast<const Reflex::UInt8*>(&kCounterReflexVmApp_view_c), 1076u, 1739u);
 
 
 

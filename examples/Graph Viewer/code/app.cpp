@@ -6,7 +6,7 @@
 //
 // Graph Viewer App implementation
 
-REFLEX_BEGIN_INTERNAL(GraphViewer)
+namespace GraphViewer { namespace {
 
 struct TempLocator : public File::VirtualFileSystem::Locator
 {
@@ -34,15 +34,12 @@ struct TempLocator : public File::VirtualFileSystem::Locator
 	Data::Archive::View m_data;
 };
 
-struct AppImpl :
-	public App,
-	public Bootstrap::Streamable
+struct AppImpl : public App
 {
 	static constexpr UInt16 kChunkVersion = 2;
 
 	AppImpl()
-		: App(K32("GraphViewer")),
-		Bootstrap::Streamable(session, K32("app"), kChunkVersion),
+		: App(MakeKey32("GraphViewer"), kChunkVersion),
 		m_vm(VM::Start()),
 		m_compiler(VM::Compiler::Create())
 	{
@@ -125,15 +122,15 @@ struct AppImpl :
 
 				File::ResourcePool::Lock lock(Bootstrap::global->resourcepool);
 
-				lock.Remove(MakeAddress<Data::ArchiveObject>(K32(":GraphViewer/temp")));
+				lock.Remove(MakeAddress<Data::ArchiveObject>(":GraphViewer/temp"));
 
-				auto locator = New<TempLocator>(K32("GraphViewer"), K32("temp"), graph.m_code);
+				auto locator = New<TempLocator>(MakeKey32("GraphViewer"), MakeKey32("temp"), graph.m_code);
 
 				lock.lock.Attach(locator);
 
 				if (auto program = AutoRelease(m_compiler->Compile(lock, L":GraphViewer/temp", VM::kContextFlagMain, Reflex::Object::null, { VM::gCore })))
 				{
-					graph.m_plot = VM::QueryFunction<Float32, Float32>(program, { VM::kGlobal, K32("Plot") });
+					graph.m_plot = VM::QueryFunction<Float32, Float32>(program, { VM::kGlobal, MakeKey32("Plot") });
 
 					auto context = VM::Context::Create();
 
@@ -234,7 +231,7 @@ struct AppImpl :
 	Array <State> m_graphs;
 };
 
-REFLEX_END_INTERNAL
+} }
 
 TRef <GraphViewer::App> GraphViewer::App::Create()
 {

@@ -1,6 +1,27 @@
 # Breaking Changes
 
-## Pending
+
+## v0.2.004
+
+### Bootstrap::App inherits Streamable
+
+Your App impl no longer needs to inherit from Streamable, after updating, pass your chunkversion to the constructor.
+
+### AudioUnit 4CC token names renamed across CMake and macOS template surface
+
+AudioUnit token names were aligned so the public CMake API and the macOS plist/Xcode template surface now use explicit `_4CC` suffixes and the clearer `VENDOR` terminology.
+
+When updating an existing CMake-based AudioUnit project, make these replacements:
+
+- `AU_TYPE` -> `AU_TYPE_4CC`
+- `AU_SUBTYPE` -> `AU_UID_4CC`
+- `AU_MANUFACTURER` -> `AU_VENDOR_4CC`
+
+When updating generated macOS template/Xcode AudioUnit settings or plist substitutions, make this replacement:
+
+- `AU_COMPANY_4CC` -> `AU_VENDOR_4CC`
+
+The underlying values are unchanged: these are naming updates only. The important requirement remains that each AudioUnit 4CC token must still be a 4-character code.
 
 ### `System::FileHandle::Flush` now requires a `bool commit` argument
 
@@ -29,15 +50,15 @@ Callsites that previously used `Status()` as a save-success signal should instea
 
 This is primarily an external-input validation mechanism for `Decode(blob)` style usage. It should not be read as a stronger promise that all nested deserialization in Reflex is now fully corruption-tolerant or recoverable: the lower-level deserialization contract still assumes valid stream ordering and correct handler behavior once execution enters trusted internal type-specific restore code.
 
-### `System::Rename` now follows POSIX replace-existing semantics, and `System::Move` is the cross-volume operation
+### `System::Rename` now follows POSIX replace-existing semantics
 
-`System::Rename(...)` is now documented and implemented as a POSIX-style rename in [include/reflex/system/functions.h](/D:/devt/reflex/include/reflex/system/functions.h:43): it replaces an existing destination and is intended to fail across filesystems or volumes. A new `System::Move(...)` function is introduced for the broader relocation case, where cross-volume moves may fall back to copy/delete and are not guaranteed atomic.
+`System::Rename(...)` is now documented and implemented as a POSIX-style rename in [include/reflex/system/functions.h](/D:/devt/reflex/include/reflex/system/functions.h:43): it replaces an existing destination and is intended to fail across filesystems or volumes.
 
 This is a behavior/API compatibility change for callers that relied on the previous Windows-specific split:
 
 - `System::Rename(...)` is now the atomic publish primitive used by `Reflex::File::Save(...)`
-- `System::Move(...)` should be used for relocations that may cross filesystems or volumes
 - code that previously used `System::ReplaceFile(...)` should migrate to `System::Rename(...)`
+
 
 ## v0.2.002
 
@@ -49,6 +70,7 @@ This is a source compatibility break for downstream code that directly instantia
 
 - `New<MyLayout>(object)` -> `New<MyLayout>()`
 - derived layout types that relied on `using StandardLayout::StandardLayout;` now need to remove that dependency and provide their own constructors only if they actually need one
+
 
 ## v0.1.015
 
@@ -90,6 +112,7 @@ This is mainly an implementation-detail cleanup, but downstream code that direct
 ### Deprecated `SetGraphicLayerOnDraw` / `UnsetGraphicLayerOnDraw` removed
 
 `include/reflex/glx/style/custom.h` was removed, along with the previously deprecated `SetGraphicLayerOnDraw(...)` and `UnsetGraphicLayerOnDraw(...)` declarations.
+
 
 ## v0.1.011
 

@@ -11,18 +11,18 @@
 namespace Reflex
 {
 
-	template <bool BOUNDS_CHECK = false, class ARRAY> /*ArrayView*/ auto Left(const ARRAY & array, UInt n);
+	template <bool BOUNDS_CHECK = false, class ARRAY> /*ArrayView*/ auto Left(ARRAY && array, UInt n);
 
-	template <bool BOUNDS_CHECK = false, class ARRAY> /*ArrayView*/ auto Mid(const ARRAY & array, UInt pos);
+	template <bool BOUNDS_CHECK = false, class ARRAY> /*ArrayView*/ auto Mid(ARRAY && array, UInt pos);
 
-	template <bool BOUNDS_CHECK = false, class ARRAY> /*ArrayView*/ auto Mid(const ARRAY & array, UInt pos, UInt n);
+	template <bool BOUNDS_CHECK = false, class ARRAY> /*ArrayView*/ auto Mid(ARRAY && array, UInt pos, UInt n);
 
-	template <bool BOUNDS_CHECK = false, class ARRAY> /*ArrayView*/ auto Right(const ARRAY & array, UInt n);
+	template <bool BOUNDS_CHECK = false, class ARRAY> /*ArrayView*/ auto Right(ARRAY && array, UInt n);
 
 
-	template <bool BOUNDS_CHECK = false, class ARRAY> /*Pair <ArrayView>*/ auto Splice(const ARRAY & array, UInt position);
+	template <bool BOUNDS_CHECK = false, class ARRAY> /*Pair <ArrayView>*/ auto Splice(ARRAY && array, UInt position);
 
-	template <bool BOUNDS_CHECK = false, class ARRAY> /*Pair <ArrayView>*/ auto ReverseSplice(const ARRAY & array, UInt position);
+	template <bool BOUNDS_CHECK = false, class ARRAY> /*Pair <ArrayView>*/ auto ReverseSplice(ARRAY && array, UInt position);
 
 
 	template <class TYPE> ArrayRegion <TYPE> Inc(ArrayRegion <TYPE> & itr, UInt n);
@@ -119,35 +119,53 @@ template <bool BOUNDS_CHECK, class TYPE> REFLEX_INLINE Pair < ArrayRegion <TYPE>
 	return pair;
 }
 
+template <class TYPE> struct IsTemporaryArray { static constexpr bool value = false; };
+
+template <class TYPE> struct IsTemporaryArray <Array<TYPE>&&> { static constexpr bool value = true; };
+
+REFLEX_PUBLISH_TRAIT_VALUE(IsTemporaryArray);
+
 REFLEX_END
 
-template <bool BOUNDS_CHECK, class ARRAY> inline auto Reflex::Left(const ARRAY & array, UInt n)
+template <bool BOUNDS_CHECK, class ARRAY> inline auto Reflex::Left(ARRAY && array, UInt n)
 {
+	REFLEX_STATIC_ASSERT(!Detail::kIsTemporaryArray<decltype(array)>);
+
 	return Detail::Left<BOUNDS_CHECK>(ToView(array), n);
 }
 
-template <bool BOUNDS_CHECK, class ARRAY> inline auto Reflex::Mid(const ARRAY & array, UInt pos)
+template <bool BOUNDS_CHECK, class ARRAY> inline auto Reflex::Mid(ARRAY && array, UInt pos)
 {
+	REFLEX_STATIC_ASSERT(!Detail::kIsTemporaryArray<decltype(array)>);
+
 	return Detail::Mid<BOUNDS_CHECK>(ToView(array), pos);
 }
 
-template <bool BOUNDS_CHECK, class ARRAY> inline auto Reflex::Mid(const ARRAY & array, UInt pos, UInt n)
+template <bool BOUNDS_CHECK, class ARRAY> inline auto Reflex::Mid(ARRAY && array, UInt pos, UInt n)
 {
+	REFLEX_STATIC_ASSERT(!Detail::kIsTemporaryArray<decltype(array)>);
+
 	return Detail::Mid<BOUNDS_CHECK>(ToView(array), pos, n);
 }
 
-template <bool BOUNDS_CHECK, class ARRAY> inline auto Reflex::Right(const ARRAY & array, UInt n)
+template <bool BOUNDS_CHECK, class ARRAY> inline auto Reflex::Right(ARRAY && array, UInt n)
 {
+	REFLEX_STATIC_ASSERT(!Detail::kIsTemporaryArray<decltype(array)>);
+
 	return Detail::Right<BOUNDS_CHECK>(ToView(array), n);
 }
 
-template <bool BOUNDS_CHECK, class ARRAY> inline auto Reflex::Splice(const ARRAY & array, UInt position)
+template <bool BOUNDS_CHECK, class ARRAY> inline auto Reflex::Splice(ARRAY && array, UInt position)
 {
+	REFLEX_STATIC_ASSERT(!Detail::kIsTemporaryArray<decltype(array)>);
+
 	return Detail::Splice<BOUNDS_CHECK>(ToView(array), position);
 }
 
-template <bool BOUNDS_CHECK, class ARRAY> inline auto Reflex::ReverseSplice(const ARRAY & array, UInt position)
+template <bool BOUNDS_CHECK, class ARRAY> inline auto Reflex::ReverseSplice(ARRAY && array, UInt position)
 {
+	REFLEX_STATIC_ASSERT(!Detail::kIsTemporaryArray<decltype(array)>);
+
 	auto view = ToView(array);
 
 	return Detail::Splice<BOUNDS_CHECK>(view, view.size - position);

@@ -345,7 +345,7 @@ void ViewImpl::OnUpdate()
 
 } }
 
-TRef <NotesCppApp::View> NotesCppApp::View::Create(App & app)
+Reflex::TRef <NotesCppApp::View> NotesCppApp::View::Create(App & app)
 {
 	return New<ViewImpl>(app);
 }

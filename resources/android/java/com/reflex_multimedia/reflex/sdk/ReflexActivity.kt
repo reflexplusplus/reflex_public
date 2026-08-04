@@ -69,7 +69,6 @@ import kotlin.math.min
 import androidx.core.net.toUri
 import java.net.URLConnection
 
-
 open class ReflexActivity(private val filepathsResourceId: Int) : NativeActivity(), OnApplyWindowInsetsListener {
 	companion object {
 		private var appContext: Context? = null

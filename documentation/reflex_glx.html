@@ -1,0 +1,309 @@
+<html>
+<head>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<h1>GLX Layers</h1>
+<ul class="index-tree">
+<li class="group"><a href="#sym-25178416844117253">FX</a></li>
+</ul>
+<ul class="index-tree">
+<li class="group"><a href="#sym-965297026512196869">Image</a></li>
+</ul>
+<ul class="index-tree">
+<li class="group"><a href="#sym-13854936138885633285">Layout</a></li>
+</ul>
+<ul class="index-tree">
+<li class="group"><a href="#sym-8974791055023019269">Text</a></li>
+</ul>
+<ul class="index-tree">
+<li class="group"><a href="#sym-15552789302868972805">Vector</a></li>
+</ul>
+<hr>
+<a id="sym-23111219025157"></a>
+<a id="sym-25178416844117253"></a>
+<h2><span class="group current">FX</span></h2>
+<h4>Functions</h4>
+<p><a href="#sym-8972045093452125445">Blur</a>, <a href="#sym-18053251530965914885">Brightness</a>, <a href="#sym-8972197732294857989">Clip</a>, <a href="#sym-13436796608486315269">Contrast</a>, <a href="#sym-5483585407675274501">Exposure</a>, <a href="#sym-14076807402003371269">Grayscale</a>, <a href="#sym-17817314091039986949">Greyscale</a>, <a href="#sym-248109501796848901">InnerShadow</a>, <a href="#sym-13416385592455861509">Invert</a>, <a href="#sym-8973691161143153925">Mask</a>, <a href="#sym-158847273793492229">Pixelate</a>, <a href="#sym-14882069948452050181">Render</a>, <a href="#sym-6266793163915007237">Saturate</a>, <a href="#sym-1015067584279614725">Sepia</a>, <a href="#sym-15063430568932807941">Shadow</a>, <a href="#sym-8974808346561352965">Tint</a></p>
+<hr>
+<a id="sym-965297026512196869"></a>
+<h2><span class="group current">Image</span></h2>
+<h4>Functions</h4>
+<p><a href="#sym-965297026512196869">Image</a>, <a href="#sym-16429307426932528389">ImageFill</a>, <a href="#sym-18413114587156059397">ImageSelector</a></p>
+<hr>
+<a id="sym-13854936138885633285"></a>
+<h2><span class="group current">Layout</span></h2>
+<h4>Functions</h4>
+<p><a href="#sym-924432199397152005">Align</a>, <a href="#sym-955949296480425221">Group</a>, <a href="#sym-25178902175421701">If</a>, <a href="#sym-13414860187576046853">Inline</a>, <a href="#sym-1016746787643331845">Split</a>, <a href="#sym-8974807998669001989">Tile</a>, <a href="#sym-9424123253560972549">ViewPortGrid</a></p>
+<hr>
+<a id="sym-8974791055023019269"></a>
+<h2><span class="group current">Text</span></h2>
+<h4>Functions</h4>
+<p><a href="#sym-8974791055023019269">Text</a>, <a href="#sym-9244992215028077829">TextEdit</a></p>
+<hr>
+<a id="sym-15552789302868972805"></a>
+<h2><span class="group current">Vector</span></h2>
+<h4>Functions</h4>
+<p><a href="#sym-830870812209714437">Bar</a>, <a href="#sym-11434150497636848901">BarGraph</a>, <a href="#sym-12244258531699594501">Border</a>, <a href="#sym-12340501112351102213">Canvas</a>, <a href="#sym-12381779072370349317">Circle</a>, <a href="#sym-633738152695043333">CircleFill</a>, <a href="#sym-15868944856299607301">CircleGradient</a>, <a href="#sym-1377939582888187141">ColorCanvas</a>, <a href="#sym-1646520676934227205">ColourCanvas</a>, <a href="#sym-8972647153377744133">Fill</a>, <a href="#sym-3672027794893706501">Gradient</a>, <a href="#sym-3111336564773360901">GraphicCanvas</a>, <a href="#sym-8973573496219112709">Line</a>, <a href="#sym-8974154334711321861">Path</a>, <a href="#sym-2073253062503306501">Polygon</a>, <a href="#sym-14933918995512825093">Rotate</a>, <a href="#sym-1014689171891033349">Scale</a>, <a href="#sym-10667000374281377029">Translate</a>, <a href="#sym-4954868727309931781">Triangle</a>, <a href="#sym-1689799709461320965">TriangleFill</a></p>
+<hr>
+<h2>API Reference</h2>
+<h2></h2>
+<a id="sym-924432199397152005"></a>
+<h3>Align</h3>
+<pre><code>
+void Align(Layers content, Margin& indent, Size& size, Alignment& position);
+</code></pre>
+<a id="sym-830870812209714437"></a>
+<h3>Bar</h3>
+<pre><code>
+void Bar(Layers content, Margin& indent, Float32& min_size, Range& range, Range& region);
+</code></pre>
+<a id="sym-11434150497636848901"></a>
+<h3>BarGraph</h3>
+<pre><code>
+void BarGraph(Margin& indent, Colour& color, Range& range, Float32& gap, Float32[]& values);
+</code></pre>
+<a id="sym-8972045093452125445"></a>
+<h3>Blur</h3>
+<pre><code>
+void Blur(Layers content, Float32& radius, Float32& opacity, Point& offset);
+</code></pre>
+<a id="sym-12244258531699594501"></a>
+<h3>Border</h3>
+<pre><code>
+void Border(Margin& indent, Colour& color, Margin& width, Margin& corner);
+</code></pre>
+<a id="sym-18053251530965914885"></a>
+<h3>Brightness</h3>
+<pre><code>
+void Brightness(Layers content, Float32& amount);
+</code></pre>
+<a id="sym-12340501112351102213"></a>
+<h3>Canvas</h3>
+<pre><code>
+void Canvas(Margin& indent, Colour& color, Key32& id);
+</code></pre>
+<a id="sym-12381779072370349317"></a>
+<h3>Circle</h3>
+<pre><code>
+void Circle(Margin& indent, Colour& color, Range& sweep, Float32& width, bool round_cap);
+</code></pre>
+<a id="sym-633738152695043333"></a>
+<h3>CircleFill</h3>
+<pre><code>
+void CircleFill(Margin& indent, Colour& color, Range& sweep);
+</code></pre>
+<a id="sym-15868944856299607301"></a>
+<h3>CircleGradient</h3>
+<pre><code>
+void CircleGradient(Margin& indent, Colour& from, Colour& to, Float32 dither);
+</code></pre>
+<a id="sym-8972197732294857989"></a>
+<h3>Clip</h3>
+<pre><code>
+void Clip(Layers content, Margin& indent);
+</code></pre>
+<a id="sym-1377939582888187141"></a>
+<h3>ColorCanvas</h3>
+<pre><code>
+void ColorCanvas(Margin& indent, Colour& color, Key32& id);
+</code></pre>
+<a id="sym-1646520676934227205"></a>
+<h3>ColourCanvas</h3>
+<pre><code>
+void ColourCanvas(Margin& indent, Colour& color, Key32& id);
+</code></pre>
+<a id="sym-13436796608486315269"></a>
+<h3>Contrast</h3>
+<pre><code>
+void Contrast(Layers content, Float32& amount);
+</code></pre>
+<a id="sym-5483585407675274501"></a>
+<h3>Exposure</h3>
+<pre><code>
+void Exposure(Layers content, Colour& rgb);
+</code></pre>
+<a id="sym-8972647153377744133"></a>
+<h3>Fill</h3>
+<pre><code>
+void Fill(Margin& indent, Colour& color, Margin& corner);
+</code></pre>
+<a id="sym-3672027794893706501"></a>
+<h3>Gradient</h3>
+<pre><code>
+void Gradient(Margin& indent, Colour& from, Colour& to, Float32 dither, Float32& angle);
+</code></pre>
+<a id="sym-3111336564773360901"></a>
+<h3>GraphicCanvas</h3>
+<pre><code>
+void GraphicCanvas(Margin& indent, Colour& color, Key32& id);
+</code></pre>
+<a id="sym-14076807402003371269"></a>
+<h3>Grayscale</h3>
+<pre><code>
+void Grayscale(Layers content, Float32& amount);
+</code></pre>
+<a id="sym-17817314091039986949"></a>
+<h3>Greyscale</h3>
+<pre><code>
+void Greyscale(Layers content, Float32& amount);
+</code></pre>
+<a id="sym-955949296480425221"></a>
+<h3>Group</h3>
+<pre><code>
+void Group(Layers content, Margin& indent, Size& size, Alignment& position);
+</code></pre>
+<a id="sym-25178902175421701"></a>
+<h3>If</h3>
+<pre><code>
+void If(Margin& indent, Layers else, Layers then, Float32& input, Float32& value, Key32& op);
+</code></pre>
+<a id="sym-965297026512196869"></a>
+<h3>Image</h3>
+<pre><code>
+void Image(Margin& indent, Colour& color, ImageSet& source, Key32& autofit, Alignment anchor, Key32& fit);
+</code></pre>
+<a id="sym-16429307426932528389"></a>
+<h3>ImageFill</h3>
+<pre><code>
+void ImageFill(Margin& indent, Colour& color, ImageSet& source);
+</code></pre>
+<a id="sym-18413114587156059397"></a>
+<h3>ImageSelector</h3>
+<pre><code>
+void ImageSelector(Margin& indent, Colour& color, ImageSet& source, Float32& frame, Key32& autofit, Alignment anchor);
+</code></pre>
+<a id="sym-13414860187576046853"></a>
+<h3>Inline</h3>
+<pre><code>
+void Inline(Layers content, Margin& indent, Key32 axis);
+</code></pre>
+<p>Experimental</p>
+<a id="sym-248109501796848901"></a>
+<h3>InnerShadow</h3>
+<pre><code>
+void InnerShadow(Margin& indent, Colour& color, Margin& width, Float32 dither);
+</code></pre>
+<p>InnerShadow approximates a Gaussian blur applied to an oversized border, clipped to the bounds of the area being rendered.</p>
+<pre><code>
+//approximation of Clip(content: Blur(radius: 8; content: Border(indent: -4; width: 8; colour: 0,64)));
+fg: InnerShadow(width: 8; color: 0,64);
+</code></pre>
+<a id="sym-13416385592455861509"></a>
+<h3>Invert</h3>
+<pre><code>
+void Invert(Layers content, Float32& amount);
+</code></pre>
+<a id="sym-8973573496219112709"></a>
+<h3>Line</h3>
+<pre><code>
+void Line(Margin& indent, Colour& color, Alignment& position, Float32& width, Float32[]& pattern);
+</code></pre>
+<a id="sym-8973691161143153925"></a>
+<h3>Mask</h3>
+<pre><code>
+void Mask(Layers content, Layers mask, bool& invert);
+</code></pre>
+<a id="sym-8974154334711321861"></a>
+<h3>Path</h3>
+<pre><code>
+void Path(Margin& indent, Colour& color, bool normalized, Float32[]& points, Float32& width, bool& closed);
+</code></pre>
+<a id="sym-158847273793492229"></a>
+<h3>Pixelate</h3>
+<pre><code>
+void Pixelate(Layers content, Size& size);
+</code></pre>
+<p>Experimental</p>
+<a id="sym-2073253062503306501"></a>
+<h3>Polygon</h3>
+<pre><code>
+void Polygon(Margin& indent, Colour& color, bool normalized, Float32[]& points);
+</code></pre>
+<a id="sym-14882069948452050181"></a>
+<h3>Render</h3>
+<pre><code>
+void Render(Layers content, Margin& pad, Float32& density);
+</code></pre>
+<a id="sym-14933918995512825093"></a>
+<h3>Rotate</h3>
+<pre><code>
+void Rotate(Layers content, Margin& indent, Float32& angle);
+</code></pre>
+<a id="sym-6266793163915007237"></a>
+<h3>Saturate</h3>
+<pre><code>
+void Saturate(Layers content, Float32& amount);
+</code></pre>
+<a id="sym-1014689171891033349"></a>
+<h3>Scale</h3>
+<pre><code>
+void Scale(Layers content, Size& scale, Size& origin);
+</code></pre>
+<a id="sym-1015067584279614725"></a>
+<h3>Sepia</h3>
+<pre><code>
+void Sepia(Layers content, Float32& amount);
+</code></pre>
+<a id="sym-15063430568932807941"></a>
+<h3>Shadow</h3>
+<pre><code>
+void Shadow(Margin& indent, Colour& color, Float32& blur, Float32& corner, Float32 dither);
+</code></pre>
+<p>Shadow approximates a Gaussian blur applied to a filled rounded rect.</p>
+<pre><code>
+//approximation of Blur(radius: 8; offset: 0,1; content: Fill(corner: 12; color: 0,64));
+fg: Shadow(blur: 8; corner: 12; offset: 0,1; color: 0,64);
+</code></pre>
+<p>Example usage:</p>
+<pre><code>
+bg: Shadow(blur: 8; corner: 8; offset: 0,1; color: 0,64);Fill(corner: 8; color: 255),Border(corner: 8; color: 200);
+</code></pre>
+<a id="sym-1016746787643331845"></a>
+<h3>Split</h3>
+<pre><code>
+void Split(Layers content, Key32 axis, Float32[] ratio);
+</code></pre>
+<p>Experimental</p>
+<a id="sym-8974791055023019269"></a>
+<h3>Text</h3>
+<pre><code>
+void Text(Margin& indent, Colour& color, Key32 font, TextProperty& value, Alignment justify, Key32& autofit, Float32& line_space, Float32& line_height, Key32& transform, CString value, Key32& overflow);
+</code></pre>
+<a id="sym-9244992215028077829"></a>
+<h3>TextEdit</h3>
+<pre><code>
+void TextEdit(Margin& indent, Colour& color, Key32 font, TextProperty& value, Alignment justify, Key32& autofit, Float32& line_space, Float32& line_height, Key32& transform, Colour& selection_color, Colour& selected_text_color);
+</code></pre>
+<a id="sym-8974807998669001989"></a>
+<h3>Tile</h3>
+<pre><code>
+void Tile(Layers content, Margin& indent, Key32 axis, Size& stride);
+</code></pre>
+<a id="sym-8974808346561352965"></a>
+<h3>Tint</h3>
+<pre><code>
+void Tint(Layers content, Colour& rgb);
+</code></pre>
+<a id="sym-10667000374281377029"></a>
+<h3>Translate</h3>
+<pre><code>
+void Translate(Layers content, Key32 unit, Point& offset);
+</code></pre>
+<a id="sym-4954868727309931781"></a>
+<h3>Triangle</h3>
+<pre><code>
+void Triangle(Margin& indent, Colour& color, Alignment& direction, Float32& corner, Float32& width);
+</code></pre>
+<a id="sym-1689799709461320965"></a>
+<h3>TriangleFill</h3>
+<pre><code>
+void TriangleFill(Margin& indent, Colour& color, Alignment& direction, Float32& corner);
+</code></pre>
+<a id="sym-9424123253560972549"></a>
+<h3>ViewPortGrid</h3>
+<pre><code>
+void ViewPortGrid(Colour& color, Key32 axis, Float32& origin, Float32& unit, Float32 minpx, Float32 indent, bool dotted, Key32 font, Colour& text_color, Point text_offset, Float32[] text_offset, Function&lt;WString(Float)&gt;& label);
+</code></pre>
+<p>Experimental</p>
+<hr>

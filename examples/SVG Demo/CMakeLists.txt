@@ -23,5 +23,5 @@ reflex_add_app(SVGDemo
         code/resources.cpp
         code/view.cpp
     NAME    "SVG Demo"
-    VENDOR  "Reflex Multimedia"
+    VENDOR  "Reflex++"
 )

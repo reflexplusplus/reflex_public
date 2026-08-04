@@ -1,5 +1,6 @@
 #pragma once
 
+#include "sub.h"
 #include "join.h"
 
 
@@ -11,7 +12,7 @@
 namespace Reflex
 {
 
-	template <class ARRAY, class DELIMITER> auto Split(const ARRAY & arr, const DELIMITER & delimiter_element_or_array);
+	template <class ARRAY, class DELIMITER> auto Split(ARRAY && array, const DELIMITER & delimiter_element_or_array);
 
 	template <class ARRAY, class DELIMITER> auto Merge(const ARRAY & values, const DELIMITER & delimiter);
 
@@ -76,8 +77,10 @@ template <class ARRAY, class TYPE> inline Array <TYPE> Merge(const ArrayView <AR
 
 REFLEX_END
 
-template <class ARRAY, class VALUE> inline auto Reflex::Split(const ARRAY & array, const VALUE & delimiter)
+template <class ARRAY, class VALUE> inline auto Reflex::Split(ARRAY && array, const VALUE & delimiter)
 {
+	REFLEX_STATIC_ASSERT(!Detail::kIsTemporaryArray<decltype(array)>);
+
 	auto view = ToView(array);
 
 	using ArrayViewType = decltype(view);

@@ -7,7 +7,8 @@
 //
 
 Reflex::IDE::Detail::TextEditor::TextEditor()
-	: m_text(REFLEX_CREATE(GLX::Text, true))
+	: behaviour(GLX::TextEditBehaviour::Create())
+	, m_text(New<GLX::Text>(true))
 {
 	GLX::SetColourCanvas(*this, {}, [this](GLX::ColourCanvasContext & ctx)
 	{
@@ -18,11 +19,11 @@ Reflex::IDE::Detail::TextEditor::TextEditor()
 		{
 			GLX::AddRectFill(ctx.output, kYellow, GetLineCoordinates(m_highlighted_line.value));
 
-			//auto [offset, unused] = m_textedit->GetLineCoordinates(0);
+			//auto [offset, unused] = behaviour->GetLineCoordinates(0);
 
 			//offset = GLX::Detail::SnapToPixels(offset * 0.5f) + 2.0f;
 
-			//auto lineh = m_textedit->GetLineHeight();
+			//auto lineh = behaviour->GetLineHeight();
 
 			//for (auto idx : m_commented_lines)
 			//{
@@ -33,9 +34,7 @@ Reflex::IDE::Detail::TextEditor::TextEditor()
 
 	SetProperty(GLX::kvalue, m_text);
 
-	m_textedit = GLX::TextEditBehaviour::Create();
-
-	SetDelegate(GLX::TextEditBehaviour::kTextEdit, m_textedit);
+	SetDelegate(GLX::TextEditBehaviour::kTextEdit, behaviour);
 
 	GLX::SetFlow(*this, GLX::kFlowY);
 }
@@ -51,14 +50,40 @@ void Reflex::IDE::Detail::TextEditor::ClearData()
 	Realign();
 }
 
-void Reflex::IDE::Detail::TextEditor::SetData(ConstTRef <Data::ArchiveObject> archive)
+void Reflex::IDE::Detail::TextEditor::SetData(ConstTRef <Data::ArchiveObject> archive, UInt8 tab_spaces)
 {
 	if (m_data.Adr() != archive.Adr())
 	{
+		const WChar spaces[] = { L' ', L' ', L' ', L' ' };
+		const WChar tab = char(9);
+
 		m_data = archive;
 
-		GLX::SetText(*this, Data::DecodeUTF8(m_data->value));
+		auto raw = Data::DecodeUTF8(m_data->value);
+
+		Pair <WString::View> from_to;
+
+		switch (tab_spaces)
+		{
+		case 0:
+			from_to = { ToView(spaces), ToView(tab) };
+			break;
+
+		case 3:
+			from_to = { ToView(tab), WString::View(spaces,3) };
+			break;
+
+		case 4:
+			from_to = { ToView(tab), WString::View(spaces, 4) };
+			break;
+		}
+
+		raw = Replace(raw, from_to.a, from_to.b);
+
+		GLX::SetText(*this, raw);
 	}
+
+	behaviour->SetTabSpaces(tab_spaces);
 }
 
 void Reflex::IDE::Detail::TextEditor::ClearError()
@@ -70,9 +95,9 @@ void Reflex::IDE::Detail::TextEditor::ClearError()
 
 void Reflex::IDE::Detail::TextEditor::Reveal(UInt position, UInt length)
 {
-	m_textedit->SetCaret(position, position, length);
+	behaviour->SetCaret(position, position, length);
 
-	m_textedit->Reveal();
+	behaviour->Reveal();
 
 	Realign();
 }
@@ -146,7 +171,7 @@ bool Reflex::IDE::Detail::TextEditor::OnEvent(GLX::Object & src, GLX::Event & e)
 
 Reflex::GLX::Rect Reflex::IDE::Detail::TextEditor::GetLineCoordinates(UInt idx) const
 {
-	auto line = m_textedit->GetLineCoordinates(idx);
+	auto line = behaviour->GetLineCoordinates(idx);
 
 	GLX::Rect rect = { {0.0, line.a}, { GetRect().size.w, line.b } };
 

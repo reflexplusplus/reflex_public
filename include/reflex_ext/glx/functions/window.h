@@ -23,9 +23,9 @@ namespace Reflex::GLX
 
 
 //
-//imp
+//impl
 
-REFLEX_INLINE bool Reflex::GLX::IsFullScreen(const WindowClient & window)
+inline bool Reflex::GLX::IsFullScreen(const WindowClient & window)
 {
 	return window.GetDisplayMode() == System::kWindowDisplayFullScreen;
 }

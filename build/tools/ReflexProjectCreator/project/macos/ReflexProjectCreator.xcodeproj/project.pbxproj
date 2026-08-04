@@ -21,6 +21,8 @@
 		1ACD4FCA2C46884D00421F70 /* libReflexCommonVmUi.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 1ACD4FC02C46884D00421F70 /* libReflexCommonVmUi.a */; };
 		1ACD4FCE2C46884D00421F70 /* libReflexTargetApp.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 1ACD4FC22C46884D00421F70 /* libReflexTargetApp.a */; };
 		1ACD4FD22C468A4100421F70 /* entry.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1ACD4FD12C468A4100421F70 /* entry.cpp */; };
+		1AE2E5112FC837DE00279ADD /* app.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1AE2E5102FC837DE00279ADD /* app.cpp */; };
+		1AE2E5132FC837E700279ADD /* view.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1AE2E5122FC837E700279ADD /* view.cpp */; };
 		1AEDA6592B64CF4300341EB6 /* reflex_ext.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1AB85F512B1EF023003B7EA1 /* reflex_ext.cpp */; };
 /* End PBXBuildFile section */
 
@@ -38,7 +40,9 @@
 		1ACD4FBF2C46884D00421F70 /* libReflexCommonUi.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libReflexCommonUi.a; path = ../../../../../bin/lib/macos/Release/libReflexCommonUi.a; sourceTree = SOURCE_ROOT; };
 		1ACD4FC02C46884D00421F70 /* libReflexCommonVmUi.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libReflexCommonVmUi.a; path = ../../../../../bin/lib/macos/Release/libReflexCommonVmUi.a; sourceTree = SOURCE_ROOT; };
 		1ACD4FC22C46884D00421F70 /* libReflexTargetApp.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libReflexTargetApp.a; path = ../../../../../bin/lib/macos/Release/libReflexTargetApp.a; sourceTree = SOURCE_ROOT; };
-		1ACD4FD12C468A4100421F70 /* entry.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = entry.cpp; path = ../../code/entry.cpp; sourceTree = "<group>"; };
+		1ACD4FD12C468A4100421F70 /* entry.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = entry.cpp; path = ../../code/entry.cpp; sourceTree = SOURCE_ROOT; };
+		1AE2E5102FC837DE00279ADD /* app.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = app.cpp; path = ../../code/app.cpp; sourceTree = SOURCE_ROOT; };
+		1AE2E5122FC837E700279ADD /* view.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = view.cpp; path = ../../code/view.cpp; sourceTree = SOURCE_ROOT; };
 		745217940CA98A790067AF41 /* OpenGL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGL.framework; path = /System/Library/Frameworks/OpenGL.framework; sourceTree = "<absolute>"; };
 		C5BBEACA1249E2F1005282E7 /* DiskArbitration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = DiskArbitration.framework; path = /System/Library/Frameworks/DiskArbitration.framework; sourceTree = "<absolute>"; };
 		DF8A2D4C264B843F0007967E /* HardenedRT.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = HardenedRT.entitlements; sourceTree = SOURCE_ROOT; };
@@ -80,6 +84,8 @@
 				C52D65CF118B76FA00D45979 /* Reflex */,
 				C5F37599127C6DEF0065C529 /* Resources */,
 				1ACD4FD12C468A4100421F70 /* entry.cpp */,
+				1AE2E5102FC837DE00279ADD /* app.cpp */,
+				1AE2E5122FC837E700279ADD /* view.cpp */,
 				1A27B3592A1C740D00BF1FF2 /* resources.cpp */,
 				19C28FACFE9D520D11CA2CBB /* Products */,
 				178F3DAC2DEEFCB4006FD10F /* paths.xcconfig */,
@@ -132,6 +138,7 @@
 				1A06E4122B18E29100E25636 /* Resources */,
 				1A06E4142B18E29100E25636 /* Sources */,
 				1A06E41D2B18E29100E25636 /* Frameworks */,
+				1AF9E1C02FC9000900EB967E /* PostBuildCopy */,
 			);
 			buildRules = (
 			);
@@ -198,7 +205,26 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "\"$REFLEX_PATH/bin/tools/macos/ReflexResourceBuilder.app/Contents/MacOS/ReflexResourceBuilder\" \"$PROJECT_DIR/../../resources.xml\"\n";
+			shellScript = "\"$REFLEX_PATH/bin/tools/macos/reflex\" build-resources --path \"$PROJECT_DIR/../../resources.xml\"\n";
+			showEnvVarsInLog = 0;
+		};
+		1AF9E1C02FC9000900EB967E /* PostBuildCopy */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			name = PostBuildCopy;
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "set -e\n\nDEST_DIR=\"$SRCROOT/../../../../../bin/tools/macos\"\nDEST=\"$DEST_DIR/$WRAPPER_NAME\"\nSRC=\"$TARGET_BUILD_DIR/$WRAPPER_NAME\"\n\nmkdir -p \"$DEST_DIR\"\nrm -rf \"$DEST\"\nditto \"$SRC\" \"$DEST\"\ncodesign --force --deep --sign - \"$DEST\"\n";
 			showEnvVarsInLog = 0;
 		};
 /* End PBXShellScriptBuildPhase section */
@@ -209,7 +235,9 @@
 			buildActionMask = 2147483647;
 			files = (
 				1ACD4FD22C468A4100421F70 /* entry.cpp in Sources */,
+				1AE2E5112FC837DE00279ADD /* app.cpp in Sources */,
 				1AEDA6592B64CF4300341EB6 /* reflex_ext.cpp in Sources */,
+				1AE2E5132FC837E700279ADD /* view.cpp in Sources */,
 				1A06E4162B18E29100E25636 /* resources.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -239,9 +267,6 @@
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
-				AU_COMPANY_4CC = jaia;
-				AU_TYPE_4CC = aumu;
-				AU_UID_4CC = iaga;
 				CLANG_CXX_LANGUAGE_STANDARD = "c++20";
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_LINK_OBJC_RUNTIME = NO;
@@ -269,13 +294,13 @@
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
-				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GCC_ENABLE_CPP_RTTI = NO;
 				GCC_FAST_MATH = YES;
 				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PREPROCESSOR_DEFINITIONS = (
-					REFLEX_BOOTSTRAP_TYPE_VM_APP,
+					REFLEX_BOOTSTRAP_TYPE_APP,
 					"$(inherited)",
 				);
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
@@ -312,9 +337,6 @@
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
-				AU_COMPANY_4CC = jaia;
-				AU_TYPE_4CC = aumu;
-				AU_UID_4CC = iaga;
 				CLANG_CXX_LANGUAGE_STANDARD = "c++20";
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_LINK_OBJC_RUNTIME = NO;
@@ -342,14 +364,14 @@
 				DEAD_CODE_STRIPPING = YES;
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
-				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GCC_ENABLE_CPP_RTTI = NO;
 				GCC_FAST_MATH = YES;
 				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
 				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_OPTIMIZATION_LEVEL = 2;
 				GCC_PREPROCESSOR_DEFINITIONS = (
-					REFLEX_BOOTSTRAP_TYPE_VM_APP,
+					REFLEX_BOOTSTRAP_TYPE_APP,
 					"$(inherited)",
 				);
 				GCC_UNROLL_LOOPS = YES;

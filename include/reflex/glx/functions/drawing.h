@@ -33,6 +33,12 @@ namespace Reflex::GLX
 		kPathCapSquare
 	};
 
+	enum FillRule : UInt8
+	{
+		kFillRuleNonZero,
+		kFillRuleEvenOdd
+	};
+
 
 	void AddRectFill(Points & points, const Rect & rect);
 
@@ -76,6 +82,8 @@ namespace Reflex::GLX
 
 
 	void AddPolygonFill(Points & output, const Points::View & input);	//performs tesselsation
+
+	void AddPolygonFill(Points & output, const ArrayView <Points::View> & input, FillRule fill_rule);	//compound polygon fill
 
 
 	void AddDottedLine(Points & points, Point from, Point to, Size pixel_size);

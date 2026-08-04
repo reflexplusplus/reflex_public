@@ -6,7 +6,7 @@
 //
 //View impl
 
-REFLEX_BEGIN_INTERNAL(ResourceBuilder)
+namespace ResourceBuilder { namespace {	//begin internal namespace
 
 class ViewImpl : public View
 {
@@ -112,7 +112,7 @@ private:
 
 	Float m_time;
 
-	Reference <System::Thread> m_thread;
+	Reference <System::Task> m_thread;
 
 };
 
@@ -305,9 +305,9 @@ void ViewImpl::OnUpdate()
 	}
 }
 
-REFLEX_END_INTERNAL
+} } //end internal namespace
 
-TRef <ResourceBuilder::View> ResourceBuilder::View::Create(App & app)
+Reflex::TRef <ResourceBuilder::View> ResourceBuilder::View::Create(App & app)
 {
 	return New<ViewImpl>(app);
 }

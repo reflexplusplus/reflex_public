@@ -6,19 +6,14 @@
 //
 //CustomDrawing::App implementation
 
-using namespace Reflex;
+namespace CustomDrawing { namespace {
 
-REFLEX_BEGIN_INTERNAL(CustomDrawing)
-
-struct AppImpl :
-	public App,
-	public Bootstrap::Streamable
+struct AppImpl : public App
 {
 	static constexpr UInt16 kChunkVersion = 0;
 
 	AppImpl()
-		: App(K32("CustomDrawing"))
-		, Bootstrap::Streamable(session, K32("app"), kChunkVersion)
+		: App(MakeKey32("CustomDrawing"), kChunkVersion)
 	{
 		output.Log("Custom Drawing constructed");
 	}
@@ -64,9 +59,9 @@ struct AppImpl :
 
 };
 
-REFLEX_END_INTERNAL
+} }
 
-TRef <CustomDrawing::App> CustomDrawing::App::Create()
+Reflex::TRef <CustomDrawing::App> CustomDrawing::App::Create()
 {
 	return New<CustomDrawing::AppImpl>();
 }

@@ -36,6 +36,8 @@ namespace Reflex::Data
 
 	CString DecodeUrlSegment(const CString::View & view);	//% decodes
 
+
+	Pair <CString::View> SplitUrlResource(CString && url) = delete;
 }
 
 
