@@ -281,7 +281,6 @@
 				OTHER_LDFLAGS = (
 					"-lReflexCommon",
 					"-lReflexCommonUi",
-					"-lReflexCommonVm",
 					"-lReflexTargetApp",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.reflexplusplus.customdrawing;
@@ -361,7 +360,6 @@
 				OTHER_LDFLAGS = (
 					"-lReflexCommon",
 					"-lReflexCommonUi",
-					"-lReflexCommonVm",
 					"-lReflexTargetApp",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.reflexplusplus.customdrawing;

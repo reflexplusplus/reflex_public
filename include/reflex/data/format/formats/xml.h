@@ -14,10 +14,9 @@ namespace Reflex::Data
 
 	TRef <PropertySetArray> AcquireXmlNodes(PropertySet & node);
 
-	TRef <PropertySet> AddXmlNode(PropertySetArray & nodes, const CString::View & tag);
+	TRef <PropertySet> AddXmlNode(PropertySetArray & nodes, CString::View tag);
 
 	ArrayView < ConstReference <PropertySet> > GetXmlNodes(const PropertySet & node);
-
 
 	CString::View GetXmlTag(const PropertySet & node);
 
@@ -44,7 +43,7 @@ inline Reflex::TRef <Reflex::Data::PropertySetArray> Reflex::Data::AcquireXmlNod
 	return AcquirePropertySetArray(node, kNullKey);
 }
 
-inline Reflex::TRef <Reflex::Data::PropertySet> Reflex::Data::AddXmlNode(PropertySetArray & node, const CString::View & tag)
+inline Reflex::TRef <Reflex::Data::PropertySet> Reflex::Data::AddXmlNode(PropertySetArray & node, CString::View tag)
 {
 	auto child = AddPropertySet(node);
 

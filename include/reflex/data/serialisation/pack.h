@@ -13,9 +13,10 @@ namespace Reflex::Data
 
 	template <class TYPE> Archive::View Pack(const TYPE & value);
 
-	template <class TYPE> void Unpack(const Archive::View & ref, TYPE & value);
+	
+	template <class TYPE> void Unpack(Archive::View ref, TYPE & value);
 
-	template <class TYPE> TYPE Unpack(const Archive::View & ref);
+	template <class TYPE> TYPE Unpack(Archive::View ref);
 
 }
 
@@ -30,12 +31,12 @@ template <class TYPE> REFLEX_INLINE Reflex::Data::Archive::View Reflex::Data::Pa
 	return Detail::Packer<TYPE>::Pack(value);
 }
 
-template <class TYPE> REFLEX_INLINE void Reflex::Data::Unpack(const Archive::View & archive, TYPE & value)
+template <class TYPE> REFLEX_INLINE void Reflex::Data::Unpack(Archive::View archive, TYPE & value)
 {
 	Detail::Packer<TYPE>::Unpack(archive, value);
 }
 
-template <class TYPE> inline TYPE Reflex::Data::Unpack(const Archive::View & archive)
+template <class TYPE> inline TYPE Reflex::Data::Unpack(Archive::View archive)
 {
 	TYPE rtn;
 

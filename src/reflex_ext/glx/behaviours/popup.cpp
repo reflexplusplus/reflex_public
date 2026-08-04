@@ -359,7 +359,7 @@ void Reflex::GLX::Detail::PlacePopup(Object & owner, Object & fg, TRef <Object> 
 		alignment = Alignment((kNumAlignment - 1) - alignment);	//flip
 	}
 
-	popup->SetRect(SnapToPixels(ConstrainRect(bounds, rect)));
+	popup->SetRect(SnapToPixels<kPixelSnapBounds>(ConstrainRect(bounds, rect)));
 
 	if (Detail::GetBool(popup->GetStyle(), kanimate))
 	{

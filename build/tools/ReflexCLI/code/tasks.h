@@ -30,6 +30,15 @@ namespace ReflexCLI
 	void DocHelp(System::FileHandle & std_out);
 
 
+	enum Target : UInt8
+	{
+		kTargetWindows,
+		kTargetMacOS,
+		kTargetIOS,
+		kTargetAndroid,
+		kTargetCMake
+	};
+
 	constexpr CString::View kTargets[] = { "windows", "macos", "ios", "android", "cmake" };
 
 	struct Variable

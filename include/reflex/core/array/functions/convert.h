@@ -11,18 +11,16 @@
 namespace Reflex
 {
 
-	template <class TYPE> inline ArrayRegion <TYPE> ToRegion(const ArrayRegion <TYPE> & value) { return value; }
+	template <class TYPE> inline ArrayRegion <TYPE> ToRegion(ArrayRegion <TYPE> value) { return value; }
 
 	template <class TYPE> inline ArrayRegion <TYPE> ToRegion(Array <TYPE> & value) { return ArrayRegion<TYPE>(value.GetData(), value.GetSize()); }
-
-	template <class TYPE> inline ArrayRegion <TYPE> ToRegion(ObjectOf < Array <TYPE> > & object) { return ToRegion(object.value); }
 
 	template <class TYPE, UInt SIZE> inline constexpr ArrayRegion <TYPE> ToRegion(TYPE(&data)[SIZE]) { return { data, SIZE - IsNullTerminated<TYPE>::value }; }
 
 
-	template <class TYPE> inline const ArrayView <TYPE> & ToView(const ArrayView <TYPE> & value) { return value; }
+	template <class TYPE> inline ArrayView <TYPE> ToView(ArrayView <TYPE> value) { return value; }
 
-	template <class TYPE> inline ArrayView <TYPE> ToView(const ArrayRegion <TYPE> & value) { return { value.data, value.size }; }
+	template <class TYPE> inline ArrayView <TYPE> ToView(ArrayRegion <TYPE> value) { return { value.data, value.size }; }
 
 	template <class TYPE> inline ArrayView <TYPE> ToView(const Array <TYPE> & value) { return ArrayView<TYPE>(value.GetData(), value.GetSize()); }
 
@@ -43,14 +41,14 @@ namespace Reflex
 	inline ArrayView <WChar> ToView(const WChar * value) { return value; };
 
 
-	template <class TYPE> inline ArrayView <TYPE> ToView(const ObjectOf < Array <TYPE> > & object) { return ToView(object.value); }
-
-	template <class TYPE> inline auto ToView(TRef <TYPE> tref) { return ToView(*tref); }
-
-	template <class TYPE> inline auto ToView(const Reference <TYPE> & reference) { return ToView(*reference); }
-
-
 	template <class TYPE, class auto_1> Array <TYPE> ToArray(auto_1 && iterable);
+
+
+
+	//prohibit
+
+	template <class TYPE> inline ArrayRegion <TYPE> ToRegion(Array <TYPE> && value) = delete;
+	template <class TYPE> inline ArrayView <TYPE> ToView(Array <TYPE> && value) = delete;
 
 }
 

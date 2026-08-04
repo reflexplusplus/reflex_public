@@ -18,13 +18,6 @@ void LoadArgsFile(Data::PropertySet & args)
 	}
 }
 
-bool IsKey(const CString::View & string)
-{
-	constexpr CString::View kDashDash = "--";
-
-	return Left<true>(string, 2) == kDashDash;
-}
-
 struct NullProgressBarImpl : public ProgressBar
 {
 	void Render(Float32 progress = 0.0f) override {}
@@ -141,49 +134,6 @@ Reflex::TRef <Reflex::Bootstrap::CLI::ProgressBar> Reflex::Bootstrap::CLI::Progr
 		return REFLEX_CREATE(ProgressBarImpl<false>, out, title);
 	}
 }
-
-//Reflex::Data::PropertySet Reflex::Bootstrap::CLI::Detail::PackArgs(ArrayView <CString::View> cmdline)
-//{
-//	Data::PropertySet args;
-//
-//	if (cmdline && !IsKey(cmdline.GetFirst()))
-//	{
-//		Data::SetCString(args, kcommand, cmdline.GetFirst());
-//
-//		cmdline = Mid(cmdline, 1);
-//	}
-//
-//	CString::View key;
-//	Key32 value_key = K32("value");
-//
-//	for (auto token : cmdline)
-//	{
-//		bool expect_value = True(key);
-//
-//		if (expect_value)
-//		{
-//			if (IsKey(token)) ThrowError(Join("missing value for ", key));
-//
-//			Data::SetCString(args, key, token);
-//
-//			key = {};
-//		}
-//		else if (IsKey(token))
-//		{
-//			key = Mid(token, 2);
-//		}
-//		else
-//		{
-//			Data::SetCString(args, value_key, token);
-//
-//			value_key.value++;
-//		}
-//	}
-//
-//	if (key) ThrowError(Join("missing value for ", key));
-//
-//	return args;
-//}
 
 Reflex::Array <Reflex::CString::View> Reflex::Bootstrap::CLI::GetStringArray(const Data::PropertySet & args, Key32 id)
 {

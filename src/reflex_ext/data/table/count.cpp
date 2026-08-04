@@ -11,7 +11,7 @@ void CountBinaries(const Table & sheet, Table::CellPtrImpl <true> && itr, Table:
 
 	for (; itr != end; ++itr)
 	{
-		auto binary = UnpackRawArray<UInt8>(sheet.ReadHeapCell(Reinterpret<UInt32>(itr.adr), alignment));
+		auto binary = Detail::UnpackRawArray<UInt8>(sheet.ReadHeapCell(Reinterpret<UInt32>(itr.adr), alignment));
 
 		counts.Acquire(binary)++;
 	}

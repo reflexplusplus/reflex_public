@@ -88,20 +88,26 @@ Rect ToFloat(const System::iRect & irect);
 System::iRect ToInt(const Rect & rect);
 
 
+enum PixelSnapPolicy : UInt8
+{
+	kPixelSnapBounds,	//snap the near and far bounds independently; the resulting size may change
+	kPixelSnapSize,	//snap the origin and size independently; the resulting far bound may move
+};
+
 Float SnapToPixels(Float value);
 
 Point SnapToPixels(Point point);
 
 Size SnapToPixels(Size size);
 
-Rect SnapToPixels(const Rect & rect);
+template <PixelSnapPolicy POLICY> Rect SnapToPixels(const Rect & rect);
 
 
-Point Snap(const Point & point, const Size & pix);
+Point Snap(const Point & point, Size pix);
 
-Size Snap(const Size & size, const Size & pix);
+Size Snap(const Size & size, Size pix);
 
-Rect Snap(const Rect & rect, const Size & pix);
+template <PixelSnapPolicy POLICY> Rect Snap(const Rect & rect, Size pix);
 
 
 Rect ClipRect(const Rect & clip, const Rect & target);
@@ -251,32 +257,54 @@ REFLEX_INLINE Reflex::GLX::Size Reflex::GLX::Detail::SnapToPixels(Size size)
 	return { SnapToPixels(size.w), SnapToPixels(size.h) };
 }
 
-REFLEX_INLINE Reflex::GLX::Rect Reflex::GLX::Detail::SnapToPixels(const Rect & rect)
+template <Reflex::GLX::Detail::PixelSnapPolicy POLICY> REFLEX_INLINE Reflex::GLX::Rect Reflex::GLX::Detail::SnapToPixels(const Rect & rect)
 {
 	Float x = SnapToPixels(rect.origin.x);
 	Float y = SnapToPixels(rect.origin.y);
-	Float w = SnapToPixels(rect.size.w - (x - rect.origin.x));
-	Float h = SnapToPixels(rect.size.h - (y - rect.origin.y));
+	Float w;
+	Float h;
+
+	if constexpr (POLICY == kPixelSnapBounds)
+	{
+		w = SnapToPixels(rect.size.w - (x - rect.origin.x));
+		h = SnapToPixels(rect.size.h - (y - rect.origin.y));
+	}
+	else if constexpr (POLICY == kPixelSnapSize)
+	{
+		w = SnapToPixels(rect.size.w);
+		h = SnapToPixels(rect.size.h);
+	}
 
 	return { { x, y }, { w, h } };
 }
 
-REFLEX_INLINE Reflex::GLX::Point Reflex::GLX::Detail::Snap(const Point & point, const Size & pix)
+REFLEX_INLINE Reflex::GLX::Point Reflex::GLX::Detail::Snap(const Point & point, Size pix)
 {
 	return { Quantise(point.x, pix.w), Quantise(point.y, pix.h) };
 }
 
-REFLEX_INLINE Reflex::GLX::Size Reflex::GLX::Detail::Snap(const Size & size, const Size & pix)
+REFLEX_INLINE Reflex::GLX::Size Reflex::GLX::Detail::Snap(const Size & size, Size pix)
 {
 	return { Quantise(size.w, pix.w), Quantise(size.h, pix.h) };
 }
 
-REFLEX_INLINE Reflex::GLX::Rect Reflex::GLX::Detail::Snap(const Rect & rect, const Size & pix)
+template <Reflex::GLX::Detail::PixelSnapPolicy POLICY> REFLEX_INLINE Reflex::GLX::Rect Reflex::GLX::Detail::Snap(const Rect & rect, Size pix)
 {
 	Float x = Quantise(rect.origin.x, pix.w);
 	Float y = Quantise(rect.origin.y, pix.h);
-	Float w = Quantise(rect.size.w - (x - rect.origin.x), pix.w);
-	Float h = Quantise(rect.size.h - (y - rect.origin.y), pix.h);
+	Float w;
+	Float h;
+
+	if constexpr (POLICY == kPixelSnapBounds)
+	{
+		w = Quantise(rect.size.w - (x - rect.origin.x), pix.w);
+		h = Quantise(rect.size.h - (y - rect.origin.y), pix.h);
+	}
+	else if constexpr (POLICY == kPixelSnapSize)
+	{
+		w = Quantise(rect.size.w, pix.w);
+		h = Quantise(rect.size.h, pix.h);
+	}
 
 	return { { x, y }, { w, h } };
 }

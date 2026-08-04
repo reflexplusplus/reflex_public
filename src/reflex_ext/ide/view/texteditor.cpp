@@ -13,22 +13,10 @@ Reflex::IDE::Detail::TextEditor::TextEditor()
 	GLX::SetColourCanvas(*this, {}, [this](GLX::ColourCanvasContext & ctx)
 	{
 		constexpr auto kYellow = GLX::RGB(255, 255, 0);
-		//constexpr auto kBlue = GLX::RGB(80, 192, 248,128);
 
 		if (m_highlighted_line /*|| m_commented_lines*/)
 		{
 			GLX::AddRectFill(ctx.output, kYellow, GetLineCoordinates(m_highlighted_line.value));
-
-			//auto [offset, unused] = behaviour->GetLineCoordinates(0);
-
-			//offset = GLX::Detail::SnapToPixels(offset * 0.5f) + 2.0f;
-
-			//auto lineh = behaviour->GetLineHeight();
-
-			//for (auto idx : m_commented_lines)
-			//{
-			//	GLX::AddRectFill(points, kBlue, { { 0.0f, offset + (idx * lineh) }, { size.w, lineh } });
-			//}
 		}
 	});
 

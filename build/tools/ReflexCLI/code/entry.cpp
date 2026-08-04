@@ -99,18 +99,18 @@ Array <TemplateDefinition> GetTemplates()
 
 void Create(const Data::PropertySet & args, System::FileHandle & std_out)
 {
-	constexpr auto get_default_target = []() -> CString::View
+	constexpr auto get_last_targets = []() -> Array <CString::View>
 	{
 		switch (System::kPlatform)
 		{
 		case System::kPlatformWindows:
-			return kTargets[0];
+			return { kTargets[kTargetMacOS], kTargets[kTargetIOS], kTargets[kTargetCMake] };
 
 		case System::kPlatformMacOS:
-			return kTargets[1];
+			return { kTargets[kTargetWindows], kTargets[kTargetCMake] };
 
 		default:
-			return "";
+			return {};
 		}
 	};
 
@@ -208,10 +208,11 @@ void Create(const Data::PropertySet & args, System::FileHandle & std_out)
 	for (auto & i : templates) template_ids.Push(GetTemplateID(i));
 	for (auto & i : kTargets) target_ids.Push(i);
 
-	if (auto default_target = get_default_target())
+	for (auto & i : get_last_targets())
 	{
-		Remove(target_ids, default_target);
-		target_ids.Insert(1, default_target);
+		Remove(target_ids, i);
+
+		target_ids.Push(i);
 	}
 
 	auto template_from_args = True(Data::GetCString(args, "template"));
@@ -278,7 +279,8 @@ void Create(const Data::PropertySet & args, System::FileHandle & std_out)
 
 	if (output.Empty())
 	{
-		auto output_parent = Data::GetWString(prefs, "output", System::GetCurrentDirectory());
+		auto current_dir = System::GetCurrentDirectory();
+		auto output_parent = Data::GetWString(prefs, "output", current_dir);
 		auto folder_name = GetProjectFolderName(*ptmpl, string_inputs);
 
 		if (folder_name.Empty()) CLI::ThrowError("product undefined");

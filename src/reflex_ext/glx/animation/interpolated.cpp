@@ -208,6 +208,17 @@ Reflex::TRef <Reflex::GLX::InterpolatedAnimation> Reflex::GLX::CreatePositionAni
 			return SafeNormalise(Detail::GetPoint(m_yaxis, object.GetRect().origin), m_start, (m_start + m_difference));
 		}
 
+		void OnFlip() override
+		{
+			auto cur = Detail::GetPoint(m_yaxis, m_target->GetRect().origin);
+
+			auto start = m_start;
+
+			m_start = cur;
+			
+			m_difference = start - cur;
+		}
+
 		static void OnInterpolate(AxisMoveAnimation & self, GLX::Object & object, Float x)
 		{
 			auto axis = Detail::SnapToPixels(self.m_start + (self.m_difference * x));
@@ -219,16 +230,6 @@ Reflex::TRef <Reflex::GLX::InterpolatedAnimation> Reflex::GLX::CreatePositionAni
 			object.SetPosition(xy);
 		}
 
-		void OnFlip() override
-		{
-			auto cur = Detail::GetPoint(m_yaxis, m_target->GetRect().origin);
-
-			auto start = m_start;
-
-			m_start = cur;
-			
-			m_difference = start - cur;
-		}
 
 		bool m_yaxis;
 

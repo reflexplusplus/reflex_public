@@ -26,9 +26,9 @@ namespace Reflex::Data
 	ConstTRef <PropertySet> GetPropertySet(const Object & object, Key32 id);
 
 
-	TRef <PropertySet> AcquirePropertySet(PropertySet & propertyset, const ArrayView <Key32> & path);
+	TRef <PropertySet> AcquirePropertySet(PropertySet & propertyset, ArrayView <Key32> path);
 
-	ConstTRef <PropertySet> GetPropertySet(const PropertySet & propertyset, const ArrayView <Key32> & path);
+	ConstTRef <PropertySet> GetPropertySet(const PropertySet & propertyset, ArrayView <Key32> path);
 
 
 	void UnsetPropertySetArray(PropertySet & propertyset, Key32 id);
@@ -105,77 +105,90 @@ namespace Reflex::Data
 
 	void UnsetBinary(Object & object, Key32 key);
 
-	void SetBinary(Object & object, Key32 key, const Data::Archive::View & value);
+	void SetBinary(Object & object, Key32 key, Archive::View value);
 
 	Archive::View GetBinary(const Object & object, Key32 key);
 
-	Archive::View GetBinary(const Object & object, Key32 key, const Archive::View & fallback);
+	Archive::View GetBinary(const Object & object, Key32 key, Archive::View fallback);
+
 
 
 	void UnsetCString(Object & object, Key32 key);
 
-	void SetCString(Object & object, Key32 key, const CString::View & value);
+	void SetCString(Object & object, Key32 key, CString::View value);
 
 	CString::View GetCString(const Object & object, Key32 key);
 
-	CString::View GetCString(const Object & object, Key32 key, const CString::View & fallback);
+	CString::View GetCString(const Object & object, Key32 key, CString::View fallback);
+
+	CString::View GetCString(const Object & object, Key32 key, const char * fallback);
 
 
 	void UnsetWString(Object & object, Key32 key);
 
-	void SetWString(Object & object, Key32 key, const WString::View & value);
+	void SetWString(Object & object, Key32 key, WString::View value);
 
 	WString::View GetWString(const Object & object, Key32 key);
 
-	WString::View GetWString(const Object & object, Key32 key, const WString::View & fallback);
+	WString::View GetWString(const Object & object, Key32 key, WString::View fallback);
+
+	WString::View GetWString(const Object & object, Key32 key, const WChar * fallback);
 
 
 	void UnsetUInt32Array(Object & object, Key32 key);
 
-	void SetUInt32Array(Object & object, Key32 key, const ArrayView <UInt32> & values);
+	void SetUInt32Array(Object & object, Key32 key, ArrayView <UInt32> values);
 
 	ArrayView <UInt32> GetUInt32Array(const Object & object, Key32 key);
 
 
-	void SetUInt64Array(Object & object, Key32 key, const ArrayView <UInt64> & values);
+	void SetUInt64Array(Object & object, Key32 key, ArrayView <UInt64> values);
 
 	ArrayView <UInt64> GetUInt64Array(const Object & object, Key32 key);
 
 
-	void SetInt32Array(Object & object, Key32 key, const ArrayView <Int32> & values);
+	void SetInt32Array(Object & object, Key32 key, ArrayView <Int32> values);
 
 	ArrayView <Int32> GetInt32Array(const Object & object, Key32 key);
 
 
-	void SetInt64Array(Object & object, Key32 key, const ArrayView <Int64> & values);
+	void SetInt64Array(Object & object, Key32 key, ArrayView <Int64> values);
 
 	ArrayView <Int64> GetInt64Array(const Object & object, Key32 key);
 
 
 	void UnsetFloat32Array(Object & object, Key32 key);
 
-	void SetFloat32Array(Object & object, Key32 key, const ArrayView <Float32> & values);
+	void SetFloat32Array(Object & object, Key32 key, ArrayView <Float32> values);
 
 	ArrayView <Float32> GetFloat32Array(const Object & object, Key32 key);
 
 
-	void SetKey32Array(Object & object, Key32 id, const ArrayView <Key32> & values);
+	void SetKey32Array(Object & object, Key32 id, ArrayView <Key32> values);
 
 	ArrayView <Key32> GetKey32Array(const Object & object, Key32 id);
 
 
 	void UnsetCStringArray(Object & object, Key32 key);
 
-	void SetCStringArray(Object & object, Key32 key, const ArrayView <CString> & values);
+	void SetCStringArray(Object & object, Key32 key, ArrayView <CString> values);
 
 	ArrayView <CString> GetCStringArray(const Object & object, Key32 key);
 
 
 	void UnsetWStringArray(Object & object, Key32 key);
 
-	void SetWStringArray(Object & object, Key32 key, const ArrayView <WString> & values);
+	void SetWStringArray(Object & object, Key32 key, ArrayView <WString> values);
 
 	ArrayView <WString> GetWStringArray(const Object & object, Key32 key);
+
+
+
+	//prohibit
+
+	Archive::View GetBinary(const Object & object, Key32 key, Archive && fallback) = delete;
+	CString::View GetCString(const Object & object, Key32 key, CString && fallback) = delete;
+	WString::View GetWString(const Object & object, Key32 key, WString && fallback) = delete;
 
 }
 
@@ -190,4 +203,14 @@ REFLEX_EXTERN_NULL(Reflex::Data::PropertySetArray);
 inline Reflex::TRef <Reflex::Data::PropertySet> Reflex::Data::AcquirePropertySet(PropertySet & propertyset, Key32 id)
 {
 	return AcquirePropertySet(propertyset, ToView(id));
+}
+
+inline Reflex::CString::View Reflex::Data::GetCString(const Object & object, Key32 key, const char * fallback)
+{
+	return GetCString(object, key, ToView(fallback)); 
+}
+
+inline Reflex::WString::View Reflex::Data::GetWString(const Object & object, Key32 key, const WChar * fallback)
+{
+	return GetWString(object, key, ToView(fallback));
 }

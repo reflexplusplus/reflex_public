@@ -417,34 +417,6 @@ template <class TYPE, bool CONST> inline Table::CellImpl <TYPE,CONST> operator+(
 	return t;
 }
 
-template <class TYPE> inline Data::Archive::View PackRawArray(const ArrayView <TYPE> & view)
-{
-	REFLEX_STATIC_ASSERT(Data::Detail::IsRawPackable< ArrayView<TYPE> >::value);
-
-	if constexpr (IsType<TYPE,UInt8>::value)
-	{
-		return view;
-	}
-	else
-	{
-		return Data::Pack(view);
-	}
-}
-
-template <class TYPE> inline ArrayView <TYPE> UnpackRawArray(const Data::Archive::View & raw)
-{
-	REFLEX_STATIC_ASSERT(Data::Detail::IsRawPackable<TYPE>::value);
-
-	if constexpr (IsType<TYPE,UInt8>::value)
-	{
-		return raw;
-	}
-	else
-	{
-		return Data::Unpack<ArrayView<TYPE>>(raw);
-	}
-}
-
 REFLEX_END
 
 template <bool CONST> struct Reflex::IsBoolCastable < Reflex::Data::Table::RowCursorImpl <CONST> > { static const bool value = true; };
@@ -495,6 +467,34 @@ template <class TYPE> consteval UInt8 GetHeapAlignment()
 	else
 	{
 		REFLEX_STATIC_ASSERT(kIsType<TYPE, void>);	//always fail
+	}
+}
+
+template <class TYPE> inline Data::Archive::View PackRawArray(const ArrayView <TYPE> & view)
+{
+	REFLEX_STATIC_ASSERT(Data::Detail::IsRawPackable< ArrayView<TYPE> >::value);
+
+	if constexpr (IsType<TYPE, UInt8>::value)
+	{
+		return view;
+	}
+	else
+	{
+		return Data::Pack(view);
+	}
+}
+
+template <class TYPE> inline ArrayView <TYPE> UnpackRawArray(const Data::Archive::View & raw)
+{
+	REFLEX_STATIC_ASSERT(Data::Detail::IsRawPackable<TYPE>::value);
+
+	if constexpr (IsType<TYPE, UInt8>::value)
+	{
+		return raw;
+	}
+	else
+	{
+		return Data::Unpack<ArrayView<TYPE>>(raw);
 	}
 }
 
@@ -617,7 +617,7 @@ template <class TYPE, bool CONST> inline Reflex::ArrayView <TYPE> Reflex::Data::
 {
 	Base::ValidateAccess();
 
-	return UnpackRawArray<TYPE>(table->ReadHeapCell(Reinterpret<UInt32>(Base::adr), alignment));
+	return Detail::UnpackRawArray<TYPE>(table->ReadHeapCell(Reinterpret<UInt32>(Base::adr), alignment));
 }
 
 template <class TYPE, bool CONST> inline void Reflex::Data::Table::ArrayCellImpl<TYPE,CONST>::Clear()
@@ -640,7 +640,7 @@ template <class TYPE, bool CONST> inline void Reflex::Data::Table::ArrayCellImpl
 	{
 		Base::ValidateAccess();
 
-		table->SetHeapCell(Reinterpret<UInt32>(Base::adr), alignment, PackRawArray(value));
+		table->SetHeapCell(Reinterpret<UInt32>(Base::adr), alignment, Detail::PackRawArray(value));
 	}
 }
 
@@ -678,7 +678,7 @@ template <bool CONST> template <class TYPE> REFLEX_INLINE void Reflex::Data::Tab
 	{
 		Base::ValidateAccess();
 
-		table->SetHeapCell(Reinterpret<UInt32>(Base::adr + info.offset), Detail::GetHeapAlignment<TYPE>(), PackRawArray(value));
+		table->SetHeapCell(Reinterpret<UInt32>(Base::adr + info.offset), Detail::GetHeapAlignment<TYPE>(), Detail::PackRawArray(value));
 	}
 }
 
@@ -697,7 +697,7 @@ template <bool CONST> template <class TYPE> REFLEX_INLINE Reflex::ArrayView <TYP
 
 	REFLEX_ASSERT(Detail::kColumnTypeToRawDataType[info.type] == Detail::kRawDataTypeVariable);
 
-	return UnpackRawArray<TYPE>(table->ReadHeapCell(Reinterpret<UInt32>(Base::adr + info.offset), Detail::GetHeapAlignment<TYPE>()));
+	return Detail::UnpackRawArray<TYPE>(table->ReadHeapCell(Reinterpret<UInt32>(Base::adr + info.offset), Detail::GetHeapAlignment<TYPE>()));
 }
 
 inline Reflex::Data::Table::RowCursor Reflex::Data::Table::operator[](UInt idx)

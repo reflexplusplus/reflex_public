@@ -20941,10 +20941,6 @@
 				},
 
 				{
-					IsConst: true;
-
-					IsRef: true;
-
 					@UInt64 TypeID: 3679271990847568587;
 
 					Name: "path";
@@ -21016,10 +21012,6 @@
 				},
 
 				{
-					IsConst: true;
-
-					IsRef: true;
-
 					@UInt64 TypeID: 3679271990847568587;
 
 					Name: "path";
@@ -22633,10 +22625,6 @@
 				},
 
 				{
-					IsConst: true;
-
-					IsRef: true;
-
 					@UInt64 TypeID: 1319003387987196619;
 
 					Name: "value";
@@ -22733,10 +22721,6 @@
 				},
 
 				{
-					IsConst: true;
-
-					IsRef: true;
-
 					@UInt64 TypeID: 5520716365486586571;
 
 					Name: "value";
@@ -22833,10 +22817,6 @@
 				},
 
 				{
-					IsConst: true;
-
-					IsRef: true;
-
 					@UInt64 TypeID: 5216113586887424715;
 
 					Name: "value";

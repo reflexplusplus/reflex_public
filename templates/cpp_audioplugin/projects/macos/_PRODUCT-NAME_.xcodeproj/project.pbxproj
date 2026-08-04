@@ -528,7 +528,6 @@
 				OTHER_LDFLAGS = (
 					"-lReflexCommon",
 					"-lReflexCommonUi",
-					"-lReflexCommonVm",
 					"-lReflexTargetVST3",
 				);
 				WRAPPER_EXTENSION = vst3;
@@ -544,7 +543,6 @@
 				OTHER_LDFLAGS = (
 					"-lReflexCommon",
 					"-lReflexCommonUi",
-					"-lReflexCommonVm",
 					"-lReflexTargetVST3",
 				);
 				WRAPPER_EXTENSION = vst3;
@@ -560,7 +558,6 @@
 				OTHER_LDFLAGS = (
 					"-lReflexCommon",
 					"-lReflexCommonUi",
-					"-lReflexCommonVm",
 					"-lReflexTargetCLAP",
 				);
 				WRAPPER_EXTENSION = clap;
@@ -576,7 +573,6 @@
 				OTHER_LDFLAGS = (
 					"-lReflexCommon",
 					"-lReflexCommonUi",
-					"-lReflexCommonVm",
 					"-lReflexTargetCLAP",
 				);
 				WRAPPER_EXTENSION = clap;
@@ -591,7 +587,6 @@
 				OTHER_LDFLAGS = (
 					"-lReflexCommon",
 					"-lReflexCommonUi",
-					"-lReflexCommonVm",
 					"-lReflexTargetAudioApp",
 				);
 			};
@@ -605,7 +600,6 @@
 				OTHER_LDFLAGS = (
 					"-lReflexCommon",
 					"-lReflexCommonUi",
-					"-lReflexCommonVm",
 					"-lReflexTargetAudioApp",
 				);
 			};
@@ -775,7 +769,6 @@
 				OTHER_LDFLAGS = (
 					"-lReflexCommon",
 					"-lReflexCommonUi",
-					"-lReflexCommonVm",
 					"-lReflexTargetAU",
 				);
 				WRAPPER_EXTENSION = component;
@@ -795,7 +788,6 @@
 				OTHER_LDFLAGS = (
 					"-lReflexCommon",
 					"-lReflexCommonUi",
-					"-lReflexCommonVm",
 					"-lReflexTargetAU",
 				);
 				WRAPPER_EXTENSION = component;

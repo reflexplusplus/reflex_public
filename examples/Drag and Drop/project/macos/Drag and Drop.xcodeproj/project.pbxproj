@@ -277,7 +277,6 @@
 				OTHER_LDFLAGS = (
 					"-lReflexCommon",
 					"-lReflexCommonUi",
-					"-lReflexCommonVm",
 					"-lReflexTargetApp",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = "com.reflexplusplus.draganddrop";
@@ -357,7 +356,6 @@
 				OTHER_LDFLAGS = (
 					"-lReflexCommon",
 					"-lReflexCommonUi",
-					"-lReflexCommonVm",
 					"-lReflexTargetApp",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = "com.reflexplusplus.draganddrop";

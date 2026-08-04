@@ -300,7 +300,6 @@
 				OTHER_LDFLAGS = (
 					"-lReflexCommon",
 					"-lReflexCommonUi",
-					"-lReflexCommonVm",
 					"-lReflexTargetApp",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = "com._PACKAGE-ID-VENDOR_._PACKAGE-ID-PRODUCT_";
@@ -381,7 +380,6 @@
 				OTHER_LDFLAGS = (
 					"-lReflexCommon",
 					"-lReflexCommonUi",
-					"-lReflexCommonVm",
 					"-lReflexTargetApp",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = "com._PACKAGE-ID-VENDOR_._PACKAGE-ID-PRODUCT_";

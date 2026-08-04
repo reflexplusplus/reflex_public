@@ -42,7 +42,7 @@
 			<Optimization>Disabled</Optimization>
 		</ClCompile>
 		<Link>
-			<AdditionalDependencies>$(REFLEX_PATH)\bin\lib\win\$(Configuration)\$(Platform)\ReflexCommon.lib;$(REFLEX_PATH)\bin\lib\win\$(Configuration)\$(Platform)\ReflexCommonUi.lib;$(REFLEX_PATH)\bin\lib\win\$(Configuration)\$(Platform)\ReflexCommonVm.lib;$(REFLEX_PATH)\bin\lib\win\$(Configuration)\$(Platform)\ReflexCommonVmUi.lib;%(AdditionalDependencies)</AdditionalDependencies>
+			<AdditionalDependencies>$(REFLEX_PATH)\bin\lib\win\$(Configuration)\$(Platform)\ReflexCommon.lib;$(REFLEX_PATH)\bin\lib\win\$(Configuration)\$(Platform)\ReflexCommonUi.lib;%(AdditionalDependencies)</AdditionalDependencies>
 			<OptimizeReferences>true</OptimizeReferences>
 			<EnableCOMDATFolding>true</EnableCOMDATFolding>
 			<GenerateDebugInformation>true</GenerateDebugInformation>

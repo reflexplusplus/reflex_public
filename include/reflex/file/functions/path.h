@@ -72,15 +72,14 @@ namespace Reflex::File
 
 
 
+	//prohibit
+
 	void RemoveTrailingStroke(WString &&) = delete;
-
 	void SplitFilename(WString &&) = delete;
-
 	void SplitExtension(WString &&) = delete;
-
 	void GetExtension(WString &&) = delete;
-
 	void RemoveExtension(WString &&) = delete;
+	void ResolveExistingFolder(WString &&) = delete;
 
 }
 
@@ -169,4 +168,3 @@ inline Reflex::WString::View Reflex::File::RemoveTrailingStroke(const WString::V
 		return path;
 	}
 }
-
