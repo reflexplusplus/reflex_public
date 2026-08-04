@@ -1,0 +1,64 @@
+@Font Code:
+{
+	path: ":res:IDE/mono";
+
+	size: 12;
+};
+
+size: 512,384;
+padding: 4;
+
+bg_colour: 255;
+
+Button:
+{
+	margin: 2;
+	size: 28;
+
+	bg:
+	Fill(colour: 232; corner: 2),
+	Text(font: Code; indent: 8,2; justify: center; value: &value; colour: 72);
+
+	@State hover:
+	{
+		bg:
+		Fill(colour: 236; corner: 2),
+		Text(font: Code; indent: 8,2; justify: center; value: &value; colour: 72);
+	};
+
+	@State selected:
+	{
+		bg:
+		Fill(colour: 0,200,255; corner: 2),
+		Text(font: Code; indent: 8,2; justify: center; value: &value; colour: 255);
+	};
+};
+
+render: x4;
+
+bg: 
+Align
+(
+	indent: 32; 
+	content: 
+	Clip
+	(
+		content: 
+		Tile
+		(
+			stride: 32; 
+			content: 
+			Line(colour: 220; position: left; pattern: dashed),
+			Line(colour: 220; position: top; pattern: dashed)
+		),
+		Border(colour: 220)
+	),
+	ColourCanvas()
+);
+
+@State empty:
+{
+	fg: Text(font: Code; value: "Click to open SVG"; justify: center; color: 0);
+};
+
+

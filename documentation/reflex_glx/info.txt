@@ -1,0 +1,393 @@
+0:
+{
+	Group: true;
+
+	Path: ["Vector"];
+};
+
+1:
+{
+	Group: true;
+
+	Path: ["FX"];
+};
+
+2:
+{
+	Group: true;
+
+	Path: ["Layout"];
+};
+
+3:
+{
+	Path: ["Align"];
+
+	Module: ["Layout"];
+};
+
+4:
+{
+	Path: ["If"];
+
+	Module: ["Layout"];
+};
+
+5:
+{
+	Path: ["Group"];
+
+	Module: ["Layout"];
+};
+
+6:
+{
+	@WString 3860471657: "<warn>
+#p Experimental
+</warn>";
+
+	Path: ["Split"];
+
+	Module: ["Layout"];
+};
+
+7:
+{
+	Path: ["CircleFill"];
+
+	Module: ["Vector"];
+};
+
+8:
+{
+	Path: ["Bar"];
+
+	Module: ["Vector"];
+};
+
+9:
+{
+	Path: ["TriangleFill"];
+
+	Module: ["Vector"];
+};
+
+10:
+{
+	Path: ["Polygon"];
+
+	Module: ["Vector"];
+};
+
+11:
+{
+	Path: ["Gradient"];
+
+	Module: ["Vector"];
+};
+
+12:
+{
+	Path: ["Triangle"];
+
+	Module: ["Vector"];
+};
+
+13:
+{
+	Path: ["Fill"];
+
+	Module: ["Vector"];
+};
+
+14:
+{
+	Path: ["Line"];
+
+	Module: ["Vector"];
+};
+
+15:
+{
+	Path: ["Path"];
+
+	Module: ["Vector"];
+};
+
+16:
+{
+	Path: ["Border"];
+
+	Module: ["Vector"];
+};
+
+17:
+{
+	Path: ["Circle"];
+
+	Module: ["Vector"];
+};
+
+18:
+{
+	Path: ["CircleGradient"];
+
+	Module: ["Vector"];
+};
+
+19:
+{
+	@WString 3860471657: "<warn>
+#p Experimental
+</warn>";
+
+	Path: ["Pixelate"];
+
+	Module: ["FX"];
+};
+
+20:
+{
+	Path: ["Sepia"];
+
+	Module: ["FX"];
+};
+
+21:
+{
+	Path: ["Exposure"];
+
+	Module: ["FX"];
+};
+
+22:
+{
+	Path: ["Saturate"];
+
+	Module: ["FX"];
+};
+
+23:
+{
+	Path: ["Blur"];
+
+	Module: ["FX"];
+};
+
+24:
+{
+	Path: ["Tint"];
+
+	Module: ["FX"];
+};
+
+25:
+{
+	Path: ["Invert"];
+
+	Module: ["FX"];
+};
+
+26:
+{
+	Path: ["Contrast"];
+
+	Module: ["FX"];
+};
+
+27:
+{
+	Path: ["Grayscale"];
+
+	Module: ["FX"];
+};
+
+28:
+{
+	Path: ["Greyscale"];
+
+	Module: ["FX"];
+};
+
+29:
+{
+	Path: ["Brightness"];
+
+	Module: ["FX"];
+};
+
+30:
+{
+	Path: ["Tile"];
+
+	Module: ["Layout"];
+};
+
+31:
+{
+	Group: true;
+
+	Path: ["Text"];
+};
+
+32:
+{
+	Path: ["TextEdit"];
+
+	Module: ["Text"];
+};
+
+33:
+{
+	Group: true;
+
+	Path: ["Image"];
+};
+
+34:
+{
+	Path: ["ImageFill"];
+
+	Module: ["Image"];
+};
+
+35:
+{
+	Path: ["ImageSelector"];
+
+	Module: ["Image"];
+};
+
+36:
+{
+	Path: ["GraphicCanvas"];
+
+	Module: ["Vector"];
+};
+
+37:
+{
+	@WString 3860471657: "<warn>
+#p Experimental
+</warn>";
+
+	Path: ["Inline"];
+
+	Module: ["Layout"];
+};
+
+38:
+{
+	@WString 3860471657: "<warn>
+#p Experimental
+</warn>";
+
+	Path: ["ViewPortGrid"];
+
+	Module: ["Layout"];
+};
+
+39:
+{
+	@WString 3860471657: "#p InnerShadow approximates a Gaussian blur applied to an oversized border, clipped to the bounds of the area being rendered.
+
+<code>
+#p //approximation of Clip(content: Blur(radius: 8; content: Border(indent: -4; width: 8; colour: 0,64)));
+#p fg: InnerShadow(width: 8; color: 0,64);
+</code>
+";
+
+	Path: ["InnerShadow"];
+
+	Module: ["FX"];
+};
+
+40:
+{
+	@WString 3860471657: "#p Shadow approximates a Gaussian blur applied to a filled rounded rect.
+
+<code>
+#p //approximation of Blur(radius: 8; offset: 0,1; content: Fill(corner: 12; color: 0,64));
+#p fg: Shadow(blur: 8; corner: 12; offset: 0,1; color: 0,64);
+</code>
+
+#p Example usage:
+<code>
+#p bg: Shadow(blur: 8; corner: 8; offset: 0,1; color: 0,64);Fill(corner: 8; color: 255),Border(corner: 8; color: 200);
+</code>
+";
+
+	Path: ["Shadow"];
+
+	Module: ["FX"];
+};
+
+41:
+{
+	Path: ["BarGraph"];
+
+	Module: ["Vector"];
+};
+
+42:
+{
+	Path: ["Canvas"];
+
+	Module: ["Vector"];
+};
+
+43:
+{
+	Path: ["Clip"];
+
+	Module: ["FX"];
+};
+
+44:
+{
+	Path: ["ColorCanvas"];
+
+	Module: ["Vector"];
+};
+
+45:
+{
+	Path: ["ColourCanvas"];
+
+	Module: ["Vector"];
+};
+
+46:
+{
+	Path: ["Mask"];
+
+	Module: ["FX"];
+};
+
+47:
+{
+	Path: ["Render"];
+
+	Module: ["FX"];
+};
+
+48:
+{
+	Path: ["Rotate"];
+
+	Module: ["Vector"];
+};
+
+49:
+{
+	Path: ["Scale"];
+
+	Module: ["Vector"];
+};
+
+50:
+{
+	Path: ["Translate"];
+
+	Module: ["Vector"];
+};

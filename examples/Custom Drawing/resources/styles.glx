@@ -1,0 +1,31 @@
+@Font Code:
+{
+	path: ":res:IDE/mono";
+
+	size: 24;
+};
+
+size: 512,512;
+
+bg_colour: 0;
+
+Display:
+{
+	render: x4;
+	render_pad: 4;
+	
+	transition: 0.125;
+	
+	size: 320;
+	
+	@Float32 width: 4;
+	
+	bg: ColourCanvas();
+	
+	@State hover:
+	{
+		bg: 
+		ColourCanvas(color: 255,128),
+		Text(font: Code; value: &value; justify: center);
+	};
+};

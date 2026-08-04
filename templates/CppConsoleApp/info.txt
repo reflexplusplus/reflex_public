@@ -1,0 +1,10 @@
+#h Summary:
+
+#p Command line app using the Reflex C++ API.
+
+#h Supported platforms:
+
+<bullets>
+#li Windows
+#li macOS
+</bullets>

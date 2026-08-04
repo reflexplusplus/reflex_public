@@ -1,0 +1,183 @@
+# ReflexConfig.cmake
+# find_package(Reflex REQUIRED CONFIG PATHS "${REFLEX_DIR}/cmake" NO_DEFAULT_PATH)
+#
+# Exposes imported targets:
+#   Reflex::Common             ReflexCommon
+#   Reflex::CommonUi           ReflexCommonUi
+#   Reflex::Vm                 ReflexCommonVm
+#   Reflex::VmUi               ReflexCommonVmUi
+#   Reflex::TargetApp          ReflexTargetApp
+#   Reflex::TargetAudioApp     ReflexTargetAudioApp
+#   Reflex::TargetConsole      ReflexTargetConsole
+#   Reflex::TargetLibrary      ReflexTargetLibrary
+#   Reflex::TargetDynamicLibrary
+#   Reflex::TargetVST3         (Windows + macOS)
+#   Reflex::TargetCLAP         (Windows + macOS)
+#   Reflex::TargetVST2         (Windows + macOS)
+#   Reflex::TargetAUV2         (macOS only)
+#
+# Helper functions (from ReflexHelpers.cmake):
+#   reflex_add_app(target ...)
+#   reflex_add_vm_app(target ...)
+#   reflex_add_audio_plugin(target ...)
+#   reflex_add_console_app(target ...)
+
+cmake_minimum_required(VERSION 3.22)
+
+get_filename_component(REFLEX_ROOT "${CMAKE_CURRENT_LIST_DIR}/.." ABSOLUTE)
+
+# =========================================================
+# Validate installation
+# =========================================================
+
+if(NOT EXISTS "${REFLEX_ROOT}/include")
+    message(FATAL_ERROR
+        "Reflex: include directory not found at '${REFLEX_ROOT}/include'.\n"
+        "Is REFLEX_DIR pointing to the correct Reflex installation?")
+endif()
+
+# =========================================================
+# Platform detection + library path resolution
+# =========================================================
+
+if(WIN32)
+
+    set(_REFLEX_PLATFORM    "win")
+    set(_REFLEX_LIB_PREFIX  "")
+    set(_REFLEX_LIB_SUFFIX  ".lib")
+
+    # Resolve architecture subfolder (Visual Studio generator sets
+    # CMAKE_GENERATOR_PLATFORM; Ninja/NMake use CMAKE_SIZEOF_VOID_P)
+    if(CMAKE_GENERATOR_PLATFORM)
+        set(_REFLEX_ARCH "${CMAKE_GENERATOR_PLATFORM}")  # "x64" or "Win32"
+    elseif(CMAKE_SIZEOF_VOID_P EQUAL 8)
+        set(_REFLEX_ARCH "x64")
+    else()
+        set(_REFLEX_ARCH "Win32")
+    endif()
+
+    set(_REFLEX_LIB_DIR_DBG "${REFLEX_ROOT}/bin/lib/win/Debug/${_REFLEX_ARCH}")
+    set(_REFLEX_LIB_DIR_REL "${REFLEX_ROOT}/bin/lib/win/Release/${_REFLEX_ARCH}")
+
+elseif(APPLE)
+
+    set(_REFLEX_LIB_PREFIX "lib")
+    set(_REFLEX_LIB_SUFFIX ".a")
+
+    if(CMAKE_SYSTEM_NAME STREQUAL "iOS")
+        set(_REFLEX_PLATFORM "ios")
+    else()
+        set(_REFLEX_PLATFORM "macos")
+    endif()
+
+    set(_REFLEX_LIB_DIR_DBG "${REFLEX_ROOT}/bin/lib/${_REFLEX_PLATFORM}/Debug")
+    set(_REFLEX_LIB_DIR_REL "${REFLEX_ROOT}/bin/lib/${_REFLEX_PLATFORM}/Release")
+
+elseif(CMAKE_SYSTEM_NAME STREQUAL "Linux")
+
+    set(_REFLEX_PLATFORM    "linux")
+    set(_REFLEX_LIB_PREFIX  "lib")
+    set(_REFLEX_LIB_SUFFIX  ".a")
+    set(_REFLEX_LIB_DIR_DBG "${REFLEX_ROOT}/bin/lib/linux/Debug")
+    set(_REFLEX_LIB_DIR_REL "${REFLEX_ROOT}/bin/lib/linux/Release")
+    find_package(Threads REQUIRED)
+    find_package(CURL REQUIRED)
+    set(_REFLEX_LINUX_COMMON_LIBS "Threads::Threads;CURL::libcurl")
+    set(_REFLEX_LINUX_UI_LIBS "wayland-client;wayland-egl;EGL;GLESv2")
+
+elseif(EMSCRIPTEN)
+
+    set(_REFLEX_PLATFORM    "webasm")
+    set(_REFLEX_LIB_PREFIX  "lib")
+    set(_REFLEX_LIB_SUFFIX  ".a")
+    set(_REFLEX_LIB_DIR_DBG "${REFLEX_ROOT}/bin/lib/webasm/Debug")
+    set(_REFLEX_LIB_DIR_REL "${REFLEX_ROOT}/bin/lib/webasm/Release")
+
+else()
+    message(FATAL_ERROR "Reflex: unsupported platform '${CMAKE_SYSTEM_NAME}'")
+endif()
+
+# =========================================================
+# Helper: create a single imported static library target
+# =========================================================
+
+function(_reflex_import_lib alias name)
+    if(TARGET Reflex::${alias})
+        return()
+    endif()
+
+    set(_dbg_lib  "${_REFLEX_LIB_DIR_DBG}/${_REFLEX_LIB_PREFIX}${name}${_REFLEX_LIB_SUFFIX}")
+    set(_rel_lib  "${_REFLEX_LIB_DIR_REL}/${_REFLEX_LIB_PREFIX}${name}${_REFLEX_LIB_SUFFIX}")
+
+    add_library(Reflex::${alias} STATIC IMPORTED GLOBAL)
+
+    set_target_properties(Reflex::${alias} PROPERTIES
+        IMPORTED_CONFIGURATIONS       "DEBUG;RELEASE"
+        IMPORTED_LOCATION_DEBUG       "${_dbg_lib}"
+        IMPORTED_LOCATION_RELEASE     "${_rel_lib}"
+        INTERFACE_INCLUDE_DIRECTORIES "${REFLEX_ROOT}/include"
+    )
+endfunction()
+
+# =========================================================
+# Core libraries — all platforms
+# =========================================================
+
+_reflex_import_lib(Common             ReflexCommon)
+_reflex_import_lib(CommonUi           ReflexCommonUI)
+_reflex_import_lib(Vm                 ReflexCommonVm)
+_reflex_import_lib(VmUi               ReflexCommonVmUI)
+
+# =========================================================
+# Target libraries — available on all platforms
+# =========================================================
+
+_reflex_import_lib(TargetApp              ReflexTargetApp)
+_reflex_import_lib(TargetAudioApp         ReflexTargetAudioApp)
+_reflex_import_lib(TargetConsole          ReflexTargetConsole)
+_reflex_import_lib(TargetLibrary          ReflexTargetLibrary)
+_reflex_import_lib(TargetDynamicLibrary   ReflexTargetDynamicLibrary)
+
+if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
+    foreach(_linux_target TargetConsole TargetApp TargetAudioApp TargetLibrary TargetDynamicLibrary)
+        if(TARGET Reflex::${_linux_target})
+            set_property(TARGET Reflex::${_linux_target} APPEND PROPERTY
+                INTERFACE_LINK_LIBRARIES "${_REFLEX_LINUX_COMMON_LIBS}"
+            )
+        endif()
+    endforeach()
+
+    foreach(_linux_ui_target TargetApp TargetAudioApp)
+        if(TARGET Reflex::${_linux_ui_target})
+            set_property(TARGET Reflex::${_linux_ui_target} APPEND PROPERTY
+                INTERFACE_LINK_LIBRARIES "${_REFLEX_LINUX_UI_LIBS}"
+            )
+        endif()
+    endforeach()
+endif()
+
+# =========================================================
+# Plugin format targets — Windows + macOS
+# =========================================================
+
+if(WIN32 OR (APPLE AND NOT CMAKE_SYSTEM_NAME STREQUAL "iOS"))
+    _reflex_import_lib(TargetVST3  ReflexTargetVST3)
+    _reflex_import_lib(TargetCLAP  ReflexTargetCLAP)
+    _reflex_import_lib(TargetVST2  ReflexTargetVST2)
+endif()
+
+# =========================================================
+# Plugin format targets — macOS only
+# =========================================================
+
+if(APPLE AND NOT CMAKE_SYSTEM_NAME STREQUAL "iOS")
+    _reflex_import_lib(TargetAUV2  ReflexTargetAU)
+endif()
+
+# =========================================================
+# Helper functions
+# =========================================================
+
+include("${CMAKE_CURRENT_LIST_DIR}/ReflexHelpers.cmake")
+
+set(Reflex_FOUND TRUE)

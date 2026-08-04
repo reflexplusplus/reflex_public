@@ -1,0 +1,9 @@
+<resources output="code/resources.cpp">
+
+	<ResourceBuilder>
+
+		<folder path="resources" public="true" compress="true"/>
+
+	</ResourceBuilder>
+
+</resources>

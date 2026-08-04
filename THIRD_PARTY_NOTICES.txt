@@ -1,0 +1,143 @@
+THIRD-PARTY NOTICES
+===================
+
+This repository includes or uses third-party software and assets.
+Relevant license texts are included in the repository at the paths noted
+below.
+
+
+VST3 SDK
+--------
+Copyright (c) 2025 Steinberg Media Technologies GmbH
+
+Used for VST3 plugin support in the framework.
+
+License:
+- MIT
+
+License text in this repository:
+- src/reflex/system/common/instance/ext/vst3sdk/LICENSE.txt
+
+
+FreeType
+--------
+Copyright 1996-2002, 2006 by David Turner, Robert Wilhelm, and Werner
+Lemberg.
+
+Portions of this software are derived from or include code from the
+FreeType Project.
+
+Used for font rendering support in the framework.
+
+License:
+- FreeType License (FTL)
+
+License text in this repository:
+- src/reflex/glx/ext/freetype-2.9.1/docs/FTL.TXT
+- src/reflex/glx/ext/freetype-2.9.1/docs/LICENSE.TXT
+
+Acknowledgement:
+- Portions of this software are copyright (c) 2018 The FreeType
+  Project (www.freetype.org). All rights reserved.
+
+
+CLAP
+----
+Copyright (c) 2021 Alexandre BIQUE
+
+Used for CLAP plugin support in the framework.
+
+License:
+- MIT
+
+License text in this repository:
+- include/reflex/system/ext/clap/LICENSE
+
+
+LodePNG
+-------
+Copyright (c) 2005-2016 Lode Vandevenne
+
+Vendored image codec source present in the repository.
+
+License:
+- zlib-style license
+
+License text in this repository:
+- src/reflex/glx/ext/lodepng/lodepng.h
+
+
+NanoJPEG
+--------
+Copyright (c) 2009-2016 Martin J. Fiedler
+
+Vendored image codec source present in the repository.
+
+License:
+- MIT
+
+License text in this repository:
+- src/reflex/glx/ext/nanojpeg/nanojpeg.c
+
+
+TooJpeg
+-------
+Copyright (c) 2011-2016 Stephan Brumme
+
+Vendored image codec source present in the repository.
+This repository includes a modified version of TooJpeg.
+
+License:
+- zlib license
+
+License text in this repository:
+- src/reflex/glx/ext/toojpeg/LICENSE.txt
+
+
+Roboto
+------
+Copyright Google
+
+This repository includes Roboto font files used by project tooling.
+
+License:
+- Apache License 2.0
+
+License text in this repository:
+- build/tools/ReflexProjectCreator/resources/fonts/Roboto/LICENSE.txt
+
+
+Roboto Mono
+-----------
+Copyright Google
+
+This repository includes Roboto Mono font files used by project tooling.
+
+License:
+- SIL Open Font License 1.1
+
+License text in this repository:
+- src/reflex_ext/ide/resources/fonts/Roboto_Mono/OFL.txt
+
+
+Open Sans
+---------
+Copyright Google
+
+This repository includes Open Sans font files used by project tooling.
+
+License:
+- SIL Open Font License 1.1
+
+License text in this repository:
+- Pending / to be added alongside the vendored Open Sans font files.
+
+
+TODO / PENDING
+--------------
+The following items likely require separate SDK agreement or distribution
+clearance review beyond normal third-party notice handling:
+
+- ASIO
+- AAX
+- VST2
