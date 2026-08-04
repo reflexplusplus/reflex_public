@@ -3,3 +3,4 @@
 code/resources.h
 code/resources.cpp
 reflex_log.txt
+reflex_leaks.txt

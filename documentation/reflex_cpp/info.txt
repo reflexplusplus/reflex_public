@@ -4368,26 +4368,20 @@ See also Bootstrap::Detail::SetStyle.
 #p 			transition: 0.25;
 #p
 #p 			bg:
-#p 			[
-#p 				Text(indent: 8,4; font: Medium; value: &value; colour: kTextColour)
-#p 			];
+#p 			Text(indent: 8,4; font: Medium; value: &value; colour: kTextColour)
 #p
 #p 			@State hover:
 #p 			{
 #p 				bg:
-#p 				[
-#p 					Fill(indent: 2,4; colour: 240,128; corner: 4),
-#p 					Text(indent: 8,4; font: Medium; value: &value; colour: 0)
-#p 				];
+#p 				Fill(indent: 2,4; colour: 240,128; corner: 4),
+#p 				Text(indent: 8,4; font: Medium; value: &value; colour: 0)
 #p 			};
 #p
 #p 			@State selected:
 #p 			{
 #p 				bg:
-#p 				[
-#p 					Fill(indent: 2,4; colour: 240; corner: 4),
-#p 					Text(indent: 8,4; font: Medium; value: &value; colour: 0)
-#p 				];
+#p 				Fill(indent: 2,4; colour: 240; corner: 4),
+#p 				Text(indent: 8,4; font: Medium; value: &value; colour: 0)
 #p 			};
 #p 		};
 #p 	};
@@ -4429,10 +4423,8 @@ See also Bootstrap::Detail::SetStyle.
 #p 			size: 36;
 #p
 #p 			bg:
-#p 			[
-#p 				Image(source: TabIcons > overview; fit: contain; anchor: top; indent: 8,0; colour: 96),
-#p 				Text(font: Medium; value: &value; anchor: bottom; colour: 96)
-#p 			];
+#p 			Image(source: TabIcons > overview; fit: contain; anchor: top; indent: 8,0; colour: 96),
+#p 			Text(font: Medium; value: &value; anchor: bottom; colour: 96)
 #p 		};
 #p
 #p 		LogsTab:
@@ -4440,10 +4432,8 @@ See also Bootstrap::Detail::SetStyle.
 #p 			size: 36;
 #p
 #p 			bg:
-#p 			[
-#p 				Image(source: TabIcons > logs; fit: contain; anchor: left; indent: 8,0; colour: 96),
-#p 				Text(indent: 30,4; font: Medium; value: &value; colour: 96)
-#p 			];
+#p 			Image(source: TabIcons > logs; fit: contain; anchor: left; indent: 8,0; colour: 96),
+#p 			Text(indent: 30,4; font: Medium; value: &value; colour: 96)
 #p 		};
 #p
 #p 		SettingsTab:
@@ -4451,10 +4441,8 @@ See also Bootstrap::Detail::SetStyle.
 #p 			size: 36;
 #p
 #p 			bg:
-#p 			[
-#p 				Image(source: TabIcons > settings; fit: contain; anchor: left; indent: 8,0; colour: 96),
-#p 				Text(indent: 30,4; font: Medium; value: &value; colour: 96)
-#p 			];
+#p 			Image(source: TabIcons > settings; fit: contain; anchor: left; indent: 8,0; colour: 96),
+#p 			Text(indent: 30,4; font: Medium; value: &value; colour: 96)
 #p 		};
 #p 	};
 #p

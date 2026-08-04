@@ -25,7 +25,7 @@ void Reflex::GLX::TabGroup::Clear()
 {
 	header->Clear();
 
-	body->Clear();
+	Cast<Selector>(body)->Clear();
 
 	m_tabs.Clear();
 }

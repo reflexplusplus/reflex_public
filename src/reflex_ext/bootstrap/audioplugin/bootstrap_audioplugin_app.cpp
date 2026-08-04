@@ -191,6 +191,18 @@ void Reflex::Bootstrap::AudioPlugin::OnSetParameterValue(UInt idx, Float32 value
 	Notify(true);
 }
 
+void Reflex::Bootstrap::AudioPlugin::PublishNoteInfo(ArrayView <System::AudioPlugin::NoteInfo> infos)
+{
+	m_note_info = infos;
+
+	ScheduleReportChanges(System::AudioPlugin::kChangeNoteInfo);
+}
+
+void Reflex::Bootstrap::AudioPlugin::OnGetNoteInfo(Array <System::AudioPlugin::NoteInfo> & infos) const
+{
+	infos = m_note_info;
+}
+
 Reflex::FunctionPointer <void(Reflex::System::AudioPlugin::Callbacks&,Reflex::UInt)> Reflex::Bootstrap::AudioPlugin::OnPrepare(UInt32 max_buffersize, Float32 samplerate, ConstTRef <System::AudioPlugin::EventBuffer> events_in, TRef <System::AudioPlugin::EventBuffer> events_out, const ArrayView <const Float32*> & inputs, const ArrayView <Float32*> & outputs)
 {
 	m_events_in = events_in.Adr();
@@ -246,6 +258,8 @@ Reflex::FunctionPointer <void(Reflex::System::AudioPlugin::Callbacks&,Reflex::UI
 
 void Reflex::Bootstrap::AudioPlugin::ScheduleReportChanges(UInt8 change_flags)
 {
+	REFLEX_ASSERT_MAINTHREAD("Bootstrap::AudioPlugin::ScheduleReportChanges");
+
 	m_report_changes_flags |= change_flags;
 
 	if (!m_report_changes_scheduler)

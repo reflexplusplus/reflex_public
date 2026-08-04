@@ -354,7 +354,7 @@ void ViewImpl::OnUpdate()
 
 			GLX::AddInline(m_sections[kSectionStrings], textarea);
 
-			can_build = can_build && True(Trim<char>(value));
+			can_build = can_build && True(Trim(value));
 		}
 
 		GLX::SetText(m_template_popup, ToWString(current->name));

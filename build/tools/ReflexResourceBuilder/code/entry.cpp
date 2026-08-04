@@ -15,7 +15,7 @@ void CompileFromCmdLine(const ArrayView <CString::View> & cmds)
 
 	CString cmdline = Merge(cmds, ' ');
 
-	CString::View unquoted = Trim<char>(cmdline, [](char c)	//remove quotes
+	CString::View unquoted = Trim(cmdline, [](char c)	//remove quotes
 	{
 		return c == '"';
 	});
@@ -30,7 +30,7 @@ void CompileFromCmdLine(const ArrayView <CString::View> & cmds)
 
 	auto std_out = Make<System::FileHandle>(System::FileHandle::kStandardStreamOut);
 
-	File::WriteLine(std_out, Join("warning: ReflexResourceBuilder is deprecated. Use: reflex build-resources --path \"", ToCString(path), '"'));
+	File::WriteLine(std_out, Join("warning: ReflexResourceBuilder cmdline usage is deprecated. Use: reflex build-resources --path \"", ToCString(path), '"'));
 
 	auto task = AutoRelease(Compile(path));
 

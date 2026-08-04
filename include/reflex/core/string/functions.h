@@ -1,6 +1,6 @@
 #pragma once
 
-#include "[require].h"
+#include "defines.h"
 
 
 
@@ -13,19 +13,39 @@ namespace Reflex
 
 	template <class CHARACTER> constexpr bool IsWhiteSpace(CHARACTER c) { return static_cast<UInt8>(c) < 33; }
 
-	template <auto CHARACTER> constexpr bool IsCharacter(decltype(CHARACTER) c) { return c == CHARACTER; }
+
+	CString::View TrimLeft(CString::View view, FunctionPointer <bool(char)> = &IsWhiteSpace<char>);
+
+	CString::View TrimRight(CString::View view, FunctionPointer <bool(char)> = &IsWhiteSpace<char>);
+
+	CString::View Trim(CString::View view, FunctionPointer <bool(char)> = &IsWhiteSpace<char>);
 
 
-	template <class CHARACTER> ArrayView <CHARACTER> Trim(const ArrayView <CHARACTER> & view, bool(*fn)(NonConstT<CHARACTER>) = &IsWhiteSpace<NonConstT<CHARACTER>>);
+	WString::View TrimLeft(WString::View view, FunctionPointer <bool(WChar)> = &IsWhiteSpace<WChar>);
 
-	template <class CHARACTER> ArrayView <CHARACTER> TrimLeft(const ArrayView <CHARACTER> & view, bool(*fn)(NonConstT<CHARACTER>) = &IsWhiteSpace<NonConstT<CHARACTER>>);
+	WString::View TrimRight(WString::View view, FunctionPointer <bool(WChar)> = &IsWhiteSpace<WChar>);
 
-	template <class CHARACTER> ArrayView <CHARACTER> TrimRight(const ArrayView <CHARACTER> & view, bool(*fn)(NonConstT<CHARACTER>) = &IsWhiteSpace<NonConstT<CHARACTER>>);
+	WString::View Trim(WString::View view, FunctionPointer <bool(WChar)> = &IsWhiteSpace<WChar>);
 
 
-	template <class CHARACTER, class X> inline void operator+(const ArrayView <CHARACTER> & a, const X & b);	//intentionally not implemented, use Join
 
-	template <class CHARACTER, class X> inline void operator+(const Array <CHARACTER> & a, const X & b);		//intentionally not implemented, use Join
+	CString::View TrimLeft(CString && view, FunctionPointer <bool(char)> = &IsWhiteSpace<char>) = delete;
+
+	CString::View TrimRight(CString && view, FunctionPointer <bool(char)> = &IsWhiteSpace<char>) = delete;
+
+	CString::View Trim(CString && view, FunctionPointer <bool(char)> = &IsWhiteSpace<char>) = delete;;
+
+
+	WString::View TrimLeft(WString && view, FunctionPointer <bool(WChar)> = &IsWhiteSpace<WChar>) = delete;
+
+	WString::View TrimRight(WString && view, FunctionPointer <bool(WChar)> = &IsWhiteSpace<WChar>) = delete;
+
+	WString::View Trim(WString && view, FunctionPointer <bool(WChar)> = &IsWhiteSpace<WChar>) = delete;
+
+
+	template <class CHARACTER, class X> inline void operator+(ArrayView <CHARACTER> a, const X & b) = delete;	//use Join
+
+	template <class CHARACTER, class X> inline void operator+(const Array <CHARACTER> & a, const X & b) = delete;		//use Join
 
 }
 
@@ -37,11 +57,11 @@ namespace Reflex
 
 REFLEX_NS(Reflex::Detail)
 
-template <class CHARACTER> inline Array <CHARACTER> PadLeft(const ArrayView <CHARACTER> & view, UInt min_length, CHARACTER c)
+template <class CHARACTER> inline Array <NonConstT<CHARACTER>> PadLeft(ArrayView <CHARACTER> view, UInt min_length, CHARACTER c)
 {
 	if (view.size < min_length)
 	{
-		Array <CHARACTER> t(min_length);
+		Array <NonConstT<CHARACTER>> t(min_length);
 
 		auto n = min_length - view.size;
 
@@ -57,14 +77,7 @@ template <class CHARACTER> inline Array <CHARACTER> PadLeft(const ArrayView <CHA
 	}
 }
 
-REFLEX_END
-
-template <class CHARACTER> REFLEX_INLINE Reflex::ArrayView <CHARACTER> Reflex::Trim(const ArrayView <CHARACTER> & string, bool(*test)(NonConstT<CHARACTER>))
-{
-	return TrimRight(TrimLeft(string, test), test);
-}
-
-template <class CHARACTER> REFLEX_INLINE Reflex::ArrayView <CHARACTER> Reflex::TrimLeft(const ArrayView <CHARACTER> & string, bool(*test)(NonConstT<CHARACTER>))
+template <class CHARACTER> REFLEX_INLINE ArrayRegion <CHARACTER> TrimLeft(ArrayRegion <CHARACTER> string, bool(*test)(NonConstT<CHARACTER>))
 {
 	auto rtn = string;
 
@@ -85,7 +98,7 @@ template <class CHARACTER> REFLEX_INLINE Reflex::ArrayView <CHARACTER> Reflex::T
 	return rtn;
 }
 
-template <class CHARACTER> inline Reflex::ArrayView <CHARACTER> Reflex::TrimRight(const ArrayView <CHARACTER> & string, bool(*test)(NonConstT<CHARACTER>))
+template <class CHARACTER> inline ArrayRegion <CHARACTER> TrimRight(ArrayRegion <CHARACTER> string, bool(*test)(NonConstT<CHARACTER>))
 {
 	auto end = string.data + string.size;
 
@@ -102,4 +115,41 @@ template <class CHARACTER> inline Reflex::ArrayView <CHARACTER> Reflex::TrimRigh
 	}
 
 	return { string.data, UInt(end - string.data) };
+}
+
+template <class CHARACTER> REFLEX_INLINE ArrayRegion <CHARACTER> Trim(ArrayRegion <CHARACTER> string, bool(*test)(NonConstT<CHARACTER>))
+{
+	return TrimRight<CHARACTER>(TrimLeft<CHARACTER>(string, test), test);
+}
+
+REFLEX_END
+
+REFLEX_INLINE Reflex::CString::View Reflex::Trim(CString::View string, FunctionPointer <bool(char)> test)
+{
+	return Detail::Trim<const char>(string, test);
+}
+
+REFLEX_INLINE Reflex::CString::View Reflex::TrimLeft(CString::View string, FunctionPointer <bool(char)> test)
+{
+	return Detail::TrimLeft<const char>(string, test);
+}
+
+REFLEX_INLINE Reflex::CString::View Reflex::TrimRight(CString::View string, FunctionPointer <bool(char)> test)
+{
+	return Detail::TrimRight<const char>(string, test);
+}
+
+REFLEX_INLINE Reflex::WString::View Reflex::Trim(WString::View string, FunctionPointer <bool(WChar)> test)
+{
+	return Detail::Trim<const WChar>(string, test);
+}
+
+REFLEX_INLINE Reflex::WString::View Reflex::TrimLeft(WString::View string, FunctionPointer <bool(WChar)> test)
+{
+	return Detail::TrimLeft<const WChar>(string, test);
+}
+
+REFLEX_INLINE Reflex::WString::View Reflex::TrimRight(WString::View string, FunctionPointer <bool(WChar)> test)
+{
+	return Detail::TrimRight<const WChar>(string, test);
 }

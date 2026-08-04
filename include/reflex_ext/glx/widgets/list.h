@@ -29,7 +29,15 @@ public:
 
 	REFLEX_OBJECT(GLX::List, AbstractList);
 
+
+
+	//events
+
 	REFLEX_GLX_EVENT_ID(ListReorder);		//@Transaction stage, @UInt from, @UInt to, @bool allow
+
+
+
+	//states
 
 	static constexpr Key32 kReorderState = "reorder";
 
@@ -43,22 +51,22 @@ public:
 
 protected:
 
-	virtual UInt OnGetSize() const override;
+	UInt OnGetSize() const override;
 
-	virtual Idx OnGetIndex(Object & child) override;
+	Idx OnGetIndex(Object & child) override;
 
-	virtual void OnSelect(UInt idx) override;
+	void OnSelect(UInt idx) override;
 
-	virtual void OnDeselect(UInt idx) override;
+	void OnDeselect(UInt idx) override;
 
-	virtual void OnEnumerateSelection(UInt start, UInt range, const Function <void(UInt idx, UInt n)> & callback) const override;
+	void OnEnumerateSelection(UInt start, UInt range, const Function <void(UInt idx, UInt n)> & callback) const override;
 
-	virtual void OnReveal(UInt idx) override;
+	void OnReveal(UInt idx) override;
 
 
-	virtual void OnUpdate() override;
+	void OnUpdate() override;
 
-	virtual bool OnEvent(Object & src, Event & e) override;
+	bool OnEvent(Object & src, Event & e) override;
 
 };
 

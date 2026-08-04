@@ -45,24 +45,24 @@ public:
 
 	//setup
 
-	virtual void SetSensitivity(Float factor) override;
+	void SetSensitivity(Float factor) override;
 
 	void SetPrecision(UInt precision);
 
 
-	virtual bool SetRange(Float min, Float max, Float step = 0.0f) override;
+	bool SetRange(Float min, Float max, Float step = 0.0f) override;
 
 
 
 	//value
 
-	virtual bool SetValue(Float value) override;
+	bool SetValue(Float value) override;
 
 
 
 protected:
 
-	virtual void OnUpdate() override;
+	void OnUpdate() override;
 
 
 

@@ -36,6 +36,8 @@ public:
 
 	using Class = System::AudioPlugin::Configuration::Class;
 
+	using NoteInfo = System::AudioPlugin::NoteInfo;
+
 	using Event = System::AudioPlugin::Event;
 
 	using EventBuffer = System::AudioPlugin::EventBuffer;
@@ -83,12 +85,18 @@ protected:
 	AudioPlugin(System::AudioPlugin & owner, UInt32 magic, UInt16 chunkversion);
 
 
-	
+
 	//callbacks
 
 	virtual bool OnPrepareProcessing(UInt32 max_buffersize, Float32 samplerate, UInt num_input, UInt num_output) = 0;
 
 	virtual void OnProcessRt(UInt num_samples, UInt32 parameter_change_flags, const EventBuffer & events_in, Array <Event> & events_out, const ArrayView <const Float*> & inputs, const ArrayView <Float*> & outputs) = 0;
+
+
+
+	//update host
+
+	void PublishNoteInfo(ArrayView <NoteInfo> infos);
 
 	void ScheduleReportChanges(UInt8 change_flags);
 
@@ -106,6 +114,8 @@ private:
 	Float32 OnGetParameterValue(UInt idx) const final;
 
 	void OnSetParameterValue(UInt idx, Float32 value) final;
+
+	void OnGetNoteInfo(Array <NoteInfo> & infos) const final;
 
 
 	FunctionPointer <void(Callbacks&,UInt)> OnPrepare(UInt32 max_buffersize, Float32 samplerate, ConstTRef <EventBuffer> events_in, TRef <EventBuffer> events_out, const ArrayView <const Float32*> & inputs, const ArrayView <Float32*> & outputs) final;
@@ -147,6 +157,8 @@ private:
 	ArrayView <const Float32*> m_audio_in;
 
 	ArrayView <Float32*> m_audio_out;
+
+	Array <System::AudioPlugin::NoteInfo> m_note_info;
 
 	Array <Event> m_events_out_buffer;
 

@@ -29,6 +29,15 @@ public:
 
 	REFLEX_OBJECT(GLX::TabGroup, Form);
 
+
+
+	//events
+
+	static constexpr Key32 kSelectPanel = Selector::kSelectPanel;
+
+
+	//styles
+
 	REFLEX_DECLARE_KEY32(tab);
 
 

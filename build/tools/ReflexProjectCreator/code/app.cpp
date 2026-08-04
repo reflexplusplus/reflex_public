@@ -92,7 +92,7 @@ void AppImpl::OnReset(Key32 context)
 
 		while (Data::ReadLine(itr, line))
 		{
-			auto & target = targets.Push({ Trim<char>(line), false });
+			auto & target = targets.Push({ Trim(line), false });
 
 			switch (MakeKey32(target.a))
 			{
@@ -150,7 +150,7 @@ void AppImpl::InstantiateTemplate(const TemplateDefinition & tmpl, ArrayView <Pa
 
 		while (Data::ReadLine(itr, line))
 		{
-			auto trimmed = Trim<char>(line);
+			auto trimmed = Trim(line);
 
 			if (Left<true>(trimmed, kProjectCreatedAt.size) == kProjectCreatedAt)
 			{
