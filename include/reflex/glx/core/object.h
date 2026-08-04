@@ -108,12 +108,6 @@ public:
 
 
 
-	//state
-
-	void Focus();
-
-
-
 	//enable callbacks
 
 	void EnableOnClock(bool enable = true);
@@ -144,7 +138,7 @@ public:
 
 	void Draw(RenderContext & ctx);				//for draw to texture
 
-	TRef <GLX::Object> FindMouseOver(MouseAction mouseaction, UInt8 flags, const System::fPoint & position);
+	TRef <GLX::Object> FindPointerTarget(PointerAction action, const Pointer & pointer, UInt8 flags, System::fPoint local_position);
 
 
 
@@ -201,20 +195,20 @@ protected:
 	virtual void OnLoseFocus() {}
 
 
-	virtual Trap OnMouseOver(MouseAction mouseaction, UInt8 flags) { return kTrapPassive; }
+	virtual Trap OnPointerTender(PointerAction mouseaction, const Pointer & pointer, UInt8 flags) { return kTrapThru; }
+
+	virtual Trap OnPointerDown(const Pointer & pointer, UInt8 flags, Float64 timestamp) { return kTrapThru; }
+
+	virtual void OnPointerDrag(const Pointer & pointer, Float64 timestamp, System::fPoint drag) {}
+
+	virtual void OnPointerUp(const Pointer & pointer, Float64 timestamp) {}
+
 
 	virtual void OnMouseEnter(GLX::Object & previous) {}
 
 	virtual void OnMouseLeave() {}
 
-
-	virtual Trap OnMouseClick(UInt8 flags) { return kTrapThru; }
-
-	virtual void OnMouseDrag(System::fPoint drag) {}
-
-	virtual void OnMouseRelease() {}
-
-	virtual void OnMouseWheel(System::fPoint delta, bool inverted) {}
+	virtual void OnMouseWheel(const Pointer & pointer, Float64 timestamp, System::fPoint delta, bool inverted) {}
 
 
 	virtual bool OnKeyPress(System::KeyCode keycode, bool repeat) { return false; }
@@ -224,7 +218,7 @@ protected:
 	virtual bool OnCharacter(WChar character) { return false; }
 
 
-	virtual bool OnDragDropTender(Reflex::Object & data) { return false; }
+	virtual bool OnDragDropTender(const Pointer & pointer, Reflex::Object & data) { return false; }
 
 	virtual void OnDragDropEnter(Reflex::Object & data) {}
 
@@ -235,7 +229,7 @@ protected:
 	virtual bool OnDragDropReceiveExternal(const Reflex::Object & data) { return false; }
 
 
-	virtual void OnBuildLayout(AccommodateFn & accommodate, AlignFn & align) = 0;
+	virtual void OnBuildLayout(AccommodateFn & accommodate, AlignFn & align) {}
 
 	virtual void OnReleaseData() override;
 

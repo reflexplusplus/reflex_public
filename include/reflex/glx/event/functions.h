@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../object.h"
+#include "../functions/properties.h"
 
 
 
@@ -29,7 +30,13 @@ namespace Reflex::GLX
 
 	//helpers for common events
 
-	UInt8 GetClickFlags(const Event & e);		//see ClickFlags
+	UInt8 GetPointerFlags(const Event & e);		//see PointerFlags
+
+	UInt8 GetClickFlags(const Event & e);		//alias for GetPointerFlags
+
+	UInt8 GetPointerSlot(const Event & e);
+
+	Float64 GetTimestamp(const Event & e);
 
 	bool IsLeftClick(const Event & e);
 
@@ -37,8 +44,12 @@ namespace Reflex::GLX
 
 	bool IsDoubleClick(const Event & e);
 
+	void EnablePointerCapture(Event & e, bool enable, bool incremental = false);
 
-	Point GetMouseDelta(const Event & e);		//for kMouseDrag & kMouseWheel
+
+	Point GetPosition(const Event & e);	//window position for pointer events
+
+	Point GetDelta(const Event & e);		//for kMouseDrag & kMouseWheel
 
 
 	UInt8 GetModifierKeys(const Event & e);		//see ModifierKeys
@@ -83,6 +94,9 @@ namespace Reflex::GLX
 
 	void PermitRequest(Event & e, bool allow);
 
+
+	[[deprecated("use GetDelta")]] Point GetMouseDelta(const Event & e);		//for kMouseDrag & kMouseWheel
+
 }
 
 REFLEX_NS(Reflex::GLX::Detail)
@@ -111,17 +125,38 @@ inline void Reflex::GLX::UnbindEvent(Object & object, Key32 id)
 
 inline bool Reflex::GLX::IsLeftClick(const Event & e)
 {
-	return e.id == kMouseDown && !(GetClickFlags(e) & kClickFlagRmb);
+	return e.id == kPointerDown && !(GetPointerFlags(e) & (kPointerFlagMulti | kPointerFlagRightMouseButton));
 }
 
 inline bool Reflex::GLX::IsRightClick(const Event & e)
 {
-	return e.id == kMouseDown && (GetClickFlags(e) & kClickFlagRmb);
+	constexpr UInt8 kMask = kPointerFlagMulti | kPointerFlagRightMouseButton;
+
+	return e.id == kPointerDown && ((GetPointerFlags(e) & kMask) == kPointerFlagRightMouseButton);
 }
 
 inline bool Reflex::GLX::IsDoubleClick(const Event & e)
 {
-	return e.id == kMouseDown && (GetClickFlags(e) & kClickFlagDbl);
+	constexpr UInt8 kMask = kPointerFlagMulti | kPointerFlagDouble;
+
+	return e.id == kPointerDown && ((GetPointerFlags(e) & kMask) == kPointerFlagDouble);
+}
+
+inline Reflex::GLX::Point Reflex::GLX::GetPosition(const Event & e)
+{
+	REFLEX_ASSERT(e.QueryProperty<PointProperty>(kposition));
+
+	return GetPoint(e, kposition);
+}
+
+inline Reflex::GLX::Point Reflex::GLX::GetDelta(const Event & e)
+{
+	return GetPoint(e, kdelta);
+}
+
+inline Reflex::GLX::Point Reflex::GLX::GetMouseDelta(const Event & e)
+{
+	return GetPoint(e, kdelta);
 }
 
 REFLEX_INLINE Reflex::UInt8 Reflex::GLX::GetModifierKeys(const Event & e)
@@ -131,9 +166,31 @@ REFLEX_INLINE Reflex::UInt8 Reflex::GLX::GetModifierKeys(const Event & e)
 	return Data::GetUInt8(e, kmodifiers);	//raw system modifier flags
 }
 
-REFLEX_INLINE Reflex::UInt8 Reflex::GLX::GetClickFlags(const Event & e)
+REFLEX_INLINE Reflex::UInt8 Reflex::GLX::GetPointerFlags(const Event & e)
 {
 	return Data::GetUInt8(e, kflags);
+}
+
+REFLEX_INLINE Reflex::UInt8 Reflex::GLX::GetPointerSlot(const Event & e)
+{
+	return Data::GetUInt8(e, kpointer_slot);
+}
+
+REFLEX_INLINE Reflex::Float64 Reflex::GLX::GetTimestamp(const Event & e)
+{
+	return Data::GetFloat64(e, ktimestamp, System::GetElapsedTime());
+}
+
+REFLEX_INLINE Reflex::UInt8 Reflex::GLX::GetClickFlags(const Event & e)
+{
+	return GetPointerFlags(e);
+}
+
+REFLEX_INLINE void Reflex::GLX::EnablePointerCapture(Event & e, bool enable, bool incremental)
+{
+	constexpr UInt8 kMap[2][2] = { { Core::kTrapPassive, Core::kTrapPassive }, { Core::kTrapActive, Core::kTrapActiveIncremental } };
+
+	Data::SetUInt8(e, kcapture, kMap[enable][incremental]);
 }
 
 REFLEX_INLINE Reflex::GLX::KeyCode Reflex::GLX::GetKeyCode(const Event & e)

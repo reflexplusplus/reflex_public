@@ -1,3 +1,0 @@
-REFLEX_PATH = ../../../../..
-CONFIGURATION_BUILD_DIR[config=Debug] = $(PROJECT_DIR)/output/debug
-CONFIGURATION_BUILD_DIR[config=Release] = $(PROJECT_DIR)/output/release

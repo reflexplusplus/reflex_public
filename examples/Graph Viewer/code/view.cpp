@@ -321,8 +321,8 @@ bool ViewImpl::OnEvent(GLX::Object & src, GLX::Event & e)
 		{
 			switch (GLX::GetTransactionStage(e))
 			{
-			case GLX::kTransactionPerform:
-			case GLX::kTransactionEnd:
+			case GLX::kTransactionStagePerform:
+			case GLX::kTransactionStageEnd:
 				app->SetCode(m_idx, Data::EncodeUTF8(GLX::GetText(content)));
 				break;
 			}

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "reflex_ext/bootstrap/embedded_resource.h"
+#include "reflex_ext/file/embedded_resource.h"
 
 
 
@@ -11,7 +11,7 @@
 namespace _PRODUCT-NAME-SYMBOL_
 {
 
-	extern const Reflex::Bootstrap::EnumerableEmbeddedResource styles_txt;
+	extern const Reflex::File::EnumerableEmbeddedResource styles_txt;
 
 }
 

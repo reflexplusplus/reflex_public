@@ -133,8 +133,6 @@ struct Reflex::System::AudioPlugin::Configuration::Class
 
 		kTypeAudioEffect = kTypeAudioProcessor,
 		kTypeInstrument = kTypeAudioGenerator,
-
-		kNumType = kTypeEventGenerator + 1
 	};
 
 	enum Category : UInt32
@@ -205,6 +203,8 @@ struct Reflex::System::AudioPlugin::Configuration::Class
 
 	struct AudioUnit
 	{
+		static constexpr UInt32 kTypes[] = { CC32("aufx"), CC32("aumu"), CC32("aumi"), CC32("aumi") };	//maps Class::type to au_type, must match plist
+
 		UInt32 company_4cc;
 		UInt32 uid_4cc;
 	}

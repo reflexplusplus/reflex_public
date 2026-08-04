@@ -1,5 +1,6 @@
 - [Reflex](#sym-14880872606059205893)
   - [Containers](#sym-1585929918896896715)
+  - [Debug](#sym-938601454590196427)
   - [Initialisation](#sym-12367712400810670795)
   - [Intrusive](#sym-11653042658938682059)
   - [Notifications](#sym-16995229157590006475)
@@ -97,10 +98,6 @@ From there, the natural development path is:
 - Manage structured state with Data::PropertySet and the serialization helpers
 - Follow the patterns established in the Notes example for state/view separation and lifecycle management
 
-
-### Value Types
-
-[Output](#sym-14460294615737268939)
 ---
 
 <a id="sym-1585929918896896715"></a>
@@ -232,6 +229,16 @@ Reverse iteration helpers are also provided via rbegin() and rend().
 ### Value Types
 
 [Array](#sym-925399584115751627), [ArrayRegion](#sym-2445480886326753995), [ArrayView](#sym-17111432006044187339), [Map](#sym-830922256497736395), [Queue](#sym-1007300444332194507), [Sequence](#sym-9501096024522062539)
+---
+
+<a id="sym-938601454590196427"></a>
+
+##### [Reflex](#sym-14880872606059205893) > Debug
+
+
+### Value Types
+
+[Output](#sym-14460294615737268939)
 ---
 
 <a id="sym-12367712400810670795"></a>
@@ -1122,14 +1129,6 @@ GLX::AddFloat(body, button, GLX::kAlignmentTopRight);
 GLX::BindClick(button, [](){});
 ```
 
-
-### Functions
-
-[CreateMaxBoundsAnimation](#sym-10471632103631062282)
-
-### Object Types
-
-[WindowClient](#sym-14450129931335730442)
 ---
 
 <a id="sym-11673504531626427658"></a>
@@ -1187,7 +1186,7 @@ This is commonly used for polling async task status, updating drag visuals, driv
 
 ### Functions
 
-[AttachAnimationClock](#sym-15187249853810967818), [AttachPeriodicClock](#sym-15145119518877123850), [CreateAnimationClock](#sym-18141271455978063114), [CreateCallbackAnimation](#sym-16203876171916608778), [CreateColourPropertyAnimation](#sym-14829502906532726026), [CreateFloatPropertyAnimation](#sym-461854346607428874), [CreateInterpolatedAnimation](#sym-4822352329464448266), [CreateLogarithmicAnimation](#sym-13538936539131774218), [CreateMarginPropertyAnimation](#sym-15922530894628357386), [CreateOpacityAnimation](#sym-4438300812032181514), [CreatePeriodicClock](#sym-16352619814319129866), [CreatePointPropertyAnimation](#sym-11994997758743381258), [CreatePositionAnimation](#sym-3372461435799045386), [CreateSizePropertyAnimation](#sym-1956205431755998474), [CreateStateAnimation](#sym-14630098535735985418), [CreateWaitAnimation](#sym-3214050947294659850), [DetachClock](#sym-18005836590080951562), [Enter](#sym-945166050058667274), [Exit](#sym-8972562576001041674), [Run](#sym-830948468632683786), [Stop](#sym-8974705575703184650)
+[AttachAnimationClock](#sym-15187249853810967818), [AttachPeriodicClock](#sym-15145119518877123850), [CreateAnimationClock](#sym-18141271455978063114), [CreateCallbackAnimation](#sym-16203876171916608778), [CreateColourPropertyAnimation](#sym-14829502906532726026), [CreateFloatPropertyAnimation](#sym-461854346607428874), [CreateInterpolatedAnimation](#sym-4822352329464448266), [CreateLogarithmicAnimation](#sym-13538936539131774218), [CreateMarginPropertyAnimation](#sym-15922530894628357386), [CreateMaxBoundsAnimation](#sym-10471632103631062282), [CreateOpacityAnimation](#sym-4438300812032181514), [CreatePeriodicClock](#sym-16352619814319129866), [CreatePointPropertyAnimation](#sym-11994997758743381258), [CreatePositionAnimation](#sym-3372461435799045386), [CreateSizePropertyAnimation](#sym-1956205431755998474), [CreateStateAnimation](#sym-14630098535735985418), [CreateWaitAnimation](#sym-3214050947294659850), [DetachClock](#sym-18005836590080951562), [Enter](#sym-945166050058667274), [Exit](#sym-8972562576001041674), [Run](#sym-830948468632683786), [Stop](#sym-8974705575703184650)
 
 ### Enums
 
@@ -1747,7 +1746,7 @@ Typical use cases:
 
 ### Object Types
 
-[Object](#sym-14361920786363680010)
+[Object](#sym-14361920786363680010), [WindowClient](#sym-14450129931335730442)
 
 ### Value Types
 

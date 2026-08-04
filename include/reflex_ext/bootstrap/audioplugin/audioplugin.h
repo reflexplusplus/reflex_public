@@ -56,6 +56,13 @@ public:
 	ArrayView <Value32> GetParameterValues() const { return m_parameters.values; }
 
 
+	void BeginAutomation(UInt32 idx);
+
+	void Automate(UInt32 idx, Float32 value);
+
+	void EndAutomation(UInt32 idx);
+
+
 
 	//links
 	
@@ -143,6 +150,7 @@ private:
 
 	UInt8 m_report_changes_flags;
 
+	UInt8 m_automating;
 };
 
 
@@ -160,4 +168,41 @@ namespace Reflex::Bootstrap::Detail
 
 	void StoreStandaloneAudioApp(Global & global, System::AudioPlugin & audioplugin);
 
+}
+
+
+
+
+//
+//impl
+
+inline void Reflex::Bootstrap::AudioPlugin::BeginAutomation(UInt32 idx)
+{
+	REFLEX_ASSERT_MAINTHREAD("Bootstrap::AudioPlugin::BeginAutomation");
+	REFLEX_ASSERT(idx < m_parameters.values.GetSize());
+
+	m_automating++;
+
+	instance->BeginAutomation(idx);
+}
+
+inline void Reflex::Bootstrap::AudioPlugin::Automate(UInt32 idx, Float32 value)
+{
+	REFLEX_ASSERT_MAINTHREAD("Bootstrap::AudioPlugin::Automate");
+	REFLEX_ASSERT(idx < m_parameters.values.GetSize());
+	REFLEX_ASSERT(m_automating);
+
+	OnSetParameterValue(idx, value);
+
+	instance->Automate(idx, value);
+}
+
+inline void Reflex::Bootstrap::AudioPlugin::EndAutomation(UInt32 idx)
+{
+	REFLEX_ASSERT_MAINTHREAD("Bootstrap::AudioPlugin::EndAutomation");
+	REFLEX_ASSERT(idx < m_parameters.values.GetSize());
+
+	instance->EndAutomation(idx);
+
+	m_automating--;
 }

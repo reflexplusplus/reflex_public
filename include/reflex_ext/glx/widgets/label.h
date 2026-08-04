@@ -39,14 +39,6 @@ public:
 
 	Label(WString && string, Key32 id = kvalue);
 
-	
-
-protected:
-
-	virtual void OnClearValue() {}
-
-	virtual void OnSetValue(const WString & value) {}
-
 };
 
 

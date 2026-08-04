@@ -30,9 +30,6 @@ class Reflex::GLX::Core::Desktop :
 	public State
 {
 public:
-
-	//types
-
 	enum Notification : UInt8
 	{
 		kNotificationMouseOver,
@@ -64,6 +61,10 @@ public:
 
 	virtual void EnumerateWindows(const Function <void(GLX::WindowClient&)> & callback) = 0;
 
+	virtual const Pointer * QueryPointer(UInt8 slot) const = 0;
+
+	virtual ArrayView <Pointer> GetPointers() const = 0;		//returns the first pressed pointer, or the mousepointer
+
 
 
 	//mouseover
@@ -82,7 +83,7 @@ public:
 
 	//drag & drop
 
-	virtual void StartDragDrop(TRef <Reflex::Object> data, System::MouseCursor dragover = System::kMouseCursorInvisible, System::MouseCursor block = System::kMouseCursorInvisible) = 0;
+	virtual void StartDragDrop(UInt8 pointer_slot, TRef <Reflex::Object> data, System::MouseCursor dragover = System::kMouseCursorInvisible, System::MouseCursor block = System::kMouseCursorInvisible) = 0;
 
 	virtual void CompleteDragDrop() = 0;
 
@@ -97,7 +98,7 @@ public:
 
 	//special
 
-	virtual void EndMouseCapture() = 0;
+	virtual void EndPointerCapture(UInt8 slot) = 0;
 
 	virtual void ResetClock() = 0;
 

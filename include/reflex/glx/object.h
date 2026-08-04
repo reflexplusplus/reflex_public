@@ -74,36 +74,44 @@ public:
 
 	//mouse setup
 
-	void SetMouseOverTrapMode(Trap trap);
+	void EnablePointer(bool enabled, bool active = false);
 
-	Trap GetMouseOverTrapMode() const;
-
-
-	void SetMouseClickTrapMode(Trap trap);
-
-	Trap GetMouseClickTrapMode() const;
+	Pair <bool> PointerEnabled() const;
 
 
+	void EnableMultiTouch(bool enable = true);
 
-	//events
-
-	void SetDelegate(Key32 id, TRef <Delegate> dlg);	//experimental
-
-	void ClearDelegate(Key32 id);	//deprecated, use Delegate::Detach
+	bool MultiTouchEnabled() const;
 
 
-	Delegate * QueryDelegate(Reflex::Detail::DynamicTypeRef object_t);	//experimental
+
+	//delegates (experimental API)
+
+	void SetDelegate(Key32 id, TRef <Delegate> dlg);
+
+	void ClearDelegate(Key32 id);
+
+
+	Delegate * QueryDelegate(Reflex::Detail::DynamicTypeRef object_t);
+	
+	template <class TYPE> TYPE * QueryDelegate();
 
 	void EnumerateDelegates(const Function <void(Delegate&)> & visitor);
 
 	Array < Reference <Delegate> > GetDelegates();
 
 
+
+	//events
+
 	bool ProcessEvent(Object & src, Event & e);
 
 	bool Emit(Event & e);
 
 	TRef <Object> EmitEx(Event & e);
+
+
+	void Focus();
 
 
 
@@ -139,7 +147,7 @@ public:
 
 
 
-	//ADVANCED used by standard layout/style, you probably dont need to use these directly
+	//used by standard layout/style, typically do not use directly
 
 	//flow/layout (affects children)
 
@@ -168,47 +176,43 @@ protected:
 	using Mods = ObjectOf < Map <Key32, ConstReference <Detail::ComputedStyle> > >;
 
 
-
-	//forward to delegate
-
 	virtual bool OnEvent(Object & src, Event & e);	//forwards to delegates
 
 	virtual void OnSetStyle(const Style & style);	//forwards to delegates
 
 
-	void OnAttachWindow() override;
+	void OnAttachWindow() override;					//forwards to delegates
 
-	void OnDetachWindow() override;
+	void OnDetachWindow() override;					//forwards to delegates
 
-	void OnUpdate() override;				//forwards to delegates
+	void OnUpdate() override;						//forwards to delegates
 
-
-
-	//final callbacks TODO (1) make all final, requires cleanup of old widgets (2) remove, send event from window
 
 	void OnBuildLayout(AccommodateFn & accommodate, AlignFn & align) override;
 
 
-	void OnFocus() override;
+	void OnFocus() final;
 
 	void OnLoseFocus() final;
 
-	Trap OnMouseOver(Core::MouseAction mouseaction, UInt8 flags) override;
+
+	Core::Trap OnPointerTender(Core::PointerAction action, const Core::Pointer & pointer, UInt8 flags) override;
+
+	Core::Trap OnPointerDown(const Core::Pointer & pointer, UInt8 flags, Float64 timestamp) final;
+
+	void OnPointerDrag(const Core::Pointer & pointer, Float64 timestamp, Point drag) final;
+
+	void OnPointerUp(const Core::Pointer & pointer, Float64 timestamp) final;
+
 
 	void OnMouseEnter(Object & previous) final;
 
 	void OnMouseLeave() final;
 
-	Trap OnMouseClick(UInt8 flags) override;
-
-	void OnMouseDrag(Point drag) override;
-
-	void OnMouseRelease() override;
-
-	void OnMouseWheel(Point delta, bool inverted) final;
+	void OnMouseWheel(const Core::Pointer & pointer, Float64 timestamp, Point delta, bool inverted) final;
 
 
-	bool OnDragDropTender(Reflex::Object & data) final;
+	bool OnDragDropTender(const Core::Pointer & pointer, Reflex::Object & data) final;
 
 	void OnDragDropEnter(Reflex::Object & data) final;
 
@@ -233,7 +237,7 @@ protected:
 
 
 
-	//advanced (typically called in SetLayout callback)
+	//advanced
 
 	Object(TRef <Detail::LayoutModel> layout);
 
@@ -263,10 +267,11 @@ private:
 	Reference <Detail::LayoutModel> m_layout;
 
 
-	Trap m_mouseover_trap;
+	UInt8 m_pointer_tender_mask;
 
-	Trap m_mouseclick_trap;
+	Core::Trap m_pointer_tender_trap;
 
+	
 	Flags8 m_flowflags;
 
 	UInt8 m_positioningflags;
@@ -343,7 +348,8 @@ protected:
 
 	virtual bool OnEvent(GLX::Object & source, Event & e) { return false; }
 
-	virtual bool OnMouseOver(Core::MouseAction mouseaction, UInt8 flags) { return false; }
+	
+	virtual bool OnPointerTender(Core::PointerAction action, const Core::Pointer & pointer, UInt8 flags, Core::Trap & trap) { return false; }	//!experimental
 
 
 	const TRef <GLX::Object> object;
@@ -375,15 +381,18 @@ REFLEX_SET_TRAIT(Reflex::GLX::Object::Delegate, IsSingleThreadExclusive);
 
 
 //
-//implementation
+//impl
 
 REFLEX_NS(Reflex::GLX::Detail)
+
+inline Key32 MakePointerDownLinkID(UInt8 pointer_slot)
+{
+	return Reinterpret<Key32>(MakeTuple(pointer_slot, UInt8(1), kMaxInt16));
+}
 
 void LogEventStep(GLX::Object & src, Event & e, GLX::Object & receiver);
 
 using LegacyWeakReferenceObject = ObjectOf <Core::WeakReference>;
-
-extern TRef <Allocator> gAllocator;
 
 REFLEX_END
 
@@ -401,29 +410,54 @@ REFLEX_INLINE Reflex::GLX::Object::Object(Detail::LayoutModelCtr ctr)
 {
 }
 
-REFLEX_INLINE void Reflex::GLX::Core::Object::Focus()
-{
-	desktop->SetFocus(*Cast<GLX::Object>(this));
+template <class TYPE> inline TYPE * Reflex::GLX::Object::QueryDelegate() 
+{ 
+	REFLEX_STATIC_ASSERT_DYNAMIC_CASTABLE(TYPE); 
+	
+	return Cast<TYPE>(QueryDelegate(TYPE::kDynamicTypeInfo)); 
 }
 
-REFLEX_INLINE void Reflex::GLX::Object::SetMouseOverTrapMode(Trap trap)
+REFLEX_INLINE void Reflex::GLX::Object::Focus()
 {
-	m_mouseover_trap = trap;
+	Core::desktop->SetFocus(*this);
 }
 
-REFLEX_INLINE Reflex::GLX::Trap Reflex::GLX::Object::GetMouseOverTrapMode() const 
+REFLEX_INLINE void Reflex::GLX::Object::EnablePointer(bool enable, bool active)
 {
-	return m_mouseover_trap;
+	constexpr Core::Trap kMap[2][2] = { { Core::kTrapThru, Core::kTrapReject }, { Core::kTrapPassive, Core::kTrapActive } };
+
+	m_pointer_tender_trap = kMap[enable][active];
 }
 
-REFLEX_INLINE void Reflex::GLX::Object::SetMouseClickTrapMode(Trap trap)
+inline Reflex::Pair <bool> Reflex::GLX::Object::PointerEnabled() const
 {
-	m_mouseclick_trap = trap;
+	switch (m_pointer_tender_trap)
+	{
+	case Core::kTrapThru:	//0
+		return { false, false };
+
+	case Core::kTrapPassive://1
+		return { true, false };
+
+	case Core::kTrapActive:	//2
+		return { true, true };
+
+	case Core::kTrapReject:	//3
+		return { false, true };
+
+	default:
+		return {};
+	}
 }
 
-REFLEX_INLINE Reflex::GLX::Trap Reflex::GLX::Object::GetMouseClickTrapMode() const 
+REFLEX_INLINE void Reflex::GLX::Object::EnableMultiTouch(bool enable)
 {
-	return m_mouseclick_trap;
+	m_pointer_tender_mask = BitSet(m_pointer_tender_mask, GetFirstBit(kPointerFlagMulti).value, enable);
+}
+
+REFLEX_INLINE bool Reflex::GLX::Object::MultiTouchEnabled() const
+{
+	return True(m_pointer_tender_mask & kPointerFlagMulti);
 }
 
 REFLEX_INLINE void Reflex::GLX::Object::SetLayoutFlags(UInt8 flags)

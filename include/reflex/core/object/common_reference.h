@@ -96,7 +96,7 @@ protected:
 
 	CommonReference(TYPE * ptr) : m_object(ptr) { REFLEX_ASSERT(ptr); }
 
-	CommonReference(NoValue special_zero_init) : m_object(0) {}
+	CommonReference(NoValue special_uninitialized) : m_object(nullptr) {}
 
 
 

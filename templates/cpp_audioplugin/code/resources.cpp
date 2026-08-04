@@ -48,7 +48,7 @@ const Reflex::UInt64 k_PRODUCT-NAME-SYMBOL__styles_txt[297] =
 	0x003b7d0a0d3b7d09ull, 
 };
 
-const Reflex::Bootstrap::EnumerableEmbeddedResource _PRODUCT-NAME-SYMBOL_::styles_txt(K32("_PRODUCT-NAME-SYMBOL_"), K32("styles.txt"), reinterpret_cast<const Reflex::UInt8*>(&k_PRODUCT-NAME-SYMBOL__styles_txt), 2375u, 0u);
+const Reflex::File::EnumerableEmbeddedResource _PRODUCT-NAME-SYMBOL_::styles_txt(K32("_PRODUCT-NAME-SYMBOL_"), K32("styles.txt"), reinterpret_cast<const Reflex::UInt8*>(&k_PRODUCT-NAME-SYMBOL__styles_txt), 2375u, 0u);
 
 
 

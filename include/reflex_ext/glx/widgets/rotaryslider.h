@@ -87,7 +87,7 @@ protected:
 
 	bool OnEvent(Object & src, Event & e) override;
 
-	GLX::Trap OnMouseOver(Core::MouseAction mouseaction, UInt8 flags) override;
+	Core::Trap OnPointerTender(Core::PointerAction action, const Core::Pointer & pointer, UInt8 flags) override;
 
 	void OnDetachWindow() override;
 

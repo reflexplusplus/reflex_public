@@ -6,14 +6,14 @@
 
 
 //
-//Primary API
+//Addon API
 
 namespace Reflex::Async
 {
 
 	using HttpHeaders = Array < Pair <CString> >;
 
-	TRef <Task> CreateHttpRequest(const CString::View & method, const CString::View & url, const HttpHeaders & headers, const Data::Archive::View & body, Output & output = File::output);
+	TRef <Task> CreateHttpRequest(const CString::View & method, const CString::View & url, const HttpHeaders & headers, const Data::Archive::View & body, Output & debug_output = File::output);
 
 }
 
@@ -86,5 +86,5 @@ REFLEX_END
 
 inline Reflex::TRef <Reflex::Async::Task> Reflex::Async::CreateHttpRequest(const CString::View & method, const CString::View & url, const HttpHeaders & headers, const Data::Archive::View & body, Output & output)
 {
-	return CreateHttpRequest(method, url, headers, body, New<Detail::StandardHttpRequestCallbacks>(), Detail::kNetworkSimulationNone, output);
+	return Detail::CreateHttpRequest(method, url, headers, body, New<Detail::StandardHttpRequestCallbacks>(), Detail::kNetworkSimulationNone, output);
 }

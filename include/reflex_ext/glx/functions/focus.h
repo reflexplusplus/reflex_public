@@ -11,6 +11,9 @@
 namespace Reflex::GLX
 {
 
+	TRef <Object> GetFocus();
+
+
 	void FocusBranch(Object & branch_root);							//focus 'branch_root' if focus not already within 'branch_root'
 
 	void RedirectFocus(Object & branch_root, Object & object);		//focus 'object' if focus is within 'branch_root'
@@ -30,4 +33,15 @@ namespace Reflex::GLX
 
 	void ClearFocusHighlight(Object & scope);
 
+}
+
+
+
+
+//
+//impl
+
+inline Reflex::TRef <Reflex::GLX::Object> Reflex::GLX::GetFocus()
+{
+	return Core::desktop->GetFocus();
 }

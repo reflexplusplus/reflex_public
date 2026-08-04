@@ -57,6 +57,8 @@ namespace Reflex
 //
 //impl
 
+#define REFLEX_STATIC_ASSERT_DYNAMIC_CASTABLE(TYPE) REFLEX_STATIC_ASSERT(Reflex::kIsType<typename TYPE::DynamicCastableType, TYPE>)
+
 REFLEX_NS(Reflex::Detail)
 
 bool IsOrInheritsFrom(DynamicTypeRef rttypeinfo, DynamicTypeRef object_t);
@@ -88,6 +90,7 @@ REFLEX_INLINE bool Reflex::operator!=(const Object & a, const Object & b)
 template <class TYPE> REFLEX_INLINE TYPE * Reflex::DynamicCast(Object & object, TYPE * fallback)
 {
 	REFLEX_STATIC_ASSERT_OBJECT_TYPE(TYPE);
+	REFLEX_STATIC_ASSERT_DYNAMIC_CASTABLE(TYPE);
 
 	Detail::DynamicTypeRef target_t = TYPE::kDynamicTypeInfo;
 
@@ -163,7 +166,7 @@ template <class POLYTYPE, class TYPE> inline decltype(auto) Reflex::Cast(const T
 
 template <class auto_t> REFLEX_INLINE auto Reflex::AutoRelease(auto_t && object)
 {
-	constexpr bool test = !IsReflexReference<auto_t>::retaining;
+	constexpr bool test = !IsReflexReference<NonRefT<auto_t>>::retaining;
 
 	static_assert(test, "unnecesary AutoRelease");
 

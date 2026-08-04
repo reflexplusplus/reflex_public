@@ -38,7 +38,6 @@
 		1A91D0EB2D11A6BE00B547EE /* Metal.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1A91D0E42D11A62E00B547EE /* Metal.framework */; };
 		1AA0F79E2C414E9400C00826 /* reflex_ext.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1AA0F79D2C414E9400C00826 /* reflex_ext.cpp */; };
 		1AA0F79F2C414E9400C00826 /* reflex_ext.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1AA0F79D2C414E9400C00826 /* reflex_ext.cpp */; };
-		1AA0F7A02C414E9400C00826 /* reflex_ext.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1AA0F79D2C414E9400C00826 /* reflex_ext.cpp */; };
 		1AA0F7A12C414E9400C00826 /* reflex_ext.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1AA0F79D2C414E9400C00826 /* reflex_ext.cpp */; };
 		1AA0F7A92C414FD300C00826 /* entry.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1AA0F7A82C414FD300C00826 /* entry.cpp */; };
 		1AA0F7AA2C414FD300C00826 /* entry.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1AA0F7A82C414FD300C00826 /* entry.cpp */; };
@@ -116,7 +115,7 @@
 				1A2642B82991802B00DD1D7D /* DiskArbitration.framework in Frameworks */,
 				1A91D0EB2D11A6BE00B547EE /* Metal.framework in Frameworks */,
 				1A91D0EA2D11A6B600B547EE /* QuartzCore.framework in Frameworks */,
-				);
+			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		1AA66B382F45E33B00163CAA /* Frameworks */ = {
@@ -127,7 +126,7 @@
 				1AA66B3A2F45E33B00163CAA /* DiskArbitration.framework in Frameworks */,
 				1AA66B3B2F45E33B00163CAA /* Metal.framework in Frameworks */,
 				1AA66B3C2F45E33B00163CAA /* QuartzCore.framework in Frameworks */,
-				);
+			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		1AE4E41F2B18E11300DCE355 /* Frameworks */ = {
@@ -170,7 +169,7 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
-		29B97314FDCFA39411CA2CEA /* Cocoa OpenGL */ = {
+		29B97314FDCFA39411CA2CEA /* Cocoa Metal */ = {
 			isa = PBXGroup;
 			children = (
 				1AD5333F2DE86F1D009184F0 /* paths.xcconfig */,
@@ -183,7 +182,7 @@
 				1A27B35E2A1C741200BF1FF2 /* view.cpp */,
 				19C28FACFE9D520D11CA2CBB /* Products */,
 			);
-			name = "Cocoa OpenGL";
+			name = "Cocoa Metal";
 			sourceTree = "<group>";
 		};
 		29B97323FDCFA39411CA2CEA /* Frameworks */ = {
@@ -319,7 +318,7 @@
 				en,
 				Base,
 			);
-			mainGroup = 29B97314FDCFA39411CA2CEA /* Cocoa OpenGL */;
+			mainGroup = 29B97314FDCFA39411CA2CEA /* Cocoa Metal */;
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
@@ -435,10 +434,6 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				EXPORTED_SYMBOLS_FILE = "$(REFLEX_PATH)/resources/macos/vst3_exports.txt";
-				GCC_PREPROCESSOR_DEFINITIONS = (
-					REFLEX_BOOTSTRAP_TYPE_AUDIOPLUGIN,
-					"$(inherited)",
-				);
 				INFOPLIST_FILE = "$(REFLEX_PATH)/resources/macos/VST.plist";
 				MACH_O_TYPE = mh_dylib;
 				OTHER_LDFLAGS = (
@@ -456,10 +451,6 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				EXPORTED_SYMBOLS_FILE = "$(REFLEX_PATH)/resources/macos/vst3_exports.txt";
-				GCC_PREPROCESSOR_DEFINITIONS = (
-					REFLEX_BOOTSTRAP_TYPE_AUDIOPLUGIN,
-					"$(inherited)",
-				);
 				INFOPLIST_FILE = "$(REFLEX_PATH)/resources/macos/VST.plist";
 				MACH_O_TYPE = mh_dylib;
 				OTHER_LDFLAGS = (
@@ -477,10 +468,6 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				EXPORTED_SYMBOLS_FILE = "$(REFLEX_PATH)/resources/macos/clap_exports.txt";
-				GCC_PREPROCESSOR_DEFINITIONS = (
-					REFLEX_BOOTSTRAP_TYPE_AUDIOPLUGIN,
-					"$(inherited)",
-				);
 				INFOPLIST_FILE = "$(REFLEX_PATH)/resources/macos/CLAP.plist";
 				MACH_O_TYPE = mh_dylib;
 				OTHER_LDFLAGS = (
@@ -498,10 +485,6 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				EXPORTED_SYMBOLS_FILE = "$(REFLEX_PATH)/resources/macos/clap_exports.txt";
-				GCC_PREPROCESSOR_DEFINITIONS = (
-					REFLEX_BOOTSTRAP_TYPE_AUDIOPLUGIN,
-					"$(inherited)",
-				);
 				INFOPLIST_FILE = "$(REFLEX_PATH)/resources/macos/CLAP.plist";
 				MACH_O_TYPE = mh_dylib;
 				OTHER_LDFLAGS = (
@@ -519,10 +502,6 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				GCC_PREPROCESSOR_DEFINITIONS = (
-					REFLEX_BOOTSTRAP_TYPE_AUDIOAPP,
-					"$(inherited)",
-				);
 				INFOPLIST_FILE = "$(REFLEX_PATH)/resources/macos/App.plist";
 				OTHER_LDFLAGS = (
 					"-lReflexCommon",
@@ -538,10 +517,6 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				GCC_PREPROCESSOR_DEFINITIONS = (
-					REFLEX_BOOTSTRAP_TYPE_AUDIOAPP,
-					"$(inherited)",
-				);
 				INFOPLIST_FILE = "$(REFLEX_PATH)/resources/macos/App.plist";
 				OTHER_LDFLAGS = (
 					"-lReflexCommon",
@@ -558,9 +533,9 @@
 			baseConfigurationReference = 1AD5333F2DE86F1D009184F0 /* paths.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				AU_VENDOR_4CC = "_VENDOR-4CC_";
-				AU_TYPE_4CC = aumu;
+				AU_TYPE_4CC = aufx;
 				AU_UID_4CC = "_PRODUCT-4CC_";
+				AU_VENDOR_4CC = "_VENDOR-4CC_";
 				CLANG_CXX_LANGUAGE_STANDARD = "c++20";
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_ENABLE_MODULES = YES;
@@ -597,6 +572,7 @@
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"DEBUG=1",
+					REFLEX_BOOTSTRAP_TYPE_AUDIOPLUGIN,
 					"$(inherited)",
 				);
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
@@ -616,11 +592,12 @@
 					"-fpermissive",
 					"$(OTHER_CFLAGS)",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = "com._VENDOR-NAME-SYMBOL-LOWER_._PRODUCT-NAME-SYMBOL-LOWER_";
+				PRODUCT_BUNDLE_IDENTIFIER = "com._PACKAGE-ID-VENDOR_._PACKAGE-ID-PRODUCT_";
 				PRODUCT_NAME = "_PRODUCT-NAME_";
 				SDKROOT = macosx;
 				STANDARD_C_PLUS_PLUS_LIBRARY_TYPE = static;
 				USER_HEADER_SEARCH_PATHS = "\"$(REFLEX_PATH)/include\"";
+				VENDOR_NAME = "_VENDOR-NAME_";
 			};
 			name = Debug;
 		};
@@ -629,9 +606,9 @@
 			baseConfigurationReference = 1AD5333F2DE86F1D009184F0 /* paths.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				AU_VENDOR_4CC = "_VENDOR-4CC_";
-				AU_TYPE_4CC = aumu;
+				AU_TYPE_4CC = aufx;
 				AU_UID_4CC = "_PRODUCT-4CC_";
+				AU_VENDOR_4CC = "_VENDOR-4CC_";
 				CLANG_CXX_LANGUAGE_STANDARD = "c++20";
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_ENABLE_MODULES = YES;
@@ -668,7 +645,10 @@
 				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
 				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_OPTIMIZATION_LEVEL = 2;
-				GCC_PREPROCESSOR_DEFINITIONS = "";
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					REFLEX_BOOTSTRAP_TYPE_AUDIOPLUGIN,
+					"$(inherited)",
+				);
 				GCC_UNROLL_LOOPS = YES;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
@@ -686,11 +666,12 @@
 					"-fpermissive",
 					"$(OTHER_CFLAGS)",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = "com._VENDOR-NAME-SYMBOL-LOWER_._PRODUCT-NAME-SYMBOL-LOWER_";
+				PRODUCT_BUNDLE_IDENTIFIER = "com._PACKAGE-ID-VENDOR_._PACKAGE-ID-PRODUCT_";
 				PRODUCT_NAME = "_PRODUCT-NAME_";
 				SDKROOT = macosx;
 				STANDARD_C_PLUS_PLUS_LIBRARY_TYPE = static;
 				USER_HEADER_SEARCH_PATHS = "\"$(REFLEX_PATH)/include\"";
+				VENDOR_NAME = "_VENDOR-NAME_";
 			};
 			name = Release;
 		};
@@ -699,7 +680,7 @@
 			buildSettings = {
 				EXPORTED_SYMBOLS_FILE = "$(REFLEX_PATH)/resources/macos/AudioUnit_exports.txt";
 				GCC_PREPROCESSOR_DEFINITIONS = (
-					REFLEX_BOOTSTRAP_TYPE_AUDIOPLUGIN,
+					"AU_TYPE_4CC=$(AU_TYPE_4CC)",
 					"$(inherited)",
 				);
 				INFOPLIST_FILE = "$(REFLEX_PATH)/resources/macos/AudioUnit.plist";
@@ -720,7 +701,7 @@
 			buildSettings = {
 				EXPORTED_SYMBOLS_FILE = "$(REFLEX_PATH)/resources/macos/AudioUnit_exports.txt";
 				GCC_PREPROCESSOR_DEFINITIONS = (
-					REFLEX_BOOTSTRAP_TYPE_AUDIOPLUGIN,
+					"AU_TYPE_4CC=$(AU_TYPE_4CC)",
 					"$(inherited)",
 				);
 				INFOPLIST_FILE = "$(REFLEX_PATH)/resources/macos/AudioUnit.plist";

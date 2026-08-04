@@ -57,13 +57,13 @@ struct Reflex::Bootstrap::ParamDesc : public Object
 		kTypeBool
 	};
 
-	[[nodiscard]] static TRef <ParamDesc> CreateReal(CString && name, Float32 min, Float32 max, Float32 origin, Float32 init);
+	[[nodiscard]] static TRef <ParamDesc> CreateReal(CString && name, Float32 min, Float32 max, Float32 origin, Float32 initial);
 	
-	[[nodiscard]] static TRef <ParamDesc> CreateDiscrete(CString && name, Int32 min, Int32 max, Int32 init);
+	[[nodiscard]] static TRef <ParamDesc> CreateDiscrete(CString && name, Int32 min, Int32 max, Int32 initial);
 	
-	[[nodiscard]] static TRef <ParamDesc> CreateBool(CString && name, bool init);
+	[[nodiscard]] static TRef <ParamDesc> CreateBool(CString && name, bool initial);
 
-	[[nodiscard]] static TRef <EnumParamDesc> CreateEnum(CString && name, const ArrayView <CString> & values, Int32 init);
+	[[nodiscard]] static TRef <ParamDesc> CreateEnum(CString && name, const ArrayView <CString> & values, Int32 initial);
 
 
 	Type type = kTypeReal;
@@ -72,28 +72,13 @@ struct Reflex::Bootstrap::ParamDesc : public Object
 
 	CString name;
 
+	Function <WString(Value32)> to_string;
+
 	Value32 init_value;
 	Value32 min;
 	Value32 max;
 	Value32 origin;
 };
-
-
-
-
-//
-//EnumParamDesc
-
-struct Reflex::Bootstrap::EnumParamDesc : public ParamDesc
-{
-	REFLEX_OBJECT(EnumParamDesc, ParamDesc);
-
-	static EnumParamDesc & null;
-
-
-	Array <CString> values;
-};
-
 
 
 

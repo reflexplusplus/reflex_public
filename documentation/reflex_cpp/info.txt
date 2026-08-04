@@ -1,5 +1,7 @@
 0:
 {
+	@WString Description: "#p Canvas callback context used when building graphic primitives plus embedded graphics.";
+
 	Path: ["Reflex", "GLX", "GraphicCanvasContext"];
 
 	Module: ["Reflex", "GLX", "Styling", "Canvas"];
@@ -136,6 +138,8 @@
 
 2:
 {
+	@WString Description: "#p Canvas callback context used when building uncoloured geometric points.";
+
 	Path: ["Reflex", "GLX", "CanvasContext"];
 
 	Module: ["Reflex", "GLX", "Styling", "Canvas"];
@@ -220,6 +224,8 @@
 
 4:
 {
+	@WString Description: "#p Canvas callback context used when building geometry with per-point colours.";
+
 	Path: ["Reflex", "GLX", "ColourCanvasContext"];
 
 	Module: ["Reflex", "GLX", "Styling", "Canvas"];
@@ -1126,7 +1132,7 @@
 #h1 Reading the root tag
 
 <code>
-#p if (Data::GetXmlTag(*xml) == $qsvg$q)
+#p if (Data::GetXmlTag(xml) == $qsvg$q)
 #p {
 #p }
 </code>
@@ -1834,6 +1840,8 @@ See also Bootstrap::Detail::SetStyle.
 
 27:
 {
+	@WString Description: "#p Point collection that stores both positions and colours for coloured canvas drawing.";
+
 	Path: ["Reflex", "GLX", "ColourPoints"];
 
 	Module: ["Reflex", "GLX", "Styling", "Canvas"];
@@ -1841,9 +1849,9 @@ See also Bootstrap::Detail::SetStyle.
 
 28:
 {
-	@WString Description: "#p Reflex is designed so that application code is completely platform-agnostic. When developing with Reflex, there is no need to interact with OS-specific APIs directly - all system functionality is abstracted and implemented in a fully cross-platform way.
+	@WString Description: "#p The Reflex::System namespace is the low-level cross-platform abstraction layer for OS-facing services such as files, windows, rendering, application lifetime, and platform integration.
 
-#p The System namespace is responsible for this abstraction layer.  It provides the low-level, platform-independent primitives that Reflex builds upon.
+#p Reflex is designed so that application code can remain platform-agnostic. In normal use there is no need to interact with OS-specific APIs directly, as System provides the platform-independent primitives that the rest of Reflex builds upon.
 
 #h1 Design intent
 
@@ -2245,20 +2253,18 @@ See also Bootstrap::Detail::SetStyle.
 
 #h1 Initiating a drag
 
-#p To receive kMouseDrag and kMouseUp events on an object, first enable mouse capture:
-
-<code>
-#p GLX::EnableMouseCapture(object, true);
-</code>
-
-#p The typical pattern is to watch kMouseDrag and use ExceedsDragThreshold(GetMouseDelta(e)) to decide when the pointer movement is large enough to begin a drag operation.
+#p To begin a drag, trap kMouseDown and kMouseDrag on the source object, and then use ExceedsDragThreshold(GetDelta(e)) to decide when the pointer movement is large enough to begin a drag operation.
 
 <code>
 #p bool MyView::OnEvent(GLX::Object & src, GLX::Event & e)
 #p {
-#p 	if (e.id == GLX::kMouseDrag)
+#p 	if (e.id == GLX::kMouseDown)
 #p 	{
-#p 		if (GLX::ExceedsDragThreshold(GLX::GetMouseDelta(e)))
+#p 		return true;	//trapping down is enough to receive linked drag/up
+#p 	}
+#p 	else if (e.id == GLX::kMouseDrag)
+#p 	{
+#p 		if (GLX::ExceedsDragThreshold(GLX::GetDelta(e)))
 #p 		{
 #p 			GLX::StartDragDrop(Make<MyDragData>(), GLX::kMouseCursorPointer, GLX::kMouseCursorBlock);
 #p 			return true;
@@ -2363,7 +2369,7 @@ See also Bootstrap::Detail::SetStyle.
 <code>
 #p m_drag_drop_visualiser = GLX::CreateDragDropBeginListener([this](Reflex::Object & drag_data)
 #p {
-#p 	auto origin = GLX::Core::desktop->GetMouseOver();
+#p 	auto origin = GLX::GetFocus();
 #p 	TRef <GLX::WindowClient> window = origin->GetWindow();
 #p 
 #p 	//create drag cursor
@@ -2372,12 +2378,12 @@ See also Bootstrap::Detail::SetStyle.
 #p 	cursor->SetStyle(GLX::FindStyle(origin, $qDragCursor$q));
 #p 	GLX::EnableMouse(cursor, false, true);	//ensure cursor, or any children on cursor, do not doesnt intercept mouse (see EnableMouse for details)
 #p 	GLX::Enter(cursor, GLX::kEnterAnimationFade);
-#p 	GLX::AddAbsolute(window->GetForeground(), cursor, window->GetMousePosition());
+#p 	GLX::AddAbsolute(window->GetForeground(), cursor, GLX::GetPointerPosition(window));
 #p 
 #p 	//attach callbacks to window, so if window is destroyed they wont be called
 #p 	SetAbstractProperty(window, $qdragdrop_clock$q, GLX::CreateAnimationClock([window, cursor](Float)
 #p 	{
-#p 		cursor->SetPosition(window->GetMousePosition());
+#p 		cursor->SetPosition(GLX::GetPointerPosition(window));
 #p 	}));
 #p 	auto run_opacity_animation = [cursor](GLX::Object & drop_target)
 #p 	{
@@ -2408,7 +2414,7 @@ See also Bootstrap::Detail::SetStyle.
 #p });
 </code>
 
-#p The above is stil a fairly basic solution, if you support multiple payload types, a convenient pattern is to register a small factory per drag-data type and choose the preview object in CreateDragDropBeginListener. This lets file drags, object drags, and generic property payloads each supply their own visual cursor
+#p To support multiple payload types, a convenient pattern is to register a small factory per drag-data type and choose the preview object in CreateDragDropBeginListener. This lets file drags, object drags, and generic property payloads each supply their own visual cursor.
 
 <warn>
 #p In a multi-instance plugin environment, take care to do this once, otherwise each window would create a mousecursor.
@@ -2462,6 +2468,8 @@ See also Bootstrap::Detail::SetStyle.
 
 40:
 {
+	@WString Description: "#p Returns the drag-and-drop payload object attached to the event.";
+
 	Path: ["Reflex", "GLX", "GetDragDropData"];
 
 	Module: ["Reflex", "GLX", "Events", "Drag & Drop"];
@@ -2469,6 +2477,8 @@ See also Bootstrap::Detail::SetStyle.
 
 41:
 {
+	@WString Description: "#p Starts a drag-and-drop operation using the supplied payload object and accept/deny cursors.";
+
 	Path: ["Reflex", "GLX", "StartDragDrop"];
 
 	Module: ["Reflex", "GLX", "Events", "Drag & Drop"];
@@ -2476,6 +2486,8 @@ See also Bootstrap::Detail::SetStyle.
 
 42:
 {
+	@WString Description: "#p Creates a desktop listener that fires when a drag-and-drop operation begins and passes the current drag payload to the callback.";
+
 	Path: ["Reflex", "GLX", "CreateDragDropBeginListener"];
 
 	Module: ["Reflex", "GLX", "Events", "Drag & Drop"];
@@ -2483,6 +2495,8 @@ See also Bootstrap::Detail::SetStyle.
 
 43:
 {
+	@WString Description: "#p Creates a desktop listener that fires when the current drag-and-drop target changes and passes that target object to the callback.";
+
 	Path: ["Reflex", "GLX", "CreateDragDropTargetListener"];
 
 	Module: ["Reflex", "GLX", "Events", "Drag & Drop"];
@@ -2497,6 +2511,8 @@ See also Bootstrap::Detail::SetStyle.
 
 45:
 {
+	@WString Description: "#p Loads or retrieves a stylesheet resource from the given path.";
+
 	Path: ["Reflex", "GLX", "RetrieveStyleSheet"];
 
 	Module: ["Reflex", "GLX", "Styling"];
@@ -2504,6 +2520,8 @@ See also Bootstrap::Detail::SetStyle.
 
 46:
 {
+	@WString Description: "#p Returns the modifier-key bitmask captured on the event.";
+
 	Path: ["Reflex", "GLX", "GetModifierKeys"];
 
 	Module: ["Reflex", "GLX", "Events"];
@@ -2511,6 +2529,8 @@ See also Bootstrap::Detail::SetStyle.
 
 47:
 {
+	@WString Description: "#p Returns the character stored on a GLX::kCharacter event, or 0 if no character payload is present.";
+
 	Path: ["Reflex", "GLX", "GetKeyCharacter"];
 
 	Module: ["Reflex", "GLX", "Events"];
@@ -2525,6 +2545,8 @@ See also Bootstrap::Detail::SetStyle.
 
 49:
 {
+	@WString Description: "#p Creates an animation that applies the specified GLX state while running.";
+
 	Path: ["Reflex", "GLX", "CreateStateAnimation"];
 
 	Module: ["Reflex", "GLX", "Animation"];
@@ -2532,6 +2554,8 @@ See also Bootstrap::Detail::SetStyle.
 
 50:
 {
+	@WString Description: "#p Assigns a graphic canvas callback that can emit geometry and embedded graphic resources.";
+
 	Path: ["Reflex", "GLX", "SetGraphicCanvas"];
 
 	Module: ["Reflex", "GLX", "Styling", "Canvas"];
@@ -2570,6 +2594,8 @@ See also Bootstrap::Detail::SetStyle.
 
 52:
 {
+	@WString Description: "#p Cancels the active drag-and-drop operation, if one is in progress.";
+
 	Path: ["Reflex", "GLX", "CancelDragDrop"];
 
 	Module: ["Reflex", "GLX", "Events", "Drag & Drop"];
@@ -2577,6 +2603,8 @@ See also Bootstrap::Detail::SetStyle.
 
 53:
 {
+	@WString Description: "#p Creates an interpolated animation that writes a colour property from the start value to the end value.";
+
 	Path: ["Reflex", "GLX", "CreateColourPropertyAnimation"];
 
 	Module: ["Reflex", "GLX", "Animation"];
@@ -2600,6 +2628,16 @@ See also Bootstrap::Detail::SetStyle.
 
 56:
 {
+	@WString Description: "#p Attaches a per-frame animation clock to the target object.
+
+<span>
+#p This is shorthand for calling
+#link symbol: [$qReflex$q, $qSetAbstractProperty$q]; text: $q SetAbstractProperty $q;
+#p with
+#link symbol: [$qReflex$q, $qGLX$q, $qCreateAnimationClock$q]; text: $q CreateAnimationClock $q;
+#p as the stored object.
+</span>";
+
 	Path: ["Reflex", "GLX", "AttachAnimationClock"];
 
 	Module: ["Reflex", "GLX", "Animation"];
@@ -2630,6 +2668,8 @@ See also Bootstrap::Detail::SetStyle.
 
 60:
 {
+	@WString Description: "#p Appends the filled rectangle geometry to a point collection.";
+
 	Path: ["Reflex", "GLX", "AddRectFill"];
 
 	Module: ["Reflex", "GLX", "Styling", "Canvas"];
@@ -2637,6 +2677,27 @@ See also Bootstrap::Detail::SetStyle.
 
 61:
 {
+	@WString Description: "#p Sets or clears a named visual state on the object.
+
+#p States are typically consumed by stylesheet blocks such as $q@State selected:$q.
+
+<code>
+#p Item:
+#p {
+#p 	bg: Fill(colour: 48);
+#p
+#p 	@State selected:
+#p 	{
+#p 		bg: Fill(colour: 0,120,255);
+#p 	};
+#p };
+</code>
+
+<code>
+#p GLX::SetState(item, $qselected$q, true);
+</code>
+";
+
 	Path: ["Reflex", "GLX", "SetState"];
 
 	Module: ["Reflex", "GLX", "Styling"];
@@ -2644,6 +2705,8 @@ See also Bootstrap::Detail::SetStyle.
 
 62:
 {
+	@WString Description: "#p Creates a desktop listener that fires when the current drag-and-drop operation ends.";
+
 	Path: ["Reflex", "GLX", "CreateDragDropEndListener"];
 
 	Module: ["Reflex", "GLX", "Events", "Drag & Drop"];
@@ -2658,6 +2721,8 @@ See also Bootstrap::Detail::SetStyle.
 
 64:
 {
+	@WString Description: "#p Returns the key code stored on a GLX key event, or kKeyCodeNull if none was set.";
+
 	Path: ["Reflex", "GLX", "GetKeyCode"];
 
 	Module: ["Reflex", "GLX", "Events"];
@@ -2723,6 +2788,8 @@ See also Bootstrap::Detail::SetStyle.
 
 67:
 {
+	@WString Description: "#p Creates an interpolated animation that writes a margin property from the start value to the end value.";
+
 	Path: ["Reflex", "GLX", "CreateMarginPropertyAnimation"];
 
 	Module: ["Reflex", "GLX", "Animation"];
@@ -2744,6 +2811,8 @@ See also Bootstrap::Detail::SetStyle.
 
 70:
 {
+	@WString Description: "#p Returns true when the drag distance exceeds the supplied threshold.";
+
 	Path: ["Reflex", "GLX", "ExceedsDragThreshold"];
 
 	Module: ["Reflex", "GLX", "Events", "Drag & Drop"];
@@ -2758,6 +2827,8 @@ See also Bootstrap::Detail::SetStyle.
 
 72:
 {
+	@WString Description: "#p Returns the drag-and-drop payload cast to TYPE, or null if the payload is of a different type.";
+
 	Path: ["Reflex", "GLX", "QueryDragDropData"];
 
 	Module: ["Reflex", "GLX", "Events", "Drag & Drop"];
@@ -2972,6 +3043,8 @@ See also Bootstrap::Detail::SetStyle.
 
 80:
 {
+	@WString Description: "#p Creates an animation that invokes the callback once when its scheduled time completes, or immediately when skipped.";
+
 	Path: ["Reflex", "GLX", "CreateCallbackAnimation"];
 
 	Module: ["Reflex", "GLX", "Animation"];
@@ -2979,6 +3052,8 @@ See also Bootstrap::Detail::SetStyle.
 
 81:
 {
+	@WString Description: "#p Emitted when the pointer enters the object and its hover branch.";
+
 	Path: ["Reflex", "GLX", "kMouseEnter"];
 
 	Module: ["Reflex", "GLX", "Events"];
@@ -2986,6 +3061,8 @@ See also Bootstrap::Detail::SetStyle.
 
 82:
 {
+	@WString Description: "#p Emitted when the pointer leaves the object's current hover branch.";
+
 	Path: ["Reflex", "GLX", "kMouseLeave"];
 
 	Module: ["Reflex", "GLX", "Events"];
@@ -2993,6 +3070,8 @@ See also Bootstrap::Detail::SetStyle.
 
 83:
 {
+	@WString Description: "#p Emitted for mouse-wheel or trackpad scroll input, with the scroll delta stored on the event.";
+
 	Path: ["Reflex", "GLX", "kMouseWheel"];
 
 	Module: ["Reflex", "GLX", "Events"];
@@ -3000,6 +3079,8 @@ See also Bootstrap::Detail::SetStyle.
 
 84:
 {
+	@WString Description: "#p Convenience helper that binds a parameterless callback to GLX::kMouseDown.";
+
 	Path: ["Reflex", "GLX", "BindClick"];
 
 	Module: ["Reflex", "GLX", "Events"];
@@ -3036,6 +3117,8 @@ See also Bootstrap::Detail::SetStyle.
 
 86:
 {
+	@WString Description: "#p Emitted when external drag data from outside Reflex is dropped onto the object.";
+
 	Path: ["Reflex", "GLX", "kDragDropReceiveExternal"];
 
 	Module: ["Reflex", "GLX", "Events", "Drag & Drop"];
@@ -3127,6 +3210,8 @@ See also Bootstrap::Detail::SetStyle.
 
 92:
 {
+	@WString Description: "#p Emitted when a drag-and-drop payload enters a candidate drop target.";
+
 	Path: ["Reflex", "GLX", "kDragDropEnter"];
 
 	Module: ["Reflex", "GLX", "Events", "Drag & Drop"];
@@ -3155,6 +3240,8 @@ See also Bootstrap::Detail::SetStyle.
 
 96:
 {
+	@WString Description: "#p Emitted when a drag-and-drop payload leaves the current drop target.";
+
 	Path: ["Reflex", "GLX", "kDragDropLeave"];
 
 	Module: ["Reflex", "GLX", "Events", "Drag & Drop"];
@@ -3251,6 +3338,8 @@ See also Bootstrap::Detail::SetStyle.
 
 99:
 {
+	@WString Description: "#p Emitted to let a potential drop target decide whether it will accept the incoming drag-and-drop payload.";
+
 	Path: ["Reflex", "GLX", "kDragDropTender"];
 
 	Module: ["Reflex", "GLX", "Events", "Drag & Drop"];
@@ -3258,6 +3347,8 @@ See also Bootstrap::Detail::SetStyle.
 
 100:
 {
+	@WString Description: "#p Sets a clip rectangle mod on the object.";
+
 	Path: ["Reflex", "GLX", "SetClip"];
 
 	Module: ["Reflex", "GLX", "Styling"];
@@ -3272,6 +3363,38 @@ See also Bootstrap::Detail::SetStyle.
 
 102:
 {
+	@WString Description: "#p Sets a text property on the object for labels or value display.
+
+#p The default Text layer binding uses $q&value$q, so a simple label often only needs SetText plus a Text layer in the stylesheet.
+
+<code>
+#p Label:
+#p {
+#p 	bg: Text(font: Regular; id: &value);
+#p };
+#p
+#p auto label = New<GLX::Object>();
+#p GLX::SetText(label, L$qHello$q);
+</code>
+
+#p You can also attach multiple text properties to the same object and render them through multiple Text layers with matching ids.
+
+<code>
+#p MeterLabel:
+#p {
+#p 	size: 128,128;
+#p
+#p 	bg:
+#p 	Text(font: Regular; id: &title; anchor: top),
+#p 	Text(font: Regular; id: &value; anchor: bottom)
+#p };
+#p
+#p auto item = New<GLX::Object>();
+#p GLX::SetText(item, L$qGain$q, K32($qtitle$q));
+#p GLX::SetText(item, L$q-6.0 dB$q, K32($qvalue$q));
+</code>
+";
+
 	Path: ["Reflex", "GLX", "SetText"];
 
 	Module: ["Reflex", "GLX", "Styling"];
@@ -3327,6 +3450,8 @@ See also Bootstrap::Detail::SetStyle.
 
 107:
 {
+	@WString Description: "#p Base animation type for time-based 0..1 interpolation with selectable easing and optional flip support.";
+
 	Path: ["Reflex", "GLX", "InterpolatedAnimation"];
 
 	Module: ["Reflex", "GLX", "Animation"];
@@ -3334,6 +3459,8 @@ See also Bootstrap::Detail::SetStyle.
 
 108:
 {
+	@WString Description: "#p Emitted when an in-app drag-and-drop payload is dropped onto the target object.";
+
 	Path: ["Reflex", "GLX", "kDragDropReceive"];
 
 	Module: ["Reflex", "GLX", "Events", "Drag & Drop"];
@@ -3543,6 +3670,8 @@ See also Bootstrap::Detail::SetStyle.
 
 119:
 {
+	@WString Description: "#p Appends a filled triangle inside the supplied rectangle.";
+
 	Path: ["Reflex", "GLX", "AddTriangleFill"];
 
 	Module: ["Reflex", "GLX", "Styling", "Canvas"];
@@ -3567,6 +3696,8 @@ See also Bootstrap::Detail::SetStyle.
 
 122:
 {
+	@WString Description: "#p Appends a filled rounded-corner triangle inside the supplied rectangle.";
+
 	Path: ["Reflex", "GLX", "AddRoundedTriangleFill"];
 
 	Module: ["Reflex", "GLX", "Styling", "Canvas"];
@@ -3574,6 +3705,8 @@ See also Bootstrap::Detail::SetStyle.
 
 123:
 {
+	@WString Description: "#p Creates a frame-driven clock object whose callback receives the per-frame delta time.";
+
 	Path: ["Reflex", "GLX", "CreateAnimationClock"];
 
 	Module: ["Reflex", "GLX", "Animation"];
@@ -3583,7 +3716,7 @@ See also Bootstrap::Detail::SetStyle.
 {
 	Path: ["Reflex", "GLX", "UnsetBounds"];
 
-	Module: ["Reflex", "GLX", "Styling"];
+	Module: ["Reflex", "GLX", "Layout"];
 };
 
 125:
@@ -3651,6 +3784,8 @@ See also Bootstrap::Detail::SetStyle.
 
 134:
 {
+	@WString Description: "#p Creates an interpolated animation that writes a float property from the start value to the end value.";
+
 	Path: ["Reflex", "GLX", "CreateFloatPropertyAnimation"];
 
 	Module: ["Reflex", "GLX", "Animation"];
@@ -3658,6 +3793,8 @@ See also Bootstrap::Detail::SetStyle.
 
 135:
 {
+	@WString Description: "#p Emitted when the object or one of its linked focus ancestors gains keyboard focus.";
+
 	Path: ["Reflex", "GLX", "kFocus"];
 
 	Module: ["Reflex", "GLX", "Events"];
@@ -3665,6 +3802,8 @@ See also Bootstrap::Detail::SetStyle.
 
 136:
 {
+	@WString Description: "#p Emitted when a key is released.";
+
 	Path: ["Reflex", "GLX", "kKeyUp"];
 
 	Module: ["Reflex", "GLX", "Events"];
@@ -3777,6 +3916,8 @@ See also Bootstrap::Detail::SetStyle.
 
 141:
 {
+	@WString Description: "#p Stores the animation on the target object, sets its target, optionally configures time/easing, and starts playback.";
+
 	Path: ["Reflex", "GLX", "Run"];
 
 	Module: ["Reflex", "GLX", "Animation"];
@@ -3784,6 +3925,12 @@ See also Bootstrap::Detail::SetStyle.
 
 142:
 {
+	@WString Description: "<span>
+#p Alias of
+#link symbol: [$qReflex$q, $qGLX$q, $qGetPointerFlags$q]; text: $q GLX::GetPointerFlags$q;
+</span>
+";
+
 	Path: ["Reflex", "GLX", "GetClickFlags"];
 
 	Module: ["Reflex", "GLX", "Events"];
@@ -3791,6 +3938,8 @@ See also Bootstrap::Detail::SetStyle.
 
 143:
 {
+	@WString Description: "#p Appends the outline geometry for a rounded rectangle.";
+
 	Path: ["Reflex", "GLX", "AddRoundedOutline"];
 
 	Module: ["Reflex", "GLX", "Styling", "Canvas"];
@@ -3805,6 +3954,8 @@ See also Bootstrap::Detail::SetStyle.
 
 145:
 {
+	@WString Description: "#p Applies the standard GLX enter animation helpers, typically fade and/or size reveal.";
+
 	Path: ["Reflex", "GLX", "Enter"];
 
 	Module: ["Reflex", "GLX", "Animation"];
@@ -3812,6 +3963,8 @@ See also Bootstrap::Detail::SetStyle.
 
 146:
 {
+	@WString Description: "#p Base GLX event object that carries an event id plus a PropertySet payload and can be cloned for forwarding.";
+
 	Path: ["Reflex", "GLX", "Event"];
 
 	Module: ["Reflex", "GLX", "Events"];
@@ -3819,6 +3972,22 @@ See also Bootstrap::Detail::SetStyle.
 
 147:
 {
+	@WString Description: "#p Container animation that runs all child animations in parallel and completes when they have all finished.
+
+<code>
+#p auto multi = New<GLX::Multi>();
+#p
+#p auto move_x = GLX::CreatePositionAnimation(false, -120.0f, 0.0f);
+#p auto move_y = GLX::CreatePositionAnimation(true, 16.0f, 0.0f);
+#p move_x->SetTime(0.18f);
+#p move_y->SetTime(0.18f);
+#p
+#p multi->Add(*move_x);
+#p multi->Add(*move_y);
+#p GLX::Run(panel, K32($qopen_anim$q), multi);
+</code>
+";
+
 	Path: ["Reflex", "GLX", "Multi"];
 
 	Module: ["Reflex", "GLX", "Animation"];
@@ -3826,6 +3995,8 @@ See also Bootstrap::Detail::SetStyle.
 
 148:
 {
+	@WString Description: "#p Returns true when the object currently has the GLX active state.";
+
 	Path: ["Reflex", "GLX", "IsActive"];
 
 	Module: ["Reflex", "GLX", "Styling"];
@@ -3928,6 +4099,8 @@ See also Bootstrap::Detail::SetStyle.
 
 151:
 {
+	@WString Description: "#p A single style node inside a GLX stylesheet.";
+
 	Path: ["Reflex", "GLX", "Style"];
 
 	Module: ["Reflex", "GLX", "Styling"];
@@ -4224,6 +4397,8 @@ See also Bootstrap::Detail::SetStyle.
 
 165:
 {
+	@WString Description: "#p Creates an interpolated animation that writes a size property from the start value to the end value.";
+
 	Path: ["Reflex", "GLX", "CreateSizePropertyAnimation"];
 
 	Module: ["Reflex", "GLX", "Animation"];
@@ -4269,6 +4444,8 @@ See also Bootstrap::Detail::SetStyle.
 
 171:
 {
+	@WString Description: "#p Returns the current opacity mod value for the specified id.";
+
 	Path: ["Reflex", "GLX", "GetOpacity"];
 
 	Module: ["Reflex", "GLX", "Styling"];
@@ -4276,6 +4453,8 @@ See also Bootstrap::Detail::SetStyle.
 
 172:
 {
+	@WString Description: "#p Appends the outline geometry for a triangle inside the supplied rectangle.";
+
 	Path: ["Reflex", "GLX", "AddTriangleOutline"];
 
 	Module: ["Reflex", "GLX", "Styling", "Canvas"];
@@ -4585,6 +4764,8 @@ See also Bootstrap::Detail::SetStyle.
 
 178:
 {
+	@WString Description: "#p Creates an interpolated animation that performs no visual change and is mainly useful as a timed pause inside a PlayList.";
+
 	Path: ["Reflex", "GLX", "CreateWaitAnimation"];
 
 	Module: ["Reflex", "GLX", "Animation"];
@@ -4606,6 +4787,8 @@ See also Bootstrap::Detail::SetStyle.
 
 181:
 {
+	@WString Description: "#p Creates an interpolated animation that moves an absolutely positioned object along the x or y axis.";
+
 	Path: ["Reflex", "GLX", "CreatePositionAnimation"];
 
 	Module: ["Reflex", "GLX", "Animation"];
@@ -4613,6 +4796,8 @@ See also Bootstrap::Detail::SetStyle.
 
 182:
 {
+	@WString Description: "#p Enum describing the lifecycle of transaction-style interactions: begin, perform, end, or cancel.";
+
 	Path: ["Reflex", "GLX", "TransactionStage"];
 
 	Module: ["Reflex", "GLX", "Events"];
@@ -4811,6 +4996,8 @@ See also Bootstrap::Detail::SetStyle.
 
 192:
 {
+	@WString Description: "#p Creates an interpolated animation that changes opacity from the start value to the end value.";
+
 	Path: ["Reflex", "GLX", "CreateOpacityAnimation"];
 
 	Module: ["Reflex", "GLX", "Animation"];
@@ -4858,6 +5045,8 @@ See also Bootstrap::Detail::SetStyle.
 
 196:
 {
+	@WString Description: "#p Appends a dotted line path between the supplied points.";
+
 	Path: ["Reflex", "GLX", "AddDottedLine"];
 
 	Module: ["Reflex", "GLX", "Styling", "Canvas"];
@@ -4899,6 +5088,8 @@ See also Bootstrap::Detail::SetStyle.
 
 199:
 {
+	@WString Description: "#p Creates a custom interpolated animation that calls the callback with eased progress in the range 0..1.";
+
 	Path: ["Reflex", "GLX", "CreateInterpolatedAnimation"];
 
 	Module: ["Reflex", "GLX", "Animation"];
@@ -4913,6 +5104,8 @@ See also Bootstrap::Detail::SetStyle.
 
 201:
 {
+	@WString Description: "#p Appends the outline geometry for an ellipse or arc.";
+
 	Path: ["Reflex", "GLX", "AddEllipseOutline"];
 
 	Module: ["Reflex", "GLX", "Styling", "Canvas"];
@@ -4971,6 +5164,8 @@ See also Bootstrap::Detail::SetStyle.
 
 206:
 {
+	@WString Description: "#p Selects or deselects the direct children of the object.";
+
 	Path: ["Reflex", "GLX", "SelectChildren"];
 
 	Module: ["Reflex", "GLX", "Styling"];
@@ -5040,6 +5235,8 @@ See also Bootstrap::Detail::SetStyle.
 
 209:
 {
+	@WString Description: "#p Returns true when the event is a primary-button pointer-down without multi-touch or right-button flags.";
+
 	Path: ["Reflex", "GLX", "IsLeftClick"];
 
 	Module: ["Reflex", "GLX", "Events"];
@@ -5111,6 +5308,8 @@ See also Bootstrap::Detail::SetStyle.
 
 213:
 {
+	@WString Description: "#p Returns the current clip rectangle mod for the specified id.";
+
 	Path: ["Reflex", "GLX", "GetClip"];
 
 	Module: ["Reflex", "GLX", "Styling"];
@@ -5118,6 +5317,8 @@ See also Bootstrap::Detail::SetStyle.
 
 214:
 {
+	@WString Description: "#p Returns true when the event is a pointer-down marked as a double click.";
+
 	Path: ["Reflex", "GLX", "IsDoubleClick"];
 
 	Module: ["Reflex", "GLX", "Events"];
@@ -5125,6 +5326,8 @@ See also Bootstrap::Detail::SetStyle.
 
 215:
 {
+	@WString Description: "#p Activates or deactivates the object by enabling/disabling pointer input and updating its inactive state.";
+
 	Path: ["Reflex", "GLX", "Activate"];
 
 	Module: ["Reflex", "GLX", "Styling"];
@@ -5132,6 +5335,8 @@ See also Bootstrap::Detail::SetStyle.
 
 216:
 {
+	@WString Description: "#p Sets an opacity mod value on the object.";
+
 	Path: ["Reflex", "GLX", "SetOpacity"];
 
 	Module: ["Reflex", "GLX", "Styling"];
@@ -5197,6 +5402,8 @@ See also Bootstrap::Detail::SetStyle.
 
 225:
 {
+	@WString Description: "#p Selects or deselects the object and its branch children.";
+
 	Path: ["Reflex", "GLX", "SelectBranch"];
 
 	Module: ["Reflex", "GLX", "Styling"];
@@ -5211,6 +5418,8 @@ See also Bootstrap::Detail::SetStyle.
 
 227:
 {
+	@WString Description: "#p Clears the text property used by the object.";
+
 	Path: ["Reflex", "GLX", "ClearText"];
 
 	Module: ["Reflex", "GLX", "Styling"];
@@ -5218,6 +5427,8 @@ See also Bootstrap::Detail::SetStyle.
 
 228:
 {
+	@WString Description: "#p Root stylesheet object containing a hierarchy of GLX style nodes.";
+
 	Path: ["Reflex", "GLX", "StyleSheet"];
 
 	Module: ["Reflex", "GLX", "Styling"];
@@ -5258,6 +5469,12 @@ See also Bootstrap::Detail::SetStyle.
 
 232:
 {
+	@WString Description: "<span>
+#p Alias of
+#link symbol: [$qReflex$q, $qGLX$q, $qkPointerUp$q]; text: $q GLX::kPointerUp$q;
+</span>
+";
+
 	Path: ["Reflex", "GLX", "kMouseUp"];
 
 	Module: ["Reflex", "GLX", "Events"];
@@ -5313,7 +5530,7 @@ See also Bootstrap::Detail::SetStyle.
 {
 	Path: ["Reflex", "GLX", "SetBounds"];
 
-	Module: ["Reflex", "GLX", "Styling"];
+	Module: ["Reflex", "GLX", "Layout"];
 };
 
 238:
@@ -5394,6 +5611,8 @@ See also Bootstrap::Detail::SetStyle.
 
 240:
 {
+	@WString Description: "#p Removes the delegate stored under the specified event or delegate id from the object.";
+
 	Path: ["Reflex", "GLX", "UnbindEvent"];
 
 	Module: ["Reflex", "GLX", "Events"];
@@ -5408,6 +5627,8 @@ See also Bootstrap::Detail::SetStyle.
 
 242:
 {
+	@WString Description: "#p Emitted when the object or one of its linked focus ancestors loses keyboard focus.";
+
 	Path: ["Reflex", "GLX", "kLoseFocus"];
 
 	Module: ["Reflex", "GLX", "Events"];
@@ -5532,6 +5753,8 @@ See also Bootstrap::Detail::SetStyle.
 
 250:
 {
+	@WString Description: "#p Appends the filled geometry for a rounded rectangle.";
+
 	Path: ["Reflex", "GLX", "AddRoundedFill"];
 
 	Module: ["Reflex", "GLX", "Styling", "Canvas"];
@@ -5550,6 +5773,8 @@ See also Bootstrap::Detail::SetStyle.
 
 252:
 {
+	@WString Description: "#p Appends filled polygon geometry from the supplied point list.";
+
 	Path: ["Reflex", "GLX", "AddPolygonFill"];
 
 	Module: ["Reflex", "GLX", "Styling", "Canvas"];
@@ -5614,6 +5839,8 @@ See also Bootstrap::Detail::SetStyle.
 
 255:
 {
+	@WString Description: "#p Appends the outline geometry for a rectangle.";
+
 	Path: ["Reflex", "GLX", "AddRectOutline"];
 
 	Module: ["Reflex", "GLX", "Styling", "Canvas"];
@@ -5621,6 +5848,8 @@ See also Bootstrap::Detail::SetStyle.
 
 256:
 {
+	@WString Description: "#p Applies the standard GLX exit animation helpers and can optionally detach the object when the exit completes.";
+
 	Path: ["Reflex", "GLX", "Exit"];
 
 	Module: ["Reflex", "GLX", "Animation"];
@@ -5839,6 +6068,8 @@ See also Bootstrap::Detail::SetStyle.
 
 261:
 {
+	@WString Description: "#p Stops and removes the animation stored on the object under the specified id.";
+
 	Path: ["Reflex", "GLX", "Stop"];
 
 	Module: ["Reflex", "GLX", "Animation"];
@@ -5853,6 +6084,8 @@ See also Bootstrap::Detail::SetStyle.
 
 263:
 {
+	@WString Description: "#p Removes the canvas callback stored on the object for the specified id.";
+
 	Path: ["Reflex", "GLX", "UnsetCanvas"];
 
 	Module: ["Reflex", "GLX", "Styling", "Canvas"];
@@ -5874,6 +6107,8 @@ See also Bootstrap::Detail::SetStyle.
 
 266:
 {
+	@WString Description: "#p Appends geometry generated from an SVG or vector path description.";
+
 	Path: ["Reflex", "GLX", "AddPath"];
 
 	Module: ["Reflex", "GLX", "Styling", "Canvas"];
@@ -6103,6 +6338,8 @@ See also Bootstrap::Detail::SetStyle.
 
 278:
 {
+	@WString Description: "#p Removes the opacity mod stored on the object for the specified id.";
+
 	Path: ["Reflex", "GLX", "UnsetOpacity"];
 
 	Module: ["Reflex", "GLX", "Styling"];
@@ -6175,6 +6412,8 @@ See also Bootstrap::Detail::SetStyle.
 
 282:
 {
+	@WString Description: "#p Appends the outline geometry for a rounded-corner triangle.";
+
 	Path: ["Reflex", "GLX", "AddRoundedTriangleOutline"];
 
 	Module: ["Reflex", "GLX", "Styling", "Canvas"];
@@ -6197,28 +6436,12 @@ See also Bootstrap::Detail::SetStyle.
 
 284:
 {
-	@WString Description: "#p Controls how an object participates in mouse hit-testing.
-<list>
-#p Object obj: target object
-#p bool enable: allows mouse events on the target (default true)
-#p bool intercept: prevents children from receiving mouse events (default false)
-</list>
+	@WString Description: "#p Convenience / legacy wrapper for GLX::Object::EnablePointer.
 
-#h2 Common combinations:
-<code>
-#p //obj receives mouse events, if a child doesnt have priorty (default behaviour)
-#p GLX::EnableMouse(obj, true);			
-#p 
-#p //obj receives all mouse events, stealing from children
-#p GLX::EnableMouse(obj, true, true);
-#p 
-#p //obj is excluded from hit-testing, but its children can still receive mouse events normally
-#p GLX::EnableMouse(obj, false)
-#p 
-#p //the object and its entire subtree are invisible to the mouse
-#p GLX::EnableMouse(obj, false, true)
-#p 
-</code>
+<span>
+#p See
+#link symbol: [$qReflex$q, $qGLX$q, $qObject$q, $qEnablePointer$q]; text: $q GLX::Object::EnablePointer$q;
+</span>
 ";
 
 	Path: ["Reflex", "GLX", "EnableMouse"];
@@ -6228,6 +6451,8 @@ See also Bootstrap::Detail::SetStyle.
 
 285:
 {
+	@WString Description: "#p Emitted when character text input is produced for the focused object.";
+
 	Path: ["Reflex", "GLX", "kCharacter"];
 
 	Module: ["Reflex", "GLX", "Events"];
@@ -6330,6 +6555,12 @@ See also Bootstrap::Detail::SetStyle.
 
 295:
 {
+	@WString Description: "<span>
+#p Alias of
+#link symbol: [$qReflex$q, $qGLX$q, $qkPointerDown$q]; text: $q GLX::kPointerDown$q;
+</span>
+";
+
 	Path: ["Reflex", "GLX", "kMouseDown"];
 
 	Module: ["Reflex", "GLX", "Events"];
@@ -6337,6 +6568,12 @@ See also Bootstrap::Detail::SetStyle.
 
 296:
 {
+	@WString Description: "<span>
+#p Alias of
+#link symbol: [$qReflex$q, $qGLX$q, $qkPointerDrag$q]; text: $q GLX::kPointerDrag$q;
+</span>
+";
+
 	Path: ["Reflex", "GLX", "kMouseDrag"];
 
 	Module: ["Reflex", "GLX", "Events"];
@@ -6464,6 +6701,8 @@ See also Bootstrap::Detail::SetStyle.
 
 305:
 {
+	@WString Description: "#p Creates an interpolated animation that writes a point property from the start value to the end value.";
+
 	Path: ["Reflex", "GLX", "CreatePointPropertyAnimation"];
 
 	Module: ["Reflex", "GLX", "Animation"];
@@ -6471,6 +6710,8 @@ See also Bootstrap::Detail::SetStyle.
 
 306:
 {
+	@WString Description: "#p Appends the filled geometry for an ellipse or arc.";
+
 	Path: ["Reflex", "GLX", "AddEllipseFill"];
 
 	Module: ["Reflex", "GLX", "Styling", "Canvas"];
@@ -6485,6 +6726,8 @@ See also Bootstrap::Detail::SetStyle.
 
 308:
 {
+	@WString Description: "#p Returns true when the object currently has the GLX selected state.";
+
 	Path: ["Reflex", "GLX", "IsSelected"];
 
 	Module: ["Reflex", "GLX", "Styling"];
@@ -6492,6 +6735,8 @@ See also Bootstrap::Detail::SetStyle.
 
 309:
 {
+	@WString Description: "#p Removes the clip mod stored on the object for the specified id.";
+
 	Path: ["Reflex", "GLX", "UnsetClip"];
 
 	Module: ["Reflex", "GLX", "Styling"];
@@ -6602,6 +6847,8 @@ See also Bootstrap::Detail::SetStyle.
 
 316:
 {
+	@WString Description: "#p Returns true when the event is a pointer-down generated by the right mouse button only.";
+
 	Path: ["Reflex", "GLX", "IsRightClick"];
 
 	Module: ["Reflex", "GLX", "Events"];
@@ -6646,6 +6893,8 @@ See also Bootstrap::Detail::SetStyle.
 
 322:
 {
+	@WString Description: "#p Appends points into a ColourPoints collection using the supplied colour.";
+
 	Path: ["Reflex", "GLX", "AddPointsWithColour"];
 
 	Module: ["Reflex", "GLX", "Styling", "Canvas"];
@@ -6653,6 +6902,25 @@ See also Bootstrap::Detail::SetStyle.
 
 323:
 {
+	@WString Description: "#p Container animation that plays child animations sequentially, one after another.
+
+<code>
+#p auto playlist = New<GLX::PlayList>();
+#p
+#p auto move_in = GLX::CreatePositionAnimation(false, -120.0f, 0.0f);
+#p auto pause = GLX::CreateWaitAnimation();
+#p auto move_out = GLX::CreatePositionAnimation(false, 0.0f, -120.0f);
+#p move_in->SetTime(0.20f);
+#p pause->SetTime(0.10f);
+#p move_out->SetTime(0.20f);
+#p
+#p playlist->Add(*move_in);
+#p playlist->Add(*pause);
+#p playlist->Add(*move_out);
+#p GLX::Run(panel, K32($qintro_anim$q), playlist);
+</code>
+";
+
 	Path: ["Reflex", "GLX", "PlayList"];
 
 	Module: ["Reflex", "GLX", "Animation"];
@@ -6695,6 +6963,8 @@ See also Bootstrap::Detail::SetStyle.
 
 327:
 {
+	@WString Description: "#p Base animation container that owns child animations and forwards the same target object to each child.";
+
 	Path: ["Reflex", "GLX", "ContainerAnimation"];
 
 	Module: ["Reflex", "GLX", "Animation"];
@@ -6712,6 +6982,8 @@ See also Bootstrap::Detail::SetStyle.
 
 329:
 {
+	@WString Description: "#p Creates a custom animation that approaches the target value logarithmically and invokes the callback with each updated value.";
+
 	Path: ["Reflex", "GLX", "CreateLogarithmicAnimation"];
 
 	Module: ["Reflex", "GLX", "Animation"];
@@ -6745,6 +7017,8 @@ See also Bootstrap::Detail::SetStyle.
 
 333:
 {
+	@WString Description: "#p Emitted when a key is pressed, with keycode, repeat, and modifier data stored on the event.";
+
 	Path: ["Reflex", "GLX", "kKeyDown"];
 
 	Module: ["Reflex", "GLX", "Events"];
@@ -6880,6 +7154,8 @@ See also Bootstrap::Detail::SetStyle.
 
 337:
 {
+	@WString Description: "#p Assigns a geometry canvas callback that writes plain points.";
+
 	Path: ["Reflex", "GLX", "SetCanvas"];
 
 	Module: ["Reflex", "GLX", "Styling", "Canvas"];
@@ -6887,6 +7163,8 @@ See also Bootstrap::Detail::SetStyle.
 
 338:
 {
+	@WString Description: "#p Assigns a canvas callback that writes coloured geometry points.";
+
 	Path: ["Reflex", "GLX", "SetColourCanvas"];
 
 	Module: ["Reflex", "GLX", "Styling", "Canvas"];
@@ -6911,6 +7189,13 @@ See also Bootstrap::Detail::SetStyle.
 	Group: true;
 
 	Path: ["Reflex", "Data", "Encoding"];
+};
+
+342:
+{
+	Group: true;
+
+	Path: ["Reflex", "Debug"];
 };
 
 343:
@@ -7309,70 +7594,15 @@ See also Bootstrap::Detail::SetStyle.
 {
 	Group: true;
 
-	@WString Description: "#p GLX animation covers two closely related systems:
-
-<list>
-#p Animation objects that interpolate values or states over time
-#p Clocks that execute UI callbacks on the GLX update thread
-</list>
-
-#p In many cases the simplest animation is declarative. A stylesheet can define @State variants and a transition time, and code only needs to push or clear the relevant state.
-
-#h1 State-Based Transitions
-
-#p For hover, selected, inactive, and similar UI feedback, prefer stylesheet-driven transitions first.
-
-<code>
-#p Button:
-#p {
-#p 	transition: 0.25;
-#p
-#p 	@State hover:
-#p 	{
-#p 		bg: Fill(colour: 228);
-#p 	};
-#p }
-</code>
-
-#p This keeps simple UI motion in the style layer rather than in imperative code.
-
-#h1 Running Explicit Animations
-
-#p When code needs to decide target values dynamically, create an animation object and run it against a property or state on a target object.
-
-<code>
-#p auto fade = GLX::CreateColourPropertyAnimation($qcolour$q, GLX::kWhite, GLX::kBlack);
-#p GLX::Run(object, $qcolour$q, 0.25f, fade);
-</code>
-
-#p Common helpers in this module include CreateStateAnimation, CreateColourPropertyAnimation, CreateMarginPropertyAnimation, and CreateCallbackAnimation.
-
-#h1 Clocks
-
-#p Use clocks when you need procedural updates over time rather than interpolation between two values.
-
-<list>
-#p CreateAnimationClock / AttachAnimationClock for frame-based UI callbacks
-#p CreatePeriodicClock / AttachPeriodicClock for lower-frequency periodic work
-#p DetachClock to stop an attached clock
-</list>
-
-#p This is commonly used for polling async task status, updating drag visuals, driving custom canvas effects, or other time-based UI behavior that is not well described as a simple property tween.
-
-#h1 Choosing the Right Approach
-
-<list>
-#p Use stylesheet transition + @State for simple visual feedback
-#p Use explicit animation objects when code determines the end value or state
-#p Use clocks for continuous procedural behavior or periodic observation
-</list>
-";
+	@WString Description: "#p Base type for playable GLX animation objects that target a GLX object and advance over time.";
 
 	Path: ["Reflex", "GLX", "Animation"];
 };
 
 393:
 {
+	@WString Description: "#p Enum of easing curves supported by GLX::InterpolatedAnimation.";
+
 	Path: ["Reflex", "GLX", "InterpolatedAnimation", "Easing"];
 
 	Module: ["Reflex", "GLX", "Animation"];
@@ -7391,6 +7621,8 @@ See also Bootstrap::Detail::SetStyle.
 
 395:
 {
+	@WString Description: "#p Walks backward through the linked event chain and returns the first antecedent event with the requested id.";
+
 	Path: ["Reflex", "GLX", "QueryAntecedent"];
 
 	Module: ["Reflex", "GLX", "Events"];
@@ -7398,6 +7630,8 @@ See also Bootstrap::Detail::SetStyle.
 
 396:
 {
+	@WString Description: "#p GLX colour value type, aliased from the system colour representation.";
+
 	Path: ["Reflex", "GLX", "Colour"];
 
 	Module: ["Reflex", "GLX", "Styling"];
@@ -7405,6 +7639,8 @@ See also Bootstrap::Detail::SetStyle.
 
 397:
 {
+	@WString Description: "#p Point collection used for canvas geometry generation.";
+
 	Path: ["Reflex", "GLX", "Points"];
 
 	Module: ["Reflex", "GLX", "Styling"];
@@ -7412,6 +7648,8 @@ See also Bootstrap::Detail::SetStyle.
 
 398:
 {
+	@WString Description: "#p Four-sided margin value type used by layout and styling APIs.";
+
 	Path: ["Reflex", "GLX", "Margin"];
 
 	Module: ["Reflex", "GLX", "Styling"];
@@ -7419,6 +7657,8 @@ See also Bootstrap::Detail::SetStyle.
 
 399:
 {
+	@WString Description: "#p Styling transform helper that rescales its child content.";
+
 	Path: ["Reflex", "GLX", "Rescale"];
 
 	Module: ["Reflex", "GLX", "Styling"];
@@ -7426,6 +7666,8 @@ See also Bootstrap::Detail::SetStyle.
 
 400:
 {
+	@WString Description: "#p Styling transform helper that rotates its child content.";
+
 	Path: ["Reflex", "GLX", "Rotate"];
 
 	Module: ["Reflex", "GLX", "Styling"];
@@ -7433,6 +7675,8 @@ See also Bootstrap::Detail::SetStyle.
 
 401:
 {
+	@WString Description: "#p Toggles the specified visual state on the object.";
+
 	Path: ["Reflex", "GLX", "ToggleState"];
 
 	Module: ["Reflex", "GLX", "Styling"];
@@ -7461,6 +7705,8 @@ See also Bootstrap::Detail::SetStyle.
 
 405:
 {
+	@WString Description: "#p Styling transform helper that translates its child content.";
+
 	Path: ["Reflex", "GLX", "Translate"];
 
 	Module: ["Reflex", "GLX", "Styling"];
@@ -7468,6 +7714,8 @@ See also Bootstrap::Detail::SetStyle.
 
 406:
 {
+	@WString Description: "#p Convenience constructor helper for creating GLX colour values from 8-bit RGB or greyscale components.";
+
 	Path: ["Reflex", "GLX", "RGB"];
 
 	Module: ["Reflex", "GLX", "Styling"];
@@ -7510,6 +7758,8 @@ See also Bootstrap::Detail::SetStyle.
 
 412:
 {
+	@WString Description: "#p Converts a window-space pointer position into the local coordinate space of the object.";
+
 	Path: ["Reflex", "GLX", "TransformPosition"];
 
 	Module: ["Reflex", "GLX", "Events"];
@@ -7517,6 +7767,8 @@ See also Bootstrap::Detail::SetStyle.
 
 413:
 {
+	@WString Description: "#p Moves focus to the branch root when the current focus is outside that branch.";
+
 	Path: ["Reflex", "GLX", "FocusBranch"];
 
 	Module: ["Reflex", "GLX", "Events"];
@@ -7531,6 +7783,8 @@ See also Bootstrap::Detail::SetStyle.
 
 415:
 {
+	@WString Description: "#p Converts a window-space delta into the local scaled coordinate space of the object.";
+
 	Path: ["Reflex", "GLX", "ScaleDelta"];
 
 	Module: ["Reflex", "GLX", "Events"];
@@ -7538,6 +7792,8 @@ See also Bootstrap::Detail::SetStyle.
 
 416:
 {
+	@WString Description: "#p Convenience GLX alias of the platform System::KeyCode enum used by key events.";
+
 	Path: ["Reflex", "GLX", "KeyCode"];
 
 	Module: ["Reflex", "GLX", "Events"];
@@ -7545,6 +7801,8 @@ See also Bootstrap::Detail::SetStyle.
 
 417:
 {
+	@WString Description: "#p Redirects focus to the supplied object whenever the current focus lies within the specified branch root.";
+
 	Path: ["Reflex", "GLX", "RedirectFocus"];
 
 	Module: ["Reflex", "GLX", "Events"];
@@ -7552,6 +7810,8 @@ See also Bootstrap::Detail::SetStyle.
 
 418:
 {
+	@WString Description: "#p Activates or deactivates the object branch by updating pointer input behavior and setting or clearing the inactive state recursively.";
+
 	Path: ["Reflex", "GLX", "ActivateBranch"];
 
 	Module: ["Reflex", "GLX", "Styling"];
@@ -7559,6 +7819,17 @@ See also Bootstrap::Detail::SetStyle.
 
 419:
 {
+	@WString Description: "#p Attaches a periodic clock to the target object.
+
+<span>
+#p This is shorthand for calling
+#link symbol: [$qReflex$q, $qSetAbstractProperty$q]; text: $q SetAbstractProperty $q;
+#p with
+#link symbol: [$qReflex$q, $qGLX$q, $qCreatePeriodicClock$q]; text: $q CreatePeriodicClock $q;
+#p as the stored object.
+</span>
+";
+
 	Path: ["Reflex", "GLX", "AttachPeriodicClock"];
 
 	Module: ["Reflex", "GLX", "Animation"];
@@ -7566,6 +7837,8 @@ See also Bootstrap::Detail::SetStyle.
 
 420:
 {
+	@WString Description: "#p Creates a clock object that invokes the callback at a fixed interval using the animation clock internally.";
+
 	Path: ["Reflex", "GLX", "CreatePeriodicClock"];
 
 	Module: ["Reflex", "GLX", "Animation"];
@@ -7573,6 +7846,15 @@ See also Bootstrap::Detail::SetStyle.
 
 421:
 {
+	@WString Description: "#p Detaches a previously attached clock from the object.
+
+<span>
+#p This is shorthand for
+#link symbol: [$qReflex$q, $qUnsetAbstractProperty$q]; text: $q UnsetAbstractProperty $q;
+#p on the supplied id.
+</span>
+";
+
 	Path: ["Reflex", "GLX", "DetachClock"];
 
 	Module: ["Reflex", "GLX", "Animation"];
@@ -7580,6 +7862,8 @@ See also Bootstrap::Detail::SetStyle.
 
 422:
 {
+	@WString Description: "#p Returns the current text property used by the object.";
+
 	Path: ["Reflex", "GLX", "GetText"];
 
 	Module: ["Reflex", "GLX", "Styling"];
@@ -7587,6 +7871,8 @@ See also Bootstrap::Detail::SetStyle.
 
 423:
 {
+	@WString Description: "#p GLX alias of the platform mouse cursor enum.";
+
 	Path: ["Reflex", "GLX", "MouseCursor"];
 
 	Module: ["Reflex", "GLX", "Styling"];
@@ -7674,5 +7960,448 @@ See also Bootstrap::Detail::SetStyle.
 #p In general, prefer explicit initialisation over global construction.";
 
 	Path: ["Reflex", "Initialisation"];
+};
+
+432:
+{
+	Path: ["Reflex", "Output"];
+
+	Module: ["Reflex", "Debug"];
+};
+
+433:
+{
+	@WString Description: "#p Creates a logarithmic animation that updates max bounds on one axis from the start size to the end size.";
+
+	Path: ["Reflex", "GLX", "CreateMaxBoundsAnimation"];
+
+	Module: ["Reflex", "GLX", "Animation"];
+};
+
+434:
+{
+	Path: ["Reflex", "GLX", "WindowClient"];
+
+	Module: ["Reflex", "GLX", "Layout"];
+};
+
+435:
+{
+	@WString Description: "#p Returns the GLX object that currently owns keyboard focus.";
+
+	Path: ["Reflex", "GLX", "GetFocus"];
+
+	Module: ["Reflex", "GLX", "Events"];
+};
+
+436:
+{
+	@WString Description: "#p Corner-radius value type used by rounded canvas geometry helpers.";
+
+	Path: ["Reflex", "GLX", "Corners"];
+
+	Module: ["Reflex", "GLX", "Styling"];
+};
+
+437:
+{
+	@WString Description: "#p Requests passive, active, or incremental pointer capture for the current pointer event.
+
+#p The default is capture mode is effectively EnablePointerCapture(e, true, false).  That means if the down event is trapped, that object will continue to receive the matching GLX::kPointerDrag and GLX::kPointerUp events for that pointer slot.
+
+#p Because of that, you typically only need this helper when enabling incremental drag capture, or when explicitly disabling subsequent drag/up delivery.";
+
+	Path: ["Reflex", "GLX", "EnablePointerCapture"];
+
+	Module: ["Reflex", "GLX", "Events"];
+};
+
+438:
+{
+	@WString Description: "#p Returns the delta stored on drag and wheel events.";
+
+	Path: ["Reflex", "GLX", "GetDelta"];
+
+	Module: ["Reflex", "GLX", "Events"];
+};
+
+439:
+{
+	@WString Description: "#p Returns the pointer flag bitmask stored on the event.
+
+<span>
+#p See also
+#link symbol: [$qReflex$q, $qGLX$q, $qPointerFlags$q]; text: $q PointerFlags$q;
+</span>
+";
+
+	Path: ["Reflex", "GLX", "GetPointerFlags"];
+
+	Module: ["Reflex", "GLX", "Events"];
+};
+
+440:
+{
+	@WString Description: "#p Returns the pointer position either in window coordinates or transformed into the object's local coordinates, depending on the overload.";
+
+	Path: ["Reflex", "GLX", "GetPointerPosition"];
+
+	Module: ["Reflex", "GLX", "Events"];
+};
+
+441:
+{
+	@WString Description: "#p Returns the pointer slot index stored on the event.";
+
+	Path: ["Reflex", "GLX", "GetPointerSlot"];
+
+	Module: ["Reflex", "GLX", "Events"];
+};
+
+442:
+{
+	@WString Description: "#p Returns the pointer position stored on the event, in window coordinates.
+
+<span>
+#p See also
+#link symbol: [$qReflex$q, $qGLX$q, $qTransformPosition$q]; text: $q TransformPosition$q;
+</span>
+";
+
+	Path: ["Reflex", "GLX", "GetPosition"];
+
+	Module: ["Reflex", "GLX", "Events"];
+};
+
+443:
+{
+	@WString Description: "#p Returns the timestamp stored on the event, or the current elapsed time when no timestamp is present.";
+
+	Path: ["Reflex", "GLX", "GetTimestamp"];
+
+	Module: ["Reflex", "GLX", "Events"];
+};
+
+444:
+{
+	@WString Description: "#p Enum of pointer-event flags such as right-button, double-click, multi-touch, and emulated input.";
+
+	Path: ["Reflex", "GLX", "PointerFlags"];
+
+	Module: ["Reflex", "GLX", "Events"];
+};
+
+445:
+{
+	@WString Description: "#p Emitted when a pointer or touch slot presses on the object.";
+
+	Path: ["Reflex", "GLX", "kPointerDown"];
+
+	Module: ["Reflex", "GLX", "Events"];
+};
+
+446:
+{
+	@WString Description: "#p Emitted as an active pointer or touch slot drags after a pointer-down.";
+
+	Path: ["Reflex", "GLX", "kPointerDrag"];
+
+	Module: ["Reflex", "GLX", "Events"];
+};
+
+447:
+{
+	@WString Description: "#p Emitted when an active pointer or touch slot is released.";
+
+	Path: ["Reflex", "GLX", "kPointerUp"];
+
+	Module: ["Reflex", "GLX", "Events"];
+};
+
+448:
+{
+	@WString Description: "#p Controls how this object participates in pointer hit-testing.
+<list>
+#p bool enable: allows pointer events on this object (default true)
+#p bool active: when true, this object actively intercepts pointer events instead of allowing children to win hit-testing
+#p return: none
+</list>
+
+#h2 Common combinations:
+<code>
+#p //object receives pointer events if a child does not take priority
+#p object.EnablePointer(true);
+#p 
+#p //object actively takes pointer events from children
+#p object.EnablePointer(true, true);
+#p 
+#p //object is ignored for hit-testing, but children can still receive pointer events
+#p object.EnablePointer(false);
+#p 
+#p //object and its subtree are ignored for hit-testing
+#p object.EnablePointer(false, true);
+#p
+</code>
+";
+
+	Path: ["Reflex", "GLX", "Object", "EnablePointer"];
+
+	Module: ["Reflex", "GLX", "Layout"];
+};
+
+449:
+{
+	@WString Description: "#p Small convenience extension over GLX::Object that sets the mouse cursor to GLX::kMouseCursorPointer and can optionally take a string label in its constructor.";
+
+	Path: ["Reflex", "GLX", "Button"];
+
+	Module: ["Reflex", "GLX", "Widgets"];
+};
+
+450:
+{
+	@WString Description: "#p EmbeddedResource is the raw value type used for a single embedded binary resource.
+
+#p If `uncompressed_size` is 0, the resource data is stored uncompressed.
+
+#p Use
+#link symbol: [$qReflex$q, $qFile$q, $qExtract$q]; text: $q File::Extract$q;
+#p to obtain the resource bytes transparently, including decompression when required.
+
+#p If you already know the resource is uncompressed, or want to avoid that extraction step for speed, you can read `data` directly.
+";
+
+	Path: ["Reflex", "File", "EmbeddedResource"];
+
+	Module: ["Reflex", "File", "IO"];
+};
+
+451:
+{
+	@WString Description: "#p EnumerableEmbeddedResource represents a global static embedded resource compiled into the binary by the Reflex CLI tool.
+
+#p These are generated by the `build-resources` command from resource declarations in XML. The default template projects include a `resources.xml` file at the project root and a pre-build step which runs this command automatically.
+
+#p The build step is typically very fast, as the CLI tool computes a fast hash to detect changes, so unchanged resources are normally not rebuilt.
+
+#p Each compiled resource becomes a global static value that can be accessed directly in code:
+
+<code>
+#p auto bytes = MyApp::styles_glx.data;
+</code>
+
+#p In practice these resources are most commonly consumed indirectly through stylesheets and other resource-loading APIs rather than accessed by symbol name.
+
+<span>
+#p When using
+#link symbol: [$qReflex$q, $qBootstrap$q, $qGlobal$q]; text: $q Bootstrap::Global$q;
+#p Reflex installs an `EnumerableEmbeddedResource::Locator` into the `VirtualFileSystem`, allowing embedded resources to be resolved through paths such as `:res:MyApp/styles.glx`.
+#p See
+#link symbol: [$qReflex$q, $qBootstrap$q, $qGlobal$q]; text: $q Bootstrap::Global$q;
+#p for more information about this resource mapping and hot reloading.
+</span>";
+
+	Path: ["Reflex", "File", "EnumerableEmbeddedResource"];
+
+	Module: ["Reflex", "File", "IO"];
+};
+
+452:
+{
+	@WString Description: "#p Reflex::Bootstrap is the standard application scaffolding layer used by the template projects.
+
+#p It takes care of application entry, initialisation and globals, and hot-reloading support.
+
+#p All default template projects use Bootstrap, and it is the recommended and supported API for application setup.
+
+#p Advanced users may choose to build their own application-management layer, but Bootstrap is the intended starting point for normal Reflex applications.
+";
+
+	Path: ["Reflex", "Bootstrap"];
+};
+
+453:
+{
+	@WString Description: "#p Global shared Bootstrap instance for the current application.";
+
+	Path: ["Reflex", "Bootstrap", "global"];
+};
+
+454:
+{
+	@WString Description: "#p Bootstrap::App is the standard application-state base class used by template projects.
+
+#p It derives from 'State' allowing clients such as the view to monitor state-changes.  It also implements 'Streamable' on its 'session' store, so file/session state can be streamed automatically.
+
+#p Bootstrap::App also provides a simple file format wrapper which uses 'magic' as a unique file header and stores the 'session' PersistentPropertySet data inside that format.
+";
+
+	Path: ["Reflex", "Bootstrap", "App"];
+};
+
+455:
+{
+	@WString Description: "#p Applies a stylesheet path to a Bootstrap view and automatically enables Bootstrap hot reloading for that stylesheet during development.
+
+#p This is the recommended helper to use from Bootstrap-based applications.
+
+<span>
+#p Prefer this over
+#link symbol: [$qReflex$q, $qGLX$q, $qRetrieveStyleSheet$q]; text: $q GLX::RetrieveStyleSheet $q;
+#p when working in the Bootstrap layer, as the lower-level GLX helper just loads the stylesheet and does not wire up Bootstrap's automatic hot-reload behavior.
+</span>";
+
+	Path: ["Reflex", "Bootstrap", "SetStyleSheet"];
+};
+
+456:
+{
+	@WString Description: "#p Returns clipboard data for the requested clipboard type.";
+
+	Path: ["Reflex", "Bootstrap", "GetClipboard"];
+};
+
+457:
+{
+	@WString Description: "#p Bootstrap audio-plugin base class.
+
+#p Parameter values are stored automatically, and additional custom state can be persisted through the Streamable callbacks.
+
+#h2 Processing callbacks
+
+#p `OnPrepareProcessing(...)` is guaranteed to be called on the main thread before audio processing starts.
+
+#p After that, `OnProcessRt(...)` is called on the audio thread for real-time processing.
+
+<code>
+#p class MyPlugin : public Bootstrap::AudioPlugin
+#p {
+#p protected:
+#p 	bool OnPrepareProcessing(UInt32 max_buffersize, Float32 samplerate, UInt num_input, UInt num_output) override
+#p 	{
+#p 		return true;
+#p 	}
+#p
+#p 	void OnProcessRt(UInt num_samples, const System::AudioPlugin::EventBuffer & events_in, Array <System::AudioPlugin::Event> & events_out, const ArrayView <const Float*> & inputs, const ArrayView <Float*> & outputs) override
+#p 	{
+#p 		for (UInt ch = 0; ch < outputs.size; ++ch)
+#p 		{
+#p 			for (UInt i = 0; i < num_samples; ++i)
+#p 			{
+#p 				outputs[ch][i] = inputs[ch][i];
+#p 			}
+#p 		}
+#p 	}
+#p };
+</code>
+";
+
+	Path: ["Reflex", "Bootstrap", "AudioPlugin"];
+};
+
+458:
+{
+	@WString Description: "#p Returns true when running in the audio-plugin environment.";
+
+	Path: ["Reflex", "Bootstrap", "IsPlugin"];
+};
+
+459:
+{
+	@WString Description: "#p Stores clipboard data for the requested clipboard type.";
+
+	Path: ["Reflex", "Bootstrap", "SetClipboard"];
+};
+
+460:
+{
+	@WString Description: "#p Bootstrap::View is the standard GLX view base class used by template projects.
+
+#p It implements `Streamable` on application session state, so view state can be streamed automatically out of the box.
+
+#p It also monitors the application `State` and, in its clock/update flow, schedules `OnUpdate()` when state changes are detected.
+#p If you override the clock handling, be sure to call the base `OnClock`.
+";
+
+	Path: ["Reflex", "Bootstrap", "View"];
+};
+
+461:
+{
+	@WString Description: "#p Bootstrap::Global sets up the shared application bootstrap state used by framework-based Reflex applications.
+
+<span>
+#p In the template projects this is instantiated automatically in 'entry.cpp' and is then available for the application lifetime through
+#link symbol: [$qReflex$q, $qBootstrap$q, $qglobal$q]; text: $q Bootstrap::global$q;
+#p .
+</span>
+
+#p It initialises shared services including a 'VirtualFileSystem', a 'ResourcePool', IDE integration, and the hot-reload plumbing used during development.
+
+#p The 'filesystem' member includes an 'EnumerableEmbeddedResource::Locator', which allows embedded resources to be accessed through ':res:' paths such as ':res:MyApp/styles.glx'.
+
+#p When IDE support is enabled, Global also sets up 'proxypaths' so that ':res:' paths can resolve back to local files in the project resources folder. This is what enables live editing and hot reloading in debug-oriented workflows.
+
+#p Global also exposes two storage layers:
+
+<list>
+#p 'prefs' is a persistent application-wide property store for preferences.
+#p Because Global derives from 'Data::PropertySet', it can also be used as a generic session-only temporary store.
+</list>
+
+#p In practice, Global is most commonly accessed either for storing shared temporary properties on the Global object itself, or for reading and writing persistent application preferences via 'global->prefs'.
+
+<code>
+#p auto global = Bootstrap::global;
+#p
+#p auto dark_theme = Data::GetBool(global->prefs, $qdark_theme$q, false);
+#p
+#p Data::SetBool(global->prefs, $qdark_theme$q, true);
+#p
+#p global->CommitPreferences();	//optional: store now rather than waiting until application exit
+</code>
+
+#p These stores should be treated as main-thread-only.
+";
+
+	Path: ["Reflex", "Bootstrap", "Global"];
+};
+
+462:
+{
+	@WString Description: "#p Streamable helper base used by Bootstrap app/view classes to persist and restore state through a PersistentPropertySet-backed stream.";
+
+	Path: ["Reflex", "Bootstrap", "Streamable"];
+};
+
+463:
+{
+	@WString Description: "#p Creates an async HTTP request task.
+
+#p The payload type returned on successful completion depends on the received response data.
+
+<list>
+#p If the response content type is 'application/json', the task result payload will be a 'Data::PropertySet'.
+#p Otherwise the payload will be a 'Data::ArchiveObject' containing the raw response bytes.
+</list>
+
+<code>
+#p Async::HttpHeaders headers;
+#p auto task = Async::CreateHttpRequest($qGET$q, $qhttps://example.com/data.json$q, headers, {});
+#p
+#p Async::AttachAwait(*this, $qhttp_request$q, task, [this](bool success, Reflex::Object & result)
+#p {
+#p 	if (auto json = DynamicCast<Data::PropertySet>(result))
+#p 	{
+#p 		//use decoded JSON property set
+#p 	}
+#p });
+</code>
+
+<warn>
+#p Note that this standard helper does not automatically support common web compression formats such as 'gzip' or 'brotli'. It only handles uncompressed or 'lz4' encoded responses.
+</warn>";
+
+	Path: ["Reflex", "Async", "CreateHttpRequest"];
 };
 

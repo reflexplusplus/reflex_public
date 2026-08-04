@@ -181,7 +181,7 @@ bool ViewImpl::OnEvent(GLX::Object & src, GLX::Event & e)
 
 	if (e.id == GLX::kTransaction)
 	{
-		if (GLX::GetTransactionStage(e) == GLX::kTransactionEnd)
+		if (GLX::GetTransactionStage(e) == GLX::kTransactionStageEnd)
 		{
 			app->SetNote(m_selection, Data::EncodeUTF8(m_textarea.GetText()));
 		}

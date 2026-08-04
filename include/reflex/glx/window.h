@@ -7,7 +7,7 @@
 
 
 //
-//declarations
+//Primary API
 
 namespace Reflex::GLX
 {
@@ -76,13 +76,13 @@ protected:
 	WindowClient();	//for null case
 
 
-	virtual void OnClose() override;
+	void OnClose() override;
 
-	virtual System::ScreenOrientation OnGetScreenOrientation() override;
+	System::ScreenOrientation OnGetScreenOrientation() override;
 
-	virtual System::iSize OnGetContentSize() override;
+	System::iSize OnGetContentSize() override;
 
-	virtual void OnSetRect(System::WindowDisplay state, const System::iRect & rect, const System::iRect & interactable, Int32 dpifactor) override;
+	void OnSetRect(System::WindowDisplay state, const System::iRect & rect, const System::iRect & interactable, Int32 dpifactor) override;
 
 
 

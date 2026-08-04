@@ -30,6 +30,9 @@ class Reflex::Bootstrap::Global : public Data::PropertySet
 {
 public:
 
+	REFLEX_OBJECT(Bootstrap::Global, Data::PropertySet);
+
+
 	[[nodiscard]] static TRef <Global> Acquire(const CString::View & vendor, const CString::View & product, const WString::View & projectdir, Key32 resource_group = kNullKey);
 
 

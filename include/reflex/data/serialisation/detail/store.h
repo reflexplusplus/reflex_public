@@ -7,14 +7,13 @@
 
 
 //
-//declarations
+//Detail
 
 REFLEX_NS(Reflex::Data::Detail)
 
 template <class TYPE> void StoreImpl(Archive & stream, const TYPE & value);
 
 REFLEX_END
-
 
 
 
@@ -32,7 +31,7 @@ void StoreImpl(Archive & stream, WChar value);
 template <class TYPE> void StoreImpl(Archive & stream, TRef <TYPE> ref);
 template <class TYPE> void StoreImpl(Archive & stream, const ObjectOf <TYPE> & object);
 template <class ... VARGS> void StoreImpl(Archive & stream, const Tuple <VARGS...> & value);
-template <class TYPE, Reflex::UInt SIZE> void StoreImpl(Archive & stream, const TYPE(&value)[SIZE]);
+template <class TYPE, UInt SIZE> void StoreImpl(Archive & stream, const TYPE(&value)[SIZE]);
 template <class TYPE> void StoreImpl(Archive & stream, const ArrayView <TYPE> & value);
 template <class TYPE> void StoreImpl(Archive & stream, const Array <TYPE> & value);
 template <class KEY, class VALUE, class COMPARE, bool CONTIGUOUS> void StoreImpl(Archive & stream, const Sequence<KEY, VALUE, COMPARE, CONTIGUOUS> & value);
@@ -45,11 +44,11 @@ template <class TYPE> struct ArrayEncoder
 	static void StoreImpl(Archive & stream, const ArrayView <TYPE> & data);
 };
 
-template <> struct [[deprecated]] ArrayEncoder <WChar>
+template <> struct ArrayEncoder <WChar>
 {
-	static void StoreImpl(Archive & stream, const WChar * data, UInt size);
+	static void StoreImpl(Archive & stream, const WChar * data, UInt size) = delete;	//use SerializeUTF8 or SerializeUCS2
 
-	static void StoreImpl(Archive & stream, const WString::View & data);
+	static void StoreImpl(Archive & stream, const WString::View & data) = delete;
 };
 
 template <UInt IDX, class TUPLE> void SerializeTuple(Archive & stream, const TUPLE & tuple)
@@ -87,13 +86,6 @@ template <class TYPE> REFLEX_INLINE void ArrayEncoder<TYPE>::StoreImpl(Archive &
 	WriteRaw(stream, typename IndexType<Array<TYPE>>::Type(value.size));
 
 	StoreImpl(stream, value.data, value.size);
-}
-
-REFLEX_INLINE void ArrayEncoder<WChar>::StoreImpl(Archive & stream, const WString::View & value)
-{
-	WriteRaw(stream, typename IndexType<Array<WChar>>::Type(value.size));
-
-	EncodeUCS2(stream, value);
 }
 
 REFLEX_INLINE void StoreImpl(Archive & stream, bool value)

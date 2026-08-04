@@ -203,7 +203,7 @@ private:
 //
 //impl
 
-#define REFLEX_OBJECT_EX(CLASS, BASE, TNAME) using Base = BASE; static inline const Reflex::Detail::DynamicTypeInfo kDynamicTypeInfo = { &BASE::kDynamicTypeInfo, &Reflex::Detail::TypeIndex<CLASS>::value, TNAME }; const Reflex::Detail::DynamicCastableTypeSetter <CLASS> typesetter; using BASE::object_t; using BASE::operator new; using BASE::RetainSt; using BASE::ReleaseSt; using BASE::RetainMt; using BASE::ReleaseMt; using BASE::GetAllocator; using BASE::UnsetProperty; using BASE::SetProperty; using BASE::QueryProperty; using BASE::SetOnHeap; using BASE::SetOnStack; using BASE::GetBase
+#define REFLEX_OBJECT_EX(CLASS, BASE, TNAME) using DynamicCastableType = CLASS; using Base = BASE; static inline const Reflex::Detail::DynamicTypeInfo kDynamicTypeInfo = { &BASE::kDynamicTypeInfo, &Reflex::Detail::TypeIndex<CLASS>::value, TNAME }; const Reflex::Detail::DynamicCastableTypeSetter <CLASS> typesetter; using BASE::object_t; using BASE::operator new; using BASE::RetainSt; using BASE::ReleaseSt; using BASE::RetainMt; using BASE::ReleaseMt; using BASE::GetAllocator; using BASE::UnsetProperty; using BASE::SetProperty; using BASE::QueryProperty; using BASE::SetOnHeap; using BASE::SetOnStack; using BASE::GetBase
 
 #define REFLEX_NULL(TYPE) Reflex::Detail::GetNullInstance<TYPE>()
 

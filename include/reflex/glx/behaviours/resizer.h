@@ -1,6 +1,6 @@
 #pragma once
 
-#include "reflex/glx.h"
+#include "detail/gestures.h"
 
 
 
@@ -25,7 +25,7 @@ namespace Reflex::GLX
 //
 //AbstractDragBehaviour
 
-struct Reflex::GLX::AbstractDragBehaviour : public Object::Delegate
+struct Reflex::GLX::AbstractDragBehaviour : public Detail::AbstractDraggable
 {
 	void EnableBounds(bool enable);
 

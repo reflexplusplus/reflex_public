@@ -14,7 +14,7 @@
 #   Reflex::TargetVST3         (Windows + macOS)
 #   Reflex::TargetCLAP         (Windows + macOS)
 #   Reflex::TargetVST2         (Windows + macOS)
-#   Reflex::TargetAUV2         (macOS only)
+#   Reflex::TargetAU           (macOS only)
 #
 # Helper functions (from ReflexHelpers.cmake):
 #   reflex_add_app(target ...)
@@ -66,12 +66,18 @@ elseif(APPLE)
 
     if(CMAKE_SYSTEM_NAME STREQUAL "iOS")
         set(_REFLEX_PLATFORM "ios")
+        # iOS libs are built per-config-per-sdk: bin/lib/ios/<Config>-<sdk>.
+        # Use Xcode's native $(EFFECTIVE_PLATFORM_NAME) (-iphoneos /
+        # -iphonesimulator) so the right slice is linked for the active
+        # destination at build time, without re-running CMake when toggling
+        # device <-> simulator in Xcode.
+        set(_REFLEX_LIB_DIR_DBG "${REFLEX_ROOT}/bin/lib/ios/Debug$(EFFECTIVE_PLATFORM_NAME)")
+        set(_REFLEX_LIB_DIR_REL "${REFLEX_ROOT}/bin/lib/ios/Release$(EFFECTIVE_PLATFORM_NAME)")
     else()
         set(_REFLEX_PLATFORM "macos")
+        set(_REFLEX_LIB_DIR_DBG "${REFLEX_ROOT}/bin/lib/macos/Debug")
+        set(_REFLEX_LIB_DIR_REL "${REFLEX_ROOT}/bin/lib/macos/Release")
     endif()
-
-    set(_REFLEX_LIB_DIR_DBG "${REFLEX_ROOT}/bin/lib/${_REFLEX_PLATFORM}/Debug")
-    set(_REFLEX_LIB_DIR_REL "${REFLEX_ROOT}/bin/lib/${_REFLEX_PLATFORM}/Release")
 
 elseif(CMAKE_SYSTEM_NAME STREQUAL "Linux")
 
@@ -93,9 +99,27 @@ elseif(EMSCRIPTEN)
     set(_REFLEX_LIB_DIR_DBG "${REFLEX_ROOT}/bin/lib/webasm/Debug")
     set(_REFLEX_LIB_DIR_REL "${REFLEX_ROOT}/bin/lib/webasm/Release")
 
+elseif(CMAKE_SYSTEM_NAME STREQUAL "Android")
+
+    # Android ships a prebuilt AAR consumed via Gradle prefab, not loose static
+    # libs imported by find_package. Point the consumer at the AAR rather than
+    # importing libraries that aren't laid out for CMake.
+    message(FATAL_ERROR
+        "Reflex: on Android, consume the prebuilt AAR via Gradle (prefab), not "
+        "find_package(Reflex). See bin/lib/android/{debug,release}/reflex.aar.")
+
 else()
     message(FATAL_ERROR "Reflex: unsupported platform '${CMAKE_SYSTEM_NAME}'")
 endif()
+
+# =========================================================
+# Fetch prebuilt binaries (exported consumer repos)
+# =========================================================
+# Populates bin/lib (+ bin/tools) from the repo's GitHub Release before the
+# imported targets below resolve. No-op for local source builds (libs present).
+
+include("${CMAKE_CURRENT_LIST_DIR}/FetchReflexLibs.cmake")
+reflex_fetch_libs()
 
 # =========================================================
 # Helper: create a single imported static library target
@@ -171,7 +195,7 @@ endif()
 # =========================================================
 
 if(APPLE AND NOT CMAKE_SYSTEM_NAME STREQUAL "iOS")
-    _reflex_import_lib(TargetAUV2  ReflexTargetAU)
+    _reflex_import_lib(TargetAU  ReflexTargetAU)
 endif()
 
 # =========================================================

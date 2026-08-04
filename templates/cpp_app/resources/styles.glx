@@ -2,7 +2,7 @@ include: "common.glx";
 
 @Font Medium:
 {
-	path: "fonts/Montserrat-Regular.ttf";
+	path: "fonts/OpenSans/static/OpenSans/OpenSans-Regular.ttf";
 	size: 12;
 };
 

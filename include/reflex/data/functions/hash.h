@@ -44,9 +44,9 @@ template <auto FN, UInt SIZE> inline Archive Hash(const Archive::View & bytes)
 	return rtn;
 }
 
-void SHA1(const Archive::View & bytes, Archive::Region && output);
+void SHA1(const Archive::View & bytes, Archive::Region output);
 
-void SHA256(const Archive::View & bytes, Archive::Region && output);
+void SHA256(const Archive::View & bytes, Archive::Region output);
 
 REFLEX_END
 

@@ -9,11 +9,11 @@ def abisForRelease = project.hasProperty("fullBuild") ? abisForDebug : ['arm64-v
 
 
 android {
-	namespace 'com._VENDOR-NAME-SYMBOL-LOWER_._PRODUCT-NAME-SYMBOL-LOWER_'
+	namespace 'com._PACKAGE-ID-VENDOR_._PACKAGE-ID-PRODUCT_'
 	compileSdk = 37
 
 	defaultConfig {
-		applicationId "com._VENDOR-NAME-SYMBOL-LOWER_._PRODUCT-NAME-SYMBOL-LOWER_"
+		applicationId "com._PACKAGE-ID-VENDOR_._PACKAGE-ID-PRODUCT_"
 		minSdk = 28
 		targetSdk = 37
 		versionCode = 1

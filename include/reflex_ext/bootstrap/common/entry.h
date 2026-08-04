@@ -78,13 +78,6 @@ template <class APP, class VIEW> inline void Reflex::Bootstrap::PublishAppView(S
 {
 	Detail::PublishAppView(config, [](Object & instance) -> TRef <GLX::Object>
 	{
-		if (auto p = DynamicCast<APP>(instance))
-		{
-			return New<VIEW>(*p);
-		}
-		else
-		{
-			return New<GLX::Object>();
-		}
+		return New<VIEW>(Cast<APP>(instance));
 	});
 }

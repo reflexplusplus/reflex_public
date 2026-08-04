@@ -35,7 +35,7 @@ namespace Reflex::GLX
 
 inline void Reflex::GLX::StartDragDrop(TRef <Reflex::Object> data, MouseCursor accept, MouseCursor deny)
 {
-	Core::desktop->StartDragDrop(data, accept, deny);
+	Core::desktop->StartDragDrop(Detail::GetActivePointer().slot, data, accept, deny);
 }
 
 inline void Reflex::GLX::CancelDragDrop()

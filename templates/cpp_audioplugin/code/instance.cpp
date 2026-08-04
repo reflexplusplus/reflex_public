@@ -159,6 +159,12 @@ Reflex::System::AudioPlugin::Configuration::Class _PRODUCT-NAME-SYMBOL_::Instanc
 {
 	using Class = System::AudioPlugin::Configuration::Class;
 
+
+	constexpr bool kIsInstrument = false;	//quick config of instrument or effect, for AU builds, ensure this matches the AU_TYPE_4CC eg "aufx"
+
+	constexpr auto kType = kIsInstrument ? Class::kTypeAudioGenerator : Class::kTypeAudioProcessor;
+
+
 	Class cls;
 
 	cls.vendor = Bootstrap::global->vendor;
@@ -166,33 +172,39 @@ Reflex::System::AudioPlugin::Configuration::Class _PRODUCT-NAME-SYMBOL_::Instanc
 	cls.product = Bootstrap::global->product;
 
 
-	bool instrument = false;	//quick config of typical instrument or effect
-
-	cls.type = instrument ? Class::kTypeAudioGenerator : Class::kTypeAudioProcessor;
+	cls.type = kType;
 
 	cls.category = Class::kUncategorised;
 
 	cls.nparam = 4;
 
-	cls.channels_io = { UInt8(instrument ? 0 : 2), 2 };
+	cls.channels_io = { UInt8(kIsInstrument ? 0 : 2), 2 };
 
-	cls.midi_io = { instrument, false };
+	cls.midi_io = { kIsInstrument, false };
 
 
-	cls.vst2.uid = MakeKey32(Join("_VENDOR-NAME_ _PRODUCT-NAME_"));
+	cls.vst2.uid = MakeKey32("_VENDOR-NAME_ _PRODUCT-NAME_");
 
 	
 	cls.vst3.uid = { K64("_VENDOR-NAME_"), K64("_PRODUCT-NAME_") };
 
 	
-	cls.audiounit.company_4cc = CC32("_VENDOR-4CC_");
-
-	cls.audiounit.uid_4cc = CC32("_PRODUCT-4CC_");
-
-	
 	cls.clap.uid = Lowercase(Join(Filter(cls.vendor, ' '), '.', Filter(cls.product, ' '), '.', ToCString(cls.channels_io.a), ':', ToCString(cls.channels_io.b)));
 
 	cls.clap.version = "1.0.0";
+
+
+#ifdef AU_TYPE_4CC
+	// AudioUnit requires the AU_TYPE 4CC to be declared in both the Info.plist
+	// and at run time. Reflex derives the run-time value from cls.type.
+	// Verify at compile time that the plist AU_TYPE_4CC matches.
+	constexpr auto kAudioUnitType = Class::AudioUnit::kTypes[kType];
+	REFLEX_STATIC_ASSERT(kAudioUnitType == CC32(REFLEX_STRINGIFY(AU_TYPE_4CC)));
+#endif
+
+	cls.audiounit.company_4cc = CC32("_VENDOR-4CC_");
+
+	cls.audiounit.uid_4cc = CC32("_PRODUCT-4CC_");
 
 
 	return cls;
@@ -204,10 +216,24 @@ Reflex::TRef <Reflex::Bootstrap::AudioPlugin::ParamDefs> _PRODUCT-NAME-SYMBOL_::
 
 	auto paramdefs = New<Bootstrap::AudioPlugin::ParamDefs>();
 
+	auto freq = ParamDesc::CreateReal("Freq", 100.0f, 1000.0f, 0.0f, 0.0f);
+
+	freq->to_string = [](Bootstrap::Value32 value)
+	{
+		if (value.fvalue >= 1000.0f)
+		{
+			return Join(ToWString(value.fvalue / 1000.0f, 0), L" kHz");
+		}
+		else
+		{
+			return Join(ToWString(value.fvalue, 0), L" Hz");
+		}
+	};
+
 	paramdefs->value.Append
 	({
 		{ MakeKey32("mode"), ParamDesc::CreateEnum("Mode", { "Sine", "Square" }, 0) },
-		{ MakeKey32("freq"), ParamDesc::CreateReal("Freq", 100.0f, 1000.0f, 0.0f, 0.0f) },
+		{ MakeKey32("freq"), freq },
 		{ MakeKey32("amp"), ParamDesc::CreateReal("Amp", 0.0f, 1.0f, 0.0f, 0.0f) },
 		{ MakeKey32("fx"), ParamDesc::CreateBool("FX", false) },
 	});
