@@ -1,5 +1,9 @@
 #include "tasks.h"
 
+#if defined(REFLEX_OS_MACOS) || defined(REFLEX_OS_LINUX) || defined(REFLEX_OS_IOS)
+	#include <sys/stat.h>
+#endif
+
 
 
 
@@ -33,6 +37,29 @@ struct Substitution
 	Data::Archive from;
 	Data::Archive to;
 };
+
+bool CopyTemplatePermissions(WString::View source_path, WString::View dest_path)
+{
+#if defined(REFLEX_OS_MACOS) || defined(REFLEX_OS_LINUX) || defined(REFLEX_OS_IOS)
+	constexpr mode_t kExecBits = S_IXUSR | S_IXGRP | S_IXOTH;
+
+	auto source_utf8 = Data::EncodeUTF8(source_path);
+	source_utf8.Push(0);
+
+	auto dest_utf8 = Data::EncodeUTF8(dest_path);
+	dest_utf8.Push(0);
+
+	struct stat source_stat = {};
+	struct stat dest_stat = {};
+
+	if (stat(Reinterpret<char>(source_utf8.GetData()), &source_stat) != 0) return false;
+	if (stat(Reinterpret<char>(dest_utf8.GetData()), &dest_stat) != 0) return false;
+
+	return chmod(Reinterpret<char>(dest_utf8.GetData()), (dest_stat.st_mode & ~kExecBits) | (source_stat.st_mode & kExecBits)) == 0;
+#else
+	return true;
+#endif
+}
 
 void AppendCStringArray(const Data::PropertySet & config, Array <CString> & generators, Key32 id)
 {
@@ -364,22 +391,31 @@ WString InstallFolder(const TemplateDefinitionEx & tmpl, const Array <Variable> 
 					}
 				}
 
-				if (HasListedExtension(file_renamed, tmpl.targets.replace_types))
-				{
-					auto bytes = ReplaceAll(File::Open(file_path), content_substitutions);
-
-					if (!File::Save(dst_path, bytes))
+					if (HasListedExtension(file_renamed, tmpl.targets.replace_types))
 					{
-						ThrowError("failed to write", dst_path);
+						auto bytes = ReplaceAll(File::Open(file_path), content_substitutions);
+
+						if (!SaveGeneratedFile(dst_path, bytes))
+						{
+							ThrowError("failed to write", dst_path);
+						}
+
+						if (!CopyTemplatePermissions(file_path, dst_path))
+						{
+							ThrowError("failed to copy permissions", dst_path);
+						}
 					}
-				}
-				else if (!File::Copy(file_path, dst_path))
-				{
-					ThrowError("failed to copy", file_path);
+					else if (!File::Copy(file_path, dst_path))
+					{
+						ThrowError("failed to copy", file_path);
+					}
+					else if (!CopyTemplatePermissions(file_path, dst_path))
+					{
+						ThrowError("failed to copy permissions", dst_path);
+					}
 				}
 			}
 		}
-	}
 
 	wrote_files = wrote_files_here;
 

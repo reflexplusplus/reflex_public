@@ -1351,7 +1351,7 @@
 #p view->SetStyle(sheet);
 </code>
 
-#p Recommended: use Bootstrap::SetStyleSheet for hot-reload during development.
+#p In most cases, prefer the Bootstrap wrapper. Bootstrap manages hot-reloading and attaches a default set of conditional properties based on the environment.
 
 <code>
 #p Bootstrap::SetStyleSheet(view, L$q:res:MyApp/styles.txt$q);
@@ -1540,7 +1540,7 @@ See also Bootstrap::Detail::SetStyle.
 #p Stylesheets can include other sheets for reuse and structure.
 
 <code>
-#p include: [$qcommon.txt$q, $qcontrols.txt$q];
+#p include: $qcommon.txt$q, $qcontrols.txt$q;
 </code>
 
 #p Stylesheets can define resources for use in layers like Text, Image, TextEdit.
@@ -1636,6 +1636,76 @@ See also Bootstrap::Detail::SetStyle.
 #p 	m_flashing->Redraw(); // trigger layer repaint
 #p }
 </code>
+
+#h1 Stylesheet Conditionals
+
+#p GLX stylesheets support conditional variables. When using the Bootstrap::SetStyleSheet(...) wrapper, a set of default variables based on the current environment is automatically attached to the stylesheet.
+
+#p Stylesheets support preprocessor-style conditionals using #if, #elif, and #else. Each branch body must be wrapped in { ... }.
+
+<code>
+#p #if (dark)
+#p {
+#p 	background: $202124;
+#p 	colour: $f5f5f5;
+#p }
+#p #else
+#p {
+#p 	background: $ffffff;
+#p 	colour: $111111;
+#p }
+</code>
+
+#p Conditions can use boolean flags, numeric comparisons, and $qand$q / $qor$q:
+
+<code>
+#p #if (desktop) and (screen_width >= 1200)
+#p {
+#p 	padding: 24;
+#p }
+#p
+#p #if (mobile) or (screen_width < 700)
+#p {
+#p 	padding: 12;
+#p }
+</code>
+
+#h2 Default Variables
+
+#p When using the Bootstrap styling path, the default conditional variables are:
+
+<code>
+#p windows, macos, linux, android, ios
+#p
+#p desktop, mobile, plugin
+#p
+#p light, dark
+#p
+#p screen_width, screen_height
+#p font_scale
+</code>
+
+#p Boolean flags can be checked directly:
+
+<code>
+#p #if (windows) { ... }
+#p #if (dark) { ... }
+#p #if (plugin) { ... }
+</code>
+
+#p Numeric values can be compared:
+
+<code>
+#p #if (screen_width > 1400) { ... }
+#p #if (screen_height >= 900) { ... }
+#p #if (font_scale > 1.0) { ... }
+</code>
+
+#p These values reflect the current platform, environment type, screen size, theme, and UI font scale.
+
+#p Custom conditional variables can also be supplied, allowing you to define additional flags or numeric values for use in stylesheet conditionals. This can be used for app modes, product editions, feature flags, layout variants, or custom breakpoints.
+
+#p Note: the 'Emulate Mobile' option available in the Config -> Graphics panel of the dev console is useful for testing screen_w, screen_h and the mobile flag, which are emulated in that mode.
 
 #h1 Patterns and tips
 
@@ -5304,20 +5374,28 @@ See also Bootstrap::Detail::SetStyle.
 #p This is a callback-based alternative to overriding the GLX::Object::OnSetStyle method, which can be used to apply sub-styles to child elements when not sub-classing GLX::Object.
 <list>
 #p object: target object
+#p delegate_id: identifies the delegate instance so the callback can be replaced or cleared deterministically
 #p callback: callback to be called every time the object's style is set/changed.
-#p delegate_id_opt: identifies the delegate instance (so it can be replaced/cleared deterministically).
 </list>
+
+#p As it is rare to attach more than one of these to the same object, the common pattern is to pass {} as the delegate id.
 
 <code>
 #p auto container = New<GLX::Object>();
 
 #p auto button = GLX::AddFloat(container, New<GLX::Button>($qClick Me$q));
 
-#p GLX::SetOnStyle(container, [button](const GLX::Style & style)
+#p GLX::SetOnStyle(container, {}, [button](const GLX::Style & style)
 #p {
 #p 	button->SetStyle(style[$qbutton$q]);
 #p });
 </code>
+
+<span>
+#p Use
+#link symbol: [$qReflex$q, $qGLX$q, $qUnsetOnStyle$q]; text: $q UnsetOnStyle $q;
+#p to clear the delegate again.
+</span>
 ";
 
 	Path: ["Reflex", "GLX", "SetOnStyle"];
@@ -5327,32 +5405,9 @@ See also Bootstrap::Detail::SetStyle.
 
 211:
 {
-	@WString Description: "#p The standard path separator used by Reflex. This is an alias of System::kPathDelimiter and represents the canonical delimiter for all paths handled within Reflex APIs.
+	Path: ["Reflex", "GLX", "UnsetOnStyle"];
 
-#p Reflex paths must always use this delimiter, regardless of the underlying OS. The System layer will translate paths when interacting with native APIs, ensuring portability across platforms. Any path provided by a Reflex::System API is guaranteed to use kPathDelimiter.
-
-#p Although the current value is a forward slash ('/'), this should not be relied upon for future compatibility. All path construction should reference File::kPathDelimiter explicitly.
-
-#h1 Trailing delimiter rules
-
-#p Folder paths in Reflex typically include the trailing delimiter. 
-#p For example, when calling File::List(path), folder entries in the returned list will include the trailing separator.
-
-#h1 Constructing a valid file path
-
-#p Use Join(...) or manually insert File::kPathDelimiter when building paths:
-
-<code>
-#p auto user_docs_path = File::GetSystemPath(File::kPathUserDocuments);   //includes trailing stroke
-#p auto path = Join(user_docs_path, L$qsub_folder$q, File::kPathDelimiter, L$qsub_sub_folder$q, File::kPathDelimiter);
-</code>
-
-#p This ensures consistent behaviour across all platforms, correct interoperation with the VirtualFileSystem, and predictable results when listing or resolving paths.
-";
-
-	Path: ["Reflex", "File", "kPathDelimiter"];
-
-	Module: ["Reflex", "File", "Path"];
+	Module: ["Reflex", "GLX", "Styling"];
 };
 
 212:
@@ -6219,9 +6274,69 @@ See also Bootstrap::Detail::SetStyle.
 
 269:
 {
-	@WString Description: "#p TextArea is a scrollable wrapper around TextEditBehaviour.
-#p It owns a content object with a Text property, installs the editing behaviour for that property, and exposes ClearText, SetText, and GetText methods.
-#p The constructor's multi_line flag changes both text flow and scrolling setup, so single-line and multi-line usage are configured differently from the start.
+	@WString Description: "#p TextArea is an editable text control for both single-line fields and multi-line text areas.
+#p Use the default single-line mode for editable labels, search bars, and form inputs, or enable multi-line mode for larger text editing surfaces.
+#p It exposes ClearText, SetText, and GetText methods, and the constructor's multi_line flag changes both text flow and scrolling setup from the start.
+
+#h1 Single-line fields
+
+#p For editable labels and form fields, create the control as single-line and opt it into focus handling:
+
+<code>
+#p auto field = New<GLX::TextArea>();
+#p field->SetStyle(style[$qTextEdit$q]);
+</code>
+
+#p build/tools/ReflexProjectCreator is a useful reference for single-line usage.
+
+#p The key styling detail is that TextArea inherits ScrollArea, so that it has built-in scrolling, can be styled with scrollbars or navigation buttons, and automatically scrolls the visible text to follow the input caret.
+#p Because it is a ScrollArea, the editable text lives in the scrollable content child rather than on the outer frame. The outer style usually provides border, padding, background, or label chrome, while the content sub-style provides the idle Text layer and the active TextEdit layer.
+#p To understand the full style schema, also see the ScrollArea base class documentation.
+
+<code>
+#p TextEdit:
+#p {
+#p 	content:
+#p 	{
+#p 		@State used:
+#p 		{
+#p 			bg: Text(font: Medium; indent: 8,2; justify: left; colour: 64; value: &value);
+#p 		};
+#p
+#p 		@State active:
+#p 		{
+#p 			bg: TextEdit(font: Medium; value: &value; indent: 8,2; justify: left; colour: 64);
+#p 		};
+#p
+#p 		bg: Text(font: Medium; indent: 8,2; justify: left; colour: 160; value: $qEnter Value$q);
+#p 	};
+#p };
+</code>
+
+<warn>
+#p It is neccesary to put the TextEdit layer on the content, not the containing style itself.  Additional Text on the container is valid however, for secondary label etc.
+</warn>
+
+#h2 Tab Navigation
+
+#p For tabbed navigation, leverage the 'focusable' extension.  This is especially useful in multi-input dialogs and forms, see the ProjectCreator for working example. 
+<code>
+#p Data::SetBool(m_name, GLX::kfocusable, true);
+#p Data::SetBool(m_address, GLX::kfocusable, true);
+#p GLX::EnableTabNavigation(m_form);
+</code>
+
+#h1 Multi-line fields
+
+#p For multi-line editing, construct the control with multi_line enabled:
+
+<code>
+#p auto textarea = New<GLX::TextArea>(true);
+#p textarea->SetStyle(style[$qTextArea$q]);
+</code>
+
+#p In the multi-line case the same ScrollArea styling model still applies, but the content typically uses top-left justification, multi-line spacing, and a larger vertical layout.
+#p The examples/Notes app is a useful example.
 ";
 
 	Path: ["Reflex", "GLX", "TextArea"];
@@ -8999,6 +9114,64 @@ See also Bootstrap::Detail::SetStyle.
 	@WString Description: "#p Virtual event handler for direct and bubbled GLX events. The GLX::Object base implementation forwards the event to delegates and returns whether any handled it.";
 
 	Path: ["Reflex", "GLX", "Object", "OnEvent"];
+
+	Module: ["Reflex", "GLX", "Events"];
+};
+
+514:
+{
+	@WString Description: "#p Captures the current contents of the GLX window into a raw bitmap.
+
+#p The returned value is a raw bitmap pair containing bitmap info plus the pixel bytes.
+
+#p This can be useful for automated verification. A simple pattern is to publish a flag during app startup, then trigger a delayed capture from OnAttachWindow once the UI has finished attaching:
+
+<code>
+#p Reflex::TRef <Reflex::Object> Reflex::System::App::OnStart(const ArrayView <CString::View> & cmdline, Configuration & config)
+#p {
+#p 	Bootstrap::PublishAppView< ::Screenshot::App, ::Screenshot::View >(config);
+#p
+#p 	auto global = Bootstrap::StartApp< ::Screenshot::App >
+#p 	(
+#p 		config,
+#p 		$qReflex++$q,
+#p 		$qCaptureWindow$q,
+#p 		K32($qCaptureWindow$q),
+#p 		__FILE__
+#p 	);
+#p
+#p 	//Check the commandline args for a $qcapture_window$q flag and publish it on Bootstrap::global
+#p 	Data::SetBool(global, $qcapture_window$q, True(Search(cmdline, $qcapture_window$q)));
+#p
+#p 	return global;
+#p }
+#p
+#p void ViewImpl::OnAttachWindow()
+#p {
+#p 	Bootstrap::View::OnAttachWindow();
+#p
+#p 	if (auto project_dir = Bootstrap::Detail::ExtractProjectDir(__FILE__))	//!note ExtractProjectDir only works in debug builds
+#p 	{
+#p 		if (Data::GetBool(Bootstrap::global, $qcapture_window$q))
+#p 		{
+#p 			GLX::AttachPeriodicClock(*this, {}, 0.25f, [this, project_dir]()
+#p 			{
+#p 				auto bitmap = GLX::CaptureWindow(GetWindow());
+#p 				bitmap = GLX::Detail::HalveBitmap(bitmap.a, bitmap.b); 	//optional: reduce size before encoding
+#p 				bitmap.b = GLX::Detail::EncodePNG(bitmap.a, bitmap.b);
+#p 				File::Save(Join(project_dir, L$qimage.png$q), bitmap.b);
+#p 				GLX::DetachClock(*this, {});
+#p 				System::App::Quit();
+#p 			});
+#p 		}
+#p 	}
+#p }
+</code>
+
+#p HalveBitmap can be useful before PNG encoding when a smaller verification image is sufficient, for example to reduce token usage during downstream analysis.
+";
+
+	Path: ["Reflex", "GLX", "CaptureWindow"];
 
 	Module: ["Reflex", "GLX", "Events"];
 };

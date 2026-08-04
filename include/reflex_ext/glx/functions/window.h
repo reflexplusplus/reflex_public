@@ -17,6 +17,9 @@ namespace Reflex::GLX
 
 	void ToggleFullScreen(WindowClient & window);
 
+
+	System::RawBitmap CaptureWindow(const WindowClient & window);
+
 }
 
 
@@ -48,4 +51,15 @@ inline void Reflex::GLX::ToggleFullScreen(WindowClient & window)
 	{
 		window.SetDisplayMode(System::kWindowDisplayFullScreen);
 	}
+}
+
+inline Reflex::System::RawBitmap Reflex::GLX::CaptureWindow(const WindowClient & window)
+{
+	auto system_window = window.owner;
+
+	auto buffer = AutoRelease(system_window->CreateExportBitmapBuffer(1));
+
+	system_window->ExportBitmap(buffer);
+
+	return std::move(buffer->value);
 }

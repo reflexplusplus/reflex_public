@@ -28,6 +28,11 @@ void Reflex::GLX::SetOnStyle(Object & object, Key32 delegate_id, const Function 
 	object.SetDelegate(delegate_id, New<Delegate>(callback));
 }
 
+void Reflex::GLX::UnsetOnStyle(Object & object, Key32 delegate_id)
+{
+	object.ClearDelegate(delegate_id);
+}
+
 void Reflex::GLX::SelectChildren(Object & object, bool select)
 {
 	if (select)

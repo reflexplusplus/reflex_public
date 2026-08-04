@@ -140,11 +140,13 @@ void Reflex::Bootstrap::Detail::SetStyle(GLX::Object & view, const WString::View
 
 Reflex::TRef <Reflex::Data::PropertySet> Reflex::Bootstrap::Detail::CreateStylesheetOptions(bool dark_theme, Float font_scale, System::iSize screen_size)
 {
+	constexpr Key32 kmobile = K32("mobile");
+
 	constexpr Key32 kLightDark[] = { K32("light"), K32("dark") };
 
 	constexpr Key32 kOperatingSystems[System::kNumPlatform] = { K32("windows"), K32("macos"), K32("linux"), K32("android"), K32("ios"), K32("webasm") };
 
-	constexpr Key32 kEnvironments[System::kNumEnvironmentType] = { kNullKey, kNullKey, K32("desktop"), K32("mobile"), K32("plugin") };
+	const Key32 kEnvironments[System::kNumEnvironmentType] = { kNullKey, kNullKey, GLX::kIsMobile ? kmobile : K32("desktop"), kmobile, K32("plugin") };
 
 	auto options = New<Data::PropertySet>();
 

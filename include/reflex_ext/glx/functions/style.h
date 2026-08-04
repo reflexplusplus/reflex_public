@@ -12,6 +12,8 @@ namespace Reflex::GLX
 {
 
 	void SetOnStyle(Object & object, Key32 delegate_id, const Function <void(const Style&)> & callback);
+	
+	void UnsetOnStyle(Object & object, Key32 delegate_id);
 
 
 	void SelectChildren(Object & object, bool select = true);

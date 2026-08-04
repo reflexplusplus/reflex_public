@@ -19,7 +19,7 @@ namespace ReflexCLI
 	struct TemplateDefinition;
 
 
-	Data::PropertySet OpenTemplateCfg(const WString::View & template_folder);
+	Data::PropertySet OpenTemplateCfg(WString::View template_folder);
 
 	
 	void EncodeTemplate(const TemplateDefinition & tmpl, Data::PropertySet & config);
@@ -29,7 +29,10 @@ namespace ReflexCLI
 
 	WString GetReflexPath();
 
-	WString GetReflexExecutablePath(const WString::View & reflex_path);
+	WString GetReflexExecutablePath(WString::View reflex_path);
+
+
+	bool SaveGeneratedFile(const WString & path, Data::Archive::View data);
 
 
 	void ThrowError(CString::View msg, CString::View error);
@@ -104,7 +107,7 @@ inline void ReflexCLI::TemplateDefinition::Deserialize(Data::Archive::View & str
 	Data::Deserialize(stream, name, description_utf8, paths, strings);
 }
 
-inline Reflex::Data::PropertySet ReflexCLI::OpenTemplateCfg(const WString::View & template_folder)
+inline Reflex::Data::PropertySet ReflexCLI::OpenTemplateCfg(WString::View template_folder)
 {
 	auto install_cfg_path = Join(template_folder, L"install.cfg");
 
@@ -198,7 +201,7 @@ inline Reflex::WString ReflexCLI::GetReflexPath()
 	return {};
 }
 
-inline Reflex::WString ReflexCLI::GetReflexExecutablePath(const WString::View & reflex_path)
+inline Reflex::WString ReflexCLI::GetReflexExecutablePath(WString::View reflex_path)
 {
 #if defined(REFLEX_OS_WINDOWS)
 	return Join(reflex_path, L"bin/tools/win/reflex.exe");

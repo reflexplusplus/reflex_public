@@ -6,41 +6,49 @@
 //
 //impl
 
-Reflex::WString Reflex::GLX::ShowFileDialog(Data::PropertySet & prefs, Key32 id, bool save, const ArrayView <WString> & filters, const WString::View & suggested_, const WString::View & title)
+Reflex::WString Reflex::GLX::ShowFileDialog(Data::PropertySet & prefs, Key32 id, bool save, ArrayView <WString> filters, WString::View suggested, WString::View title)
 {
-	WString suggested = suggested_;
+	auto previous = Data::GetWString(prefs, id);
 
-	auto last = Data::GetWString(prefs, id, System::GetPath(System::kPathDesktop));
+	auto [suggested_folder, suggested_filename] = File::SplitFilename(suggested);
+	auto [previous_folder, previous_filename] = File::SplitFilename(previous);
 
-	if (!File::Exists(suggested))
+	WString folder = System::GetPath(System::kPathDesktop);
+
+	if (File::IsDirectory(previous_folder))
 	{
-		if (auto suggested_filename = File::SplitFilename(suggested).b)
+		folder = previous_folder;
+	}
+	else if (File::IsDirectory(suggested_folder))
+	{
+		folder = suggested_folder;
+	}
+
+	WString::View filename = suggested_filename ? suggested_filename : previous_filename;
+
+	auto path = Join(folder, filename);
+
+	if (save && filters && filename)
+	{
+		if (!Search<CaseInsensitive>(filters, File::GetExtension(filename)))
 		{
-			suggested = Join(File::SplitFilename(last).a, suggested_filename);
+			path = File::CorrectExtension(path, filters.GetFirst());
 		}
 	}
 
-	//auto [path, filename] = File::SplitFilename(last);
+	auto selected = ShowFileDialog(save, filters, path, title);
 
-	//auto [suggested_path, suggested_filename] = File::SplitFilename(suggested);
-
-	//if (suggested_path) path = suggested_path;
-
-	//if (suggested_filename) filename = suggested_filename;
-
-	if (auto filepath = ShowFileDialog(save, filters, suggested, title))
+	if (selected)
 	{
-		Data::SetWString(prefs, id, filepath);
-
-		return filepath;
+		Data::SetWString(prefs, id, selected);
 	}
 
-	return {};
+	return selected;
 }
 
-Reflex::WString Reflex::GLX::ShowFolderDialog(Data::PropertySet & prefs, Key32 id, bool save, const WString::View & defaultdir, const WString::View & title)
+Reflex::WString Reflex::GLX::ShowFolderDialog(Data::PropertySet & prefs, Key32 id, bool save, WString::View default_directory, WString::View title)
 {
-	auto dir = Data::GetWString(prefs, id, defaultdir);
+	auto dir = Data::GetWString(prefs, id, default_directory);
 
 	auto rtn = ShowFolderDialog(save, dir, title);
 

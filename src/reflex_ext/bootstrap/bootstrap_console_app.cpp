@@ -226,14 +226,14 @@ void Reflex::Bootstrap::CLI::Await(System::FileHandle & out, const CString::View
 {
 	struct TaskContextImpl : public TaskContext
 	{
-		bool IsWriteable() const { return true; }
-		UInt64 GetSize() const { return archive.GetSize(); }
-		void SetPosition(UInt64 position) {}
-		UInt64 GetPosition() const { return archive.GetSize(); }
-		UInt32 Read(void * ptr, UInt32 max_size) { return 0; }
-		UInt32 Write(const void * ptr, UInt size) { archive.Append({ Cast<UInt8>(ptr), size }); return size; }
-		bool Truncate() { return true; }
-		bool Flush(bool commit) { return true; }
+		bool IsWriteable() const override { return true; }
+		UInt64 GetSize() const override { return archive.GetSize(); }
+		void SetPosition(UInt64 position) override {}
+		UInt64 GetPosition() const override { return archive.GetSize(); }
+		UInt32 Read(void * ptr, UInt32 max_size) override { return 0; }
+		UInt32 Write(const void * ptr, UInt size) override { archive.Append({ Cast<UInt8>(ptr), size }); return size; }
+		bool Truncate() override { return true; }
+		bool Flush(bool commit) override { return true; }
 
 		bool Cancelled() const override
 		{
