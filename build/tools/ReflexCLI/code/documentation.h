@@ -2,16 +2,13 @@
 
 //shared documentation index and rendering, also used by ReflexDocumentation
 
-#include "../../common/docgen/include/docgen.h"
+#include "../../common/docformat/include/docformat.h"
 #include "reflex_ext/data/table.h"
-
-#if (!DOCGEN)
-#include "../../common/docgen/include/docgen/export.h"
-#include "../../common/docgen/include/docgen/functions.h"
-#endif
 
 namespace ReflexCLI::Documentation
 {
+	using namespace Reflex;
+
 
 	REFLEX_DECLARE_KEY32(Path);
 	REFLEX_DECLARE_KEY32(SubCategory);
@@ -68,7 +65,7 @@ namespace ReflexCLI::Documentation
 		UInt m_list_depth = 0;
 	};
 
-	inline constexpr CString::View kUndefined = "{undefined}";
+	constexpr CString::View kUndefined = "{undefined}";
 
 	enum CategoryEx : UInt8
 	{
@@ -94,20 +91,20 @@ namespace ReflexCLI::Documentation
 
 		using Node::Attach;
 
-		Docgen::Symbol symbol;
+		Docformat::Symbol symbol;
 		CString name;
 		bool is_namespace = false;
 	};
 
 	struct SymbolInfo
 	{
-		Docgen::Symbol symbol;
-		Docgen::Symbol parent_symbol;
+		Docformat::Symbol symbol;
+		Docformat::Symbol parent_symbol;
 		CString::View ns;
 		CString::View name;
 		ConstReference <Data::PropertySet,kReferenceStrictSafeFlags> record;
 		CategoryEx category_ex = kCategoryExUnknown;
-		Docgen::Symbol module;
+		Docformat::Symbol module;
 		bool indexed = true;
 		UInt16 index = 0;
 	};
@@ -123,38 +120,38 @@ namespace ReflexCLI::Documentation
 
 		ConstTRef <ModuleNode> GetRootModule() const { return root_module; }
 
-		const ModuleNode * QueryModule(Docgen::Symbol symbol, const ModuleNode * fallback = nullptr) const;
+		const ModuleNode * QueryModule(Docformat::Symbol symbol, const ModuleNode * fallback = nullptr) const;
 
-		ConstTRef <ModuleNode> GetModule(Docgen::Symbol symbol) const { return QueryModule(symbol, GetRootModule().Adr()); }
+		ConstTRef <ModuleNode> GetModule(Docformat::Symbol symbol) const { return QueryModule(symbol, GetRootModule().Adr()); }
 
 
-		const SymbolInfo * QuerySymbolInfo(Docgen::Symbol symbol, const SymbolInfo * fallback = nullptr) const;
+		const SymbolInfo * QuerySymbolInfo(Docformat::Symbol symbol, const SymbolInfo * fallback = nullptr) const;
 
-		ConstTRef <SymbolInfo> GetSymbolInfo(Docgen::Symbol symbol) const { return QuerySymbolInfo(symbol, &m_null_symbolinfo); }
+		ConstTRef <SymbolInfo> GetSymbolInfo(Docformat::Symbol symbol) const { return QuerySymbolInfo(symbol, &m_null_symbolinfo); }
 
-		Docgen::Symbol ResolveTypedef(Docgen::Symbol symbol, UInt16 usage = 0) const;
+		Docformat::Symbol ResolveTypedef(Docformat::Symbol symbol, UInt16 usage = 0) const;
 
 
 		ConstReference <Data::Table> table;
 
 		Data::Table::ColumnInfo symbol_col, name_col, /*data_col,*/ indexed_col;
 
-		Map <Docgen::Symbol, SymbolInfo> symbols;
-		Map <Docgen::Symbol, ModuleNode*> module_index;
+		Map <Docformat::Symbol, SymbolInfo> symbols;
+		Map <Docformat::Symbol, ModuleNode*> module_index;
 		Reference <ModuleNode> root_module;
-		Array <Tuple <Docgen::Symbol, Docgen::Symbol, UInt> > typedefs;
+		Array <Tuple <Docformat::Symbol, Docformat::Symbol, UInt> > typedefs;
 
 	private:
 
 		SymbolInfo m_null_symbolinfo;
 	};
 
-	using TypedefIndex = Function <Docgen::Symbol(Docgen::Symbol type, UInt16 usage)>;
+	using TypedefIndex = Function <Docformat::Symbol(Docformat::Symbol type, UInt16 usage)>;
 
 	Array <CString::View> SplitNamespace(const CString::View & string);
 	CString MergeNamespace(const ArrayView <CString::View> & parts);
 
-	inline Docgen::Symbol MakeSymbol(const ArrayView <CString::View> & ns_path)
+	inline Docformat::Symbol MakeSymbol(const ArrayView <CString::View> & ns_path)
 	{
 		if (ns_path)
 		{
@@ -171,7 +168,7 @@ namespace ReflexCLI::Documentation
 	CString MakeNamespacedSymbol(const TableIndex & index, const CString::View & current_ns, const SymbolInfo & info);
 	void StripCurrentNamespace(const CString::View & current_ns, CString & in_out);
 
-	inline Docgen::Symbol ResolveTypeRef(const TypedefIndex & index, Docgen::Symbol type, UInt16 usage_index)
+	inline Docformat::Symbol ResolveTypeRef(const TypedefIndex & index, Docformat::Symbol type, UInt16 usage_index)
 	{
 		return index(type, usage_index);
 	}
@@ -196,10 +193,10 @@ namespace ReflexCLI::Documentation
 	Array <ConstTRef <ModuleNode>> SortChildModules(const ModuleNode & parent, bool namespace_first);
 
 	Reference <Data::Table> CreateTable(const WString::View & folder, Data::KeyMap & keymap);
-	CString::View GetSubCategory(Docgen::Item::Category category, Docgen::TypeItem::Flags flags);
-	Data::Table::ConstRowCursor FindSymbol(const Data::Table & table, Docgen::Symbol symbol);
+	CString::View GetSubCategory(Docformat::Category category, Docformat::TypeFlags flags);
+	Data::Table::ConstRowCursor FindSymbol(const Data::Table & table, Docformat::Symbol symbol);
 	Data::Archive ReplaceMarkupTokens(CString::View view);
-	Pair <Docgen::Symbol, CString> DecodeLink(CString::View value, CString::View delimiter);
+	Pair <Docformat::Symbol, CString> DecodeLink(CString::View value, CString::View delimiter);
 
 	WString GetDescription(const SymbolInfo & info);
 
@@ -212,9 +209,9 @@ namespace ReflexCLI::Documentation
 //
 //
 
-inline Reflex::Data::Table::ConstRowCursor ReflexCLI::Documentation::FindSymbol(const Data::Table & table, Docgen::Symbol symbol)
+inline Reflex::Data::Table::ConstRowCursor ReflexCLI::Documentation::FindSymbol(const Data::Table & table, Docformat::Symbol symbol)
 {
-	return Data::FindFirst(table, { Data::Equals(Docgen::kSymbol, Reinterpret<UInt64>(symbol)) }, false);
+	return Data::FindFirst(table, { Data::Equals(Docformat::kSymbol, Reinterpret<UInt64>(symbol)) }, false);
 }
 
 inline Reflex::WString ReflexCLI::Documentation::GetDescription(const SymbolInfo & info)
@@ -222,7 +219,7 @@ inline Reflex::WString ReflexCLI::Documentation::GetDescription(const SymbolInfo
 	return Data::GetWString(info.record, kDescription);
 }
 
-template <typename TYPE> inline Array <Array <TYPE>> ReflexCLI::Documentation::CopyOwned(ArrayView <ArrayView <TYPE>> items)
+template <typename TYPE> inline Reflex::Array <Reflex::Array <TYPE>> ReflexCLI::Documentation::CopyOwned(ArrayView <ArrayView <TYPE>> items)
 {
 	Array < Array <TYPE> > rtn;
 
@@ -233,12 +230,12 @@ template <typename TYPE> inline Array <Array <TYPE>> ReflexCLI::Documentation::C
 	return rtn;
 }
 
-template <typename TYPE> inline Array <Array <TYPE>> ReflexCLI::Documentation::CopyOwned(const Array <ArrayView <TYPE>> & items)
+template <typename TYPE> inline Reflex::Array <Reflex::Array <TYPE>> ReflexCLI::Documentation::CopyOwned(const Array <ArrayView <TYPE>> & items)
 {
 	return CopyOwned(ToView(items));
 }
 
-template <typename TYPE> inline Array <ArrayView <TYPE>> ReflexCLI::Documentation::CopyUnowned(ArrayView < Array <TYPE> > items)
+template <typename TYPE> inline Reflex::Array <Reflex::ArrayView <TYPE>> ReflexCLI::Documentation::CopyUnowned(ArrayView < Array <TYPE> > items)
 {
 	Array < ArrayView <TYPE> > rtn;
 
@@ -249,7 +246,7 @@ template <typename TYPE> inline Array <ArrayView <TYPE>> ReflexCLI::Documentatio
 	return rtn;
 }
 
-template <typename TYPE> inline Array <ArrayView <TYPE>> ReflexCLI::Documentation::CopyUnowned(const Array <Array <TYPE>> & items)
+template <typename TYPE> inline Reflex::Array <Reflex::ArrayView <TYPE>> ReflexCLI::Documentation::CopyUnowned(const Array <Array <TYPE>> & items)
 {
 	return CopyUnowned(ToView(items));
 }

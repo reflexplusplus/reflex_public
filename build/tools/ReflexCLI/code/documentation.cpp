@@ -4,7 +4,7 @@ REFLEX_BEGIN_INTERNAL(ReflexCLI::Documentation)
 
 Reference <ModuleNode> CreateModuleTree(const Data::PropertySet & info, const Data::KeyMap & namespaces)
 {
-	using Index = Map < Docgen::Symbol, ModuleNode* >;
+	using Index = Map <Docformat::Symbol, ModuleNode*>;
 
 	Index index;
 
@@ -12,7 +12,7 @@ Reference <ModuleNode> CreateModuleTree(const Data::PropertySet & info, const Da
 
 	root->is_namespace = true;
 
-	static constexpr auto AcquireGuide = [](Index & index, ModuleNode & parent, Docgen::Symbol guide_id, CString::View name, bool is_namespace)
+	static constexpr auto AcquireGuide = [](Index & index, ModuleNode & parent, Docformat::Symbol guide_id, CString::View name, bool is_namespace)
 	{
 		if (auto p = index.Search(guide_id))
 		{
@@ -58,7 +58,7 @@ Reference <ModuleNode> CreateModuleTree(const Data::PropertySet & info, const Da
 			if (auto ppath = ref->QueryProperty<Data::ArrayOfCStringProperty>(kPath))
 			{
 				auto & path = ppath->value;
-				auto merged = Merge(path, Docgen::kNamespaceDelimiter);
+				auto merged = Merge(path, Docformat::kNamespaceDelimiter);
 				AcquireBranch(index, root, merged, false);
 			}
 		}
@@ -165,7 +165,7 @@ struct TextFormatWriter final : public ExportFormatWriter
 	}
 };
 
-ModuleNode * AcquireModuleNode(TableIndex & out, const Map <Docgen::Symbol, UInt32> & rows, Data::Table::ConstRowCursor & rowptr, const Data::Table::ColumnInfo & parent_symbol_col, const Data::Table::ColumnInfo & subcategory_col, const Data::Table::ColumnInfo & name_col, Docgen::Symbol symbol)
+ModuleNode * AcquireModuleNode(TableIndex & out, const Map <Docformat::Symbol,UInt32> & rows, Data::Table::ConstRowCursor & rowptr, const Data::Table::ColumnInfo & parent_symbol_col, const Data::Table::ColumnInfo & subcategory_col, const Data::Table::ColumnInfo & name_col, Docformat::Symbol symbol)
 {
 	if (auto pnode = out.module_index.Search(symbol))
 	{
@@ -182,7 +182,7 @@ ModuleNode * AcquireModuleNode(TableIndex & out, const Map <Docgen::Symbol, UInt
 	rowptr.SetIndex(*prow);
 
 	auto node = REFLEX_CREATE(ModuleNode);
-	auto parent_symbol = Reinterpret<Docgen::Symbol>(rowptr.ReadValue<UInt64>(parent_symbol_col));
+	auto parent_symbol = Reinterpret<Docformat::Symbol>(rowptr.ReadValue<UInt64>(parent_symbol_col));
 
 	node->symbol = symbol;
 	node->name = rowptr.ReadArray<char>(name_col);
@@ -205,7 +205,7 @@ REFLEX_END_INTERNAL
 
 ReflexCLI::Documentation::ModuleNode & ReflexCLI::Documentation::ModuleNode::null = g_null_module;
 
-Reference <Data::Table> ReflexCLI::Documentation::CreateTable(const WString::View & folder, Data::KeyMap & keymap)
+Reflex::Reference <Reflex::Data::Table> ReflexCLI::Documentation::CreateTable(const WString::View & folder, Data::KeyMap & keymap)
 {
 	auto symbols_decoded = Data::DecodePropertySet(Data::kPropertySheetFormat, File::Open(Join(folder, L"symbols.txt")));
 	auto info_decoded = Data::DecodePropertySet(Data::kPropertySheetFormat, File::Open(Join(folder, L"info.txt")));
@@ -217,20 +217,20 @@ Reference <Data::Table> ReflexCLI::Documentation::CreateTable(const WString::Vie
 	Data::RegisterKey(keymap, "object");
 	Data::RegisterKey(keymap, "enum");
 
-	for (auto & i : Docgen::kCategories) Data::RegisterKey(keymap, i.b);
+	for (auto & i : Docformat::kCategories) Data::RegisterKey(keymap, i.b);
 
 	const Data::Table::ColumnInfo kColumns[] =
 	{
 		{ K32("UniqueID"), Data::Table::kColumnTypeUInt32 },
-		{ Docgen::kSymbol, Data::Table::kColumnTypeUInt64 },
-		{ Docgen::kParentID, Data::Table::kColumnTypeUInt64 },
-		{ Docgen::kCategory, Data::Table::kColumnTypeKey32, UInt8(MakeBit(5)) },	//this is needed for UI
+		{ Docformat::kSymbol, Data::Table::kColumnTypeUInt64 },
+		{ Docformat::kParentID, Data::Table::kColumnTypeUInt64 },
+		{ Docformat::kCategory, Data::Table::kColumnTypeKey32, UInt8(MakeBit(5)) },	//this is needed for UI
 		{ kSubCategory, Data::Table::kColumnTypeKey32 },
-		{ Docgen::kIndexed, Data::Table::kColumnTypeBool },
-		{ Docgen::kIndex, Data::Table::kColumnTypeUInt32 },
+		{ Docformat::kIndexed, Data::Table::kColumnTypeBool },
+		{ Docformat::kIndex, Data::Table::kColumnTypeUInt32 },
 		{ kModule, Data::Table::kColumnTypeUInt64 },
-		{ Docgen::kNamespace, Data::Table::kColumnTypeKey32 },
-		{ Docgen::kName, Data::Table::kColumnTypeStringASCII },
+		{ Docformat::kNamespace, Data::Table::kColumnTypeKey32 },
+		{ Docformat::kName, Data::Table::kColumnTypeStringASCII },
 		{ kData, Data::Table::kColumnTypeBinary },
 		{ kDescription, Data::Table::kColumnTypeBinary },
 	};
@@ -240,20 +240,20 @@ Reference <Data::Table> ReflexCLI::Documentation::CreateTable(const WString::Vie
 	ArrayView <Data::Table::ColumnInfo> columns = table->GetColumns();
 
 	auto uid_col = columns[0];
-	auto symbol_col = Data::AssumeColumn(columns, Docgen::kSymbol, Data::Table::kColumnTypeUInt64);
-	auto parent_col = Data::AssumeColumn(columns, Docgen::kParentID, Data::Table::kColumnTypeUInt64);
-	auto category_col = Data::AssumeColumn(columns, Docgen::kCategory, Data::Table::kColumnTypeKey32);
+	auto symbol_col = Data::AssumeColumn(columns, Docformat::kSymbol, Data::Table::kColumnTypeUInt64);
+	auto parent_col = Data::AssumeColumn(columns, Docformat::kParentID, Data::Table::kColumnTypeUInt64);
+	auto category_col = Data::AssumeColumn(columns, Docformat::kCategory, Data::Table::kColumnTypeKey32);
 	auto subcategory_col = Data::AssumeColumn(columns, kSubCategory, Data::Table::kColumnTypeKey32);
-	auto indexed_col = Data::AssumeColumn(columns, Docgen::kIndexed, Data::Table::kColumnTypeBool);
-	auto index_col = Data::AssumeColumn(columns, Docgen::kIndex, Data::Table::kColumnTypeUInt32);
+	auto indexed_col = Data::AssumeColumn(columns, Docformat::kIndexed, Data::Table::kColumnTypeBool);
+	auto index_col = Data::AssumeColumn(columns, Docformat::kIndex, Data::Table::kColumnTypeUInt32);
 	auto module_col = Data::AssumeColumn(columns, kModule, Data::Table::kColumnTypeUInt64);
-	auto ns_col = Data::AssumeColumn(columns, Docgen::kNamespace, Data::Table::kColumnTypeKey32);
-	auto name_col = Data::AssumeColumn(columns, Docgen::kName, Data::Table::kColumnTypeStringASCII);
+	auto ns_col = Data::AssumeColumn(columns, Docformat::kNamespace, Data::Table::kColumnTypeKey32);
+	auto name_col = Data::AssumeColumn(columns, Docformat::kName, Data::Table::kColumnTypeStringASCII);
 	auto data_col = Data::AssumeColumn(columns, kData, Data::Table::kColumnTypeBinary);
 	auto desc_col = Data::AssumeColumn(columns, kDescription, Data::Table::kColumnTypeBinary);
 
-	Map <Docgen::Symbol, Data::PropertySet*> info_map;
-	Map <Docgen::Symbol, UInt> row_index;
+	Map <Docformat::Symbol, Data::PropertySet*> info_map;
+	Map <Docformat::Symbol, UInt> row_index;
 	Data::KeyMap namespaces;
 
 	for (auto & [adr, ref] : info_decoded.Iterate<Data::PropertySet>())
@@ -264,7 +264,7 @@ Reference <Data::Table> ReflexCLI::Documentation::CreateTable(const WString::Vie
 		}
 	}
 
-	const auto get_module = [&info_map](Docgen::Symbol symbol)
+	const auto get_module = [&info_map](Docformat::Symbol symbol)
 	{
 		if (auto pinfo = info_map.Search(symbol))
 		{
@@ -279,7 +279,7 @@ Reference <Data::Table> ReflexCLI::Documentation::CreateTable(const WString::Vie
 			}
 		}
 
-		return Docgen::Symbol();
+		return Docformat::Symbol();
 	};
 
 	//LATER maybe here set all parents to containing namespace, where item does not have a parent
@@ -289,16 +289,16 @@ Reference <Data::Table> ReflexCLI::Documentation::CreateTable(const WString::Vie
 
 	for (auto & [adr, record] : symbols_decoded.Iterate<Data::PropertySet>())
 	{
-		auto symbol = Docgen::GetSymbol(record);
-		auto ns = Docgen::GetNamespace(record);
-		auto name = Docgen::GetName(record);
+		auto symbol = Docformat::GetSymbol(record);
+		auto ns = Docformat::GetNamespace(record);
+		auto name = Docformat::GetName(record);
 
 		REFLEX_ASSERT(name);
 
 		Data::RegisterKey(keymap, ns);
 		Data::RegisterKey(namespaces, ns);
 
-		auto subcategory = GetSubCategory(Docgen::GetCategory(record), Docgen::GetTypeFlags(record));
+		auto subcategory = GetSubCategory(Docformat::GetCategory(record), Docformat::GetTypeFlags(record));
 		auto ns_expanded = SplitNamespace(ns);
 		auto module = MakeSymbol(ns_expanded);	//default module is namespace
 
@@ -312,7 +312,7 @@ Reference <Data::Table> ReflexCLI::Documentation::CreateTable(const WString::Vie
 
 		// A symbol can inherit module placement from either its own info node or
 		// its documented parent; its own placement takes priority.
-		for (auto i : { Docgen::GetParent(record), symbol })
+		for (auto i : { Docformat::GetParent(record), symbol })
 		{
 			if (auto placement = get_module(i))
 			{
@@ -326,11 +326,11 @@ Reference <Data::Table> ReflexCLI::Documentation::CreateTable(const WString::Vie
 
 		row.WriteValue<UInt32>(uid_col, ++uid);
 		row.WriteValue<UInt64>(symbol_col, UInt64(symbol));
-		row.WriteValue<UInt64>(parent_col, UInt64(Docgen::GetParent(record)));
-		row.WriteValue<Key32>(category_col, Data::RegisterKey(keymap, Docgen::kCategories[Docgen::GetCategory(record)].b));
+		row.WriteValue<UInt64>(parent_col, UInt64(Docformat::GetParent(record)));
+		row.WriteValue<Key32>(category_col, Data::RegisterKey(keymap, Docformat::kCategories[Docformat::GetCategory(record)].b));
 		row.WriteValue<Key32>(subcategory_col, subcategory ? Data::RegisterKey(keymap, subcategory) : Key32());
-		row.WriteValue<bool>(indexed_col, Docgen::IsIndexed(record));
-		row.WriteValue<UInt32>(index_col, Docgen::GetIndex(record));
+		row.WriteValue<bool>(indexed_col, Docformat::IsIndexed(record));
+		row.WriteValue<UInt32>(index_col, Docformat::GetIndex(record));
 		row.WriteValue<UInt64>(module_col, UInt64(module));
 		row.WriteValue<Key32>(ns_col, ns ? Data::RegisterKey(keymap, ns) : Key32());
 		row.WriteArray<char>(name_col, name);
@@ -369,16 +369,16 @@ Reference <Data::Table> ReflexCLI::Documentation::CreateTable(const WString::Vie
 			{
 				if (parent->symbol)
 				{
-					Data::SetUInt64(*record, Docgen::kParentID, UInt64(parent->symbol));
+					Data::SetUInt64(*record, Docformat::kParentID, UInt64(parent->symbol));
 				}
 			}
 
 			if (record_ns)
 			{
-				Data::SetCString(*record, Docgen::kNamespace, MergeNamespace(record_ns));
+				Data::SetCString(*record, Docformat::kNamespace, MergeNamespace(record_ns));
 			}
 
-			Data::SetCString(*record, Docgen::kName, module.name);
+			Data::SetCString(*record, Docformat::kName, module.name);
 			Data::SetBool(*record, kGroup, !module.is_namespace);
 
 			row.WriteArray<UInt8>(data_col, Data::EncodePropertySet(Data::kPropertySetFormat, *record));
@@ -434,11 +434,11 @@ Reference <Data::Table> ReflexCLI::Documentation::CreateTable(const WString::Vie
 				}
 				else
 				{
-					row.WriteValue<UInt64>(parent_col, UInt64(Docgen::Symbol()));
+					row.WriteValue<UInt64>(parent_col, UInt64(Docformat::Symbol()));
 				}
 			}
 
-			if (auto pindexed = ref->QueryProperty<Data::BoolProperty>(Docgen::kIndexed))
+			if (auto pindexed = ref->QueryProperty<Data::BoolProperty>(Docformat::kIndexed))
 			{
 				row.WriteValue<bool>(indexed_col, pindexed->value);
 			}
@@ -462,30 +462,30 @@ Reference <Data::Table> ReflexCLI::Documentation::CreateTable(const WString::Vie
 		}
 	}
 
-	Data::SortBy(*table, Docgen::kName, true);
+	Data::SortBy(*table, Docformat::kName, true);
 
 	return table;
 }
 
-REFLEX_NOINLINE Array <CString::View> ReflexCLI::Documentation::SplitNamespace(const CString::View & string)
+REFLEX_NOINLINE Reflex::Array <Reflex::CString::View> ReflexCLI::Documentation::SplitNamespace(const CString::View & string)
 {
 	if (string)
 	{
-		return Split(string, Docgen::kNamespaceDelimiter);
+		return Split(string, Docformat::kNamespaceDelimiter);
 	}
 
 	return {};
 }
 
-REFLEX_NOINLINE CString ReflexCLI::Documentation::MergeNamespace(const ArrayView <CString::View> & parts)
+REFLEX_NOINLINE Reflex::CString ReflexCLI::Documentation::MergeNamespace(const ArrayView <CString::View> & parts)
 {
-	return Merge(parts, Docgen::kNamespaceDelimiter);
+	return Merge(parts, Docformat::kNamespaceDelimiter);
 }
 
-REFLEX_NOINLINE Array <CString::View> ReflexCLI::Documentation::BuildScope(const TableIndex & index, const SymbolInfo & info, bool include_groups)
+REFLEX_NOINLINE Reflex::Array <Reflex::CString::View> ReflexCLI::Documentation::BuildScope(const TableIndex & index, const SymbolInfo & info, bool include_groups)
 {
 	Array <CString::View> scope_parts;
-	Docgen::Symbol ns_anchor;
+	Docformat::Symbol ns_anchor;
 
 	// WORKAROUND: rebuild the namespace portion from the module tree because
 	// symbol parent links are not yet normalized to consistently point at the
@@ -545,13 +545,13 @@ REFLEX_NOINLINE Array <CString::View> ReflexCLI::Documentation::BuildScope(const
 	return scope_parts;
 }
 
-REFLEX_NOINLINE Pair <CString> ReflexCLI::Documentation::BuildFullSymbolName(const TableIndex & index, const SymbolInfo & info)
+REFLEX_NOINLINE Reflex::Pair <Reflex::CString> ReflexCLI::Documentation::BuildFullSymbolName(const TableIndex & index, const SymbolInfo & info)
 {
 	CString name = info.name;
 
 	if (info.record)
 	{
-		if (auto targs = Docgen::GetTemplateArgs(*info.record))
+		if (auto targs = Docformat::GetTemplateArgs(*info.record))
 		{
 			name.Push(' ');
 			name.Push('<');
@@ -565,7 +565,7 @@ REFLEX_NOINLINE Pair <CString> ReflexCLI::Documentation::BuildFullSymbolName(con
 
 					if (is_template) name.Push(' ');
 
-					name.Append(Docgen::PrependNamespace(a, b));
+					name.Append(Docformat::PrependNamespace(a, b));
 
 					if (is_template) name.Push(' ');
 				}
@@ -584,11 +584,11 @@ REFLEX_NOINLINE Pair <CString> ReflexCLI::Documentation::BuildFullSymbolName(con
 	return { MergeNamespace(BuildScope(index, info)), name };
 }
 
-CString ReflexCLI::Documentation::MakeNamespacedSymbol(const TableIndex & index, const CString::View & current_ns, const SymbolInfo & info)
+Reflex::CString ReflexCLI::Documentation::MakeNamespacedSymbol(const TableIndex & index, const CString::View & current_ns, const SymbolInfo & info)
 {
 	auto [ns, name] = BuildFullSymbolName(index, info);
 
-	auto out = Docgen::PrependNamespace(ns, name);
+	auto out = Docformat::PrependNamespace(ns, name);
 
 	StripCurrentNamespace(current_ns, out);
 
@@ -605,7 +605,7 @@ REFLEX_NOINLINE void ReflexCLI::Documentation::StripCurrentNamespace(const CStri
 		{
 			CString search = MergeNamespace(Left(parts, idx + 1));
 			
-			search.Append(Docgen::kNamespaceDelimiter);
+			search.Append(Docformat::kNamespaceDelimiter);
 
 			while (auto pos = Search(io, search))
 			{
@@ -615,7 +615,7 @@ REFLEX_NOINLINE void ReflexCLI::Documentation::StripCurrentNamespace(const CStri
 	}
 }
 
-Data::Archive ReflexCLI::Documentation::ReplaceMarkupTokens(CString::View view)
+Reflex::Data::Archive ReflexCLI::Documentation::ReplaceMarkupTokens(CString::View view)
 {
 	constexpr CString::View kQ = "$q";
 	constexpr CString::View kSpc = "$spc";
@@ -628,7 +628,7 @@ Data::Archive ReflexCLI::Documentation::ReplaceMarkupTokens(CString::View view)
 	return t;
 }
 
-REFLEX_NOINLINE Pair <Docgen::Symbol, CString> ReflexCLI::Documentation::DecodeLink(CString::View value, CString::View delimiter)
+REFLEX_NOINLINE Reflex::Pair <Docformat::Symbol,Reflex::CString> ReflexCLI::Documentation::DecodeLink(CString::View value, CString::View delimiter)
 {
 	auto properties = Data::DecodePropertySet(Data::kPropertySheetFormat, ReplaceMarkupTokens(value));
 	auto path = Data::GetCStringArray(properties, "symbol");
@@ -744,7 +744,7 @@ bool ReflexCLI::Documentation::WriteDescription(ExportFormatWriter & cb, const D
 	return written;
 }
 
-Pair < Array <CString::View>, UInt > ReflexCLI::Documentation::BuildModulePath(const ModuleNode & node)
+Reflex::Pair < Reflex::Array <Reflex::CString::View>, Reflex::UInt > ReflexCLI::Documentation::BuildModulePath(const ModuleNode & node)
 {
 	Pair < Array <CString::View>, UInt > out;
 	auto & path = out.a;
@@ -765,7 +765,7 @@ Pair < Array <CString::View>, UInt > ReflexCLI::Documentation::BuildModulePath(c
 	return out;
 }
 
-Array <ConstTRef <ReflexCLI::Documentation::ModuleNode>> ReflexCLI::Documentation::SortChildModules(const ModuleNode & parent, bool namespace_first)
+Reflex::Array <Reflex::ConstTRef <ReflexCLI::Documentation::ModuleNode>> ReflexCLI::Documentation::SortChildModules(const ModuleNode & parent, bool namespace_first)
 {
 	Array <ConstTRef <ModuleNode>> children;
 
@@ -789,14 +789,14 @@ Array <ConstTRef <ReflexCLI::Documentation::ModuleNode>> ReflexCLI::Documentatio
 	return children;
 }
 
-TRef <ReflexCLI::Documentation::ExportFormatWriter> ReflexCLI::Documentation::ExportFormatWriter::CreatePlainText(TRef <Data::BinaryProperty> output)
+Reflex::TRef <ReflexCLI::Documentation::ExportFormatWriter> ReflexCLI::Documentation::ExportFormatWriter::CreatePlainText(TRef <Data::BinaryProperty> output)
 {
 	return New<TextFormatWriter>(output);
 }
 
 ReflexCLI::Documentation::CategoryEx ReflexCLI::Documentation::GetCategoryEx(Key32 category, Key32 subcategory)
 {
-	if (category == Docgen::kCategories[Docgen::Item::kCategoryType].a)
+	if (category == Docformat::kCategories[Docformat::kCategoryType].a)
 	{
 		if (subcategory == K32("enum"))
 		{
@@ -811,23 +811,23 @@ ReflexCLI::Documentation::CategoryEx ReflexCLI::Documentation::GetCategoryEx(Key
 			return kCategoryExValue;
 		}
 	}
-	else if (category == Docgen::kCategories[Docgen::Item::kCategoryTypedef].a)
+	else if (category == Docformat::kCategories[Docformat::kCategoryTypedef].a)
 	{
 		return kCategoryExTypedef;
 	}
-	else if (category == Docgen::kCategories[Docgen::Item::kCategoryFunction].a)
+	else if (category == Docformat::kCategories[Docformat::kCategoryFunction].a)
 	{
 		return kCategoryExFunction;
 	}
-	else if (category == Docgen::kCategories[Docgen::Item::kCategoryGlobal].a)
+	else if (category == Docformat::kCategories[Docformat::kCategoryGlobal].a)
 	{
 		return kCategoryExGlobal;
 	}
-	else if (category == Docgen::kCategories[Docgen::Item::kCategoryMethod].a)
+	else if (category == Docformat::kCategories[Docformat::kCategoryMethod].a)
 	{
 		return kCategoryExMethod;
 	}
-	else if (category == Docgen::kCategories[Docgen::Item::kCategoryMember].a)
+	else if (category == Docformat::kCategories[Docformat::kCategoryMember].a)
 	{
 		return kCategoryExMember;
 	}
@@ -846,9 +846,9 @@ ReflexCLI::Documentation::CategoryEx ReflexCLI::Documentation::GetCategoryEx(Key
 	return kCategoryExUnknown;
 }
 
-CString::View ReflexCLI::Documentation::GetCategoryLabel(CategoryEx category)
+Reflex::CString::View ReflexCLI::Documentation::GetCategoryLabel(CategoryEx category)
 {
-	static constexpr CString::View kLabels[] =
+	constexpr CString::View kLabels[] =
 	{
 		"unknown",
 		"enum",
@@ -866,15 +866,15 @@ CString::View ReflexCLI::Documentation::GetCategoryLabel(CategoryEx category)
 	return kLabels[category];
 }
 
-CString::View ReflexCLI::Documentation::GetSubCategory(Docgen::Item::Category category, Docgen::TypeItem::Flags flags)
+Reflex::CString::View ReflexCLI::Documentation::GetSubCategory(Docformat::Category category, Docformat::TypeFlags flags)
 {
-	if (category == Docgen::Item::kCategoryType)
+	if (category == Docformat::kCategoryType)
 	{
-		if (flags & Docgen::TypeItem::kFlagEnum)
+		if (flags & Docformat::kTypeFlagEnum)
 		{
 			return "enum";
 		}
-		else if (flags & Docgen::TypeItem::kFlagObject)
+		else if (flags & Docformat::kTypeFlagObject)
 		{
 			return "object";
 		}
@@ -905,27 +905,27 @@ ReflexCLI::Documentation::TableIndex::TableIndex(ConstTRef <Data::Table> data)
 	module_index.Set({}, root_module.Adr())->is_namespace = true;
 	m_null_symbolinfo.ns = kUndefined;
 	m_null_symbolinfo.name = kUndefined;
-	symbol_col = Data::AssumeColumn(data, Docgen::kSymbol, Data::Table::kColumnTypeUInt64);
-	auto parent_symbol_col = Data::AssumeColumn(data, Docgen::kParentID, Data::Table::kColumnTypeUInt64);
-	auto symbol_type_col = Data::AssumeColumn(data, Docgen::kCategory, Data::Table::kColumnTypeKey32);
+	symbol_col = Data::AssumeColumn(data, Docformat::kSymbol, Data::Table::kColumnTypeUInt64);
+	auto parent_symbol_col = Data::AssumeColumn(data, Docformat::kParentID, Data::Table::kColumnTypeUInt64);
+	auto symbol_type_col = Data::AssumeColumn(data, Docformat::kCategory, Data::Table::kColumnTypeKey32);
 	auto subcategory_col = Data::AssumeColumn(data, kSubCategory, Data::Table::kColumnTypeKey32);
-	name_col = Data::AssumeColumn(data, Docgen::kName, Data::Table::kColumnTypeStringASCII);
+	name_col = Data::AssumeColumn(data, Docformat::kName, Data::Table::kColumnTypeStringASCII);
 	auto module_col = Data::AssumeColumn(data, kModule, Data::Table::kColumnTypeUInt64);
 	auto data_col = Data::AssumeColumn(data, kData, Data::Table::kColumnTypeBinary);
-	indexed_col = Data::AssumeColumn(data, Docgen::kIndexed, Data::Table::kColumnTypeBool);
-	auto index_col = Data::AssumeColumn(data, Docgen::kIndex, Data::Table::kColumnTypeUInt32);
+	indexed_col = Data::AssumeColumn(data, Docformat::kIndexed, Data::Table::kColumnTypeBool);
+	auto index_col = Data::AssumeColumn(data, Docformat::kIndex, Data::Table::kColumnTypeUInt32);
 	auto desc_col = Data::AssumeColumn(data, kDescription, Data::Table::kColumnTypeBinary);
 
-	Map <Docgen::Symbol,UInt32> module_rows;
+	Map <Docformat::Symbol,UInt32> module_rows;
 
 	for (auto row : data)
 	{
-		auto symbol = Reinterpret<Docgen::Symbol>(row.ReadValue<UInt64>(symbol_col));
+		auto symbol = Reinterpret<Docformat::Symbol>(row.ReadValue<UInt64>(symbol_col));
 		auto category_ex = GetCategoryEx(row.ReadValue<Key32>(symbol_type_col), row.ReadValue<Key32>(subcategory_col));
 
 		REFLEX_ASSERT(category_ex != kCategoryExUnknown);
 
-		auto parent_symbol = Reinterpret<Docgen::Symbol>(row.ReadValue<UInt64>(parent_symbol_col));
+		auto parent_symbol = Reinterpret<Docformat::Symbol>(row.ReadValue<UInt64>(parent_symbol_col));
 
 		if (!parent_symbol.name.value)
 		{
@@ -935,17 +935,17 @@ ReflexCLI::Documentation::TableIndex::TableIndex(ConstTRef <Data::Table> data)
 		auto & item = symbols[symbol];
 		item.symbol = symbol;
 		item.category_ex = category_ex;
-		item.module = Reinterpret<Docgen::Symbol>(row.ReadValue<UInt64>(module_col));
+		item.module = Reinterpret<Docformat::Symbol>(row.ReadValue<UInt64>(module_col));
 		item.indexed = row.ReadValue<bool>(indexed_col);
 		item.index = UInt16(row.ReadValue<UInt32>(index_col));
 
 		auto encoded = row.ReadArray<UInt8>(data_col);
 
 		item.record = New<Data::PropertySet>(Data::DecodePropertySet(Data::kPropertySetFormat, encoded));
-		item.parent_symbol = Docgen::GetParent(*item.record);
-		item.ns = Docgen::GetNamespace(*item.record);
-		item.name = Docgen::GetName(*item.record);
-		item.index = Docgen::GetIndex(*item.record);
+		item.parent_symbol = Docformat::GetParent(*item.record);
+		item.ns = Docformat::GetNamespace(*item.record);
+		item.name = Docformat::GetName(*item.record);
+		item.index = Docformat::GetIndex(*item.record);
 
 		if (auto desc = row.ReadArray<UInt8>(desc_col))
 		{
@@ -969,8 +969,8 @@ ReflexCLI::Documentation::TableIndex::TableIndex(ConstTRef <Data::Table> data)
 	{
 		if (i.value.category_ex == kCategoryExTypedef)
 		{
-			auto alias = Docgen::GetTypedefTarget(i.value.record);
-			auto index = Docgen::GetIndex(i.value.record);
+			auto alias = Docformat::GetTypedefTarget(i.value.record);
+			auto index = Docformat::GetIndex(i.value.record);
 
 			if (symbols.Search(alias))
 			{
@@ -985,19 +985,19 @@ ReflexCLI::Documentation::TableIndex::TableIndex(ConstTRef <Data::Table> data)
 	});
 }
 
-const ReflexCLI::Documentation::SymbolInfo * ReflexCLI::Documentation::TableIndex::QuerySymbolInfo(Docgen::Symbol symbol, const SymbolInfo * fallback) const
+const ReflexCLI::Documentation::SymbolInfo * ReflexCLI::Documentation::TableIndex::QuerySymbolInfo(Docformat::Symbol symbol, const SymbolInfo * fallback) const
 {
 	return symbols.Search(symbol, fallback);
 }
 
-const ReflexCLI::Documentation::ModuleNode * ReflexCLI::Documentation::TableIndex::QueryModule(Docgen::Symbol symbol, const ModuleNode * fallback) const
+const ReflexCLI::Documentation::ModuleNode * ReflexCLI::Documentation::TableIndex::QueryModule(Docformat::Symbol symbol, const ModuleNode * fallback) const
 {
 	ModuleNode * null = RemoveConst(fallback);
 
 	return *module_index.Search(symbol, &null);
 }
 
-Docgen::Symbol ReflexCLI::Documentation::TableIndex::ResolveTypedef(Docgen::Symbol symbol, UInt16 usage) const
+Docformat::Symbol ReflexCLI::Documentation::TableIndex::ResolveTypedef(Docformat::Symbol symbol, UInt16 usage) const
 {
 	for (auto & i : ReverseIterate(typedefs))
 	{

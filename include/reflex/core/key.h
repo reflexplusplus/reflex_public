@@ -23,7 +23,7 @@ namespace Reflex
 
 }
 
-#define REFLEX_DECLARE_KEY32(ID) static constexpr auto k##ID = K32(REFLEX_STRINGIFY(ID))
+#define REFLEX_DECLARE_KEY32(ID) static constexpr auto k##ID = Reflex::K32(REFLEX_STRINGIFY(ID))
 
 
 

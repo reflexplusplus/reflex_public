@@ -13,54 +13,6 @@ constexpr CString::View kvalue = "value";
 
 typedef Map <const TypeItem*, const TypedefItem*> Typedefs;
 
-void SetSymbolProperty(Data::PropertySet & properties, Key32 id, Symbol symbol)
-{
-	REFLEX_ASSERT(symbol);
-
-	Data::SetUInt64(properties, id, UInt64(symbol));
-}
-
-REFLEX_NOINLINE void StoreField(Data::PropertySet & node, const Field & arg)
-{
-	if (arg.name) Data::SetCString(node, kName, arg.name);
-
-	SetSymbolProperty(node, kTypeID, arg.type);
-
-	if (arg.is_const) Data::SetBool(node, kIsConst, true);
-
-	if (arg.is_ref) Data::SetBool(node, kIsRef, true);
-
-	if (arg.is_pointer) Data::SetBool(node, kIsPointer, true);
-}
-
-void PackFunctionSignatures(Data::PropertySet & propertyset, const decltype(FunctionItem::overloads) & in)
-{
-	auto signatures = Data::AcquirePropertySetArray(propertyset, kOverloads);
-
-	for (auto & i : in)
-	{
-		auto signature = Data::AddPropertySet(signatures);
-
-		if (i.is_const) Data::SetBool(signature, kIsConst, true);
-
-		if (i.is_virtual) Data::SetBool(signature, kIsVirtual, true);
-
-		StoreField(Data::AcquirePropertySet(signature, kReturn), i.rtn);
-
-		ArrayView <Field> args_targs[2] = { i.arguments, i.targs };
-
-		REFLEX_LOOP(idx, 2)
-		{
-			if (auto args = args_targs[idx])
-			{
-				auto arguments = Data::AcquirePropertySetArray(signature, kargs_targs[idx]);
-
-				for (auto & i : args) StoreField(Data::AddPropertySet(arguments), i);
-			}
-		}
-	}
-}
-
 REFLEX_NOINLINE CString::View MakeInstantiatedTemplateName(Writer & w, const Typedefs & typedefs, const CString::View & name_, const ArrayView <TypeID> & targs)
 {
 	//REFLEX_SHOWSTOPPER("this doesnt expand targ names properly with full namespace");
@@ -77,7 +29,7 @@ REFLEX_NOINLINE CString::View MakeInstantiatedTemplateName(Writer & w, const Typ
 
 		auto targ_name = PrependNamespace(targ->ns, targ->name);
 
-		if (targ->category == Item::kCategoryType)
+		if (targ->category == kCategoryType)
 		{
 			auto type_targ = Cast<TypeItem>(targ);
 
@@ -128,7 +80,7 @@ CString::View MakeInstantiatedTemplateName(Writer & w, const CString::View & nam
 
 	w.EnumerateSymbols([&typedefs](const Item & item)
 	{
-		if (item.category == Docgen::Item::kCategoryTypedef)
+		if (item.category == kCategoryTypedef)
 		{
 			typedefs.Set(Cast<TypedefItem>(&item)->source_type, Cast<TypedefItem>(&item));
 		}
@@ -138,15 +90,17 @@ CString::View MakeInstantiatedTemplateName(Writer & w, const CString::View & nam
 }
 
 #if DOCGEN
-void VisitModules(Map <const Module*> & visited, Map <const Module*> & marked, Array <const Module*> & sorted, const Module * m)
+void VisitModules(Map <const Module*> & visited, Map <const Module*> & marked, Array <const Module*> & sorted, const Module * m, Key32 language)
 {
 	if (visited.Search(m)) return;
+
+	if (m->language != language) throw(CString("Module dependency belongs to a different language"));
 
 	if (marked.Search(m)) throw(CString("Cyclic dependency detected"));
 
 	marked.Set(m);
 
-	for (auto & i : m->dependencies) VisitModules(visited, marked, sorted, i.Adr());
+	for (auto & i : m->dependencies) VisitModules(visited, marked, sorted, i.Adr(), language);
 
 	marked.Unset(m);
 
@@ -169,9 +123,9 @@ Array <const Module*> FilterAndSortModules(Key32 language, Key32 codebase)
 
 	for (auto & i : Module::range)
 	{
-		if (i.language == language)
+		if (i.language == language && i.codebase == codebase)
 		{
-			VisitModules(visited, marked, sorted, &i);
+			VisitModules(visited, marked, sorted, &i, language);
 		}
 	}
 
@@ -192,7 +146,7 @@ REFLEX_NOINLINE void Docgen::Assert(bool test, const CString::View & error, cons
 
 REFLEX_NOINLINE void Docgen::AddEnum(Writer & w, TypeID type_id, const CString::View & ns, const CString::View & name, const ArrayView <CString::View> & values)
 {
-	w.AddType({ ns, name }, type_id, 0, 0, TypeItem::kFlagEnum, ns, name);
+	w.AddType({ ns, name }, type_id, 0, 0, kTypeFlagEnum, ns, name);
 
 	for (auto & i : values)
 	{
@@ -215,7 +169,7 @@ REFLEX_NOINLINE void Docgen::AddTemplateDefinition(Writer & w, TypeID type_id, R
 {
 	TypeID base_type_id = object_t ? object_t->base->type_id : 0;
 
-	w.AddType({ ns, name }, type_id, base_type_id, 0, object_t ? TypeItem::kFlagObject : 0, ns, name, targs);
+	w.AddType({ ns, name }, type_id, base_type_id, 0, object_t ? kTypeFlagObject : 0, ns, name, targs);
 }
 
 REFLEX_NOINLINE void Docgen::AddTemplateInstantiation(Writer & w, Symbol template_definition, TypeID type_id, const ArrayView <TypeID> & targs)
@@ -262,46 +216,16 @@ REFLEX_NOINLINE void Docgen::ExportSymbols(const Writer & writer, Output & outpu
 {
 	bool show_all = writer.language != kcpp;
 
-	auto keymap = Data::AcquireKeyMap(root);
+	Docformat::RegisterKeys(root);
 
-	const char * kKeys[] =
-	{
-		"Symbol",
-		"Category",
-		"TypeFlags",
-		"ParentID",
-		"TypeID",
-		"TemplateSourceID",
-		"BaseID",
-		"Name",
-		"Namespace",
-		"Index",
-		"Indexed",
-		"Overloads",
-		"Return",
-		"Arguments",
-		"IsConst",
-		"IsRef",
-		"IsPointer",
-		"IsStatic",
-		"IsVirtual",
-		"Data", // binary data, not indexable
-
-		"enum",
-		"value",
-		"object",
-	};
-
-	for (auto & i : kKeys) Data::RegisterKey(keymap, i);
-
-	Array <const Item*> items_by_type[Item::kNumCategory];
+	Array <const Item*> items_by_type[kNumCategory];
 
 	writer.EnumerateSymbols([&items_by_type](const Item & item)
 	{
 		items_by_type[item.category].Push(&item);
 	});
 
-	const auto & types = items_by_type[Item::kCategoryType];
+	const auto & types = items_by_type[kCategoryType];
 
 	Map <CString, const TypeItem*> typenames;
 
@@ -325,18 +249,18 @@ REFLEX_NOINLINE void Docgen::ExportSymbols(const Writer & writer, Output & outpu
 
 			auto fields = Data::AcquirePropertySet(root, item.index);
 
-			SetSymbolProperty(fields, kSymbol, item.symbol);
+			SetSymbol(fields, item.symbol);
 
-			Data::SetUInt32(fields, kIndex, item.index);
+			SetIndex(fields, item.index);
 
 
-			Data::SetCString(fields, kCategory, kCategories[item.category].b);
+			SetCategory(fields, item.category);
 
 			const TypeItem * null = nullptr;
 
 			if (auto parent_type = *typenames.Search(item.ns, &null))
 			{
-				SetSymbolProperty(fields, kParentID, parent_type->symbol);
+				SetParent(fields, parent_type->symbol);
 
 				auto parts = Split(item.ns, kNamespaceDelimiter);
 
@@ -360,18 +284,18 @@ REFLEX_NOINLINE void Docgen::ExportSymbols(const Writer & writer, Output & outpu
 
 				REFLEX_ASSERT(actual_ns != "Debug");
 
-				if (actual_ns) Data::SetCString(fields, kNamespace, actual_ns);
+				if (actual_ns) SetNamespace(fields, actual_ns);
 			}
 			else
 			{
-				if (item.ns) Data::SetCString(fields, kNamespace, item.ns);
+				if (item.ns) SetNamespace(fields, item.ns);
 			}
 
-			Data::SetCString(fields, kName, item.name);
+			SetName(fields, item.name);
 
 			bool indexed = True(item.ns) || show_all;
 
-			if (item.category == Item::kCategoryType)
+			if (item.category == kCategoryType)
 			{
 				auto type = Cast<TypeItem>(item);
 
@@ -381,25 +305,25 @@ REFLEX_NOINLINE void Docgen::ExportSymbols(const Writer & writer, Output & outpu
 
 				if (type->targs)
 				{
-					Array <UInt64> targs;
+					Array <Symbol> targs;
 
 					for (auto & i : type->targs)
 					{
-						targs.Push(UInt64(i->symbol));
+						targs.Push(i->symbol);
 					}
 
-					Data::SetUInt64Array(fields, kTemplateArgs, targs);
+					SetTemplateArgs(fields, targs);
 				}
 
-				Data::SetUInt32(fields, kTypeFlags, UInt32(type->flags));
+				SetTypeFlags(fields, TypeFlags(type->flags));
 				
-				if (auto base = type->base) SetSymbolProperty(fields, kBaseID, base->symbol);
+				if (auto base = type->base) SetTypeBase(fields, base->symbol);
 
-				if (template_instantiation) SetSymbolProperty(fields, kTemplateSourceID, type->source_template->symbol);
+				if (template_instantiation) SetTypeTemplateSource(fields, type->source_template->symbol);
 
-				if (template_definition) Data::SetBool(fields, kIsTemplateDefinition, template_definition);
+				if (template_definition) SetTemplateDefinition(fields, template_definition);
 
-				bool is_template_placeholder = True(type->flags & TypeItem::kFlagTemplatePlaceholder);
+				bool is_template_placeholder = True(type->flags & kTypeFlagTemplatePlaceholder);
 
 				indexed = indexed && Not(template_instantiation || is_template_placeholder);
 			}
@@ -407,20 +331,20 @@ REFLEX_NOINLINE void Docgen::ExportSymbols(const Writer & writer, Output & outpu
 			{
 				switch (item.category)
 				{
-				case Item::kCategoryMember:
-					SetSymbolProperty(fields, kParentID, Cast<MemberItem>(item)->owner->symbol);
-				case Item::kCategoryGlobal:
-					StoreField(fields, Cast<GlobalItem>(item)->variable);
+				case kCategoryMember:
+					SetParent(fields, Cast<MemberItem>(item)->owner->symbol);
+				case kCategoryGlobal:
+					Docformat::StoreField(fields, Cast<GlobalItem>(item)->variable);
 					break;
 
-				case Item::kCategoryMethod:
-					SetSymbolProperty(fields, kParentID, Cast<MethodItem>(item)->owner->symbol);
-				case Item::kCategoryFunction:
-					PackFunctionSignatures(fields, Cast<FunctionItem>(item)->overloads);
+				case kCategoryMethod:
+					SetParent(fields, Cast<MethodItem>(item)->owner->symbol);
+				case kCategoryFunction:
+					Docformat::PackFunctionSignatures(fields, Cast<FunctionItem>(item)->overloads);
 					break;
 
-				case Item::kCategoryTypedef:
-					SetSymbolProperty(fields, kTypeID, Cast<TypedefItem>(item)->source_type->symbol);
+				case kCategoryTypedef:
+					SetTypedefTarget(fields, Cast<TypedefItem>(item)->source_type->symbol);
 					break;
 
 				default:
@@ -428,7 +352,7 @@ REFLEX_NOINLINE void Docgen::ExportSymbols(const Writer & writer, Output & outpu
 				}
 			}
 
-			Data::SetBool(fields, kIndexed, indexed);
+			SetIndexed(fields, indexed);
 		}
 	}
 }

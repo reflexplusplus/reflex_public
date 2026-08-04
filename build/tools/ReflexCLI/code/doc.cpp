@@ -1,7 +1,7 @@
 #include "tasks.h"
 #include "documentation.h"
 
-#include "../../common/docgen/src/unpack.cpp"
+#include "../../common/docformat/docformat.cpp"
 
 
 
@@ -30,7 +30,7 @@ struct DocContext
 
 struct InfoHit
 {
-	Docgen::Symbol symbol;
+	Docformat::Symbol symbol;
 	const SymbolInfo * info;
 	UInt up = UInt(-1);
 	UInt down = UInt(-1);
@@ -43,7 +43,7 @@ Array <InfoHit> FindBestHits(ArrayView <InfoHit> hits);
 
 constexpr CString::View kCategoryTags[] = { "[???]", "[enm]", "[obj]", "[val]", "[tyd]", "[fnc]", "[glo]", "[mth]", "[val]", "[nsp]", "[grp]" };
 
-Docgen::Symbol MakeSymbol(ArrayView <CString> path)
+Docformat::Symbol MakeSymbol(ArrayView <CString> path)
 {
 	return Documentation::MakeSymbol(CopyUnowned(path));
 }
@@ -52,7 +52,7 @@ Array <CString> SplitPath(CString::View value)
 {
 	Array <CString> rtn;
 
-	CString all = Replace(value, Docgen::kNamespaceDelimiter, "/");
+	CString all = Replace(value, Docformat::kNamespaceDelimiter, "/");
 
 	auto parts = Split(all, '/');
 
@@ -181,7 +181,7 @@ void PrintModulePath(System::FileHandle & out, const TableIndex & index, const M
 		{
 			if (idx)
 			{
-				text.Append(chain[idx].b ? Docgen::kNamespaceDelimiter : kPathDelimiter);
+				text.Append(chain[idx].b ? Docformat::kNamespaceDelimiter : kPathDelimiter);
 			}
 
 			text.Append(chain[idx].a);
@@ -216,9 +216,9 @@ void PrintModulePath(System::FileHandle & out, const TableIndex & index, const M
 		{
 			auto end = node_text[pos];
 
-			if (end == Docgen::kNamespaceDelimiter.GetLast())
+			if (end == Docformat::kNamespaceDelimiter.GetLast())
 			{
-				pos += Docgen::kNamespaceDelimiter.size;
+				pos += Docformat::kNamespaceDelimiter.size;
 			}
 			else if (end == kPathDelimiter.GetLast())
 			{
@@ -260,10 +260,10 @@ void PrintSymbol(System::FileHandle & out, const TableIndex & index, const Modul
 			{
 				current_ns.Append(name);
 
-				current_ns.Append(Docgen::kNamespaceDelimiter);
+				current_ns.Append(Docformat::kNamespaceDelimiter);
 			}
 
-			current_ns.Shrink(Docgen::kNamespaceDelimiter.size);
+			current_ns.Shrink(Docformat::kNamespaceDelimiter.size);
 		}
 
 		auto display_name = MakeNamespacedSymbol(index, current_ns, symbol);
@@ -273,7 +273,7 @@ void PrintSymbol(System::FileHandle & out, const TableIndex & index, const Modul
 		if (current_ns)
 		{
 			line.Append(current_ns);
-			line.Append(Docgen::kNamespaceDelimiter);
+			line.Append(Docformat::kNamespaceDelimiter);
 		}
 
 		line.Append(CLI::Detail::kColours[CLI::kColourBrightWhite]);
@@ -297,7 +297,7 @@ CString StripNavigationScope(CString scope, ArrayView <CString> navigation_path)
 			return {};
 		}
 
-		auto delimiter = CString::View(Docgen::kNamespaceDelimiter);
+		auto delimiter = CString::View(Docformat::kNamespaceDelimiter);
 
 		if (scope_view.size > prefix.GetSize() + delimiter.size && CaseInsensitive::eq(Left<true>(scope_view, prefix.GetSize()), prefix) && Mid<true>(scope_view, prefix.GetSize(), delimiter.size) == delimiter)
 		{
@@ -308,7 +308,7 @@ CString StripNavigationScope(CString scope, ArrayView <CString> navigation_path)
 	return scope;
 }
 
-CString FormatSymbolChain(const TableIndex & index, Docgen::Symbol symbol, ArrayView <CString> navigation_path)
+CString FormatSymbolChain(const TableIndex & index, Docformat::Symbol symbol, ArrayView <CString> navigation_path)
 {
 	if (auto pinfo = index.QuerySymbolInfo(symbol))
 	{
@@ -316,13 +316,13 @@ CString FormatSymbolChain(const TableIndex & index, Docgen::Symbol symbol, Array
 
 		scope = StripNavigationScope(scope, navigation_path);
 
-		return Docgen::PrependNamespace(scope, name);
+		return Docformat::PrependNamespace(scope, name);
 	}
 
 	return {};
 }
 
-CString FormatFieldType(const TableIndex & index, const Docgen::Field & field, ArrayView <CString> navigation_path, UInt16 usage)
+CString FormatFieldType(const TableIndex & index, const Docformat::Field & field, ArrayView <CString> navigation_path, UInt16 usage)
 {
 	CString out;
 
@@ -360,13 +360,13 @@ void WriteLabel(System::FileHandle & out, CString::View label, CString::View val
 
 void WriteSignatures(System::FileHandle & out, const TableIndex & index, const Data::PropertySet & record, ArrayView <CString> navigation_path)
 {
-	auto RenderSignature = [](const TableIndex & index, const Data::PropertySet & record, const Docgen::FunctionItem::Signature & signature, ArrayView <CString> navigation_path, UInt16 usage)
+	auto RenderSignature = [](const TableIndex & index, const Data::PropertySet & record, const Docformat::FunctionSignature & signature, ArrayView <CString> navigation_path, UInt16 usage)
 	{
 		CString out;
 
 		out.Append(FormatFieldType(index, signature.rtn, navigation_path, usage));
 		out.Push(' ');
-		out.Append(Docgen::GetName(record));
+		out.Append(Docformat::GetName(record));
 		out.Push('(');
 
 		REFLEX_LOOP(idx, signature.arguments.GetSize())
@@ -397,18 +397,18 @@ void WriteSignatures(System::FileHandle & out, const TableIndex & index, const D
 		return out;
 	};
 
-	if (auto signatures = Docgen::UnpackFunctionSignatures(record))
+	if (auto signatures = Docformat::UnpackFunctionSignatures(record))
 	{
 		for (auto & signature : signatures)
 		{
-			File::WriteLine(out, RenderSignature(index, record, signature, navigation_path, Docgen::GetIndex(record)));
+			File::WriteLine(out, RenderSignature(index, record, signature, navigation_path, Docformat::GetIndex(record)));
 		}
 
 		File::WriteLine(out);
 	}
 }
 
-Array <const SymbolInfo*> GetChildren(const TableIndex & index, Docgen::Symbol parent, CategoryEx category)
+Array <const SymbolInfo*> GetChildren(const TableIndex & index, Docformat::Symbol parent, CategoryEx category)
 {
 	Array <const SymbolInfo*> children;
 
@@ -473,7 +473,7 @@ void WriteTypeChildren(System::FileHandle & out, const TableIndex & index, const
 
 		for (auto info : members)
 		{
-			auto field = Docgen::RestoreField(*info->record);
+			auto field = Docformat::RestoreField(*info->record);
 			File::WriteLine(out, Join(FormatFieldType(index, field, navigation_path, info->index), ' ', field.name));
 		}
 
@@ -689,7 +689,7 @@ Array <InfoHit> FindCandidateSymbols(const TableIndex & index, ArrayView <CStrin
 		{
 			auto full_symbol_path = CopyOwned(BuildScope(index, info, true));
 
-			full_symbol_path.Push(Docgen::GetName(*info.record));
+			full_symbol_path.Push(Docformat::GetName(*info.record));
 
 			if (Search<CaseInsensitive>(full_symbol_path, query) && filter(index, info))
 			{
@@ -752,7 +752,7 @@ void List(const Data::PropertySet & args, CString::View value, System::FileHandl
 
 	auto location = context.index->GetModule(MakeSymbol(context.path));
 
-	Docgen::Symbol parent_symbol;
+	Docformat::Symbol parent_symbol;
 
 	if (auto parent_arg = Data::GetCString(args, "parent"))
 	{
@@ -841,12 +841,12 @@ void Info(const Data::PropertySet & args, CString::View value, System::FileHandl
 
 			WriteLabel(out, "type: ", GetCategoryLabel(info.category_ex));
 
-			if (auto base = Docgen::GetTypeBase(info.record))
+			if (auto base = Docformat::GetTypeBase(info.record))
 			{
 				WriteLabel(out, "inherits: ", FormatSymbolChain(*context.index, base, context.path));
 			}
 
-			if (auto source = Docgen::GetTypeTemplateSource(info.record))
+			if (auto source = Docformat::GetTypeTemplateSource(info.record))
 			{
 				WriteLabel(out, "template: ", FormatSymbolChain(*context.index, source, context.path));
 			}
@@ -859,7 +859,7 @@ void Info(const Data::PropertySet & args, CString::View value, System::FileHandl
 			}
 			else if (category == kCategoryExTypedef)
 			{
-				WriteLabel(out, "alias: ", FormatSymbolChain(*context.index, Docgen::GetTypedefTarget(info.record), context.path));
+				WriteLabel(out, "alias: ", FormatSymbolChain(*context.index, Docformat::GetTypedefTarget(info.record), context.path));
 			}
 			else if (category == kCategoryExEnum || category == kCategoryExObject || category == kCategoryExValue)
 			{

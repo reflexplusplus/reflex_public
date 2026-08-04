@@ -1,6 +1,5 @@
 #pragma once
 
-#include "data.h"
 #include "writer.h"
 
 
@@ -19,13 +18,4 @@ namespace Docgen
 	void ExportSymbols(const Writer & w, Output & logger, Data::PropertySet & root);
 
 	void ExportSymbols(Key32 language, Key32 codebase, Output & logger, const WString::View & path);
-
-
-
-	//unpack kData
-
-	Field RestoreField(const Data::PropertySet & node);
-
-	decltype(Docgen::FunctionItem::overloads) UnpackFunctionSignatures(const Data::PropertySet & in);
-
 }

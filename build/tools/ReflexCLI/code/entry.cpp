@@ -13,11 +13,15 @@ CString GetTemplateID(const TemplateDefinition & tmpl)
 	return ToCString(File::SplitFilename(File::RemoveTrailingStroke(tmpl.folder)).b);
 }
 
-WString PromptValue(System::FileHandle & std_in, System::FileHandle & std_out, WString::View default_value = {})
+bool g_prompted = false;
+
+WString PromptValue(System::FileHandle & std_in, System::FileHandle & std_out, WString::View default_value = {}, WString::View default_label = {})
 {
+	g_prompted = true;
+
 	CString prompt;
 	
-	if (default_value) prompt  = Join(kColourDim, "[", ToCString(default_value), "]: ", kColourDefault);
+	if (default_value) prompt = Join(kColourDim, "[", ToCString(default_label ? default_label : default_value), "]: ", kColourDefault);
 
 	std_out.Write(prompt.GetData(), prompt.GetSize());
 
@@ -111,7 +115,7 @@ void Create(const Data::PropertySet & args, System::FileHandle & std_out)
 	};
 
 	auto reflex_path = GetReflexPath();
-	
+
 	auto std_in = Make<System::FileHandle>(System::FileHandle::kStandardStreamIn);
 
 	const auto prompt_required = [&std_out, std_in](CString::View title, WString::View default_value = {}) -> WString
@@ -259,7 +263,7 @@ void Create(const Data::PropertySet & args, System::FileHandle & std_out)
 				else
 				{
 					value = prompt_required(token.id, Data::GetWString(prefs, token.id));
-					
+
 					prompted_inputs.Push({ Join(token.id), value });
 				}
 			}
@@ -309,12 +313,25 @@ void Create(const Data::PropertySet & args, System::FileHandle & std_out)
 
 	auto folder = CreateProject(*ptmpl, groups[0].c, groups[1].c, targets, output, CLI::GetBool(args, "overwrite"), std_out);
 
-	for (auto & input : prompted_inputs)
-	{
-		Data::SetWString(prefs, input.token, input.value);
-	}
+	for (auto & input : prompted_inputs) Data::SetWString(prefs, input.token, input.value);
 
-	File::WriteLine(std_out, Join(L"project created at ", folder));
+	if (g_prompted)
+	{
+		bool open = Data::GetBool(prefs, "open", true);
+
+		File::WriteLine(std_out, Join(kColourDefault, "open ", kColourDim, ToCString(File::RemoveTrailingStroke(folder)), '?', kColourDefault));
+
+		WString::View no_yes[] = {L"n", L"y"};
+		WString open_prompt = L"n/y";
+		auto & i = open_prompt[open ? 2 : 0];
+		i = Uppercase(i);
+		auto input = PromptValue(*std_in, std_out, no_yes[open], open_prompt);
+		open = CaseInsensitive::eq(input, no_yes[true]);
+
+		Data::SetBool(prefs, "open", open);
+
+		if (open) System::Open(folder);
+	}
 }
 
 const CLI::TaskDef kCommands[] =

@@ -21,19 +21,22 @@
 namespace Docgen
 {
 
+	using namespace Reflex;
+
+	using namespace Docformat;
+
+
 	class Module;
 
 	class Writer;
 
 
-	struct Symbol;	//64 bit key for indexing
-
-
 	struct Item;
 
 	struct TypeItem;
-
-
-	template <class TYPE_ID> struct AbstractField;
-
+	struct TypedefItem;
+	struct GlobalItem;
+	struct FunctionItem;
+	struct MethodItem;
+	struct MemberItem;
 }

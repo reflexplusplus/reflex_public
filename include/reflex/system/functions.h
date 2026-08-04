@@ -74,6 +74,9 @@ namespace Reflex::System
 	bool Share(const ArrayView <WString> & paths, const WString & extra_text = {});
 
 
+	bool EnableConsoleEcho(bool enable);
+
+
 
 	//ui
 

@@ -7,8 +7,6 @@
 #include "common/entry.h"
 #include "console_app.h"
 
-// Distributions without the VM (the public SDK) ship no bootstrap/common/vm.h,
-// matching how reflex/vm.h guards its own contents.
 #if __has_include("common/vm.h")
 #include "common/vm.h"
 #endif

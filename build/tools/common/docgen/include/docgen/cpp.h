@@ -67,11 +67,11 @@ namespace Docgen
 
 #define DOC_VALUE_TYPE(w,NS,TYPE) DOC_VALUE_TYPE_EX(w,NS,TYPE,void)
 
-#define DOC_OBJECT_TYPE_BASE_EX(w,NS,TYPE,BASE_TYPE) DOC_TYPE_EX(w,NS,TYPE,REFLEX_TYPEID(BASE_TYPE), Docgen::TypeItem::kFlagObject)
+#define DOC_OBJECT_TYPE_BASE_EX(w,NS,TYPE,BASE_TYPE) DOC_TYPE_EX(w,NS,TYPE,REFLEX_TYPEID(BASE_TYPE), Docgen::kTypeFlagObject)
 
 #define DOC_OBJECT_TYPE_EX(w,NS,TYPE,BASE_TYPE) DOC_OBJECT_TYPE_BASE_EX(w,NS,TYPE,BASE_TYPE)
 
-#define DOC_OBJECT_TYPE(w,NS,TYPE) DOC_TYPE_EX(w,NS,TYPE,Docgen::GetObjectBaseRTTID<NS::TYPE>(), Docgen::TypeItem::kFlagObject)
+#define DOC_OBJECT_TYPE(w,NS,TYPE) DOC_TYPE_EX(w,NS,TYPE,Docgen::GetObjectBaseRTTID<NS::TYPE>(), Docgen::kTypeFlagObject)
 
 #define DOC_TYPEDEF(w,ALIAS_NS,ALIAS_TYPE) w.AddTypedef(REFLEX_TYPEID(ALIAS_NS::ALIAS_TYPE), REFLEX_STRINGIFY(ALIAS_NS), REFLEX_STRINGIFY(ALIAS_TYPE));
 
@@ -249,7 +249,7 @@ struct Docgen::Fn <RTN(*)(P1, P2, P3, P4, P5, P6)>
 	{
 		Assert(args.size == 6, kMissingArgName, ns, name);
 
-		w.AddFunction(ns, name, DOC_RTN(RTN), { DOC_ARG(P1, args[0]), DOC_ARG(P2, args[1]), DOC_ARG(P3, args[2]), DOC_ARG(P4, args[3]), DOC_ARG(P5, args[4]), DOC_ARG(P5, args[5]) }, targs);
+		w.AddFunction(ns, name, DOC_RTN(RTN), { DOC_ARG(P1, args[0]), DOC_ARG(P2, args[1]), DOC_ARG(P3, args[2]), DOC_ARG(P4, args[3]), DOC_ARG(P5, args[4]), DOC_ARG(P6, args[5]) }, targs);
 	}
 };
 

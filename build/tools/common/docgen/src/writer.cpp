@@ -120,9 +120,9 @@ struct WriterImpl : public Writer
 
 	template <typename SYMBOL_TYPE> SYMBOL_TYPE * RegisterSymbol(Symbol symbol, const CString::View & ns, const CString::View & name);
 
-	Item * RegisterSymbol(Symbol symbol, Item::Category symbol_type, const CString::View & ns, const CString::View & name);
+	Item * RegisterSymbol(Symbol symbol, Category symbol_type, const CString::View & ns, const CString::View & name);
 
-	FunctionItem::Signature & AddFunctionImpl(Item::Category symbol_type, const CString::View & ns, const CString::View & name, const ArrayView <Field> & targs, Field rtn, const ArrayView <Field> & args, FunctionPointer <void(FunctionItem&)> on_init)
+	FunctionSignature & AddFunctionImpl(Category symbol_type, const CString::View & ns, const CString::View & name, const ArrayView <Field> & targs, Field rtn, const ArrayView <Field> & args, FunctionPointer <void(FunctionItem&)> on_init)
 	{
 		Reflex::Detail::Stringizer<Field>::st_current = this;
 
@@ -141,17 +141,18 @@ struct WriterImpl : public Writer
 
 		auto signature = HashFunctionSignature(rtn, args);
 
-		for (auto & i : pfunction->overloads)
+		for (auto & hash : pfunction->overload_hashes)
 		{
-			Assert(signature != i.hash, "duplicate overload", ns, name);
+			Assert(signature != hash, "duplicate overload", ns, name);
 		}
 
-		FunctionItem::Signature overload;
+		FunctionSignature overload;
 
 		for (auto & i : targs) overload.targs.Push(ConvertField(pfunction, i));
-		overload.hash = signature;
 		overload.rtn = ConvertField(pfunction, rtn);
 		for (auto & i : args) overload.arguments.Push(ConvertField(pfunction, i));
+
+		pfunction->overload_hashes.Push(signature);
 
 		return pfunction->overloads.Push(overload);
 	}
@@ -169,7 +170,7 @@ struct WriterImpl : public Writer
 	{
 		auto type = AssumeAnyType(type_id, error, ns, name);
 		
-		Assert(Not(type->flags & TypeItem::kFlagEnum), error, ns, name);
+		Assert(Not(type->flags & kTypeFlagEnum), error, ns, name);
 
 		return type;
 	}
@@ -229,14 +230,14 @@ struct WriterImpl : public Writer
 	inline static const TypeItem * st_method_class = 0;
 };
 
-#define DOC_TEMPLATE_PLACEHOLDER(w,TYPE) w.AddType({{}, REFLEX_STRINGIFY(TYPE)}, REFLEX_TYPEID(TYPE), 0, 0, Docgen::TypeItem::kFlagTemplatePlaceholder, "", REFLEX_STRINGIFY(TYPE))
+#define DOC_TEMPLATE_PLACEHOLDER(w,TYPE) w.AddType({{}, REFLEX_STRINGIFY(TYPE)}, REFLEX_TYPEID(TYPE), 0, 0, Docgen::kTypeFlagTemplatePlaceholder, "", REFLEX_STRINGIFY(TYPE))
 
 Docgen::WriterImpl::WriterImpl(Key32 language)
 	: Writer(language)
 	, m_fallback(&m_unknown)
 	, m_idx_counter(0)
 {
-	m_unknown.category = Item::kNumCategory;
+	m_unknown.category = kNumCategory;
 
 	if (language == kcpp)
 	{
@@ -245,13 +246,13 @@ Docgen::WriterImpl::WriterImpl(Key32 language)
 		DOC_TEMPLATE_PLACEHOLDER(w, TYPE);
 		DOC_TEMPLATE_PLACEHOLDER(w, TYPE1);
 		DOC_TEMPLATE_PLACEHOLDER(w, TYPE2);
-		w.AddType({ {}, "VARGS..." }, REFLEX_TYPEID(VARGS), 0, 0, TypeItem::kFlagTemplatePlaceholder, "", "VARGS...", {});
+		w.AddType({ {}, "VARGS..." }, REFLEX_TYPEID(VARGS), 0, 0, kTypeFlagTemplatePlaceholder, "", "VARGS...", {});
 		DOC_TEMPLATE_PLACEHOLDER(w, KEY);
 		DOC_TEMPLATE_PLACEHOLDER(w, VALUE);
 		DOC_TEMPLATE_PLACEHOLDER(w, SIZE);
 
 		DOC_TEMPLATE_PLACEHOLDER(w, RTN);
-		w.AddType({ {}, "RTN(VARGS...)" }, REFLEX_TYPEID(SIGNATURE), 0, 0, TypeItem::kFlagTemplatePlaceholder, "", "RTN(VARGS...)", {});
+		w.AddType({ {}, "RTN(VARGS...)" }, REFLEX_TYPEID(SIGNATURE), 0, 0, kTypeFlagTemplatePlaceholder, "", "RTN(VARGS...)", {});
 
 		DOC_TEMPLATE_PLACEHOLDER(w, MEMBER);
 	}
@@ -320,7 +321,7 @@ void WriterImpl::AddGlobal(const CString::View & ns, Field variable)
 
 void WriterImpl::AddFunction(const CString::View & ns, const CString::View & name, Field rtn, const ArrayView <Field> & args, const ArrayView <Field> & targs)
 {
-	AddFunctionImpl(Item::kCategoryFunction, ns, name, targs, rtn, args, [](FunctionItem&)
+	AddFunctionImpl(kCategoryFunction, ns, name, targs, rtn, args, [](FunctionItem&)
 	{
 	});
 }
@@ -352,7 +353,7 @@ void WriterImpl::AddMethod(TypeID type_id, const CString::View & name, Field rtn
 
 	st_method_class = type;
 
-	auto & overload = AddFunctionImpl(Item::kCategoryMethod, GetString(type->class_ns), name, targs, rtn, args, [](FunctionItem & function)
+	auto & overload = AddFunctionImpl(kCategoryMethod, GetString(type->class_ns), name, targs, rtn, args, [](FunctionItem & function)
 	{
 		auto method = Cast<MethodItem>(function);
 
@@ -382,27 +383,27 @@ template <typename SYMBOL_TYPE> inline SYMBOL_TYPE * WriterImpl::RegisterSymbol(
 {
 	if constexpr (IsType<SYMBOL_TYPE, TypeItem>::value)
 	{
-		return Cast<TypeItem>(RegisterSymbol(symbol, Item::kCategoryType, ns, name));
+		return Cast<TypeItem>(RegisterSymbol(symbol, kCategoryType, ns, name));
 	}
 	else if constexpr (IsType<SYMBOL_TYPE, TypedefItem>::value)
 	{
-		return Cast<TypedefItem>(RegisterSymbol(symbol, Item::kCategoryTypedef, ns, name));
+		return Cast<TypedefItem>(RegisterSymbol(symbol, kCategoryTypedef, ns, name));
 	}
 	else if constexpr (IsType<SYMBOL_TYPE, FunctionItem>::value)
 	{
-		return Cast<FunctionItem>(RegisterSymbol(symbol, Item::kCategoryFunction, ns, name));
+		return Cast<FunctionItem>(RegisterSymbol(symbol, kCategoryFunction, ns, name));
 	}
 	else if constexpr (IsType<SYMBOL_TYPE, GlobalItem>::value)
 	{
-		return Cast<GlobalItem>(RegisterSymbol(symbol, Item::kCategoryGlobal, ns, name));
+		return Cast<GlobalItem>(RegisterSymbol(symbol, kCategoryGlobal, ns, name));
 	}
 	else if constexpr (IsType<SYMBOL_TYPE, MethodItem>::value)
 	{
-		return Cast<MethodItem>(RegisterSymbol(symbol, Item::kCategoryMethod, ns, name));
+		return Cast<MethodItem>(RegisterSymbol(symbol, kCategoryMethod, ns, name));
 	}
 	else if constexpr (IsType<SYMBOL_TYPE, MemberItem>::value)
 	{
-		return Cast<MemberItem>(RegisterSymbol(symbol, Item::kCategoryMember, ns, name));
+		return Cast<MemberItem>(RegisterSymbol(symbol, kCategoryMember, ns, name));
 	}
 	else
 	{
@@ -412,7 +413,7 @@ template <typename SYMBOL_TYPE> inline SYMBOL_TYPE * WriterImpl::RegisterSymbol(
 	}
 }
 
-Item * WriterImpl::RegisterSymbol(Symbol symbol, Item::Category type, const CString::View & ns, const CString::View & name)
+Item * WriterImpl::RegisterSymbol(Symbol symbol, Category type, const CString::View & ns, const CString::View & name)
 {
 	REFLEX_ASSERT(name);
 
@@ -426,27 +427,27 @@ Item * WriterImpl::RegisterSymbol(Symbol symbol, Item::Category type, const CStr
 
 	switch (type)
 	{
-	case Item::kCategoryType:
+	case kCategoryType:
 		Reflex::Detail::Constructor<TypeItem>::Construct(where);
 		break;
 
-	case Item::kCategoryTypedef:
+	case kCategoryTypedef:
 		Reflex::Detail::Constructor<TypedefItem>::Construct(where);
 		break;
 
-	case Item::kCategoryFunction:
+	case kCategoryFunction:
 		Reflex::Detail::Constructor<FunctionItem>::Construct(where);
 		break;
 
-	case Item::kCategoryGlobal:
+	case kCategoryGlobal:
 		Reflex::Detail::Constructor<GlobalItem>::Construct(where);
 		break;
 
-	case Item::kCategoryMethod:
+	case kCategoryMethod:
 		Reflex::Detail::Constructor<MethodItem>::Construct(where);
 		break;
 
-	case Item::kCategoryMember:
+	case kCategoryMember:
 		Reflex::Detail::Constructor<MemberItem>::Construct(where);
 		break;
 
@@ -478,8 +479,7 @@ Docgen::Writer::Writer(Key32 language)
 {
 }
 
-TRef <Docgen::Writer> Docgen::Writer::Create(Key32 language)
+Reflex::TRef <Docgen::Writer> Docgen::Writer::Create(Key32 language)
 {
 	return New<WriterImpl>(language);
 }
-

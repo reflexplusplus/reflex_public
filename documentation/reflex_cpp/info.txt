@@ -9630,7 +9630,7 @@ See also Bootstrap::Detail::SetStyle.
 {
 	Group: true;
 
-	@WString Description: "#p 'Reflex::Data::Table' is a lightweight, in-memory, typed table for structured application datasets.
+	@WString Description: "#p Data::Table is a lightweight, in-memory, typed table for structured application datasets.
 
 #p It is intended for moderate-sized working sets that need direct C++ access, typed columns, compact storage, and a small set of practical query-style operations such as filter, sort, slice, group, count, and aggregate.
 
