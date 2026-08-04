@@ -8,7 +8,7 @@ REFLEX_BEGIN_INTERNAL(ReflexCLI)
 
 namespace CLI = Bootstrap::CLI;
 
-constexpr CString::View kTargets[] = { "cmake", "xcode", "visual_studio", "android_studio", "all" };
+constexpr CString::View kTargets[] = { "cmake", "xcode", "visual_studio", "android_studio" };
 
 WString GetReflexPathEx()
 {
@@ -36,15 +36,32 @@ CString GetTemplateID(const TemplateDefinition & tmpl)
 	return ToCString(File::SplitFilename(File::RemoveTrailingStroke(tmpl.folder)).b);
 }
 
-CString::View ValidateTargetsArg(const Data::PropertySet & args)
+Array <CString> FindTargets(const Data::PropertySet & args)
 {
-	auto targets = Data::GetCString(args, "targets", "cmake");
+	Array <CString> targets;
 
-	for (auto & raw : Split(targets, ','))
+	auto arg = Data::GetCString(args, "targets", "cmake");
+
+	for (auto & raw : Split(arg, ','))
 	{
-		auto value = Lowercase(Trim(raw));
+		auto value = Trim(raw);
 
-		if (!Search(kTargets, value))
+		if (StringCompare::eq(value, "all"))
+		{
+			targets.Clear();
+
+			for (auto target : kTargets)
+			{
+				targets.Push(target);
+			}
+
+			return targets;
+		}
+		else if (Search<StringCompare>(kTargets, value))
+		{
+			targets.Push(value);
+		}
+		else
 		{
 			CLI::ThrowError("invalid --targets value");
 		}
@@ -174,8 +191,10 @@ const CLI::TaskDef kCommands[] =
 			
 			for (auto & tmpl : templates)
 			{
-				if (GetTemplateID(tmpl) == template_arg)
+				if (StringCompare::eq(GetTemplateID(tmpl), template_arg))
 				{
+					auto targets = FindTargets(args);
+
 					Tuple <bool, const Array <TokenDefinition> &, Array <Variable>> groups[] =
 					{
 						{ false, tmpl.strings },
@@ -217,7 +236,7 @@ const CLI::TaskDef kCommands[] =
 						if (CaseInsensitive::eq(Left<true>(dest, reflex_path.GetSize()), reflex_path)) CLI::ThrowMissingArg("output", "<folder>");
 					}
 
-					auto folder = CreateProject(tmpl, groups[0].c, groups[1].c, ValidateTargetsArg(args), dest, CLI::GetBoolArg(args, "overwrite"), std_out);
+					auto folder = CreateProject(tmpl, groups[0].c, groups[1].c, targets, dest, CLI::GetBoolArg(args, "overwrite"), std_out);
 
 					File::WriteLine(std_out, Join(L"project created at ", folder));
 

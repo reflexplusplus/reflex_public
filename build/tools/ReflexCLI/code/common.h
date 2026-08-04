@@ -175,7 +175,8 @@ inline Reflex::WString ReflexCLI::GetReflexPath()
 	constexpr WString::View kRepositories[] = { L"reflex_public", L"reflex" };
 
 	auto exepath = System::GetExecutablePath();
-	auto parts = Split(exepath, File::kStroke);
+
+	auto parts = Split(File::SplitFilename(exepath).a, File::kStroke);
 
 	for (auto i : kRepositories)
 	{
