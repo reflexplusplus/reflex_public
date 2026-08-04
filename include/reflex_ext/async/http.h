@@ -40,6 +40,8 @@ struct HttpRequestCallbacks : public Object
 
 struct StandardHttpRequestCallbacks : public HttpRequestCallbacks	//for application/json, AsyncTask result will be Data::PropertySet, other Data::ArchiveObject
 {
+	StandardHttpRequestCallbacks(UInt8 decode_json_flags = 0);
+
 	void OnHeader(const CString::View & key, const CString::View & value) override;
 
 	void OnChunk(const Data::Archive::View & chunk) override;
@@ -47,6 +49,8 @@ struct StandardHttpRequestCallbacks : public HttpRequestCallbacks	//for applicat
 	TRef <Object> OnComplete() override;
 
 	
+	const UInt8 m_decode_json_flags;
+
 	bool m_is_lz4 = false;
 
 	bool m_is_json = false;

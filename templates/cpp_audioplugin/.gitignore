@@ -2,3 +2,4 @@
 **/*.cache
 code/resources.h
 code/resources.cpp
+reflex_log.txt

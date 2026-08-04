@@ -96,7 +96,7 @@ void Reflex::GLX::Selector::SelectPanel(UInt idx)
 
 			Data::SetUInt32(e, kindex, idx);
 
-			WarnScope <false> scope(not_on_heap);	//warnings already emitted when adding
+			REFLEX_DEBUG_WARN_SCOPE(not_on_heap, false);	//warnings already emitted when adding
 
 			e->SetProperty(kitem, item);
 

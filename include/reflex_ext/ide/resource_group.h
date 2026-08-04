@@ -27,7 +27,7 @@ public:
 
 	static ResourceGroup & null;
 
-	static TRef <ResourceGroup> Create(File::ResourcePool & resourcepool, Key32 uid, const WString::View & desc, const Function <void(ResourceGroup&)> & onreload);
+	static TRef <ResourceGroup> Create(File::ResourcePool & resourcepool, Key32 uid, WString::View desc, const Function <void(ResourceGroup&)> & onreload);
 
 
 	virtual void Clear() = 0;

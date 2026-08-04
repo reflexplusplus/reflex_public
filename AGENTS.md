@@ -1,5 +1,6 @@
 # Reflex Agent Notes
 
+
 ## Intro
 
 - Use `include/` as the primary reference surface for API intent, type semantics, and expected usage. This remains the canonical first stop.
@@ -11,6 +12,7 @@
   - `Path: ["Reflex", "Reference"]`
 - When orienting in the codebase, prefer looking up symbols by their documented `Path`, then confirming the corresponding header in `include/`, then checking `src/reflex_ext/` for concrete usage.
 
+
 ## Namespace Guide
 
 - `Reflex`: Core framework layer. Common types, containers, intrusive object model, allocation, references, utilities, and shared conventions live here.
@@ -21,17 +23,20 @@
 - `Reflex::Bootstrap`: Standard application bootstrapping, global app state, and common app/plugin integration glue.
 - `Reflex::Async`: Higher-level async helpers built on lower-level system primitives.
 
+
 ## Setup
 
 - To install the pre-built binaries, run the `install` script at the repo root
 - Users with access to the source tree, can optionally build the libraries and tools locally via the appropriate platform build scripts under: `build/lib/[platform]` and `build/tools/[platform]`
 
+
 ## Creating Projects
 
 - When creating a new Reflex app or test project, use the reflex CLI instead of attempting to manually set up projects.
 - Use `reflex create --template <id> --vendor <vendor> --product <product> --target <value[,..]> --output <folder>`.
-- Check available templates with `reflex list-templates`.
-- Check available targets with `reflex list-targets`.
+- Check available templates with `reflex templates`.
+- Check available targets with `reflex targets`.
+
 
 ## Fundamentals
 
@@ -52,8 +57,7 @@
 
 - `TRef<T>` is one of the 2 primary Reflex smart-pointer/reference types, and it is critical to understand that it is **not** the owning one.
 - `TRef<T>` is a lightweight, non-owning, non-null reference wrapper over a retainable object pointer.
-- `TRef<T>` is transitory or temporary.
-- `TRef<T>` is generally used for transient arguments and return values, not for long-lived storage.
+- `T` denotes transitory or temporary, it is generally used for transient arguments and return values, not for long-lived storage.
 - `TRef<T>` does **not** affect retain count.
 - Think of `TRef<T>` as a raw pointer with stronger semantics:
   - the pointer is logically non-null
@@ -80,7 +84,8 @@
 - `WeakRef` should be used sparingly.
 - In client-side application code, `WeakRef` is almost never needed.
 - `WeakRef` is typically a library/framework-internals tool for event systems, object graphs, and lifecycle-sensitive infrastructure.
-- Prefer simpler ownership models first: `TRef` for non-owning immediate use, `Reference` for retained ownership.
+- Generally, prefer `Reference` for retained ownership.
+
 
 ## Repeated Misunderstandings
 
@@ -89,6 +94,15 @@
 - `src/reflex/` often explains how something works internally, but should not be the default source for deciding how higher-level code is meant to use an API.
 - If a symbol is unclear, search the generated manual by documented `Path` and then inspect the corresponding header.
 
-## Visual Verification
+
+## Debugging
+
+### Logging
+
+- In debug builds, Reflex writes debug log output to `reflex_log.txt` in the project folder.
+- If memory leaks are detected, they are written separately to `reflex_leaks.txt`.
+- Check these files when investigating runtime warnings or errors, including issues such as stylesheet compilation failures.
+
+### Visual Verification
 
 - For automated window capture and saving to PNG for verification, see the docs for `Reflex::GLX::CaptureWindow`

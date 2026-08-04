@@ -21,9 +21,9 @@ const Reflex::WString::View Reflex::IDE::kTXT = L"txt";
 const Reflex::WString::View Reflex::IDE::kJSON = L"json";
 const Reflex::WString::View Reflex::IDE::kXML = L"xml";
 
-Reflex::IDE::ProxyPath::ProxyPath(Key32 domain, Key32 sub_domain, const WString::View & local_path)
+Reflex::IDE::ProxyPath::ProxyPath(Key32 domain, Key32 subdomain, WString::View local_path)
 	: Locator(domain, { 0, kMaxUInt32 }),
-	sub_domain(sub_domain),
+	subdomain(subdomain),
 	local_path(local_path)
 {
 }

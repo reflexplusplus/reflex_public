@@ -274,9 +274,6 @@ void ViewImpl::OnSetStyle(const GLX::Style & style)
 	auto list = style["List"];
 
 
-	m_body.SetStyle(style["Body"]);
-
-
 	m_new.SetStyle(button);
 
 	m_open.SetStyle(button);
@@ -286,13 +283,9 @@ void ViewImpl::OnSetStyle(const GLX::Style & style)
 	m_header.SetStyle(style["Header"]);
 
 
-	m_list.SetStyle(list["content"]);
-
 	m_list_scroller.SetStyle(list);
 
 	m_add_note.SetStyle(button);
-
-	m_left.SetStyle(style["Left"]);
 
 	m_textarea.SetStyle(style["TextArea"]);
 

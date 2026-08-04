@@ -101,7 +101,7 @@ Reflex::File::EnumerableEmbeddedResource::Locator::Locator()
 {
 }
 
-Reflex::TRef <Reflex::System::FileHandle> Reflex::File::EnumerableEmbeddedResource::Locator::OnRead(const ArrayView <WString::View> & subdomain, const WString::View & path, File::Attributes & attributes) const
+Reflex::TRef <Reflex::System::FileHandle> Reflex::File::EnumerableEmbeddedResource::Locator::OnRead(ArrayView <WString::View> subdomain, WString::View path, File::Attributes & attributes) const
 {
 	REFLEX_ASSERT(subdomain);
 

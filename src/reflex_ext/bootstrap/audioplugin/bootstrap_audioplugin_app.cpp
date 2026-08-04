@@ -138,6 +138,8 @@ Reflex::Bootstrap::AudioPlugin::AudioPlugin(System::AudioPlugin & system, UInt32
 	, m_atomic_change_flags(0)
 	, m_automating(0)
 {
+	REFLEX_DEBUG_WARN_SCOPE(Reflex::not_on_heap, false);
+
 	System::AudioPlugin::Callbacks::Publish(*this);
 
 	REFLEX_ATOMIC_OR(m_atomic_change_flags, m_parameters.all_change_flags);

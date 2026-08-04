@@ -82,11 +82,11 @@ public:
 
 	//io
 
-	[[nodiscard]] TRef <System::FileHandle> Read(const WString::View & path, Attributes & attributes);
+	[[nodiscard]] TRef <System::FileHandle> Read(WString::View path, Attributes & attributes);
 
-	[[nodiscard]] TRef <System::FileHandle> Write(const WString::View & path, bool append);
+	[[nodiscard]] TRef <System::FileHandle> Write(WString::View path, bool append);
 
-	bool Delete(const WString::View & path);
+	bool Delete(WString::View path);
 
 
 
@@ -98,9 +98,9 @@ public:
 
 private:
 
-	using WriteFn = FunctionPointer<UIntNative(const VirtualFileSystem::Locator&, const ArrayView <WString::View>&, const Reflex::WString::View&, bool)>;
+	using WriteFn = FunctionPointer<UIntNative(const VirtualFileSystem::Locator&, const ArrayView <WString::View>&, WString::View, bool)>;
 
-	UIntNative PerformWrite(bool write, const WString::View & path, bool write_append, UIntNative fallback, WriteFn fn);
+	UIntNative PerformWrite(bool write, WString::View path, bool write_append, UIntNative fallback, WriteFn fn);
 
 };
 
@@ -144,11 +144,11 @@ protected:
 
 	//access
 
-	virtual TRef <System::FileHandle> OnRead(const ArrayView <WString::View> & subdomain, const WString::View & path, Attributes & attributes) const { return {}; }
+	virtual TRef <System::FileHandle> OnRead(ArrayView <WString::View> subdomain, WString::View path, Attributes & attributes) const { return {}; }
 
-	virtual TRef <System::FileHandle> OnWrite(const ArrayView <WString::View> & subdomain, const WString::View & path, bool append) const { return {}; }
+	virtual TRef <System::FileHandle> OnWrite(ArrayView <WString::View> subdomain, WString::View path, bool append) const { return {}; }
 
-	virtual bool OnDelete(const ArrayView <WString::View> & subdomain, const WString::View & path) const { return false; }
+	virtual bool OnDelete(ArrayView <WString::View> subdomain, WString::View path) const { return false; }
 
 
 
@@ -175,7 +175,7 @@ private:
 
 REFLEX_NS(Reflex::File::Detail)
 
-Tuple <Key32, ArrayView <WString::View>, WString::View> SplitDomain(const WString::View & path, Array <WString::View> & buffer);
+Tuple <Key32, ArrayView <WString::View>, WString::View> SplitDomain(WString::View path, Array <WString::View> & buffer);
 
 REFLEX_END
 
@@ -184,9 +184,9 @@ REFLEX_INLINE Reflex::TRef <Reflex::File::VirtualFileSystem> Reflex::File::Virtu
 	return *m_filesystem;
 }
 
-inline Reflex::TRef <Reflex::System::FileHandle> Reflex::File::VirtualFileSystem::Lock::Write(const WString::View & path, bool append)
+inline Reflex::TRef <Reflex::System::FileHandle> Reflex::File::VirtualFileSystem::Lock::Write(WString::View path, bool append)
 {
-	auto rtn = PerformWrite(true, path, append, ToUIntNative(Null<System::FileHandle>().Adr()), [](const VirtualFileSystem::Locator & i, const ArrayView <WString::View> & subdomain, const WString::View & path, bool append)
+	auto rtn = PerformWrite(true, path, append, ToUIntNative(Null<System::FileHandle>().Adr()), [](const VirtualFileSystem::Locator & i, const ArrayView <WString::View> & subdomain, WString::View path, bool append)
 	{
 		if (auto file = i.OnWrite(subdomain, path, append)) return ToUIntNative(file.Adr());
 
@@ -196,9 +196,9 @@ inline Reflex::TRef <Reflex::System::FileHandle> Reflex::File::VirtualFileSystem
 	return ToPointer<System::FileHandle>(rtn);
 }
 
-inline bool Reflex::File::VirtualFileSystem::Lock::Delete(const WString::View & path)
+inline bool Reflex::File::VirtualFileSystem::Lock::Delete(WString::View path)
 {
-	return True(PerformWrite(false, path, false, UIntNative(0), [](const VirtualFileSystem::Locator & i, const ArrayView <WString::View> & subdomain, const WString::View & path, bool append)
+	return True(PerformWrite(false, path, false, UIntNative(0), [](const VirtualFileSystem::Locator & i, const ArrayView <WString::View> & subdomain, WString::View path, bool append)
 	{
 		if (i.OnDelete(subdomain, path)) return UIntNative(true);
 

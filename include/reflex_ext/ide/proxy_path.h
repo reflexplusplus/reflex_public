@@ -31,13 +31,13 @@ public:
 	
 	//lifetime
 
-	[[nodiscard]] static TRef <ProxyPath> Create(Key32 domain, Key32 sub_domain, const WString::View & local_path);
+	[[nodiscard]] static TRef <ProxyPath> Create(Key32 domain, Key32 sub_domain, WString::View local_path);
 
 
 	
 	//info
 	
-	const Key32 sub_domain;
+	const Key32 subdomain;
 
 	const WString local_path;
 
@@ -45,7 +45,7 @@ public:
 
 protected:
 
-	ProxyPath(Key32 domain, Key32 sub_domain, const WString::View & local_path);
+	ProxyPath(Key32 domain, Key32 subdomain, WString::View local_path);
 
 };
 

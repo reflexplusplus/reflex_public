@@ -11,7 +11,7 @@
 namespace Reflex::IDE
 {
 
-	TRef <Object> Start(File::ResourcePool & resourcepool, const WString::View & logfile, Data::PropertySet & prefs = Data::PropertySet::null);
+	TRef <Object> Start(File::ResourcePool & resourcepool, Data::PropertySet & prefs = Data::PropertySet::null);
 
 
 	extern const bool & kIsAwake;

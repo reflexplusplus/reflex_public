@@ -14,10 +14,12 @@
 
 REFLEX_BEGIN_INTERNAL(Reflex::Bootstrap)
 
-Console::Console()
+constexpr Key32 kLogFile = K32("bootstrap.log_file");
+
+SettingsPanel::SettingsPanel()
 	: IDE::Detail::ConsolePanel("Bootstrap", 1),
 	m_stylesheet(IDE::Detail::RetrieveStyleSheet()),
-	m_clear(L"Clear Preferences")
+	m_clear_preferences(L"Clear Preferences")
 {
 	m_tabgroup.SetStyle(m_stylesheet["ConsoleGroup"]);
 
@@ -45,7 +47,15 @@ Console::Console()
 
 	m_tabgroup.AddPanel(L"Graphics", REFLEX_CREATE(GraphicsSettings, m_stylesheet, true));
 
-	GLX::BindClick(m_clear, []()
+
+	GLX::BindClick(m_logfile, [this]()
+	{
+		Data::SetBool(global->prefs, kLogFile, !Data::GetBool(global->prefs, kLogFile));
+
+		GLX::Restart();
+	});
+
+	GLX::BindClick(m_clear_preferences, []()
 	{
 		global->EnableIde(false);
 
@@ -59,34 +69,38 @@ Console::Console()
 	GLX::SetFlow(*this, GLX::kFlowY);
 
 	auto bar = m_stylesheet["Bar"];
+	auto button = bar["Button"];
 
 	GLX::AddInlineFlex(*this, m_tabgroup);
 
-	GLX::AddInline(m_footer, GLX::Init(m_clear, bar["Button"]));
+	GLX::Select(m_logfile, Data::GetBool(global->prefs, kLogFile));
+
+	GLX::AddInline(m_footer, GLX::Init(m_logfile, button, L"Enable Log File"));
+	GLX::AddFloat(m_footer, GLX::Init(m_clear_preferences, button), GLX::kOrientationFar, GLX::kOrientationFit);
 
 	GLX::AddInline(*this, GLX::Init(m_footer, bar));
 }
 
-void Console::OnReset(Key32 context)
+void SettingsPanel::OnReset(Key32 context)
 {
 	m_tabgroup.GetSelector()->SelectPanel(0);
 }
 
-void Console::OnRestore(Data::Archive::View & stream, Key32 context)
+void SettingsPanel::OnRestore(Data::Archive::View & stream, Key32 context)
 {
 	UInt8 idx = Data::Deserialize<UInt8>(stream);
 
 	m_tabgroup.GetSelector()->SelectPanel(idx);
 }
 
-void Console::OnStore(Data::Archive & stream) const
+void SettingsPanel::OnStore(Data::Archive & stream) const
 {
 	Data::Serialize(stream, UInt8(m_tabgroup.GetSelector()->GetCurrentIndex().value));
 }
 
-IDE::Detail::ConsolePanel::Ctr gConsolePanelCtr(L"Settings", 1, []() -> TRef <IDE::Detail::ConsolePanel>
+IDE::Detail::ConsolePanel::Ctr g_settings_panel_ctr(L"Settings", 1, []() -> TRef <IDE::Detail::ConsolePanel>
 {
-	return REFLEX_CREATE(Reflex::Bootstrap::Console);
+	return REFLEX_CREATE(SettingsPanel);
 });
 
 REFLEX_END_INTERNAL

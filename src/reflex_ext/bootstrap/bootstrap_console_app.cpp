@@ -51,7 +51,7 @@ struct ProgressBarImpl : public ProgressBar
 
 	static constexpr const char kSpinner[] = "|/-\\";
 
-	ProgressBarImpl(System::FileHandle & out, const CString::View & title)
+	ProgressBarImpl(System::FileHandle & out, CString::View title)
 		: out(out)
 		, m_spinner(0)
 	{
@@ -130,7 +130,7 @@ REFLEX_END_INTERNAL
 
 Reflex::Bootstrap::CLI::ProgressBar & Reflex::Bootstrap::CLI::ProgressBar::null = Reflex::Bootstrap::CLI::g_null_progressbar;
 
-Reflex::TRef <Reflex::Bootstrap::CLI::ProgressBar> Reflex::Bootstrap::CLI::ProgressBar::Create(System::FileHandle & out, const CString::View & title, bool show_progress)
+Reflex::TRef <Reflex::Bootstrap::CLI::ProgressBar> Reflex::Bootstrap::CLI::ProgressBar::Create(System::FileHandle & out, CString::View title, bool show_progress)
 {
 	if (show_progress)
 	{
@@ -283,6 +283,7 @@ void Reflex::Bootstrap::CLI::Await(System::FileHandle & out, const CString::View
 	task_context;
 
 	auto display = Make<ProgressBar>(out, title, show_progress);
+
 	display->Render();
 
 	auto task = Make<Async::Worker>([bg_fn, &task_context](Async::Worker::Context & ctx) -> Async::Worker::Result

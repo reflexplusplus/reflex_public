@@ -108,8 +108,8 @@ const CLI::TaskDef kCommands[] =
 			{
 				CLI::Print(std_out, CLI::kColourBrightBlack, "Project Creation:");
 				print_overview_command_summary("create", "create a new Reflex project from a template");
-				print_overview_command_summary("list-templates", "list available Reflex project templates");
-				print_overview_command_summary("list-targets", "list available project generation targets");
+				print_overview_command_summary("templates", "list available Reflex project templates");
+				print_overview_command_summary("targets", "list available project generation targets");
 				print_overview_command_summary("set-default", "save default values used by the create command");
 				print_overview_command_summary("get-defaults", "show saved default values for project creation");
 
@@ -117,7 +117,7 @@ const CLI::TaskDef kCommands[] =
 				CLI::Print(std_out, CLI::kColourBrightBlack, "SDK Install:");
 				print_overview_command_summary("install", "install or update the SDK");
 				print_overview_command_summary("version", "show the installed SDK version");
-				print_overview_command_summary("list-versions", "list available SDK versions");
+				print_overview_command_summary("versions", "list available SDK versions");
 				print_overview_command_summary("where", "show the install location");
 
 				File::WriteLine(std_out);
@@ -176,9 +176,9 @@ const CLI::TaskDef kCommands[] =
 					return;
 
 				case K32("version"):
-				case K32("list-versions"):
-				case K32("list-templates"):
-				case K32("list-targets"):
+				case K32("versions"):
+				case K32("templates"):
+				case K32("targets"):
 				case K32("get-defaults"):
 				case K32("where"):
 					print_arg(true, "no arguments", "");
@@ -306,7 +306,7 @@ const CLI::TaskDef kCommands[] =
 		}
 	},
 	{
-		.id = K32("list-templates"),
+		.id = K32("templates"),
 		.fn = [](const Data::PropertySet & args, System::FileHandle & std_out)
 		{
 			auto templates = GetTemplates();
@@ -345,7 +345,7 @@ const CLI::TaskDef kCommands[] =
 		}
 	},
 	{
-		.id = K32("list-targets"),
+		.id = K32("targets"),
 		.fn = [](const Data::PropertySet & args, System::FileHandle & std_out)
 		{
 			for (auto target : kTargets)
@@ -369,7 +369,7 @@ const CLI::TaskDef kCommands[] =
 		}
 	},
 	{
-		.id = K32("list-versions"),
+		.id = K32("versions"),
 		.fn = [](const Data::PropertySet & args, System::FileHandle & std_out)
 		{
 			ListVersions(std_out);

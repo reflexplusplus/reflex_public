@@ -301,27 +301,21 @@ Button:
 
 	size: 28;
 
-	bg: Fill(colour: 200; indent: 2; corner: 1.5);
-
-	fg: Text(value: &value; font: Small; indent: 12,0; colour: 96; transform: uppercase);
+	bg: Fill(colour: 200; indent: 2; corner: 1.5),Text(value: &value; font: Small; indent: 12,0; colour: 64; transform: uppercase);
 
 	@State hover:
 	{
-		bg: Fill(colour: 192; indent: 2; corner: 1.5);
-
-		fg: Text(value: &value; font: Small; indent: 12,0; colour: 96; transform: uppercase);
+		bg: Fill(colour: 192; indent: 2; corner: 1.5),Text(value: &value; font: Small; indent: 12,0; colour: 32; transform: uppercase);
 	};
 
 	@State selected:
 	{
-		bg: Fill(colour: 80,192,248; indent: 2; corner: 1.5);
-
-		fg: Text(value: &value; font: Small; indent: 12,0; colour: 255; transform: uppercase);
+		bg: Fill(colour: 80,192,248; indent: 2; corner: 1.5),Text(value: &value; font: Small; indent: 12,0; colour: 255; transform: uppercase);
 	};
 
 	@State inactive:
 	{
-		fg: Text(value: &value; font: Small; indent: 12,0; colour: 128; transform: uppercase);
+		bg: Fill(colour: 200; indent: 2; corner: 1.5),Text(value: &value; font: Small; indent: 12,0; colour: 128; transform: uppercase);
 	};
 };
 

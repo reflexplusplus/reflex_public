@@ -9,10 +9,7 @@ REFLEX_BEGIN_INTERNAL(ReflexCLI)
 
 namespace CLI = Bootstrap::CLI;
 
-constexpr CString::View kGithubReleasesUrl = "https://api.github.com/repos/reflexplusplus/reflex_public/releases?per_page=100";
-constexpr CString::View kGithubLatestReleaseUrl = "https://api.github.com/repos/reflexplusplus/reflex_public/releases/latest";
-constexpr CString::View kGithubReleaseByTagUrlPrefix = "https://api.github.com/repos/reflexplusplus/reflex_public/releases/tags/";
-constexpr CString::View kGithubTagArchiveUrlPrefix = "https://github.com/reflexplusplus/reflex_public/archive/refs/tags/";
+constexpr CString::View kReleasesApiUrl = "https://reflexplusplus.dev/api/releases/reflex_public";
 constexpr CString::View kCoreFilesLabel = "core files";
 
 void WaitForProcess(CString::View label, const WString & process_path, ArrayView <WString> args)
@@ -63,53 +60,22 @@ void UnzipFile(CString::View label, WString::View zip_path, WString::View dest_p
 struct ReleaseVersion
 {
 	CString tag;
-	CString created_at;
+	UInt64 date = 0;
 };
 
 struct PackageAsset
 {
+	CString id;
 	CString label;
-	CString asset_name;
+	CString url;
 	WString output_path;
-	WString extract_path;
+	WString install_path;
 };
 
 struct DeferredMove
 {
 	WString src_path;
 	WString dst_path;
-};
-
-struct HttpCallbacks : public Async::Detail::StandardHttpRequestCallbacks
-{
-	REFLEX_OBJECT(ReflexCLI::HttpCallbacks, Async::Detail::StandardHttpRequestCallbacks);
-
-	bool OnResponse(System::HttpConnection::Response status_code) override
-	{
-		return status_code == System::HttpConnection::kResponseFound || Async::Detail::StandardHttpRequestCallbacks::OnResponse(status_code);
-	}
-
-	void OnHeader(const CString::View & key, const CString::View & value) override
-	{
-		Async::Detail::StandardHttpRequestCallbacks::OnHeader(key, value);
-
-		if (CaseInsensitive::eq(key, "location"))
-		{
-			location = Join(value);
-		}
-	}
-
-	TRef <Object> OnComplete() override
-	{
-		if (location)
-		{
-			return New<Data::CStringProperty>(location);
-		}
-
-		return Async::Detail::StandardHttpRequestCallbacks::OnComplete();
-	}
-
-	CString location;
 };
 
 CString::View GetPlatform()
@@ -128,38 +94,6 @@ CString::View GetPlatform()
 	return {};
 }
 
-struct GithubReleaseCallbacks : public Async::Detail::StandardHttpRequestCallbacks
-{
-	REFLEX_OBJECT(ReflexCLI::GithubReleaseCallbacks, Async::Detail::StandardHttpRequestCallbacks);
-
-	void OnHeader(const CString::View & key, const CString::View & value) override
-	{
-		Async::Detail::StandardHttpRequestCallbacks::OnHeader(key, value);
-
-		if (CaseInsensitive::eq(key, "link"))
-		{
-			for (auto & raw_part : Split(value, ','))
-			{
-				auto part = Trim(raw_part);
-
-				if (!Search(part, "rel=\"next\"")) continue;
-
-				auto begin = Search(part, '<');
-				auto end = Search(part, '>');
-
-				if (begin && end && end.value > begin.value + 1)
-				{
-					next_url = Join(Mid<true>(part, begin.value + 1, end.value - begin.value - 1));
-
-					break;
-				}
-			}
-		}
-	}
-
-	CString next_url;
-};
-
 void PrintConfirmation(System::FileHandle & std_out, CString::View label, WString::View path)
 {
 	const auto size_mb = Float64(File::Open(path).GetSize()) / Float64(1024 * 1024);
@@ -167,51 +101,84 @@ void PrintConfirmation(System::FileHandle & std_out, CString::View label, WStrin
 	File::WriteLine(std_out, Join(kColourDim, "Installed ", kColourDefault, label, ' ', kColourDim, ToCString(size_mb, 2), "mb", kColourDefault));
 }
 
-Array <PackageAsset> GetInstallAssets(const Array <CString::View> & platforms, WString::View install_root, WString::View temp_path)
+bool ShouldInstallPlatformAsset(CString::View asset_platform, const Map <Key32> & platforms)
 {
-	Array <PackageAsset> assets;
+	if (!asset_platform)
+	{
+		return false;
+	}
 
-	Map <Key32> trimmed;
+	return True(platforms.Search(MakeKey32(Lowercase(asset_platform))));
+}
+
+Map <Key32> GetRequestedPlatforms(const Array <CString::View> & platforms)
+{
+	Map <Key32> requested;
 
 	if (platforms)
 	{
 		for (auto & raw : platforms)
 		{
-			trimmed.Set(MakeKey32(Lowercase(raw)));
+			requested.Set(MakeKey32(Lowercase(raw)));
 		}
 	}
 	else
 	{
-		trimmed.Set(GetPlatform());
+		requested.Set(GetPlatform());
 	}
 
-	const auto lib_path = Join(install_root, L"bin/lib", File::kStroke);
-	const auto tools_path = Join(install_root, L"bin/tools", File::kStroke);
+	return requested;
+}
 
-	for (auto & i : trimmed)
+WString GetInstallPathForAsset(CString::View label, WString::View install_root)
+{
+	if (CaseInsensitive::eq(label, "binaries"))
 	{
-		switch (i.key.value)
+		return Join(install_root, L"bin/lib", File::kStroke);
+	}
+
+	if (CaseInsensitive::eq(label, "tools") || CaseInsensitive::eq(label, "docs"))
+	{
+		return Join(install_root, L"bin/tools", File::kStroke);
+	}
+
+	CLI::ThrowError(Join("unknown asset label ", label));
+
+	return {};
+}
+
+Array <PackageAsset> GetInstallAssets(const Data::PropertySet & release, const Map <Key32> & platforms, WString::View install_root, WString::View temp_path)
+{
+	Array <PackageAsset> assets;
+
+	for (auto & asset : Data::GetPropertySetArray(release, "assets"))
+	{
+		auto platform = Data::GetCString(asset, "platform");
+
+		if (!ShouldInstallPlatformAsset(platform, platforms))
 		{
-		case K32("win"):
-			assets.Push({ "win-binaries", "reflex-libs-windows.zip", Join(temp_path, L"download/reflex-libs-windows.zip"), lib_path });
-			assets.Push({ "win-tools", "reflex-tools-windows.zip", Join(temp_path, L"download/reflex-tools-windows.zip"), tools_path });
-			assets.Push({ "win-docs", "reflex-docs-windows.zip", Join(temp_path, L"download/reflex-docs-windows.zip"), tools_path });
-			break;
+			continue;
+		}
 
-		case K32("macos"):
-			assets.Push({ "macos-binaries", "reflex-libs-macos.zip", Join(temp_path, L"download/reflex-libs-macos.zip"), lib_path });
-			assets.Push({ "macos-tools", "reflex-tools-macos.zip", Join(temp_path, L"download/reflex-tools-macos.zip"), tools_path });
-			assets.Push({ "macos-docs", "reflex-docs-macos.zip", Join(temp_path, L"download/reflex-docs-macos.zip"), tools_path });
-			break;
+		auto name = Data::GetCString(asset, "name");
+		auto label = Data::GetCString(asset, "label");
+		auto url = Data::GetCString(asset, "url");
 
-		case K32("android"):
-			assets.Push({ "android-binaries", "reflex-libs-android.zip", Join(temp_path, L"download/reflex-libs-android.zip"), lib_path });
-			break;
+		if (!name || !label || !url)
+		{
+			CLI::ThrowError("release asset is missing required fields");
+		}
 
-		case K32("ios"):
-			assets.Push({ "ios-binaries", "reflex-libs-ios.zip", Join(temp_path, L"download/reflex-libs-ios.zip"), lib_path });
-			break;
-		};
+		auto id = Join(platform, "-", label);
+
+		assets.Push
+		({
+			.id = id,
+			.label = Join(platform, "-", label),
+			.url = Join(url),
+			.output_path = Join(temp_path, L"download/", ToWString(name)),
+			.install_path = GetInstallPathForAsset(label, install_root)
+		});
 	}
 
 	if (!assets)
@@ -347,9 +314,6 @@ void InstallReleaseArchive(WString::View zip_path, WString::View install_root, W
 	auto extract_path = Join(temp_path, L"extract/repo", File::kStroke);
 
 	UnzipFile(kCoreFilesLabel, zip_path, extract_path, std_out);
-
-
-	//GetArchiveRootPath
 
 	auto [folders, files] = File::List(extract_path, true);
 
@@ -540,33 +504,41 @@ void UpdateAliasLaunchers(WString::View install_root)
 	}
 }
 
-void DownloadFile(CString::View label, CString::View url, WString::View output_path, System::FileHandle & std_out)
+Reference <Data::PropertySet> FetchJson(System::FileHandle & std_out, CString::View busy_label, CString::View url)
 {
-	CString redirect_url;
+	Reference <Data::PropertySet> response;
 
-	CLI::Await(std_out, Join("Resolving URL ", label), false, {}, [url = Join(url), &redirect_url, label = Join(label)](CLI::TaskContext & ctx)
+	CLI::Await(std_out, Join(kColourDim, busy_label, kColourDefault), false, {}, [url = Join(url), &response](CLI::TaskContext & ctx)
 	{
-		auto [success, result] = Async::Detail::Fetch(ctx, System::HttpConnection::kGET, url, {}, {}, New<HttpCallbacks>());
+		auto [success, result] = Async::Detail::Fetch(ctx, System::HttpConnection::kGET, url, {}, {}, Make<Async::Detail::StandardHttpRequestCallbacks>(Data::kJsonFormatOptionInt64));
 
-		if (auto redirect = DynamicCast<Data::CStringProperty>(result))
+		if (auto decoded = DynamicCast<Data::PropertySet>(result))
 		{
-			redirect_url = redirect->value;
+			response = decoded;
 		}
 		else if (success)
 		{
-			CLI::ThrowError(Join(label, " did not provide redirect location"));
+			CLI::ThrowError("unexpected api response");
 		}
 		else
 		{
-			CLI::ThrowError(Join("failed to resolve ", label));
+			CLI::ThrowError("failed to fetch api response");
 		}
 	});
 
-	CLI::Await(std_out, Join(kColourDim, "Downloading ", kColourDefault, label), true, {}, [output_path = WString(output_path), &redirect_url, label = Join(label)](CLI::TaskContext & ctx)
+	if (!response || !Data::GetBool(*response, "status"))
 	{
-		//TODO override callbacks to stream to disk
+		CLI::ThrowError("api request failed");
+	}
 
-		auto [success, result] = Async::Detail::Fetch(ctx, System::HttpConnection::kGET, redirect_url, {}, {}, New<Async::Detail::StandardHttpRequestCallbacks>());
+	return response;
+}
+
+void DownloadFile(CString::View label, CString::View url, WString::View output_path, System::FileHandle & std_out)
+{
+	CLI::Await(std_out, Join(kColourDim, "Downloading ", kColourDefault, label), true, {}, [output_path = WString(output_path), url = Join(url), label = Join(label)](CLI::TaskContext & ctx)
+	{
+		auto [success, result] = Async::Detail::Fetch(ctx, System::HttpConnection::kGET, url, {}, {}, Make<Async::Detail::StandardHttpRequestCallbacks>());
 
 		if (auto archive = DynamicCast<Data::ArchiveObject>(result))
 		{
@@ -586,188 +558,120 @@ void DownloadFile(CString::View label, CString::View url, WString::View output_p
 	});
 }
 
+CString ReadInstalledVersion()
+{
+	auto version_path = Join(GetReflexPath(), L"bin/lib/", ToWString(GetPlatform()), L"/version.txt");
+
+	auto utf8 = File::Open(version_path);
+	
+	return Trim<char>(Data::Unpack<CString::View>(utf8));
+}
+
 REFLEX_END_INTERNAL
 
 void ReflexCLI::ListVersions(System::FileHandle & std_out)
 {
-	const Async::HttpHeaders headers =
-	{
-		{ "Accept", "application/vnd.github+json" },
-		{ "User-Agent", "ReflexCLI" },
-		{ "X-GitHub-Api-Version", "2022-11-28" },
-	};
-
 	Array <ReleaseVersion> releases;
+	
+	auto response = FetchJson(std_out, "Contacting server...", Join(kReleasesApiUrl, "?limit=50"));
 
-	CString next_url = Join(kGithubReleasesUrl);
-
-	bool has_more_pages = true;
-
-	while (has_more_pages)
+	for (auto & release : Data::GetPropertySetArray(*response, "releases"))
 	{
-		CLI::Await(std_out, "fetching github release versions...", false, {}, [headers, &has_more_pages, &next_url, &releases](CLI::TaskContext & ctx)
-		{
-			auto callbacks = Make<GithubReleaseCallbacks>();
-
-			auto [success, result] = Async::Detail::Fetch(ctx, System::HttpConnection::kGET, next_url, headers, {}, *callbacks);
-
-			if (auto response = DynamicCast<Data::PropertySet>(result))
-			{
-				for (auto & release : Data::GetPropertySetArray(*response, kNullKey))
-				{
-					if (auto tag = Data::GetCString(release, "tag_name"))
-					{
-						releases.Push
-						({
-							.tag = Join(tag),
-							.created_at = Join(Data::GetCString(release, "created_at"))
-						});
-					}
-				}
-
-				next_url = callbacks->next_url;
-
-				has_more_pages = True(next_url);
-			}
-			else
-			{
-				has_more_pages = false;
-
-				if (success)
-				{
-					CLI::ThrowError("unexpected github response");
-				}
-				else
-				{
-					CLI::ThrowError("failed to fetch github releases");
-				}
-			}
-		});
+		releases.Push({ .tag = Data::GetCString(release, "tag"), .date = UInt64(Data::GetInt64(release, "date")) });
 	}
 
-	Sort(releases, [](const ReleaseVersion & a, const ReleaseVersion & b)
+	auto installed_version = ReadInstalledVersion();
+
+	for (auto & i : releases)
 	{
-		if (a.created_at == b.created_at)
+		//auto [year,month,day] = Reflex::UnixTimestampToDate(i.date);
+
+		if (installed_version && i.tag == installed_version)
 		{
-			return a.tag < b.tag;
+			File::WriteLine(std_out, Join(i.tag, kColourDim, " [installed]", kColourDefault));
 		}
-
-		return a.created_at < b.created_at;
-	});
-
-	for (auto & release : ReverseIterate(releases))
-	{
-		File::WriteLine(std_out, release.tag);
+		else
+		{
+			File::WriteLine(std_out, i.tag);
+		}
 	}
 }
 
 void ReflexCLI::GetVersion(System::FileHandle & std_out)
 {
-	auto version_path = Join(GetReflexPath(), L"bin/lib/", ToWString(GetPlatform()), L"/version.txt");
-
-	if (!System::Exists(version_path))
+	if (auto version = ReadInstalledVersion())
 	{
-		CLI::ThrowError(Join("version file not found ", ToCString(version_path)));
+		File::WriteLine(std_out, version);
 	}
-
-	auto utf8 = Data::DecodeUTF8(File::Open(version_path));
-	auto version = Trim<WChar>(utf8);
-
-	if (!version)
+	else
 	{
-		CLI::ThrowError("version file is empty");
+		CLI::ThrowError("version info not found");
 	}
-
-	File::WriteLine(std_out, version);
 }
 
 void ReflexCLI::Install(CString::View version, const Array <CString::View> & platforms, const WString & path, bool test, System::FileHandle & std_out)
 {
-	const Async::HttpHeaders headers =
-	{
-		{ "Accept", "application/vnd.github+json" },
-		{ "User-Agent", "ReflexCLI" },
-		{ "X-GitHub-Api-Version", "2022-11-28" },
-	};
-
 	auto install_root = path ? WString(path) : GetReflexPath();
 
 	auto temp_path = CreateInstallTempPath(install_root);
 
 	CString release_url;
-	
+
 	switch (MakeKey32(Lowercase(version)))
 	{
 	case K32(""):
 	case K32("latest"):
-		release_url = kGithubLatestReleaseUrl;
+		release_url = Join(kReleasesApiUrl, "/latest");
 		break;
 
 	default:
-		release_url = Join(kGithubReleaseByTagUrlPrefix, version);
+		release_url = Join(kReleasesApiUrl, "/", version);
 		break;
 	};
 
-	CString release_tag;
+	auto release = FetchJson(std_out, "Contacting server...", release_url);
+	
+	auto release_tag = Data::GetCString(*release, "tag");
 
-	CLI::Await(std_out, Join(kColourDim, "Resolving URL", kColourDefault), false, {}, [headers, &release_tag, &release_url](CLI::TaskContext & ctx)
+	if (!release_tag)
 	{
-		auto callbacks = New<Async::Detail::StandardHttpRequestCallbacks>();
-
-		auto [success, result] = Async::Detail::Fetch(ctx, System::HttpConnection::kGET, release_url, headers, {}, *callbacks);
-
-		if (auto response = DynamicCast<Data::PropertySet>(result))
-		{
-			release_tag = Data::GetCString(*response, "tag_name");
-
-			if (!release_tag)
-			{
-				if (auto message = Data::GetCString(*response, "message"))
-				{
-					CLI::ThrowError(message);
-				}
-
-				CLI::ThrowError("release is missing tag_name");
-			}
-		}
-		else if (success)
-		{
-			CLI::ThrowError("unexpected github response");
-		}
-		else
-		{
-			CLI::ThrowError("failed to resolve github release");
-		}
-	});
+		CLI::ThrowError("release is missing tag");
+	}
 
 	Array <DeferredMove> deferred_moves;
-
-	auto install_assets = GetInstallAssets(platforms, install_root, temp_path);
+	auto requested_platforms = GetRequestedPlatforms(platforms);
+	auto install_assets = GetInstallAssets(*release, requested_platforms, install_root, temp_path);
 
 	File::WriteLine(std_out, Join(kColourDim, "Installing ", kColourDefault, release_tag, kColourDim, kColourDefault));
 
-	auto zip_path = Join(temp_path, L"download/reflex_public-", ToWString(release_tag), L".zip");
-	
-	auto archive_url = Join(kGithubTagArchiveUrlPrefix, release_tag, ".zip");
-		
-	DownloadFile(kCoreFilesLabel, archive_url, zip_path, std_out);
+	auto content = Data::GetPropertySet(*release, "content");
+	auto content_name = Data::GetCString(content, "name");
+	auto content_url = Data::GetCString(content, "url");
+	auto content_label = Data::GetCString(content, "label", kCoreFilesLabel);
+
+	if (!content_name || !content_url)
+	{
+		CLI::ThrowError("release content is missing required fields");
+	}
+
+	auto zip_path = Join(temp_path, L"download/", ToWString(content_name));
+
+	DownloadFile(content_label, content_url, zip_path, std_out);
 		
 	InstallReleaseArchive(zip_path, install_root, temp_path, std_out, deferred_moves, test);
+
+	PrintConfirmation(std_out, content_label, zip_path);
 
 	if (!test)
 	{
 		ResetInstallTargets(install_root);
 	}
 
-	PrintConfirmation(std_out, kCoreFilesLabel, zip_path);
-
 	for (auto & asset : install_assets)
 	{
-		auto asset_url = Join("https://github.com/reflexplusplus/reflex_public/releases/download/", release_tag, '/', asset.asset_name);
-
-		DownloadFile(asset.label, asset_url, asset.output_path, std_out);
+		DownloadFile(asset.label, asset.url, asset.output_path, std_out);
 			
-		InstallPackageArchive(asset.label, asset.output_path, asset.extract_path, temp_path, std_out, deferred_moves, test);
+		InstallPackageArchive(asset.id, asset.output_path, asset.install_path, temp_path, std_out, deferred_moves, test);
 
 		PrintConfirmation(std_out, asset.label, asset.output_path);
 	}

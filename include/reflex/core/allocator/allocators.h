@@ -56,6 +56,12 @@ public:
 
 
 
+	//debug
+
+	void SetLeakLogPath(const Array <WChar> & path);
+
+
+
 	//info
 
 	UInt64 GetNumBytes() const;

@@ -31,18 +31,18 @@ public:
 
 	FileLocator();
 
-	TRef <System::FileHandle> OnRead(const ArrayView <WString::View> & subdomain, const WString::View & path, Attributes & attributes) const override;
+	TRef <System::FileHandle> OnRead(ArrayView <WString::View> subdomain, WString::View path, Attributes & attributes) const override;
 
-	TRef <System::FileHandle> OnWrite(const ArrayView <WString::View> & subdomain, const WString::View & path, bool append) const override;
+	TRef <System::FileHandle> OnWrite(ArrayView <WString::View> subdomain, WString::View path, bool append) const override;
 
-	bool OnDelete(const ArrayView <WString::View> & subdomain, const WString::View & path) const override;
+	bool OnDelete(ArrayView <WString::View> subdomain, WString::View path) const override;
 };
 
 
 
 
 //
-//SearchPath (TODO -> NSA)
+//SearchPath (TODO -> reflex_ext)
 
 class Reflex::File::SearchPath : public VirtualFileSystem::Locator
 {
@@ -52,7 +52,7 @@ public:
 
 	using VirtualFileSystem::Locator::Locator;
 
-	[[nodiscard]] static TRef <SearchPath> Create(const WString::View & path);
+	[[nodiscard]] static TRef <SearchPath> Create(WString::View path);
 };
 
 REFLEX_SET_TRAIT(File::SearchPath, IsAbstract);
