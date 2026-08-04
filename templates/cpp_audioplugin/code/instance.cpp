@@ -10,13 +10,15 @@ namespace _PRODUCT-NAME-SYMBOL_ { namespace {	//begin internal namespace
 
 using namespace Reflex;
 
+static constexpr UInt16 kParameterGroupMode = MakeBit(0);
+static constexpr UInt16 kParameterGroupOsc = MakeBit(1);
+
 struct InstanceImpl : public Instance
 {
 	static constexpr UInt16 kChunkVersion = 0;							//change to 1 to activate persistence callbacks
 
 	InstanceImpl(System::AudioPlugin & owner)
 		: Instance(owner, MakeKey32("_PRODUCT-NAME-SYMBOL_"), kChunkVersion)	//first parameter is 4 byte header for the file format
-		, m_monitor(Cast<State>(*this))
 		, m_amp(0.0f)
 		, m_phase_inc(0.0f)
 		, m_phase(0.0f)
@@ -50,14 +52,12 @@ struct InstanceImpl : public Instance
 		return num_outputs > 0;	//allow processing if at least 1 output
 	}
 
-	void OnProcessRt(UInt num_samples, const System::AudioPlugin::EventBuffer & events_in, Array <System::AudioPlugin::Event> & events_out, const ArrayView <const Float*> & inputs, const ArrayView <Float*> & outputs) override
+	void OnProcessRt(UInt num_samples, UInt32 parameter_change_flags, const EventBuffer & events_in, Array <Event> & events_out, const ArrayView <const Float*> & inputs, const ArrayView <Float*> & outputs) override
 	{
-		if (m_monitor.Poll())
+		auto params = GetParameterValues();
+
+		if (parameter_change_flags & kParameterGroupMode)
 		{
-			//parameters changed
-
-			auto params = GetParameterValues();
-
 			switch (params[0].ivalue)
 			{
 			case 1:
@@ -73,13 +73,18 @@ struct InstanceImpl : public Instance
 				break;
 			}
 
+			m_process_fx = True(params[3].ivalue) ? &InstanceImpl::ProcessFX : [](UInt, Float*) {};
+
+			output.Log("Updating mode");
+		}
+
+		if (parameter_change_flags & kParameterGroupOsc)
+		{
 			auto f = params[1].fvalue;
 
 			m_phase_inc = f / m_sr;
 
 			m_amp = params[2].fvalue;
-
-			m_process_fx = True(params[3].ivalue) ? &InstanceImpl::ProcessFX : [](UInt, Float*) {};
 
 			output.Log("Updating", "amp:", m_amp, "freq:", f);
 		}
@@ -140,8 +145,6 @@ struct InstanceImpl : public Instance
 	}
 
 	
-	State::Monitor m_monitor;
-
 	//your state and data here...
 
 	Float m_sr;
@@ -155,11 +158,8 @@ struct InstanceImpl : public Instance
 
 } }	//end internal namespace
 
-Reflex::System::AudioPlugin::Configuration::Class _PRODUCT-NAME-SYMBOL_::Instance::MakeClass()
+Reflex::Bootstrap::AudioPlugin::Class _PRODUCT-NAME-SYMBOL_::Instance::MakeClass()
 {
-	using Class = System::AudioPlugin::Configuration::Class;
-
-
 	constexpr bool kIsInstrument = false;	//quick config of instrument or effect, for AU builds, ensure this matches the AU_TYPE_4CC eg "aufx"
 
 	constexpr auto kType = kIsInstrument ? Class::kTypeAudioGenerator : Class::kTypeAudioProcessor;
@@ -171,29 +171,40 @@ Reflex::System::AudioPlugin::Configuration::Class _PRODUCT-NAME-SYMBOL_::Instanc
 
 	cls.product = Bootstrap::global->product;
 
+#ifdef VERSION
+	cls.version = REFLEX_STRINGIFY(VERSION);
+#else
+	cls.version = "1.0.0";
+#endif
+
 
 	cls.type = kType;
 
 	cls.category = Class::kUncategorised;
 
-	cls.nparam = 4;
+	cls.num_params = 4;
 
 	cls.channels_io = { UInt8(kIsInstrument ? 0 : 2), 2 };
 
 	cls.midi_io = { kIsInstrument, false };
 
 
-	cls.vst2.uid = MakeKey32("_VENDOR-NAME_ _PRODUCT-NAME_");
+	//CLAP specific
 
-	
-	cls.vst3.uid = { K64("_VENDOR-NAME_"), K64("_PRODUCT-NAME_") };
-
-	
 	cls.clap.uid = Lowercase(Join(Filter(cls.vendor, ' '), '.', Filter(cls.product, ' '), '.', ToCString(cls.channels_io.a), ':', ToCString(cls.channels_io.b)));
 
-	cls.clap.version = "1.0.0";
+
+	//VST3 specific
+
+	cls.vst3.uid = { K64("_VENDOR-NAME_"), K64("_PRODUCT-NAME_") };
 
 
+	//AU specific
+
+	cls.audiounit.company_4cc = CC32("_VENDOR-4CC_");
+
+	cls.audiounit.uid_4cc = CC32("_PRODUCT-4CC_");
+	
 #ifdef AU_TYPE_4CC
 	// AudioUnit requires the AU_TYPE 4CC to be declared in both the Info.plist
 	// and at run time. Reflex derives the run-time value from cls.type.
@@ -202,23 +213,27 @@ Reflex::System::AudioPlugin::Configuration::Class _PRODUCT-NAME-SYMBOL_::Instanc
 	REFLEX_STATIC_ASSERT(kAudioUnitType == CC32(REFLEX_STRINGIFY(AU_TYPE_4CC)));
 #endif
 
-	cls.audiounit.company_4cc = CC32("_VENDOR-4CC_");
-
-	cls.audiounit.uid_4cc = CC32("_PRODUCT-4CC_");
-
 
 	return cls;
 }
 
-Reflex::TRef <Reflex::Bootstrap::AudioPlugin::ParamDefs> _PRODUCT-NAME-SYMBOL_::Instance::CreateParamDefs()
+void _PRODUCT-NAME-SYMBOL_::Instance::PopulateParameters(const Class & cls, ArrayRegion < Pair <Key32, ConstReference <ParamDesc> > > paramdefs)
 {
-	using ParamDesc = Bootstrap::ParamDesc;
+	UInt idx = 0;
 
-	auto paramdefs = New<Bootstrap::AudioPlugin::ParamDefs>();
+	auto AddParam = [&paramdefs, &idx](Key32 id, UInt16 change_flags, TRef <ParamDesc> desc)
+	{
+		desc->change_flags = change_flags;
 
-	auto freq = ParamDesc::CreateReal("Freq", 100.0f, 1000.0f, 0.0f, 0.0f);
+		paramdefs[idx++] = { id, desc };
 
-	freq->to_string = [](Bootstrap::Value32 value)
+		return desc;
+	};
+
+
+	AddParam("mode", kParameterGroupMode, ParamDesc::CreateEnum("Mode", { "Sine", "Square" }, 0));
+
+	AddParam("freq", kParameterGroupOsc, ParamDesc::CreateReal("Freq", 100.0f, 1000.0f, 0.0f, 0.0f))->to_string = [](Bootstrap::Value32 value)
 	{
 		if (value.fvalue >= 1000.0f)
 		{
@@ -230,15 +245,12 @@ Reflex::TRef <Reflex::Bootstrap::AudioPlugin::ParamDefs> _PRODUCT-NAME-SYMBOL_::
 		}
 	};
 
-	paramdefs->value.Append
-	({
-		{ MakeKey32("mode"), ParamDesc::CreateEnum("Mode", { "Sine", "Square" }, 0) },
-		{ MakeKey32("freq"), freq },
-		{ MakeKey32("amp"), ParamDesc::CreateReal("Amp", 0.0f, 1.0f, 0.0f, 0.0f) },
-		{ MakeKey32("fx"), ParamDesc::CreateBool("FX", false) },
-	});
+	AddParam("amp", kParameterGroupOsc, ParamDesc::CreateReal("Amp", 0.0f, 1.0f, 0.0f, 0.0f));
 
-	return paramdefs;
+	AddParam("fx", kParameterGroupMode, ParamDesc::CreateBool("FX", false));
+
+
+	REFLEX_ASSERT(idx == paramdefs.size);
 }
 
 Reflex::TRef <_PRODUCT-NAME-SYMBOL_::Instance> _PRODUCT-NAME-SYMBOL_::Instance::Create(System::AudioPlugin & instance)

@@ -29,10 +29,11 @@ Reflex::Bootstrap::ParamDesc & Reflex::Bootstrap::ParamDesc::null = Reflex::Boot
 Reflex::Bootstrap::AudioPlugin::Parameters::Parameters(AudioPlugin & instance)
 	: Streamable(instance.session, MakeKey32("parameters"), 1)
 	, instance(instance)
-	, paramdefs(global->QueryProperty<ParamDefs>(MakeKey32("bootstrap.paramdefs")))
+	, paramdefs(global->QueryProperty<Detail::ParamDefsProperty>(MakeKey32("bootstrap.paramdefs")))
 	, info(paramdefs->value.GetSize())
 	, ids(info.GetSize())
 	, values(info.GetSize())
+	, all_change_flags(0)
 {
 	auto & defs = paramdefs->value;
 
@@ -43,12 +44,16 @@ Reflex::Bootstrap::AudioPlugin::Parameters::Parameters(AudioPlugin & instance)
 		ids[idx] = paramdef.a;
 
 		info[idx] = paramdef.b;
+
+		all_change_flags |= paramdef.b->change_flags;
 	}
 }
 
 void Reflex::Bootstrap::AudioPlugin::Parameters::OnReset(Key32 context)
 {
 	REFLEX_LOOP(idx, values.GetSize()) values[idx] = info[idx]->init_value;
+
+	REFLEX_ATOMIC_OR(instance.m_atomic_change_flags, all_change_flags);
 
 	instance.ScheduleReportChanges(System::AudioPlugin::kChangeParameterValues);
 
@@ -75,6 +80,8 @@ void Reflex::Bootstrap::AudioPlugin::Parameters::OnRestore(Data::Archive::View &
 
 			MemCopy(pdata + bytesize32, pvalues, bytesize32);
 
+			REFLEX_ATOMIC_OR(instance.m_atomic_change_flags, all_change_flags);
+
 			instance.ScheduleReportChanges(System::AudioPlugin::kChangeParameterValues);
 
 			instance.Notify(false);
@@ -97,6 +104,8 @@ void Reflex::Bootstrap::AudioPlugin::Parameters::OnRestore(Data::Archive::View &
 	{
 		*pvalues++ = *values.Search(*pid, &(*pinfos++)->init_value);
 	}
+
+	REFLEX_ATOMIC_OR(instance.m_atomic_change_flags, all_change_flags);
 
 	instance.ScheduleReportChanges(System::AudioPlugin::kChangeParameterValues);
 
@@ -126,9 +135,12 @@ Reflex::Bootstrap::AudioPlugin::AudioPlugin(System::AudioPlugin & system, UInt32
 		}
 	}))
 	, m_report_changes_flags(0)
+	, m_atomic_change_flags(0)
 	, m_automating(0)
 {
 	System::AudioPlugin::Callbacks::Publish(*this);
+
+	REFLEX_ATOMIC_OR(m_atomic_change_flags, m_parameters.all_change_flags);
 	
 	if (!IsPlugin()) Detail::RestoreStandaloneAudioApp(global, instance);
 }
@@ -168,7 +180,11 @@ Reflex::Float32 Reflex::Bootstrap::AudioPlugin::OnGetParameterValue(UInt idx) co
 
 void Reflex::Bootstrap::AudioPlugin::OnSetParameterValue(UInt idx, Float32 value)
 {
-	m_parameters.values[idx] = Expand(m_parameters.info[idx], value);
+	auto & desc = *m_parameters.info[idx];
+
+	m_parameters.values[idx] = Expand(desc, value);
+
+	REFLEX_ATOMIC_OR(m_atomic_change_flags, UInt32(desc.change_flags));
 
 	Notify(true);
 }
@@ -195,9 +211,7 @@ Reflex::FunctionPointer <void(Reflex::System::AudioPlugin::Callbacks&,Reflex::UI
 			{
 				if (i.type == System::AudioPlugin::Event::kTypeAutomation)
 				{
-					self->m_parameters.values[i.idx] = Expand(self->m_parameters.info[i.idx], i.value.f32);
-
-					self->Notify(true);
+					self->OnSetParameterValue(i.idx, i.value.f32);
 				}
 			}
 
@@ -205,7 +219,7 @@ Reflex::FunctionPointer <void(Reflex::System::AudioPlugin::Callbacks&,Reflex::UI
 
 			events_out_buffer.Clear();
 
-			self->OnProcessRt(samples, *self->m_events_in, events_out_buffer, self->m_audio_in, self->m_audio_out);
+			self->OnProcessRt(samples, REFLEX_ATOMIC_POLL(self->m_atomic_change_flags), *self->m_events_in, events_out_buffer, self->m_audio_in, self->m_audio_out);
 
 			self->m_events_out->events = events_out_buffer;
 		};

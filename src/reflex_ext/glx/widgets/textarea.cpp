@@ -10,7 +10,9 @@ REFLEX_BEGIN_INTERNAL(Reflex::GLX)
 
 TRef <TextEditBehaviour> InitialiseTextArea(TextArea & textedit, bool multi_line, Key32 textid)
 {
-	auto content = textedit.GetContent();
+	auto content = New<Object>();
+
+	textedit.SetContent(content);
 
 	content->SetProperty(textid, New<Text>(multi_line));
 

@@ -268,12 +268,12 @@ void Reflex::GLX::MenuImpl::OnSetStyle(const GLX::Style & style)
 {
 	m_cstyle = Detail::Compile<ComputedStyle>(style);
 
-	Scroller::OnSetStyle(style);
+	ScrollArea::OnSetStyle(style);
 }
 
 bool Reflex::GLX::MenuImpl::OnEvent(Object & src, Event & e)
 {
-	constexpr auto RevealAndFocus = [](Scroller & menu, Object * item, bool down)
+	constexpr auto RevealAndFocus = [](ScrollArea & menu, Object * item, bool down)
 	{
 		if (item)
 		{
@@ -437,7 +437,7 @@ bool Reflex::GLX::MenuImpl::OnEvent(Object & src, Event & e)
 		return true;
 	}
 
-	return Scroller::OnEvent(src, e);
+	return ScrollArea::OnEvent(src, e);
 }
 
 void Reflex::GLX::MenuImpl::OnAttachWindow()
@@ -474,7 +474,7 @@ void Reflex::GLX::MenuImpl::OnAttachWindow()
 
 	//support popup handler
 
-	GLX::Scroller::OnAttachWindow();
+	GLX::ScrollArea::OnAttachWindow();
 
 
 	//display
@@ -505,7 +505,7 @@ void Reflex::GLX::MenuImpl::OnDetachWindow()
 
 	CloseSubMenu(*this);
 
-	GLX::Scroller::OnDetachWindow();
+	GLX::ScrollArea::OnDetachWindow();
 }
 
 Reflex::GLX::MenuImpl::ComputedStyle::ComputedStyle()

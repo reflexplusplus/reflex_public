@@ -90,7 +90,7 @@ TRef <Object> FindSplitTarget(Object & self, Point mousepos)
 
 			const Float sum = near_far.a + near_far.b;
 
-			bool resize = Data::GetBool(object, kresize);
+			bool resize = Data::GetBool(object, kresizable);
 
 			if (target || flex || !resize)	//skip test
 			{

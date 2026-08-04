@@ -23,7 +23,7 @@ namespace Reflex::File
 
 class Reflex::File::ResourcePool :
 	public Object,
-	public State
+	public StateMt
 {
 public:
 

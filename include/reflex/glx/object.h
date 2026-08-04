@@ -139,7 +139,7 @@ public:
 
 	void SetMod(Key32 id, TRef <Detail::ComputedStyle> cstyle);
 
-	void ClearMod(Key32 id);
+	void UnsetMod(Key32 id);
 
 	ConstTRef <Detail::ComputedStyle> GetMod(Key32 id) const;
 

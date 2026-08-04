@@ -56,7 +56,7 @@ ViewImpl::ViewImpl(Instance & instance)
 	: View(instance, kChunkVersion, L":res:_PRODUCT-NAME-SYMBOL_/styles.glx")
 	, instance(instance)
 {
-	Data::SetBool(*this, GLX::kresize, false);	//set to true for resizable window
+	Data::SetBool(*this, GLX::kresizable, false);	//set to true for resizable window
 
 	GLX::AddInline(m_header, m_popup, GLX::kOrientationCenter);
 

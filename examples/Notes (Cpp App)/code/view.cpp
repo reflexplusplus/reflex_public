@@ -66,7 +66,7 @@ private:
 
 	GLX::List m_list;
 
-	GLX::Scroller m_list_scroller;
+	GLX::ScrollArea m_list_scroller;
 
 	GLX::Button m_add_note;
 
@@ -91,9 +91,9 @@ ViewImpl::ViewImpl(App & app)
 	m_ide(L"Console"),
 	m_textarea(true)
 {
-	Data::SetBool(*this, GLX::kresize, true);
+	Data::SetBool(*this, GLX::kresizable, true);
 
-	Data::SetBool(m_left, GLX::kresize, true);
+	Data::SetBool(m_left, GLX::kresizable, true);
 
 	GLX::SetFlow(m_left, GLX::kFlowY);
 

@@ -1,0 +1,779 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 56;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		178098122D75F24A00D6D2B0 /* ios_app.mm in Sources */ = {isa = PBXBuildFile; fileRef = 178098112D75F24A00D6D2B0 /* ios_app.mm */; };
+		178098142D75F25600D6D2B0 /* ios_audioapp.mm in Sources */ = {isa = PBXBuildFile; fileRef = 178098132D75F25600D6D2B0 /* ios_audioapp.mm */; };
+		17D26D6D2C36369800B47015 /* file.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 17D26D642C36369800B47015 /* file.cpp */; };
+		17D26D6F2C36369800B47015 /* core.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 17D26D662C36369800B47015 /* core.cpp */; };
+		17D26D712C36369800B47015 /* data.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 17D26D682C36369800B47015 /* data.cpp */; };
+		17D26D732C36369800B47015 /* vec.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 17D26D6A2C36369800B47015 /* vec.cpp */; };
+		17D26D782C36371200B47015 /* glx.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 17D26D762C3636D100B47015 /* glx.cpp */; };
+		17D26D7A2C36372D00B47015 /* vm.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 17D26D672C36369800B47015 /* vm.cpp */; };
+		17D26D7B2C36373200B47015 /* vm_ui.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 17D26D6C2C36369800B47015 /* vm_ui.cpp */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		17D26D242C36351300B47015 /* Copy Files */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "include/$(PRODUCT_NAME)";
+			dstSubfolderSpec = 16;
+			files = (
+			);
+			name = "Copy Files";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		17D26D362C36356F00B47015 /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "include/$(PRODUCT_NAME)";
+			dstSubfolderSpec = 16;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		17D26D402C36359000B47015 /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "include/$(PRODUCT_NAME)";
+			dstSubfolderSpec = 16;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		17D26D4A2C36359900B47015 /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "include/$(PRODUCT_NAME)";
+			dstSubfolderSpec = 16;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		17D26D5E2C36364500B47015 /* Copy Files */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "include/$(PRODUCT_NAME)";
+			dstSubfolderSpec = 16;
+			files = (
+			);
+			name = "Copy Files";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		1A1B61EB2D66A75200C75B7F /* Copy Files */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "include/$(PRODUCT_NAME)";
+			dstSubfolderSpec = 16;
+			files = (
+			);
+			name = "Copy Files";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		178098112D75F24A00D6D2B0 /* ios_app.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; name = ios_app.mm; path = ../../../src/reflex/system/ios_app.mm; sourceTree = "<group>"; };
+		178098132D75F25600D6D2B0 /* ios_audioapp.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; name = ios_audioapp.mm; path = ../../../src/reflex/system/ios_audioapp.mm; sourceTree = "<group>"; };
+		1781144E2C3654F300E9C968 /* include */ = {isa = PBXFileReference; lastKnownFileType = folder; name = include; path = ../../../include; sourceTree = "<group>"; };
+		1781144F2C3654F900E9C968 /* src */ = {isa = PBXFileReference; lastKnownFileType = folder; name = src; path = ../../../src; sourceTree = "<group>"; };
+		17D26D262C36351300B47015 /* libReflexCommon.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libReflexCommon.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		17D26D3B2C36356F00B47015 /* libReflexCommonUi.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libReflexCommonUi.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		17D26D452C36359000B47015 /* libReflexCommonVm.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libReflexCommonVm.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		17D26D4F2C36359900B47015 /* libReflexCommonVmUi.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libReflexCommonVmUi.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		17D26D632C36364500B47015 /* libReflexTargetApp.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libReflexTargetApp.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		17D26D642C36369800B47015 /* file.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = file.cpp; path = ../../../src/reflex/file.cpp; sourceTree = "<group>"; };
+		17D26D662C36369800B47015 /* core.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = core.cpp; path = ../../../src/reflex/core.cpp; sourceTree = "<group>"; };
+		17D26D672C36369800B47015 /* vm.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = vm.cpp; path = ../../../src/reflex/vm.cpp; sourceTree = "<group>"; };
+		17D26D682C36369800B47015 /* data.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = data.cpp; path = ../../../src/reflex/data.cpp; sourceTree = "<group>"; };
+		17D26D6A2C36369800B47015 /* vec.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = vec.cpp; path = ../../../src/reflex/vec.cpp; sourceTree = "<group>"; };
+		17D26D6C2C36369800B47015 /* vm_ui.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = vm_ui.cpp; path = ../../../src/reflex/vm_ui.cpp; sourceTree = "<group>"; };
+		17D26D762C3636D100B47015 /* glx.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = glx.cpp; path = ../../../src/reflex/glx.cpp; sourceTree = "<group>"; };
+		1A1B61EF2D66A75200C75B7F /* libReflexTargetAudioApp.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libReflexTargetAudioApp.a; sourceTree = BUILT_PRODUCTS_DIR; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		17D26D232C36351300B47015 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		17D26D352C36356F00B47015 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		17D26D3F2C36359000B47015 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		17D26D492C36359900B47015 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		17D26D5D2C36364500B47015 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		1A1B61EA2D66A75200C75B7F /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		17D26D1D2C36351300B47015 = {
+			isa = PBXGroup;
+			children = (
+				1781144F2C3654F900E9C968 /* src */,
+				1781144E2C3654F300E9C968 /* include */,
+				17D26D662C36369800B47015 /* core.cpp */,
+				17D26D682C36369800B47015 /* data.cpp */,
+				17D26D642C36369800B47015 /* file.cpp */,
+				17D26D762C3636D100B47015 /* glx.cpp */,
+				17D26D6A2C36369800B47015 /* vec.cpp */,
+				17D26D672C36369800B47015 /* vm.cpp */,
+				17D26D6C2C36369800B47015 /* vm_ui.cpp */,
+				178098112D75F24A00D6D2B0 /* ios_app.mm */,
+				178098132D75F25600D6D2B0 /* ios_audioapp.mm */,
+				17D26D272C36351300B47015 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		17D26D272C36351300B47015 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				17D26D262C36351300B47015 /* libReflexCommon.a */,
+				17D26D3B2C36356F00B47015 /* libReflexCommonUi.a */,
+				17D26D452C36359000B47015 /* libReflexCommonVm.a */,
+				17D26D4F2C36359900B47015 /* libReflexCommonVmUi.a */,
+				17D26D632C36364500B47015 /* libReflexTargetApp.a */,
+				1A1B61EF2D66A75200C75B7F /* libReflexTargetAudioApp.a */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		17D26D252C36351300B47015 /* ReflexCommon */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 17D26D2F2C36351300B47015 /* Build configuration list for PBXNativeTarget "ReflexCommon" */;
+			buildPhases = (
+				17D26D222C36351300B47015 /* Sources */,
+				17D26D232C36351300B47015 /* Frameworks */,
+				17D26D242C36351300B47015 /* Copy Files */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = ReflexCommon;
+			productName = "Reflex-iOS";
+			productReference = 17D26D262C36351300B47015 /* libReflexCommon.a */;
+			productType = "com.apple.product-type.library.static";
+		};
+		17D26D322C36356F00B47015 /* ReflexCommonUi */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 17D26D382C36356F00B47015 /* Build configuration list for PBXNativeTarget "ReflexCommonUi" */;
+			buildPhases = (
+				17D26D332C36356F00B47015 /* Sources */,
+				17D26D352C36356F00B47015 /* Frameworks */,
+				17D26D362C36356F00B47015 /* CopyFiles */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = ReflexCommonUi;
+			productName = "Reflex-iOS";
+			productReference = 17D26D3B2C36356F00B47015 /* libReflexCommonUi.a */;
+			productType = "com.apple.product-type.library.static";
+		};
+		17D26D3C2C36359000B47015 /* ReflexCommonVm */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 17D26D422C36359000B47015 /* Build configuration list for PBXNativeTarget "ReflexCommonVm" */;
+			buildPhases = (
+				17D26D3D2C36359000B47015 /* Sources */,
+				17D26D3F2C36359000B47015 /* Frameworks */,
+				17D26D402C36359000B47015 /* CopyFiles */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = ReflexCommonVm;
+			productName = "Reflex-iOS";
+			productReference = 17D26D452C36359000B47015 /* libReflexCommonVm.a */;
+			productType = "com.apple.product-type.library.static";
+		};
+		17D26D462C36359900B47015 /* ReflexCommonVmUi */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 17D26D4C2C36359900B47015 /* Build configuration list for PBXNativeTarget "ReflexCommonVmUi" */;
+			buildPhases = (
+				17D26D472C36359900B47015 /* Sources */,
+				17D26D492C36359900B47015 /* Frameworks */,
+				17D26D4A2C36359900B47015 /* CopyFiles */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = ReflexCommonVmUi;
+			productName = "Reflex-iOS";
+			productReference = 17D26D4F2C36359900B47015 /* libReflexCommonVmUi.a */;
+			productType = "com.apple.product-type.library.static";
+		};
+		17D26D5A2C36364500B47015 /* ReflexTargetApp */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 17D26D602C36364500B47015 /* Build configuration list for PBXNativeTarget "ReflexTargetApp" */;
+			buildPhases = (
+				17D26D5B2C36364500B47015 /* Sources */,
+				17D26D5D2C36364500B47015 /* Frameworks */,
+				17D26D5E2C36364500B47015 /* Copy Files */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = ReflexTargetApp;
+			productName = "Reflex-iOS";
+			productReference = 17D26D632C36364500B47015 /* libReflexTargetApp.a */;
+			productType = "com.apple.product-type.library.static";
+		};
+		1A1B61E72D66A75200C75B7F /* ReflexTargetAudioApp */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 1A1B61EC2D66A75200C75B7F /* Build configuration list for PBXNativeTarget "ReflexTargetAudioApp" */;
+			buildPhases = (
+				1A1B61E82D66A75200C75B7F /* Sources */,
+				1A1B61EA2D66A75200C75B7F /* Frameworks */,
+				1A1B61EB2D66A75200C75B7F /* Copy Files */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = ReflexTargetAudioApp;
+			productName = "Reflex-iOS";
+			productReference = 1A1B61EF2D66A75200C75B7F /* libReflexTargetAudioApp.a */;
+			productType = "com.apple.product-type.library.static";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		17D26D1E2C36351300B47015 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastUpgradeCheck = 1620;
+				TargetAttributes = {
+					17D26D252C36351300B47015 = {
+						CreatedOnToolsVersion = 15.3;
+					};
+				};
+			};
+			buildConfigurationList = 17D26D212C36351300B47015 /* Build configuration list for PBXProject "Reflex-iOS" */;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = 17D26D1D2C36351300B47015;
+			productRefGroup = 17D26D272C36351300B47015 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				17D26D252C36351300B47015 /* ReflexCommon */,
+				17D26D322C36356F00B47015 /* ReflexCommonUi */,
+				17D26D3C2C36359000B47015 /* ReflexCommonVm */,
+				17D26D462C36359900B47015 /* ReflexCommonVmUi */,
+				17D26D5A2C36364500B47015 /* ReflexTargetApp */,
+				1A1B61E72D66A75200C75B7F /* ReflexTargetAudioApp */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXSourcesBuildPhase section */
+		17D26D222C36351300B47015 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				17D26D6D2C36369800B47015 /* file.cpp in Sources */,
+				17D26D732C36369800B47015 /* vec.cpp in Sources */,
+				17D26D712C36369800B47015 /* data.cpp in Sources */,
+				17D26D6F2C36369800B47015 /* core.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		17D26D332C36356F00B47015 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				17D26D782C36371200B47015 /* glx.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		17D26D3D2C36359000B47015 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				17D26D7A2C36372D00B47015 /* vm.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		17D26D472C36359900B47015 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				17D26D7B2C36373200B47015 /* vm_ui.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		17D26D5B2C36364500B47015 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				178098122D75F24A00D6D2B0 /* ios_app.mm in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		1A1B61E82D66A75200C75B7F /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				178098142D75F25600D6D2B0 /* ios_audioapp.mm in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		17856DD22E211EF900033875 /* Debug-withDsym */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				BUILD_LIBRARY_FOR_DISTRIBUTION = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++20";
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				EXCLUDED_ARCHS = "x86_64 i386";
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_ENABLE_CPP_RTTI = NO;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_LABEL = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				HEADER_SEARCH_PATHS = "../../../src/reflex/glx/ext/freetype-2.9.1/include";
+				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = NO;
+				OTHER_CFLAGS = "-Wno-nullability-completeness";
+				OTHER_LDFLAGS = "-ObjC";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGET_BUILD_DIR = "$(SRCROOT)/../../../bin/lib/ios/$(CONFIGURATION)-$(PLATFORM_NAME)";
+				USER_HEADER_SEARCH_PATHS = ../../../include;
+			};
+			name = "Debug-withDsym";
+		};
+		17856DD32E211EF900033875 /* Debug-withDsym */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+			};
+			name = "Debug-withDsym";
+		};
+		17856DD42E211EF900033875 /* Debug-withDsym */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+			};
+			name = "Debug-withDsym";
+		};
+		17856DD52E211EF900033875 /* Debug-withDsym */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+			};
+			name = "Debug-withDsym";
+		};
+		17856DD62E211EF900033875 /* Debug-withDsym */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+			};
+			name = "Debug-withDsym";
+		};
+		17856DD72E211EF900033875 /* Debug-withDsym */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+			};
+			name = "Debug-withDsym";
+		};
+		17856DD82E211EF900033875 /* Debug-withDsym */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"REFLEX_SYSTEM_AUDIO=1",
+				);
+			};
+			name = "Debug-withDsym";
+		};
+		17D26D2D2C36351300B47015 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				BUILD_LIBRARY_FOR_DISTRIBUTION = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++20";
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				EXCLUDED_ARCHS = "x86_64 i386";
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_ENABLE_CPP_RTTI = NO;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_LABEL = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				HEADER_SEARCH_PATHS = "../../../src/reflex/glx/ext/freetype-2.9.1/include";
+				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = NO;
+				OTHER_CFLAGS = "-Wno-nullability-completeness";
+				OTHER_LDFLAGS = "-ObjC";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGET_BUILD_DIR = "$(SRCROOT)/../../../bin/lib/ios/$(CONFIGURATION)-$(PLATFORM_NAME)";
+				USER_HEADER_SEARCH_PATHS = ../../../include;
+			};
+			name = Debug;
+		};
+		17D26D2E2C36351300B47015 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				BUILD_LIBRARY_FOR_DISTRIBUTION = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++20";
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				EXCLUDED_ARCHS = "x86_64 i386";
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_ENABLE_CPP_RTTI = NO;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_LABEL = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				HEADER_SEARCH_PATHS = "../../../src/reflex/glx/ext/freetype-2.9.1/include";
+				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = NO;
+				OTHER_CFLAGS = "-Wno-nullability-completeness";
+				OTHER_LDFLAGS = "-ObjC";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGET_BUILD_DIR = "$(SRCROOT)/../../../bin/lib/ios/$(CONFIGURATION)-$(PLATFORM_NAME)";
+				USER_HEADER_SEARCH_PATHS = ../../../include;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		17D26D302C36351300B47015 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+			};
+			name = Debug;
+		};
+		17D26D312C36351300B47015 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+			};
+			name = Release;
+		};
+		17D26D392C36356F00B47015 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+			};
+			name = Debug;
+		};
+		17D26D3A2C36356F00B47015 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+			};
+			name = Release;
+		};
+		17D26D432C36359000B47015 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+			};
+			name = Debug;
+		};
+		17D26D442C36359000B47015 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+			};
+			name = Release;
+		};
+		17D26D4D2C36359900B47015 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+			};
+			name = Debug;
+		};
+		17D26D4E2C36359900B47015 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+			};
+			name = Release;
+		};
+		17D26D612C36364500B47015 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+			};
+			name = Debug;
+		};
+		17D26D622C36364500B47015 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+			};
+			name = Release;
+		};
+		1A1B61ED2D66A75200C75B7F /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"REFLEX_SYSTEM_AUDIO=1",
+				);
+			};
+			name = Debug;
+		};
+		1A1B61EE2D66A75200C75B7F /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"REFLEX_SYSTEM_AUDIO=1",
+				);
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		17D26D212C36351300B47015 /* Build configuration list for PBXProject "Reflex-iOS" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				17D26D2D2C36351300B47015 /* Debug */,
+				17856DD22E211EF900033875 /* Debug-withDsym */,
+				17D26D2E2C36351300B47015 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		17D26D2F2C36351300B47015 /* Build configuration list for PBXNativeTarget "ReflexCommon" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				17D26D302C36351300B47015 /* Debug */,
+				17856DD32E211EF900033875 /* Debug-withDsym */,
+				17D26D312C36351300B47015 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		17D26D382C36356F00B47015 /* Build configuration list for PBXNativeTarget "ReflexCommonUi" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				17D26D392C36356F00B47015 /* Debug */,
+				17856DD42E211EF900033875 /* Debug-withDsym */,
+				17D26D3A2C36356F00B47015 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		17D26D422C36359000B47015 /* Build configuration list for PBXNativeTarget "ReflexCommonVm" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				17D26D432C36359000B47015 /* Debug */,
+				17856DD52E211EF900033875 /* Debug-withDsym */,
+				17D26D442C36359000B47015 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		17D26D4C2C36359900B47015 /* Build configuration list for PBXNativeTarget "ReflexCommonVmUi" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				17D26D4D2C36359900B47015 /* Debug */,
+				17856DD62E211EF900033875 /* Debug-withDsym */,
+				17D26D4E2C36359900B47015 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		17D26D602C36364500B47015 /* Build configuration list for PBXNativeTarget "ReflexTargetApp" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				17D26D612C36364500B47015 /* Debug */,
+				17856DD72E211EF900033875 /* Debug-withDsym */,
+				17D26D622C36364500B47015 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		1A1B61EC2D66A75200C75B7F /* Build configuration list for PBXNativeTarget "ReflexTargetAudioApp" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				1A1B61ED2D66A75200C75B7F /* Debug */,
+				17856DD82E211EF900033875 /* Debug-withDsym */,
+				1A1B61EE2D66A75200C75B7F /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 17D26D1E2C36351300B47015 /* Project object */;
+}

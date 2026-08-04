@@ -35,4 +35,56 @@ namespace Reflex::Bootstrap::Detail
 		#endif
 	}
 
+
+	struct Monitor;		//wrapper for StateMt/State::Monitor
+
 }
+
+
+
+
+
+//
+//Detail::Monitor
+
+struct Reflex::Bootstrap::Detail::Monitor
+{
+	Monitor()
+	{
+		Disconnect();
+	}
+
+	void Connect(const State & state)
+	{
+		m_impl.st.Init(state);
+
+		m_poll = [](Impl & impl)
+		{
+			return impl.st->Poll();
+		};
+	}
+
+	void Connect(const StateMt & state)
+	{
+		m_impl.mt.Init(state);
+
+		m_poll = [](Impl & impl) { return impl.mt->Poll(); };
+	}
+
+	void Disconnect() { m_poll = [](Impl &) { return false; }; }
+
+	bool Poll() { return m_poll(m_impl); }
+
+
+
+private:
+
+	union Impl
+	{
+		Reflex::Detail::Initialiser <State::Monitor> st;
+		Reflex::Detail::Initialiser <StateMt::Monitor> mt;
+	}
+	m_impl;
+
+	FunctionPointer <bool(Impl &)> m_poll;
+};

@@ -585,7 +585,7 @@ BuilderImpl::BuilderImpl()
 
 	GLX::SetFlow(*this, GLX::kFlowY);
 
-	Data::SetBool(*this, GLX::kresize, true);
+	Data::SetBool(*this, GLX::kresizable, true);
 
 	GLX::EnableAutoFit(m_source_selector, false, true);
 

@@ -1,0 +1,272 @@
+REFLEX++ END USER LICENCE AGREEMENT
+
+This Reflex++ End User Licence Agreement ("Agreement") is a legal agreement between you ("Licensee" or "you") and Reflex Multimedia Technologies Ltd., a private limited company registered in England and Wales with company number 14081235 and registered office at 42 Penn Grove, Norwich, England, NR3 3JL ("Company", "Licensor", "we", "us", or "our"). It governs your use of the Reflex++ software framework, tools, runtime, software, documentation, media, and any related materials we make available (collectively, "Reflex++" or the "Framework").
+
+If you are accepting the terms of this Agreement on behalf of a company or other legal entity, you represent and warrant that you have the authority to bind that company or other legal entity to the terms of this Agreement and, in such event, "you" and "Licensee" will refer to that company or other legal entity.
+
+By downloading, installing, accessing, using, or distributing the Framework, or combining the Framework with any other source code, object code, content, or any other copyrightable work, you agree to the terms of this Agreement. If you do not agree to the terms of this Agreement, we do not license the Framework to you and you must discontinue the installation or download process and cease use of the Framework.
+
+
+1. Licensing the Reflex++ Framework
+
+1.1. What the Reflex++ Framework Is
+
+The Reflex++ Framework licensed to you under this Agreement is composed of:
+
+The Reflex++ source code, including any updates or newer versions made available to you under this Agreement, and any object code compiled from that source code.
+Any software applications, tools, editors, command-line tools, utilities, installers, or runtime components we provide in connection with Reflex++.
+The Reflex++ documentation, examples, tutorials, reference materials, and related content.
+Any media associated with the source code, software, and documentation.
+
+1.2. Ownership of the Framework
+
+The Framework is licensed to you, not sold. Ownership does not transfer. Subject to this Agreement, including payment of any applicable fees, we grant you a limited, worldwide, non-exclusive, non-transferable, non-sublicensable licence (a "Licence") to download, install, copy, modify, and execute the Framework only as permitted by this Agreement.
+
+1.3. Products
+
+A product ("Product") is any product, service, application, project, library, plugin, website, hosted service, or other work that is a combination of the Framework with any other source code, object code, content, or any other copyrightable work.
+
+1.4. Ownership of Products
+
+As between you and us, you retain all right, title, and interest in and to your Products, your code, your content, and your other original materials created by you using the Framework, excluding the Framework itself, our trademarks, our documentation, and any other materials owned by us or our licensors. Except to the extent necessary to provide the Framework or any support, and except for any rights expressly granted by you in a separate written agreement, we claim no ownership of your Products, your code, or your content solely by reason of your use of the Framework.
+
+1.5. Rights to Distribute Products
+
+Subject to this Agreement, and in particular Sections 1.6, 1.7, 1.8, and 1.9, you may distribute, sell, and otherwise commercially exploit any Product that you own, including by making the Product or its functionality available to third parties over a network.
+
+You may distribute compiled object code portions of the Framework only where they are incorporated into, and necessary for the operation of, your Product. You may not distribute compiled object code portions of the Framework as a standalone SDK, library, framework, development tool, or reusable component.
+
+1.6. No Sub-licensing or Distribution of the Framework On Its Own
+
+You may not sell, sub-license, rent, lease, loan, assign, transfer, distribute, or otherwise make available the Framework, or any subset of the Framework, on its own except as expressly permitted by a separate written agreement signed by us.
+
+1.7. Product Generators and Generated Software
+
+Without our prior written permission, you may not create, operate, offer as a service, or distribute any Product whose primary purpose is to generate, build, compile, assemble, export, or otherwise create additional software, applications, plugins, games, libraries, frameworks, SDKs, development tools, or other separately distributable products that incorporate, embed, link to, expose, wrap, redistribute, or depend on the Framework, or that require the Framework in order to be developed, built, distributed, or used.
+
+This applies regardless of whether the Product operates through artificial intelligence, a large language model, automated code generation, scripting, visual programming, templates, manually written logic, or any other means.
+
+For the avoidance of doubt, this Section 1.7 does not prohibit a Product from allowing its end users to create, configure, edit, export, or distribute content, presets, instruments, sample libraries, templates, project files, levels, media, assets, configuration data, or other data-driven materials for use with that Product or with other products, provided that such materials do not themselves incorporate, embed, link to, expose, wrap, redistribute, or depend on the Framework as a software framework, runtime, library, SDK, or development tool.
+
+This Section 1.7 does not restrict ordinary end-user content creation, authoring tools, editors, exporters, sample library builders, preset builders, game level editors, media tools, or similar products where the exported output is content or data rather than software that incorporates or depends on the Framework.
+
+If you wish to develop, operate, or distribute a Product that may fall within this Section 1.7, please contact us at legal@reflexplusplus.dev to discuss whether separate written permission or a separate licence arrangement is required.
+
+1.8. Free Licence Restrictions
+
+If you hold a free, trial, evaluation, educational, community, non-commercial, or similar unpaid licence to the Framework, or any licence identified as a free licence on our pricing page at https://reflexplusplus.dev/pricing or in your applicable order (a "Free Licence"), the licence in Section 1.5 does not apply to you.
+
+Under a Free Licence, you may use the Framework solely for internal evaluation, testing, learning, and non-commercial experimentation in order to assess whether to purchase a paid Licence. You may not use a Free Licence to develop, build, prototype, test, maintain, or prepare any Product that is commercial, revenue-generating, for-profit, client-funded, investor-funded, internally business-critical, intended for commercial release, distributed, sold, licensed, monetised, used to provide paid services, used to generate revenue, used to obtain funding, used for client work, used internally by a business for operational purposes, or otherwise used to support commercial activity.
+
+You may not avoid paid Licence fees by developing a Product under a Free Licence and later upgrading to a paid Licence only shortly before release, distribution, sale, deployment, or commercial use. If you intend to develop a commercial or potentially commercial Product using the Framework, you must obtain the appropriate paid Licence before beginning such development.
+
+If you upgrade from a Free Licence to a paid Licence, Section 1.5 applies to you and your Products from the date your paid Licence takes effect. The upgrade does not waive, cure, or authorise any prior use of the Framework that was not permitted under the Free Licence unless we expressly agree otherwise in writing.
+
+1.9. Licence Scope, Seats, and Build Systems
+
+The permitted scope of your licence, including any permitted Products, users, seats, platforms, term, support level, revenue limits, or other restrictions, is as stated in your applicable order, invoice, pricing page, licence certificate, or other written licence confirmation from us.
+
+Unless expressly stated otherwise, a seat means one individual human user who develops, modifies, integrates, builds, tests, debugs, scripts, configures, maintains, or otherwise works with the Framework, whether directly or indirectly.
+
+Use of automated tools, scripts, code generators, artificial intelligence systems, agentic coding systems, continuous integration systems, build servers, deployment systems, or other automated processes does not avoid, reduce, or replace the requirement for each individual human user who operates, directs, prompts, configures, reviews, or uses such systems in connection with the Framework to hold an appropriate seat.
+
+You may install and use the Framework on automated build systems, continuous integration systems, deployment systems, and similar non-human automated infrastructure solely for building, testing, packaging, and deploying your permitted Products. Such automated infrastructure does not itself require an additional seat, provided it is not used by or for unlicensed human users and is not used to provide access to the Framework outside the scope of your licence.
+
+Where your licence is subscription-based, you must maintain the required active licence seats for all individual human users who develop, modify, integrate, build, test, debug, script, configure, maintain, support, update, or otherwise work with the Framework or any Product that depends on the Framework. Unless your applicable order, invoice, pricing page, licence certificate, or other written licence confirmation states otherwise, your licence is based on the number of permitted users and applicable licence scope, not on ownership of a Product alone.
+
+1.10. Ownership of Reflex++ IP
+
+As between you and us, all intellectual property rights in and to the Framework belong to us or our licensors. This includes the Reflex++ source code, object code, runtime components, libraries, tools, documentation, examples, trade names, trademarks, logos, visual assets, and related goodwill.
+
+Your use of the Framework, and any modification, adaptation, patch, fix, improvement, extension, port, configuration, or other change made by or for you to the Framework, does not transfer to you any ownership of the Framework or any part of it.
+
+You may own your own original modifications, patches, fixes, improvements, extensions, ports, configurations, or other changes to the extent they are created by or for you and are legally capable of separate ownership. That does not give you any ownership of the Framework itself or any right to distribute the Framework other than as expressly permitted by this Agreement.
+
+Except for the limited licence expressly granted under this Agreement, you receive no right, title, or interest in the Framework.
+
+1.11. Feedback and Contributions
+
+If you provide suggestions, ideas, enhancement requests, recommendations, bug reports, or other feedback relating to the Framework ("Feedback"), you grant us a perpetual, irrevocable, worldwide, transferable, sublicensable, royalty-free licence to use and exploit that Feedback for any purpose without restriction, payment, or attribution.
+
+Unless we expressly agree otherwise in a separate written agreement, you may not submit code or other material for inclusion in the Framework on terms that impose any condition, restriction, or obligation on us beyond this Agreement. We may require a separate contributor licence agreement, assignment, or other written terms before accepting any contribution.
+
+If you submit any code, patch, fix, improvement, extension, port, documentation, or other material to us for possible inclusion in the Framework, you represent that you have the right to do so and that your submission does not infringe any third-party rights.
+
+We may review, accept, reject, merge, maintain, publish, distribute, support, or otherwise use any Feedback or contribution in our sole discretion. You have no right to require that we do so, and no submission creates any obligation on our part.
+
+1.12. Child-Directed Products and Child Protection Compliance
+
+You may not use the Framework in connection with any Product that is directed towards children, intended for use by children, likely to be accessed by children, or that knowingly collects, processes, stores, or transmits personal data relating to children, unless you fully comply with all applicable child protection, privacy, online safety, consumer protection, advertising, platform, and app store requirements.
+
+This includes, where applicable, COPPA, UK GDPR, GDPR, the UK Age Appropriate Design Code, and any similar laws, regulations, codes of practice, industry rules, or platform requirements relating to children or children's data.
+
+You are fully responsible for determining whether your Product is subject to any such requirements. You are fully liable for, and will defend, hold harmless, and indemnify us and our affiliates against, any and all liability arising from or relating to any child-directed Product, any Product likely to be accessed by children, any processing of children's data, or any actual or alleged breach of applicable child protection, privacy, online safety, consumer protection, advertising, platform, or app store requirements.
+
+
+2. Licensing Restrictions
+
+The following restrictions apply to you:
+
+2.1. not to copy the Framework, in whole or in part, except where copying is incidental to normal use of the Framework or reasonably necessary for back-up, development, or internal archival records;
+
+2.2. not to rent, lease, sub-license, loan, publish, sell, resell, assign, transfer, or otherwise commercially exploit the Framework except as expressly permitted by this Agreement;
+
+2.3. not to take any action that would cause the Framework to become subject to any open source, copyleft, or similar licence that, as a condition of use, modification, or distribution, would require that the Framework or any software combined or distributed with it be:
+- disclosed or distributed in source code form;
+- licensed for the purpose of making derivative works; or
+- redistributable at no charge;
+
+2.4. not to disassemble, decompile, reverse engineer, or otherwise attempt to derive or gain access to the source code, internal structure, algorithms, file formats, protocols, or implementation details of any object code, binary, compiled library, runtime component, tool, or other closed-source portion of the Framework, in whole or in part, except and only to the extent that such activity cannot lawfully be excluded under applicable law;
+
+2.5. not to create derivative works based on the Framework except to the extent expressly permitted under this Agreement, including modifications to any source code portions of the Framework that we have provided to you for use with your Products;
+
+2.6. not to remove, delete, obscure, or alter any copyright, trade mark, patent, or other proprietary notices included in or displayed by the Framework;
+
+2.7. not to use the Framework in connection with anything that infringes, misappropriates, or violates any third-party right, including any intellectual property, property, privacy, contractual, or other proprietary right, or for any illegal, fraudulent, deceptive, abusive, or harmful purpose;
+
+2.8. to comply with all applicable laws, regulations, and industry obligations in connection with your use, distribution, and operation of any Product, including privacy, data protection, consumer protection, accessibility, advertising, export control, and sanctions laws;
+
+2.9. not to use the Framework in connection with any safety-critical, life-critical, medical, emergency response, military targeting, or other use where failure of the Framework could reasonably be expected to lead to death, personal injury, severe property damage, or environmental harm;
+
+2.10. not to represent that we endorse, certify, review, or approve your Product unless we have expressly agreed to do so in writing;
+
+2.11. not otherwise use, copy, transfer, distribute, or exploit the Framework or any part of it except as expressly permitted by this Agreement; and
+
+2.12. not to use, export, re-export, transfer, provide access to, or make available the Framework in violation of any applicable export control, sanctions, trade restriction, or similar laws or regulations.
+
+
+3. Fees
+
+3.1. Where you purchase or subscribe to a paid licence for the Framework, you must pay the applicable fees as communicated by us at the time of purchase or renewal.
+
+3.2. We reserve the right to change fees for paid licences or subscriptions from time to time. Where required by applicable law, we will give advance notice of any such change.
+
+3.3. Payment obligations are non-cancellable and, except where applicable law requires otherwise, fees are non-refundable.
+
+3.4. All fees payable under this Agreement are exclusive of VAT, GST, sales taxes, use taxes, withholding taxes, or any similar taxes, duties, or levies, for which you are responsible.
+
+
+4. Support
+
+4.1. We have no obligation to provide support, maintenance, updates, upgrades, patches, security fixes, compatibility fixes, or other services to you unless we expressly agree otherwise in writing.
+
+4.2. Nothing in this Agreement requires us to provide new major, minor, or patch versions of the Framework.
+
+
+5. Intellectual Property Rights
+
+5.1. You acknowledge that all intellectual property rights in the Framework, and in all copies of it, belong to us or our licensors worldwide. Except for the limited rights expressly granted under this Agreement, you receive no rights in the Framework.
+
+5.2. The ownership allocations in Sections 1.4 and 1.10 apply throughout this Agreement.
+
+5.3. The feedback and contribution terms in Section 1.11 apply throughout this Agreement.
+
+5.4. Names, Logos, Trademarks, and Product References
+
+You may not use our names, logos, trade marks, service marks, branding, or other identifiers except to make truthful, non-misleading statements that your Product was developed using Reflex++, or as otherwise expressly permitted by us in writing.
+
+If you publicly release, publish, promote, distribute, sell, or otherwise make available a Product developed using the Framework under a Free Licence or under any Licence identified as the "Studio" tier, we may make a factual reference to that Product as having been built with or developed using Reflex++ in our websites, marketing materials, customer lists, presentations, and similar promotional materials.
+
+Any such reference will be limited to publicly available information, such as your publicly used business name, trading name, product name, product logo, website, screenshots, and publicly available product descriptions. We will not state or imply that you endorse us, that we endorse you or your Product, or that any partnership, sponsorship, certification, review, approval, or special relationship exists between us unless separately agreed in writing.
+
+You may opt out of such references by contacting us at legal@reflexplusplus.dev, and we will use reasonable efforts to remove the reference within a commercially reasonable time.
+
+
+6. Disclaimer of Warranty
+
+6.1. THE FRAMEWORK IS PROVIDED "AS IS", "WITH ALL FAULTS", AND "AS AVAILABLE", AT YOUR SOLE RISK, AND WITHOUT WARRANTY OF ANY KIND. TO THE MAXIMUM EXTENT PERMITTED BY LAW, WE DISCLAIM ALL CONDITIONS, WARRANTIES, REPRESENTATIONS, AND OTHER TERMS, WHETHER EXPRESS, IMPLIED, STATUTORY, OR OTHERWISE, INCLUDING ANY IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, TITLE, QUIET ENJOYMENT, NON-INFRINGEMENT, SATISFACTORY QUALITY, ACCURACY, RESULTS, SECURITY, RELIABILITY, AVAILABILITY, OR THAT THE FRAMEWORK OR ANY PRODUCTS WILL BE UNINTERRUPTED, ERROR-FREE, OR FREE OF HARMFUL COMPONENTS.
+
+6.2. YOU ACKNOWLEDGE THAT THE FRAMEWORK HAS NOT BEEN DEVELOPED TO MEET YOUR INDIVIDUAL REQUIREMENTS OR THE REQUIREMENTS OF YOUR USERS, INCLUDING ANY LEGAL, REGULATORY, SECURITY, ACCESSIBILITY, OR CYBERSECURITY REQUIREMENTS THAT MAY APPLY TO YOU OR YOUR PRODUCTS, AND THAT IT IS THEREFORE YOUR RESPONSIBILITY TO ENSURE THAT THE FACILITIES AND FUNCTIONS OF THE FRAMEWORK MEET YOUR REQUIREMENTS.
+
+
+7. Limitation of Liability and Indemnification
+
+7.1. TO THE MAXIMUM EXTENT PERMITTED BY LAW, NEITHER WE NOR OUR PARENT COMPANIES, SUBSIDIARIES, AFFILIATES, LICENSORS, EMPLOYEES, DIRECTORS, OFFICERS, CONTRACTORS, REPRESENTATIVES, OR PARTNERS WILL BE LIABLE TO YOU, WHETHER IN CONTRACT, TORT (INCLUDING NEGLIGENCE), BREACH OF STATUTORY DUTY, OR OTHERWISE, ARISING UNDER OR IN CONNECTION WITH THIS AGREEMENT, THE FRAMEWORK, OR ANY PRODUCT, FOR:
+- LOSS OF PROFITS, SALES, BUSINESS, REVENUE, OR ANTICIPATED SAVINGS;
+- BUSINESS INTERRUPTION OR LOSS OF BUSINESS OPPORTUNITY;
+- LOSS, CORRUPTION, DISCLOSURE, OR INACCURACY OF CONTENT, DATA, OR INFORMATION;
+- LOSS OF GOODWILL OR REPUTATION;
+- COMPUTER FAILURE OR MALFUNCTION, SECURITY BREACH, DATA LOSS, FILE CORRUPTION, OR OTHER COMMERCIAL DAMAGE OR LOSS; OR
+- ANY INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, PUNITIVE, OR CONSEQUENTIAL LOSS OR DAMAGE.
+
+7.2. Nothing in this Agreement limits or excludes our liability for:
+- death or personal injury resulting from our negligence;
+- fraud or fraudulent misrepresentation; or
+- any other liability that cannot be excluded or limited by law.
+
+7.3. Subject to Sections 7.1 and 7.2, our maximum aggregate liability under or in connection with this Agreement, whether in contract, tort (including negligence), breach of statutory duty, or otherwise, is in all circumstances limited to:
+
+(a) where you hold a licence to the Framework for which fees are paid on a recurring periodic basis (a "Subscription Licence"), the fees paid by you to us in the one-month period immediately before the event giving rise to the claim;
+
+(b) where you hold a licence to the Framework granted in exchange for a single, one-time fee (a "Perpetual Licence"), the fee paid by you to us for that Perpetual Licence; or
+
+(c) where you hold a Free Licence, US $25.
+
+7.4. You must indemnify, defend, and hold harmless us and our licensors, affiliates, contractors, officers, directors, employees, agents, successors, and assigns from and against any and all third-party claims, liabilities, losses, damages, costs, and expenses (including legal expenses) arising directly or indirectly from:
+- your Products, your code, your content, or your operation or distribution of any Product;
+- your use, handling, or operation of the Framework otherwise than in accordance with this Agreement;
+- your violation of applicable laws, regulations, or third-party rights; or
+- any child-directed Product or any actual or alleged violation of COPPA or similar laws.
+
+7.5. This Section 7 survives termination or expiry of this Agreement for any reason.
+
+
+8. Term and Termination
+
+8.1. This Agreement remains in effect until terminated by you or us.
+
+8.2. You may terminate this Agreement at any time by ceasing all use of the Framework and destroying or permanently deleting all copies of the Framework in your possession or control, except to the extent retention is required by law or permitted under a separate written agreement.
+
+8.3. We may suspend or terminate this Agreement immediately by written notice to you if:
+- you commit a breach of this Agreement and, if the breach is capable of remedy, you fail to remedy it within 14 days after written notice requiring you to do so;
+- you fail to pay any applicable fees when due;
+- your use of the Framework creates legal risk for us, other users, or third parties; or
+- we are required to do so by law, court order, regulator, sanctions regime, or governmental authority.
+
+8.4. Upon termination for any reason:
+- all rights granted to you under this Agreement will cease immediately;
+- you must stop using the Framework and must stop developing, modifying, building, testing, maintaining, supporting, updating, distributing, or otherwise exploiting any Product using the Framework, except to the extent separately permitted in writing;
+- you must destroy or permanently delete all copies of the Framework in your possession or control, except to the extent retention is required by law or separately permitted in writing; and
+- we may disable access to any hosted, account-based, or licence-controlled portions of the Framework.
+
+Termination of this Agreement does not affect the ability of end users to continue using copies of your Products that were lawfully distributed to them before termination, provided that this does not give you any continuing right to use the Framework or to develop, modify, build, test, maintain, support, update, distribute, or otherwise exploit any Product using the Framework after termination.
+
+
+9. Data, Privacy, and Compliance
+
+9.1. We may collect and process information about you and your use of the Framework, some of which may amount to personal data. Personal data will be collected and processed in accordance with our applicable privacy policy, where one is provided.
+
+9.2. You must provide all notices, obtain all consents, and maintain all policies and safeguards required for your Products and your users, including any notices or consents required under privacy, consumer protection, biometric, or sector-specific laws.
+
+9.3. Compliance Verification
+
+If we have reasonable grounds to believe that you may have breached this Agreement, exceeded the scope of your licence, underpaid applicable fees, used more seats or users than permitted, used a Free Licence for commercial or potentially commercial development, or otherwise misused the Framework or the licence terms, we may request reasonable information from you to verify compliance.
+
+You must respond to any such request within thirty (30) days and provide information reasonably necessary to confirm the scope of your licence, including your permitted users, seats, Products, installations, distribution, and use of the Framework.
+
+We will not request access to your confidential source code, customer data, commercially sensitive information, or internal systems unless reasonably necessary to investigate a suspected material breach. Any information provided to us under this Section will be used only for compliance verification and treated as confidential.
+
+If you are unable or unwilling to demonstrate, to our reasonable satisfaction, that your use of the Framework complies with this Agreement, we may suspend or terminate your licence in accordance with Section 8.
+
+
+10. Other Important Terms
+
+10.1. We may transfer our rights and obligations under this Agreement to another organisation. If we do, your rights under this Agreement and the obligations owed to you under it will not be reduced.
+
+10.2. You must not transfer, assign, charge, sub-contract, delegate, declare a trust over, or otherwise deal in any manner with your rights or obligations under this Agreement without our prior written consent.
+
+10.3. Any notice or written communication under this Agreement may be sent by email. Notices to us must be sent to legal@reflexplusplus.dev. Notices to you may be sent to the email address associated with your account, licence, order, or any other contact information you have provided to us.
+
+10.4. This Agreement does not create or confer any rights on any person who is not a party to it except as expressly stated.
+
+10.5. This Agreement constitutes the entire agreement between you and us in relation to its subject matter and supersedes all prior or contemporaneous understandings, agreements, representations, and warranties relating to that subject matter.
+
+10.6. If we fail to insist that you perform any of your obligations under this Agreement, or if we do not enforce our rights against you, or if we delay in doing so, that will not mean that we have waived our rights against you and will not mean that you do not have to comply with those obligations. Any waiver must be in writing and will not constitute a waiver of any later default.
+
+10.7. Each provision of this Agreement operates independently. If any court or competent authority finds that one provision is unlawful or unenforceable, the remaining provisions will continue in full force and effect.
+
+10.8. We are not in breach of this Agreement, and are not otherwise liable, for any failure or delay in performance caused by circumstances beyond our reasonable control.
+
+10.9. This Agreement is governed by and construed in accordance with the laws of England and Wales, without regard to its conflict of law rules. Subject to applicable law, the courts located in England and Wales have exclusive jurisdiction over any dispute or claim arising out of or in connection with this Agreement. You may have additional rights as a consumer under your local law, and nothing in this Agreement limits any rights that cannot lawfully be waived.
+
+10.10. Any provision of this Agreement which by its nature is intended to continue after termination or expiry will survive termination or expiry of this Agreement. This includes provisions concerning ownership, licence restrictions, fees owed, warranty disclaimers, limitation of liability, indemnity, termination effects, compliance verification, confidentiality, governing law, and jurisdiction.

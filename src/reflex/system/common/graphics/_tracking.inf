@@ -1,0 +1,1 @@
+ignore_files: ["opengles_resources.h","opengles_resources.cpp","opengl_resources.h","opengl_resources.cpp","metal_resources.h","metal_resources.cpp"];

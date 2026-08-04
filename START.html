@@ -154,18 +154,15 @@
 
 		<div class="sections">
 			<section>
-				<h2>1. Build Reflex</h2>
+				<h2>1. Install/Build binaries</h2>
 				<ul>
 					<li>
-						If you installed Reflex using the Reflex Installer, pre-built libraries are already included.
-					</li>
-					<li>
-						If you cloned <code>reflex_public</code> from GitHub, run
-						<code id="install-command">install.bat</code>
+						If you cloned <code>reflex_public</code>, run
+						<code>install</code>
 						to download the required pre-built libraries and dependencies.
 					</li>
 					<li>
-						Users with a commercial licence with full source code can find build scripts and project files under: <code>build/lib/</code>
+						Users with a full source code access can find build scripts and project files under: <code>build/lib/</code>
 					</li>
 				</ul>
 			</section>
@@ -192,41 +189,23 @@
 					<li>
 						Alternatively, use the Project Creator app for a convenient UI front end.
 					</li>
-					<li>
-						Template projects include setup code and an initial structure so you can start developing immediately.
-					</li>
 				</ul>
 			</section>
 
 			<section>
 				<h2>4. Example Project</h2>
 				<p>
-					For a practical working example, see the <code>examples/Notes (Cpp App)</code> project. It demonstrates the
-					recommended project structure, separation between UI and application logic, and typical usage patterns for
-					Reflex modules in a small but complete project.
+					For a practical working example, see the <code>examples/Notes (Cpp App)</code> project.
 				</p>
 			</section>
 
 			<section>
 				<h2>5. Agents</h2>
 				<p>
-					Documentation is also exported in Markdown format under <code>agents/</code> for use with AI tools and
-					coding agents. We additionally recommend copying the <code>include/reflex</code> directory into your project
-					so agents have direct access to the Reflex API and headers.
+					We recommend copying the <code>include/reflex</code> directory into your project so agents have direct access to the Reflex API and headers.
 				</p>
 			</section>
 		</div>
 	</main>
-	<script>
-		(function() {
-			var isMac = /Mac|iPhone|iPad|iPod/.test(navigator.platform || "") ||
-				/Mac|iPhone|iPad|iPod/.test(navigator.userAgent || "");
-			var installCommand = document.getElementById("install-command");
-
-			if (isMac && installCommand) {
-				installCommand.textContent = "install.command";
-			}
-		})();
-	</script>
 </body>
 </html>

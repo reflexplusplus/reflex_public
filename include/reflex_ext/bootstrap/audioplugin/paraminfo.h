@@ -63,12 +63,14 @@ struct Reflex::Bootstrap::ParamDesc : public Object
 	
 	[[nodiscard]] static TRef <ParamDesc> CreateBool(CString && name, bool initial);
 
-	[[nodiscard]] static TRef <ParamDesc> CreateEnum(CString && name, const ArrayView <CString> & values, Int32 initial);
+	[[nodiscard]] static TRef <ParamDesc> CreateEnum(CString && name, ArrayView <CString> values, Int32 initial);
 
 
 	Type type = kTypeReal;
 
-	UInt8 flags = 0;	//use this to denote things like 'enabled'
+	UInt8 flags = 0;			// client-specific
+
+	UInt16 change_flags = 1;	// for OnProcessRT change_flags
 
 	CString name;
 

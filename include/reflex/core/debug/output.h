@@ -23,7 +23,7 @@ namespace Reflex
 
 class Reflex::Output :
 	public Detail::StaticItem <Output>,
-	public State
+	public StateMt
 {
 public:
 
@@ -84,7 +84,7 @@ public:
 
 	static Queue queue;
 
-	static const State & state;	//flags or profilers changed
+	static const StateMt & state;	//flags or profilers changed
 
 
 
@@ -99,6 +99,7 @@ protected:
 		using Base::Detach;
 		void OnDetach(List & list);
 	};
+
 
 	Item::List m_profilers;
 

@@ -50,7 +50,7 @@ ViewImpl::ViewImpl(App & app)
 	, app(app)
 	, m_widget(CreateWidget())
 {
-	Data::SetBool(*this, GLX::kresize, true);
+	Data::SetBool(*this, GLX::kresizable, true);
 
 	GLX::AddFloat(*this, m_widget, GLX::kAlignmentCenter);
 }

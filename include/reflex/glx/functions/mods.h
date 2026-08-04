@@ -69,7 +69,7 @@ REFLEX_INLINE void Reflex::GLX::EnableDraw(Object & object, Key32 id, bool enabl
 
 REFLEX_INLINE void Reflex::GLX::UnsetClip(Object & object, Key32 id)
 {
-	object.ClearMod(Reflex::Detail::MergeHashes(id.value, Detail::kclip));
+	object.UnsetMod(Reflex::Detail::MergeHashes(id.value, Detail::kclip));
 }
 
 REFLEX_INLINE Reflex::Pair <bool> Reflex::GLX::GetClip(const Object & object, Key32 id)
@@ -79,7 +79,7 @@ REFLEX_INLINE Reflex::Pair <bool> Reflex::GLX::GetClip(const Object & object, Ke
 
 REFLEX_INLINE void Reflex::GLX::UnsetOpacity(Object & object, Key32 id)
 {
-	object.ClearMod(Reflex::Detail::MergeHashes(id.value, kopacity));
+	object.UnsetMod(Reflex::Detail::MergeHashes(id.value, kopacity));
 }
 
 REFLEX_INLINE void Reflex::GLX::SetOpacity(Object & object, Key32 id, Float opacity, Detail::ComputedStyle::Render render)
@@ -92,7 +92,7 @@ REFLEX_INLINE void Reflex::GLX::SetOpacity(Object & object, Key32 id, Float opac
 	}
 	else
 	{
-		object.ClearMod(mod_id);
+		object.UnsetMod(mod_id);
 	}
 }
 
@@ -103,7 +103,7 @@ REFLEX_INLINE Reflex::Float Reflex::GLX::GetOpacity(const Object & object, Key32
 
 REFLEX_INLINE void Reflex::GLX::UnsetBounds(Object & object, Key32 id)
 {
-	object.ClearMod(Reflex::Detail::MergeHashes(id.value, Detail::kbounds));
+	object.UnsetMod(Reflex::Detail::MergeHashes(id.value, Detail::kbounds));
 }
 
 REFLEX_INLINE void Reflex::GLX::SetBounds(Object & object, Key32 id, const Size & min, const Size & max)
@@ -118,7 +118,7 @@ REFLEX_INLINE const Reflex::Pair <Reflex::GLX::Size> & Reflex::GLX::GetBounds(co
 
 REFLEX_INLINE void Reflex::GLX::UnsetMagnification(Object & object, Key32 id)
 {
-	object.ClearMod(Reflex::Detail::MergeHashes(id.value, Detail::kmagnification));
+	object.UnsetMod(Reflex::Detail::MergeHashes(id.value, Detail::kmagnification));
 }
 
 REFLEX_INLINE void Reflex::GLX::SetMagnification(Object & object, Key32 id, Float scale, Detail::ComputedStyle::Render render)

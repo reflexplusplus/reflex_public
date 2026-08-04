@@ -10,9 +10,9 @@ REFLEX_BEGIN_INTERNAL(Reflex::Bootstrap)
 
 struct ControlImpl : public ParamControl
 {
-	ControlImpl(const ParamDesc & param_desc, const Value32 & value, Key32 styleid);
+	ControlImpl(const ParamDesc & param_desc, const Value32 & value);
 
-	void Init(GLX::Object & widget);
+	void Init(GLX::Object & widget, Key32 stateid);
 
 	void SetValueNormalized(Float fvalue);
 
@@ -22,8 +22,6 @@ struct ControlImpl : public ParamControl
 
 	void OnClock(Float32 delta) override;
 
-
-	const Key32 m_styleid;
 
 	ConstReference <ParamDesc> m_paraminfo;
 
@@ -37,7 +35,7 @@ struct ControlImpl : public ParamControl
 struct DummyControl : public ControlImpl
 {
 	DummyControl(const ParamDesc & param_desc)
-		: ControlImpl(param_desc, m_null_value, MakeKey32("continuous")),
+		: ControlImpl(param_desc, m_null_value),
 		m_null_value({ Reinterpret<Float32>(kMaxUInt32) })
 	{
 		GLX::AddFloat(*this, m_rotary, GLX::kAlignmentTop);
@@ -45,6 +43,8 @@ struct DummyControl : public ControlImpl
 		GLX::Activate(m_rotary, false);
 
 		EnableOnClock(false);
+
+		SetState(MakeKey32("continuous"));
 	}
 
 	const Value32 m_null_value;
@@ -56,7 +56,7 @@ template <bool DISCRETE>
 struct RotaryControl : public ControlImpl
 {
 	RotaryControl(const ParamDesc & param_desc, const Value32 & value)
-		: ControlImpl(param_desc, value, MakeKey32("continuous"))
+		: ControlImpl(param_desc, value)
 	{
 		GLX::AttachRotaryDisplayPropertiesDelegate(m_rotary);
 
@@ -75,7 +75,7 @@ struct RotaryControl : public ControlImpl
 
 		Data::SetFloat32(m_rotary, MakeKey32("origin"), forigin);
 
-		Init(m_rotary);
+		Init(m_rotary, MakeKey32("continuous"));
 	}
 
 	bool OnEvent(GLX::Object & src, GLX::Event & e) override
@@ -90,7 +90,7 @@ struct RotaryControl : public ControlImpl
 
 			GLX::EmitTransaction(*this, stage, 0, Normalise(m_paraminfo, value));
 
-			GLX::SetState(m_rotary, GLX::kActiveState, stage == GLX::kTransactionStageBegin || stage == GLX::kTransactionStagePerform);
+			GLX::SetState(*this, GLX::kActiveState, stage == GLX::kTransactionStageBegin || stage == GLX::kTransactionStagePerform);
 
 			return true;
 		}
@@ -121,9 +121,9 @@ struct RotaryControl : public ControlImpl
 struct ButtonControl : public ControlImpl
 {
 	ButtonControl(const ParamDesc & param_desc, const Value32 & value)
-		: ControlImpl(param_desc, value, MakeKey32("boolean"))
+		: ControlImpl(param_desc, value)
 	{
-		Init(m_button);
+		Init(m_button, MakeKey32("boolean"));
 	}
 
 	bool OnEvent(GLX::Object & src, GLX::Event & e) override
@@ -152,9 +152,9 @@ struct ButtonControl : public ControlImpl
 struct PopupControl : public ControlImpl
 {
 	PopupControl(const ParamDesc & param_desc, const Value32 & value)
-		: ControlImpl(param_desc, value, MakeKey32("enumeration"))
+		: ControlImpl(param_desc, value)
 	{
-		Init(m_popup);
+		Init(m_popup, MakeKey32("enumeration"));
 	}
 
 	bool OnEvent(GLX::Object & src, GLX::Event & e) override
@@ -192,9 +192,8 @@ struct PopupControl : public ControlImpl
 	GLX::Popup m_popup;
 };
 
-ControlImpl::ControlImpl(const ParamDesc & param_desc, const Value32 & value, Key32 styleid)
-	: m_styleid(styleid),
-	m_paraminfo(param_desc),
+ControlImpl::ControlImpl(const ParamDesc & param_desc, const Value32 & value)
+	: m_paraminfo(param_desc),
 	value(value),
 	m_value_z({ Reinterpret<Float32>(kMaxUInt32) }),
 	m_text(kNewObject)
@@ -208,11 +207,13 @@ ControlImpl::ControlImpl(const ParamDesc & param_desc, const Value32 & value, Ke
 	EnableOnClock();
 }
 
-void ControlImpl::Init(GLX::Object & widget)
+void ControlImpl::Init(GLX::Object & widget, Key32 state_id)
 {
 	widget.SetProperty(GLX::kvalue, m_text);
 
 	GLX::AddFloat(*this, widget, GLX::kAlignmentTop);
+
+	SetState(state_id);
 }
 
 void ControlImpl::OnClock(Float32 delta)
@@ -234,7 +235,7 @@ void ControlImpl::OnUpdate()
 
 void ControlImpl::OnSetStyle(const GLX::Style & style)
 {
-	GetFirst()->SetStyle(style[m_styleid]);
+	GetFirst()->SetStyle(style[GLX::kcontent]);
 }
 
 void ControlImpl::SetValueNormalized(Float fvalue)
@@ -248,7 +249,7 @@ void ControlImpl::SetValueNormalized(Float fvalue)
 
 REFLEX_END_INTERNAL
 
-Reflex::TRef <Reflex::Bootstrap::ParamControl> Reflex::Bootstrap::ParamControl::Create(ConstTRef <ParamDesc> param_desc, ConstTRef <Value32> value)
+Reflex::TRef <Reflex::Bootstrap::ParamControl> Reflex::Bootstrap::ParamControl::Create(ConstTRef <ParamDesc> param_desc, const Value32 & value)
 {
 	TRef <ParamControl> control = kNoValue;
 
@@ -259,14 +260,7 @@ Reflex::TRef <Reflex::Bootstrap::ParamControl> Reflex::Bootstrap::ParamControl::
 		break;
 
 	case ParamDesc::kTypeEnum:
-		if (param_desc)
-		{
-			control = New<PopupControl>(param_desc, value);
-		}
-		else
-		{
-			control = New<DummyControl>(param_desc);
-		}
+		control = New<PopupControl>(param_desc, value);
 		break;
 
 	case ParamDesc::kTypeDiscrete:

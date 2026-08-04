@@ -21,11 +21,11 @@ namespace Reflex::GLX
 //
 //Primary API
 
-class Reflex::GLX::TextArea : public ScrollerOfType <Object>
+class Reflex::GLX::TextArea : public ScrollArea
 {
 public:
 
-	REFLEX_OBJECT(GLX::TextArea, Scroller);
+	REFLEX_OBJECT(GLX::TextArea, ScrollArea);
 
 
 

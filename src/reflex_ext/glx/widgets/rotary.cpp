@@ -97,6 +97,8 @@ Reflex::GLX::RotarySlider::RotarySlider()
 	Data::PropertySet::OnSetProperty(MakeAddress<Data::Float32Property>(kvalue), m_value);
 
 
+	if (kIsMobile) IgnoreGestures(*this);	//allow grab capture inside gesture area
+
 	SetFlow(*this, kFlowY | kFlowInvert);
 
 	SetMouseCursor(kMouseCursorPointer);
@@ -172,8 +174,6 @@ Reflex::Float Reflex::GLX::RotarySlider::GetValue() const
 
 bool Reflex::GLX::RotarySlider::OnEvent(Object & src, Event & e)
 {
-	REFLEX_ASSERT(&src == this);	//these &src == this should not be needed anymore
-
 	bool yaxis = GetAxis(*this);
 
 	if (e.id == kMouseDown && &src == this)
@@ -209,7 +209,7 @@ bool Reflex::GLX::RotarySlider::OnEvent(Object & src, Event & e)
 
 		return true;
 	}
-	else if (e.id == kMouseDrag && &src == this)
+	else if (e.id == kMouseDrag)
 	{
 		if (auto inc = QueryProperty<Detail::Incrementer>(kIncrementer))
 		{
@@ -225,7 +225,7 @@ bool Reflex::GLX::RotarySlider::OnEvent(Object & src, Event & e)
 
 		return true;
 	}
-	else if (e.id == kMouseUp && &src == this)
+	else if (e.id == kMouseUp)
 	{
 		Detail::EndTransaction(*this, 0);
 
@@ -357,7 +357,7 @@ Reflex::Tuple <Reflex::Float, Reflex::GLX::Range> Reflex::GLX::CalcRotaryAngleAn
 	{
 		auto inv_len = 1.0f / value_range.length;
 
-		auto  t_value =  Clip((value - value_range.start) * inv_len, 0.0f, 1.0f);
+		auto t_value =  Clip((value - value_range.start) * inv_len, 0.0f, 1.0f);
 
 		auto t_origin = Clip((value_origin - value_range.start) * inv_len, 0.0f, 1.0f);
 

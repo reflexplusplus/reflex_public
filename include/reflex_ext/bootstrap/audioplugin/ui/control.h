@@ -27,7 +27,7 @@ public:
 
 	[[nodiscard]] static TRef <ParamControl> Create(AudioPlugin & instance, UInt param_idx);
 
-	[[nodiscard]] static TRef <ParamControl> Create(ConstTRef <ParamDesc> param_desc, ConstTRef <Value32> value);
+	[[nodiscard]] static TRef <ParamControl> Create(ConstTRef <ParamDesc> param_desc, const Value32 & value);
 };
 
 REFLEX_SET_TRAIT(Bootstrap::ParamControl, IsAbstract);

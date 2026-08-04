@@ -1,0 +1,159 @@
+plugins {
+	alias(libs.plugins.android.library)
+}
+
+def reflexDir = "${rootDir.absolutePath}/../../../.."
+def libsDestDir = "${rootDir.absolutePath}/../../../bin/lib/android"
+def abisForDebug = ['x86', 'arm64-v8a', 'x86_64']
+def abisForRelease = project.hasProperty("fullBuild") ? abisForDebug : ['arm64-v8a']
+
+
+android {
+
+	buildTypes {
+		// MEMO: Supporting only 64 bit because of SIMD instructions.
+		// But we still include x86, because it works and because it's the default arch that Android Studio enumerates (as of 2025).
+		// If x86 is excluded, the first load of a project results in an empty source set (especially annoying for templates).
+		// Note: by default, Android Studio builds only for the current architecture. However, if you do "Make Project" then it will build for all of them.
+		// In release mode, we only include ARM, to make libs smaller (debug is to be used for the emulator).
+		// Pass `-PfullBuild` to `./gradlew assemble` to build for all architectures (excluding arm64-v7, which works but was not considered useful enough to maintain).
+		debug { // Processor architectures (ABIs) supported by precompiled reflex libs
+			ndk {
+				abiFilters.addAll abisForDebug
+			}
+		}
+
+		release {
+			ndk {
+				abiFilters.addAll abisForRelease
+			}
+
+			minifyEnabled false
+			proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+		}
+	}
+
+	namespace 'com.reflex_multimedia.reflex'
+	compileSdk = 37
+
+	defaultConfig {
+		minSdk = 28
+		targetSdk = 37
+		versionCode = 1
+		versionName = "1.0"
+
+		externalNativeBuild {
+			cmake {
+				arguments "-DANDROID_STL=c++_shared"
+			}
+
+			ndkBuild {
+				arguments "V=1"
+			}
+		}
+	}
+
+	sourceSets {
+		main.java.srcDirs += '../../../../resources/android/java'
+		main.kotlin.srcDir '../../../../resources/android/java'
+		main.res.srcDirs  += '../../../../resources/android/res'
+	}
+
+	compileOptions {
+		sourceCompatibility JavaVersion.VERSION_11
+		targetCompatibility JavaVersion.VERSION_11
+	}
+
+	externalNativeBuild {
+		cmake {
+			path file('CMakeLists.txt')
+			version ='3.22.1'
+		}
+	}
+
+	buildFeatures {
+		prefab = true
+		prefabPublishing = true
+	}
+
+	prefab {
+		ReflexCommon {
+			name "ReflexCommon"
+//			headers "../../../../include"
+		}
+		ReflexCommonUi {
+			name "ReflexCommonUi"
+		}
+		ReflexCommonVm {
+			name "ReflexCommonVm"
+		}
+		ReflexCommonVmUi {
+			name "ReflexCommonVmUi"
+		}
+		ReflexTargetApp {
+			name "ReflexTargetApp"
+		}
+		ReflexTargetAudioApp {
+			name "ReflexTargetAudioApp"
+		}
+	}
+
+	// If we don't include this line the created .aar contains the c++ std lib
+	// at <.aar_file>/jni/<abi>/libc++_shared.so. When we have multiple
+	// libraries containing libc++_shared.so the linker complains because it
+	// can't choose between them. Because we use prefab we don't need to
+	// contents of the <.aar_file>/jni/* folder so we can just exclude it here
+	// to prevent the jni folder from being created.
+	packagingOptions {
+		exclude("**.so")
+	}
+
+	androidComponents {
+		onVariants(selector().all()) { variant ->
+			def variantLower = variant.name
+			def variantName = variant.name.capitalize()
+
+			def destDir = layout.projectDirectory.dir(
+				[libsDestDir, variantLower].join(File.separator)
+			)
+
+			def copiedAar = file(
+				[libsDestDir, variantLower, "${project.name}.aar"].join(File.separator)
+			)
+
+			def copyTask = tasks.register("copyAar${variantName}", Copy) {
+				def aarFile = layout.buildDirectory.file(
+					"outputs/aar/${project.name}-${variantLower}.aar"
+				)
+
+				from(aarFile)
+				into(destDir)
+				rename { "${project.name}.aar" }
+
+				// Important because we are using the conventional output path manually.
+				dependsOn("bundle${variantName}Aar")
+			}
+
+			def checkTask = tasks.register("checkCopyAar${variantName}") {
+				dependsOn(copyTask)
+
+				doLast {
+					if (!copiedAar.exists()) {
+						throw new GradleException("AAR copy failed: ${copiedAar} was not created")
+					}
+				}
+			}
+
+			tasks.matching { it.name == "assemble${variantName}" }.configureEach {
+				finalizedBy(checkTask)
+			}
+		}
+	}
+}
+
+dependencies {
+	implementation libs.androidx.core.ktx
+	implementation libs.androidx.appcompat
+	implementation libs.material
+	implementation libs.oboe
+}

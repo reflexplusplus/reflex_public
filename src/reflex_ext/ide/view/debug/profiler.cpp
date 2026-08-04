@@ -46,10 +46,10 @@ private:
 
 
 
-	State::Monitor m_monitor;
+	StateMt::Monitor m_monitor;
 
 
-	typedef Pair <Output*,State::Monitor> Item;
+	typedef Pair <Output*,StateMt::Monitor> Item;
 
 	Array <Item> m_scopes;
 
@@ -106,7 +106,7 @@ ProfileView::ProfileView()
 
 	GLX::SetFlow(m_inspector.GetContent(), GLX::kFlowY);
 
-	Data::SetBool(m_inspector, GLX::kresize, true);
+	Data::SetBool(m_inspector, GLX::kresizable, true);
 
 	GLX::EnableAutoFit(m_inspector, true, true);
 
@@ -149,6 +149,8 @@ ProfileView::ProfileView()
 	}
 
 	m_current = &m_scopes.GetFirst();
+
+	m_current->b.Invalidate();
 }
 
 void ProfileView::Reset()
@@ -212,7 +214,7 @@ bool ProfileView::OnEvent(GLX::Object & source, GLX::Event & e)
 		{
 			m_current_item = m_profilers[idx].Adr();
 
-			m_current->b.Reconnect();
+			m_current->b.Invalidate();
 		}
 
 		return true;

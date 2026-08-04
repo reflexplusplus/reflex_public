@@ -16,7 +16,7 @@ struct AppImpl : public App
 
 	ArrayView <Pair<CString,bool>> GetTargets() const override;
 
-	void InstantiateTemplate(const TemplateDefinition & tmpl, ArrayView <Pair<CString>> inputs, ArrayView <CString> targets, const WString & dest) override;
+	void InstantiateTemplate(const TemplateDefinition & tmpl, ArrayView <Pair<CString>> inputs, ArrayView <CString> targets, const WString & dest, bool overwrite) override;
 
 	void RunTask(CString::View cmd, Array <WString> && args, const Function <bool(const Data::Archive & output)> & done = {});
 
@@ -114,7 +114,7 @@ void AppImpl::OnReset(Key32 context)
 	});
 }
 
-void AppImpl::InstantiateTemplate(const TemplateDefinition & tmpl, ArrayView <Pair<CString>> inputs, ArrayView <CString> targets, const WString & dest)
+void AppImpl::InstantiateTemplate(const TemplateDefinition & tmpl, ArrayView <Pair<CString>> inputs, ArrayView <CString> targets, const WString & dest, bool overwrite)
 {
 	Array <WString> args;
 
@@ -131,6 +131,12 @@ void AppImpl::InstantiateTemplate(const TemplateDefinition & tmpl, ArrayView <Pa
 	args.Push(ToWString(Merge(targets, ',')));
 	args.Push(L"--output");
 	args.Push(dest);
+
+	if (overwrite)
+	{
+		args.Push(L"--overwrite");
+		args.Push(L"true");
+	}
 
 	RunTask("create", std::move(args), [dest](const Data::Archive & output)
 	{

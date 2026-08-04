@@ -869,9 +869,9 @@
 
 	@WString Description: "#p GLX layout is handled by a layout model attached to each Object. By default every Object uses the standard layout model (kStandardLayout), which supports common “box layout” behaviors: inline flow, inline flex, float (pin), stretch (fill), plus absolute positioning.
 
-#p You typically don’t write layout code directly. Instead: 
+#p You typically don't write layout code directly. Instead: 
 <list>
-#p Set the parent’s flow (how it arranges inline children) via SetFlow.
+#p Set the parent's flow (how it arranges inline children) via SetFlow.
 #p Set a positioning mode for each child (how the parent treats that child) via the AddXXX or EnableXXX helpers.
 #p Optionally enable auto-fit on the parent (size-to-content). 
 </list>
@@ -1082,7 +1082,7 @@
 #p Genuine use-cases for absolute positioning are very rare, and should generally be avoided.
 </warn>
 
-#p The majority of cases where you may think you need absolute positioning are likely covered by use of GLX::Scroller / GLX::Zoomable or custom drawing.
+#p The majority of cases where you may think you need absolute positioning are likely covered by use of GLX::ScrollArea / GLX::ZoomArea or custom drawing.
 #p Furthermore, typical genuine cases for absolute positioning will require a custom layout model, to ensure the child positions are updated in response to the parent size (during the Align phase)
 
 
@@ -1964,10 +1964,12 @@ See also Bootstrap::Detail::SetStyle.
 #p UI framework: layout, styling, events, and animation system.
 </span>
 
+<hide>
 <span>
 #b VM:$spc
 #p Scripting system: VM, compiler, runtime, module loading, and C++ bindings.
 </span>
+</hide>
 
 #h2 reflex_ext/
 
@@ -2433,6 +2435,8 @@ See also Bootstrap::Detail::SetStyle.
 
 35:
 {
+	@WString Description: "#p Returns the direct child at the supplied zero-based item index, or null if the index is out of range.";
+
 	Path: ["Reflex", "GLX", "LookupChildAtIndex"];
 
 	Module: ["Reflex", "GLX", "Layout"];
@@ -3256,13 +3260,13 @@ See also Bootstrap::Detail::SetStyle.
 
 98:
 {
-	@WString Description: "#p The Scroller widget provides a scrollable container.
+	@WString Description: "#p The ScrollArea widget provides a scrollable container.
 #p It hosts a single content object and automatically manages x and y scrollbars which appear dynamically when content exceeds the visible region.
 
 #p Its often used with the List and VirtualList widgets for the content.  It also forms the basis for the standard Menu implementation.
 
 <code>
-#p auto scroller = New<GLX::Scroller>();
+#p auto scroller = New<GLX::ScrollArea>();
 #p auto content = New<GLX::Object>();
 #p
 #p // Set content size (normally comes from content layout)
@@ -3271,12 +3275,12 @@ See also Bootstrap::Detail::SetStyle.
 #p scroller->SetContent(content);
 </code>
 
-#p Once the content is assigned, ViewPort automatically calculates the visible region and shows the relevant scrollbars as needed.
+#p Once the content is assigned, ScrollArea automatically calculates the visible region and shows the relevant scrollbars as needed.
 
 
 #h1 Styling
 
-#p Scroller applies the following sub-styles: 
+#p ScrollArea applies the following sub-styles: 
 <list>
 #p body: background and container styling.
 #p content: applied to the hosted content object.
@@ -3312,7 +3316,7 @@ See also Bootstrap::Detail::SetStyle.
 
 #h1 Layout Behaviour
 
-#p By default, Scroller applies kFlowY to its own flow.
+#p By default, ScrollArea applies kFlowY to its own flow.
 #p The flow direction determines how scrollbars are arranged.
 
 <list>
@@ -3331,7 +3335,7 @@ See also Bootstrap::Detail::SetStyle.
 
 ";
 
-	Path: ["Reflex", "GLX", "Scroller"];
+	Path: ["Reflex", "GLX", "ScrollArea"];
 
 	Module: ["Reflex", "GLX", "Widgets"];
 };
@@ -3356,6 +3360,8 @@ See also Bootstrap::Detail::SetStyle.
 
 101:
 {
+	@WString Description: "#p Sets the standard layout flow flags for an object, which determines how it aligns its inline children.";
+
 	Path: ["Reflex", "GLX", "SetFlow"];
 
 	Module: ["Reflex", "GLX", "Layout"];
@@ -3416,6 +3422,22 @@ See also Bootstrap::Detail::SetStyle.
 
 105:
 {
+	@WString Description: "#p Controls whether the object's accommodated content size participates in computed content size on the X and/or Y axes.
+
+#p When enabled on an axis, which is typically the default behaviour, the object's content affects layout accommodation on that axis. When disabled, that axis is not included.
+
+#p This is useful when the object's own content should not influence parent layout calculations, such as equal flex splits.
+
+<code>
+#p GLX::AddInlineFlex(container, a);
+#p GLX::AddInlineFlex(container, b);
+#p
+#p // if a and b contain different content sizes,
+#p // disable autofit so that content does not skew the 50/50 split
+#p GLX::EnableAutoFit(a, false, false);
+#p GLX::EnableAutoFit(b, false, false);
+</code>";
+
 	Path: ["Reflex", "GLX", "EnableAutoFit"];
 
 	Module: ["Reflex", "GLX", "Layout"];
@@ -3663,6 +3685,12 @@ See also Bootstrap::Detail::SetStyle.
 
 118:
 {
+	@WString Description: "<span>
+#p Flags used by
+#link symbol: [$qReflex$q, $qGLX$q, $qSetFlow$q]; text: $q SetFlow $q;
+#p to control standard layout flow behaviour.
+</span>";
+
 	Path: ["Reflex", "GLX", "FlowFlags"];
 
 	Module: ["Reflex", "GLX", "Layout"];
@@ -3689,6 +3717,8 @@ See also Bootstrap::Detail::SetStyle.
 
 121:
 {
+	@WString Description: "#p Returns the min and max bounds currently applied for the supplied bounds id.";
+
 	Path: ["Reflex", "GLX", "GetBounds"];
 
 	Module: ["Reflex", "GLX", "Layout"];
@@ -3714,6 +3744,8 @@ See also Bootstrap::Detail::SetStyle.
 
 124:
 {
+	@WString Description: "#p Removes the programmatic bounds mod for the supplied id.";
+
 	Path: ["Reflex", "GLX", "UnsetBounds"];
 
 	Module: ["Reflex", "GLX", "Layout"];
@@ -3880,13 +3912,22 @@ See also Bootstrap::Detail::SetStyle.
 
 #p A Monitor is connected to a State and records the last observed change count. Calling Poll() reports whether the associated State has changed since the previous poll.
 
+#p Connecting a Monitor, either explicitly via Connect() or implicitly via the constructor, treats the Monitor as already up to date with the current State count. This does not force the next Poll() to return true.
+
+#p If you want to connect and still force the next Poll() to return true, call Invalidate() after Connect().
+
+<code>
+#p m_monitor.Connect(state);
+#p m_monitor.Invalidate();
+</code>
+
 #h2 Lifetime Management
 
 <warn>
-#p State::Monitor does not manage the lifetime of the observed State. It is the caller’s responsibility to ensure that the State remains alive for the duration of the Monitor’s lifetime.
+#p State::Monitor does not manage the lifetime of the observed State. It is the caller's responsibility to ensure that the State remains alive for the duration of the Monitor's lifetime.
 </warn>
 
-#p For cases where strong lifetime coupling is required, clients would typically wrap a Monitor together with an owning reference to the State’s owner.
+#p For cases where strong lifetime coupling is required, clients would typically wrap a Monitor together with an owning reference to the State owner.
 
 <code> 
 #p struct RetainingMonitor 
@@ -4196,6 +4237,20 @@ See also Bootstrap::Detail::SetStyle.
 	Path: ["Reflex", "GLX", "AddStretch"];
 
 	Module: ["Reflex", "GLX", "Layout"];
+};
+
+160:
+{
+	Path: ["Reflex", "GLX", "kfocusable"];
+
+	Module: ["Reflex", "GLX", "Events"];
+};
+
+161:
+{
+	Path: ["Reflex", "GLX", "EnablePointerCapture"];
+
+	Module: ["Reflex", "GLX", "Events"];
 };
 
 162:
@@ -5439,6 +5494,22 @@ See also Bootstrap::Detail::SetStyle.
 	@WString Description: "#p VirtualList is the large-data counterpart to List.
 #p Instead of owning one child object per row, it materialises only the currently visible items and repopulates them through a callback as the viewport moves. Selection is tracked separately and re-applied when rows come back into view.
 #p This makes it a better fit for long or dynamic datasets, but note that GetItem only returns objects that are currently visible.
+
+<code>
+#p auto scroller = New<GLX::ScrollArea>();
+#p auto virtual_list = New<GLX::VirtualList>();
+#p scroller->SetContent(virtual_list);
+#p
+#p virtual_list->SetPopulateCallback([](UInt idx, ArrayRegion<Reference<GLX::Object>> items, const GLX::Style & style)
+#p {
+#p 	for (auto & item : items)
+#p 	{
+#p 		item = GLX::Init(New<GLX::Label>(ToWString(idx++)), style);
+#p 	}
+#p });
+#p
+#p virtual_list->SetNumItem(1000);
+</code>
 ";
 
 	Path: ["Reflex", "GLX", "VirtualList"];
@@ -5514,6 +5585,10 @@ See also Bootstrap::Detail::SetStyle.
 
 237:
 {
+	@WString Description: "#p Sets programmatic min and max bounds on the object for the supplied id.
+
+#p This is the programmatic equivalent of stylesheet size and max values, and affects computed content size, which is derived from child objects, style layers, and the current min and max properties.";
+
 	Path: ["Reflex", "GLX", "SetBounds"];
 
 	Module: ["Reflex", "GLX", "Layout"];
@@ -5716,6 +5791,8 @@ See also Bootstrap::Detail::SetStyle.
 </code>
 
 #p Each call to Notify() increments an internal change counter. Clients use State::Monitor instances to poll for changes since the last observation.
+
+#p Note that connecting a State::Monitor does not itself schedule a positive poll result. A newly connected monitor is treated as already synchronized with the current State count. If the next Poll() should return true immediately, call Invalidate() on the monitor after connecting it.
 ";
 
 	Path: ["Reflex", "State"];
@@ -5881,6 +5958,17 @@ See also Bootstrap::Detail::SetStyle.
 	@WString Description: "#p List is the concrete child-backed implementation of AbstractList.
 #p Selection is reflected directly through each child item's selected state, and it also adds optional drag-reordering through the ListReorder transaction event sequence.
 #p Use it when you already have concrete child objects for each row and want the list to manage selection, reveal, focus, and reorder interaction.
+
+<code>
+#p auto scroller = New<GLX::ScrollArea>();
+#p auto list = New<GLX::List>();
+#p scroller->SetContent(list);
+#p
+#p for (UInt i = 0; i < 10; ++i)
+#p {
+#p 	GLX::AddInline(*list, New<GLX::Label>(ToWString(i)));
+#p }
+</code>
 ";
 
 	Path: ["Reflex", "GLX", "List"];
@@ -5891,7 +5979,7 @@ See also Bootstrap::Detail::SetStyle.
 259:
 {
 	@WString Description: "#p The Menu widget provides a standard floating popup menu, typically used for context menus and drop-down menus.
-#p It is built on top of Scroller, so it supports a single scrollable content region and automatically shows scrollbars when needed.
+#p It is built on top of ScrollArea, so it supports a single scrollable content region and automatically shows scrollbars when needed.
 
 #p Menus are typically not opened directly. For most cases, use OpenContextMenu which attaches the menu to the window foreground (always-on-top) and triggers a MenuOpen event to allow menu population by the target object and its parents.
 
@@ -5915,7 +6003,7 @@ See also Bootstrap::Detail::SetStyle.
 
 #h1 Styling
 
-#p Menu inherits Scroller, so implements the same style-schema (body, content, x, y).  Additionally, Menu applies item styles by applying these ids:
+#p Menu inherits ScrollArea, so implements the same style-schema (body, content, x, y).  Additionally, Menu applies item styles by applying these ids:
 <list>
 #p item: applied to items added via AddItem(label).
 #p separator: applied to separators added via AddSeparator().
@@ -5940,7 +6028,7 @@ See also Bootstrap::Detail::SetStyle.
 #p 		bg: Text(font: MyFont; value: &value; indent: 8,4; color: 0);
 #p 	};
 #p 
-#p 	//y: see Scroller
+#p 	//y: see ScrollArea
 #p };
 </code>
 ---
@@ -6117,7 +6205,7 @@ See also Bootstrap::Detail::SetStyle.
 269:
 {
 	@WString Description: "#p TextArea is a scrollable wrapper around TextEditBehaviour.
-#p It owns a content object with a Text property, installs the editing behaviour for that property, and exposes simple ClearText, SetText, and GetText helpers.
+#p It owns a content object with a Text property, installs the editing behaviour for that property, and exposes ClearText, SetText, and GetText methods.
 #p The constructor's multi_line flag changes both text flow and scrolling setup, so single-line and multi-line usage are configured differently from the start.
 ";
 
@@ -6426,7 +6514,7 @@ See also Bootstrap::Detail::SetStyle.
 
 <span>
 #p See
-#link symbol: [$qReflex$q, $qGLX$q, $qObject$q, $qEnablePointer$q]; text: $q GLX::Object::EnablePointer$q;
+#link symbol: [$qReflex$q, $qGLX$q, $qObject$q, $qEnablePointer$q]; text: $q Object::EnablePointer$q;
 </span>
 ";
 
@@ -6701,6 +6789,13 @@ See also Bootstrap::Detail::SetStyle.
 	Path: ["Reflex", "GLX", "AddEllipseFill"];
 
 	Module: ["Reflex", "GLX", "Styling", "Canvas"];
+};
+
+307:
+{
+	Path: ["Reflex", "GLX", "Corners"];
+
+	Module: ["Reflex", "GLX", "Styling"];
 };
 
 308:
@@ -7005,6 +7100,8 @@ See also Bootstrap::Detail::SetStyle.
 
 334:
 {
+	@WString Description: "#p Returns the zero-based item index of the object within its direct parent.";
+
 	Path: ["Reflex", "GLX", "LookupIndex"];
 
 	Module: ["Reflex", "GLX", "Layout"];
@@ -7663,7 +7760,7 @@ See also Bootstrap::Detail::SetStyle.
 
 402:
 {
-	Path: ["Reflex", "GLX", "Zoomable"];
+	Path: ["Reflex", "GLX", "ZoomArea"];
 
 	Module: ["Reflex", "GLX", "Widgets"];
 };
@@ -7677,6 +7774,8 @@ See also Bootstrap::Detail::SetStyle.
 
 404:
 {
+	@WString Description: "#p Returns the zero-based index of the direct child of parent that contains the supplied descendant object.";
+
 	Path: ["Reflex", "GLX", "LookupBranchIndex"];
 
 	Module: ["Reflex", "GLX", "Layout"];
@@ -7880,6 +7979,8 @@ See also Bootstrap::Detail::SetStyle.
 
 428:
 {
+	@WString Description: "#p Returns the object's rectangle in window-absolute coordinates, including accumulated parent scaling.";
+
 	Path: ["Reflex", "GLX", "CalculateAbsoluteRect"];
 
 	Module: ["Reflex", "GLX", "Layout"];
@@ -7887,6 +7988,8 @@ See also Bootstrap::Detail::SetStyle.
 
 429:
 {
+	@WString Description: "#p Returns the object's rectangle relative to the supplied parent, including accumulated parent scaling between them.";
+
 	Path: ["Reflex", "GLX", "CalculateRelativeRect"];
 
 	Module: ["Reflex", "GLX", "Layout"];
@@ -7894,6 +7997,8 @@ See also Bootstrap::Detail::SetStyle.
 
 430:
 {
+	@WString Description: "#p Returns the accumulated position and scale for an object, either in window space or relative to a supplied parent.";
+
 	Path: ["Reflex", "GLX", "CalculateAbs"];
 
 	Module: ["Reflex", "GLX", "Layout"];
@@ -7968,22 +8073,15 @@ See also Bootstrap::Detail::SetStyle.
 
 436:
 {
-	@WString Description: "#p Corner-radius value type used by rounded canvas geometry helpers.";
+	@WString Description: "#p Enables Tab and Shift+Tab focus cycling within the supplied branch root.
 
-	Path: ["Reflex", "GLX", "Corners"];
+<span>
+#p Objects participate when they have
+#link symbol: [$qReflex$q, $qGLX$q, $qkfocusable$q]; text: $q kfocusable $q;
+#p set true.
+</span>";
 
-	Module: ["Reflex", "GLX", "Styling"];
-};
-
-437:
-{
-	@WString Description: "#p Requests passive, active, or incremental pointer capture for the current pointer event.
-
-#p The default is capture mode is effectively EnablePointerCapture(e, true, false).  That means if the down event is trapped, that object will continue to receive the matching GLX::kPointerDrag and GLX::kPointerUp events for that pointer slot.
-
-#p Because of that, you typically only need this helper when enabling incremental drag capture, or when explicitly disabling subsequent drag/up delivery.";
-
-	Path: ["Reflex", "GLX", "EnablePointerCapture"];
+	Path: ["Reflex", "GLX", "EnableTabNavigation"];
 
 	Module: ["Reflex", "GLX", "Events"];
 };
@@ -8240,32 +8338,64 @@ See also Bootstrap::Detail::SetStyle.
 
 #p Parameter values are stored automatically, and additional custom state can be persisted through the Streamable callbacks.
 
-#h2 Processing callbacks
+#h2 Class registration
 
-#p `OnPrepareProcessing(...)` is guaranteed to be called on the main thread before audio processing starts.
+#p Template projects define plugin class metadata by implementing 'MakeClass()' on the plugin instance type.
 
-#p After that, `OnProcessRt(...)` is called on the audio thread for real-time processing.
+#p This is where you declare the plugin type, channel layout, MIDI capabilities, parameter count, and platform-specific identifiers such as VST2/VST3/CLAP ids or AudioUnit 4CC values.
+
+#h2 Registering parameters
+
+#p Template projects register parameters by implementing 'PopulateParameters(const Class&, ArrayRegion<...>)' on the plugin instance type.
+
+#p The framework sizes the destination region from 'Class::num_params' before calling this method. Fill each slot with the exported parameter id plus a 'Bootstrap::ParamDesc' describing the parameter type, default value, range, and text formatting.
+
+#p Each 'ParamDesc' has a 'change_flags' field, which has a default value of 1. This can be used to group parameter changes together, see the processing section below.
 
 <code>
-#p class MyPlugin : public Bootstrap::AudioPlugin
+#p void MyPlugin::PopulateParameters(const Class & cls, ArrayRegion < Pair < Key32, ConstReference <ParamDesc> > > defs)
 #p {
-#p protected:
-#p 	bool OnPrepareProcessing(UInt32 max_buffersize, Float32 samplerate, UInt num_input, UInt num_output) override
+#p 	defs[0] = { MakeKey32($qmode$q), ParamDesc::CreateEnum($qMode$q, { $qClean$q, $qDrive$q }, 0) };
+#p 	defs[1] = { MakeKey32($qfreq$q), ParamDesc::CreateReal($qFreq$q, 20.0f, 20000.0f, 0.0f, 440.0f) };
+#p 	defs[2] = { MakeKey32($qgain$q), ParamDesc::CreateReal($qGain$q, 0.0f, 1.0f, 0.0f, 0.5f) };
+#p
+#p 	defs[1].b->change_flags = kParameterFlagsOsc;		// application defined constant
+#p 	defs[2].b->change_flags = kParameterFlagsOutput;
+#p }
+</code>
+
+#h2 Processing callbacks
+
+#p 'OnPrepareProcessing(...)' is guaranteed to be called on the main thread before audio processing starts.
+
+#p After that, 'OnProcessRt(...)' is called on the audio thread for real-time processing. 'parameter_change_flags' is a coalesced bitmask of parameter groups that changed since the previous audio block.
+
+<code>
+#p bool MyPlugin::OnPrepareProcessing(UInt32 max_buffersize, Float32 samplerate, UInt num_input, UInt num_output) override
+#p {
+#p 	return true;
+#p }
+#p
+#p void MyPlugin::OnProcessRt(UInt num_samples, UInt32 parameter_change_flags, const EventBuffer & events_in, Array <Event> & events_out, const ArrayView <const Float*> & inputs, const ArrayView <Float*> & outputs) override
+#p {
+#p 	if (parameter_change_flags & kParameterFlagsOsc)
 #p 	{
-#p 		return true;
+#p 		//rebuild oscillator increment/cache
 #p 	}
 #p
-#p 	void OnProcessRt(UInt num_samples, const System::AudioPlugin::EventBuffer & events_in, Array <System::AudioPlugin::Event> & events_out, const ArrayView <const Float*> & inputs, const ArrayView <Float*> & outputs) override
+#p 	if (parameter_change_flags & kParameterFlagsOutput)
 #p 	{
-#p 		for (UInt ch = 0; ch < outputs.size; ++ch)
+#p 		//update cached output gain
+#p 	}
+#p
+#p 	for (UInt ch = 0; ch < outputs.size; ++ch)
+#p 	{
+#p 		for (UInt i = 0; i < num_samples; ++i)
 #p 		{
-#p 			for (UInt i = 0; i < num_samples; ++i)
-#p 			{
-#p 				outputs[ch][i] = inputs[ch][i];
-#p 			}
+#p 			outputs[ch][i] = inputs[ch][i];
 #p 		}
 #p 	}
-#p };
+#p }
 </code>
 ";
 

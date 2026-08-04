@@ -14,9 +14,9 @@ namespace Reflex::GLX
 	class AbstractViewPort;
 
 
-	class Scroller;
+	class ScrollArea;
 
-	class Zoomable;
+	class ZoomArea;
 
 }
 
@@ -158,51 +158,58 @@ REFLEX_SET_TRAIT(Reflex::GLX::AbstractViewPort, IsSingleThreadExclusive);
 
 
 //
-//Scroller
+//ScrollArea
 
-class Reflex::GLX::Scroller : public AbstractViewPort
+class Reflex::GLX::ScrollArea : public AbstractViewPort
 {
 public:
 
-	REFLEX_OBJECT(GLX::Scroller, AbstractViewPort);
+	REFLEX_OBJECT(GLX::ScrollArea, AbstractViewPort);
 
-	static Scroller & null;
+	static ScrollArea & null;
 
-	Scroller();
+	ScrollArea();
 
 };
 
-REFLEX_SET_TRAIT(Reflex::GLX::Scroller, IsSingleThreadExclusive);
+REFLEX_SET_TRAIT(Reflex::GLX::ScrollArea, IsSingleThreadExclusive);
 
 
 
 
 //
-//Zoomable
+//ZoomArea
 
-class Reflex::GLX::Zoomable : public AbstractViewPort
+class Reflex::GLX::ZoomArea : public AbstractViewPort
 {
 public:
 
-	REFLEX_OBJECT(GLX::Zoomable, AbstractViewPort);
+	REFLEX_OBJECT(GLX::ZoomArea, AbstractViewPort);
 
-	static Zoomable & null;
+	static ZoomArea & null;
 
-	Zoomable();
+	ZoomArea();
 
-	[[deprecated]] Zoomable(bool invertx, bool inverty);
+	[[deprecated]] ZoomArea(bool invertx, bool inverty);
 
 	using AbstractViewPort::InvertAxis;
 
 };
 	
-REFLEX_SET_TRAIT(Reflex::GLX::Zoomable, IsSingleThreadExclusive);
+REFLEX_SET_TRAIT(Reflex::GLX::ZoomArea, IsSingleThreadExclusive);
 
 
 	
 
 //
 //impl
+
+REFLEX_NS(Reflex::GLX)
+
+[[deprecated("use ScrollArea")]] typedef ScrollArea Scroller;
+[[deprecated("use ZoomArea")]] typedef ZoomArea Zoomable;
+
+REFLEX_END
 
 struct Reflex::GLX::AbstractViewPort::ViewState :
 	public Reflex::Object,
@@ -262,17 +269,17 @@ inline Reflex::GLX::Size Reflex::GLX::AbstractViewPort::GetPixelsPerUnit() const
 	return view_state->GetPixelsPerUnit();
 }
 
-inline Reflex::GLX::Scroller::Scroller()
+inline Reflex::GLX::ScrollArea::ScrollArea()
 	: AbstractViewPort(false)
 {
 }
 
-inline Reflex::GLX::Zoomable::Zoomable()
+inline Reflex::GLX::ZoomArea::ZoomArea()
 	: AbstractViewPort(true)
 {
 }
 
-inline Reflex::GLX::Zoomable::Zoomable(bool invertx, bool inverty)
+inline Reflex::GLX::ZoomArea::ZoomArea(bool invertx, bool inverty)
 	: AbstractViewPort(true)
 {
 	InvertAxis(invertx, inverty);

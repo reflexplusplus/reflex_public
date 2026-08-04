@@ -90,8 +90,6 @@ GlobalImpl::GlobalImpl(const CString::View & vendor, const CString::View & produ
 	}
 
 	EnableIde(Data::GetBool(prefs, kIDE));
-
-	m_prefs_monitor.Poll();		//avoid initial CommitPrefs
 #endif
 
 	module.Init();				//initialise dependent modules

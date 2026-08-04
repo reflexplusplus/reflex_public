@@ -36,6 +36,6 @@ REFLEX_END
 
 inline Reflex::ConstTRef <Reflex::GLX::StyleSheet> Reflex::IDE::Detail::RetrieveStyleSheet()
 {
-	return GLX::RetrieveStyleSheet(L":res:IDE/styles.txt");
+	return GLX::RetrieveStyleSheet(L":res:Reflex::IDE/styles.txt");
 }
 

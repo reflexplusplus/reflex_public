@@ -6,14 +6,13 @@
 //
 //impl
 
-Reflex::Bootstrap::View::View(File::PersistentPropertySet & state, Key32 chunk_id, UInt16 chunk_version, WString::View stylesheet_path)
-	: Streamable(state, chunk_id, chunk_version)
+Reflex::Bootstrap::View::View(File::PersistentPropertySet & session, Key32 chunk_id, UInt16 chunk_version, WString::View stylesheet_path)
+	: Streamable(session, chunk_id, chunk_version)
 	, m_prefs_listener(global->prefs->CreateListener([this](File::PersistentPropertySet::Notification n, Key32 context)
 	{
 		Update();
 	}))
 	, m_stylesheet_path(stylesheet_path)
-	, m_monitor(state)
 {
 #if REFLEX_DEBUG
 	//make sure stylesheet is already in resourcepool here, before IDE builder view updates, so it can restore focus

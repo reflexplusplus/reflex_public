@@ -34,7 +34,13 @@ public:
 
 	//types
 
-	using ParamDefs = ObjectOf < Array < Pair < Key32, ConstReference <ParamDesc> > > >;
+	using Class = System::AudioPlugin::Configuration::Class;
+
+	using Event = System::AudioPlugin::Event;
+
+	using EventBuffer = System::AudioPlugin::EventBuffer;
+
+	using ParamDesc = ParamDesc;
 
 
 
@@ -51,7 +57,7 @@ public:
 	ConstTRef <ParamDesc> GetParameterInfo(UInt32 idx) const { return m_parameters.info[idx]; }
 
 
-	ArrayView <Key32> GetParameterIds() const { return m_parameters.ids; }
+	ArrayView <Key32> GetParameterIDs() const { return m_parameters.ids; }
 
 	ArrayView <Value32> GetParameterValues() const { return m_parameters.values; }
 
@@ -82,8 +88,7 @@ protected:
 
 	virtual bool OnPrepareProcessing(UInt32 max_buffersize, Float32 samplerate, UInt num_input, UInt num_output) = 0;
 
-	virtual void OnProcessRt(UInt num_samples, const System::AudioPlugin::EventBuffer & events_in, Array <System::AudioPlugin::Event> & events_out, const ArrayView <const Float*> & inputs, const ArrayView <Float*> & outputs) = 0;
-
+	virtual void OnProcessRt(UInt num_samples, UInt32 parameter_change_flags, const EventBuffer & events_in, Array <Event> & events_out, const ArrayView <const Float*> & inputs, const ArrayView <Float*> & outputs) = 0;
 
 	void ScheduleReportChanges(UInt8 change_flags);
 
@@ -103,7 +108,7 @@ private:
 	void OnSetParameterValue(UInt idx, Float32 value) final;
 
 
-	FunctionPointer <void(Callbacks&,UInt)> OnPrepare(UInt32 max_buffersize, Float32 samplerate, ConstTRef <System::AudioPlugin::EventBuffer> events_in, TRef <System::AudioPlugin::EventBuffer> events_out, const ArrayView <const Float32*> & inputs, const ArrayView <Float32*> & outputs) final;
+	FunctionPointer <void(Callbacks&,UInt)> OnPrepare(UInt32 max_buffersize, Float32 samplerate, ConstTRef <EventBuffer> events_in, TRef <EventBuffer> events_out, const ArrayView <const Float32*> & inputs, const ArrayView <Float32*> & outputs) final;
 
 
 	struct Parameters : public Streamable
@@ -119,7 +124,7 @@ private:
 
 		AudioPlugin & instance;
 		
-		const TRef <ParamDefs> paramdefs;
+		const TRef < ObjectOf < Array <Pair < Key32, ConstReference <ParamDesc> > > > > paramdefs;
 		
 		Array < ConstReference <ParamDesc> > info;
 		
@@ -127,21 +132,23 @@ private:
 
 		Array <Value32> values;
 
+		UInt32 all_change_flags;
+
 		Reference <Object> session_listener;
 	};
 	
 	Parameters m_parameters;
 
 
-	const System::AudioPlugin::EventBuffer * m_events_in;
+	const EventBuffer * m_events_in;
 
-	System::AudioPlugin::EventBuffer * m_events_out;
+	EventBuffer * m_events_out;
 
 	ArrayView <const Float32*> m_audio_in;
 
 	ArrayView <Float32*> m_audio_out;
 
-	Array <System::AudioPlugin::Event> m_events_out_buffer;
+	Array <Event> m_events_out_buffer;
 
 
 	Reference <Object> m_session_listener;
@@ -149,6 +156,8 @@ private:
 	Reference <Object> m_report_changes_scheduler;
 
 	UInt8 m_report_changes_flags;
+
+	AtomicUInt32 m_atomic_change_flags;
 
 	UInt8 m_automating;
 };

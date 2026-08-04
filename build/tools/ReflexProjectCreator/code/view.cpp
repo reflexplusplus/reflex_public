@@ -65,7 +65,7 @@ public:
 
 	GLX::Object m_sections[kNumSection];
 	GLX::Popup m_template_popup;
-	GLX::Scroller m_info_scroller;
+	GLX::ScrollArea m_info_scroller;
 	GLX::Button m_build_button;
 };
 
@@ -74,9 +74,9 @@ ViewImpl::ViewImpl(App & app)
 	, app(app)
 	, m_build_button(L"Create")
 {
-	Data::SetBool(*this, GLX::kresize, true);
+	Data::SetBool(*this, GLX::kresizable, true);
 
-	Data::SetBool(m_template_popup, GLX::kWantsFocus, true);
+	Data::SetBool(m_template_popup, GLX::kfocusable, true);
 
 	GLX::AddFloat(m_header, m_menu_popup, GLX::kAlignmentRight);
 
@@ -170,7 +170,7 @@ void ViewImpl::OnSetStyle(const GLX::Style & style)
 
 bool ViewImpl::OnEvent(GLX::Object & source, GLX::Event & e)
 {
-	auto build = [this]()
+	auto build = [this](GLX::Event & e)
 	{
 		auto default_dest = Join(System::GetPath(System::kPathUserDocuments), L"Reflex Projects", System::kPathDelimiter);
 
@@ -187,7 +187,9 @@ bool ViewImpl::OnEvent(GLX::Object & source, GLX::Event & e)
 					variables.Push({ i.id, GetVariable(i.id) });
 				}
 
-				app->InstantiateTemplate(*tmpl, variables, m_targets, dest);
+				bool overwrite = True(GLX::GetModifierKeys(e) & GLX::kModifierKeyShift);
+
+				app->InstantiateTemplate(*tmpl, variables, m_targets, dest, overwrite);
 
 				Update();
 			}
@@ -202,7 +204,7 @@ bool ViewImpl::OnEvent(GLX::Object & source, GLX::Event & e)
 	{
 		if (source == m_build_button)
 		{
-			build();
+			build(e);
 
 			return true;
 		}
@@ -211,7 +213,7 @@ bool ViewImpl::OnEvent(GLX::Object & source, GLX::Event & e)
 	{
 		if (GLX::GetKeyCode(e) == GLX::kKeyCodeEnter)
 		{
-			build();
+			build(e);
 
 			return true;
 		}
@@ -279,7 +281,7 @@ void ViewImpl::OnUpdate()
 			return false;
 		});
 
-		Data::SetBool(item, GLX::kWantsFocus, true);
+		Data::SetBool(item, GLX::kfocusable, true);
 
 		return item;
 	});
@@ -301,7 +303,7 @@ void ViewImpl::OnUpdate()
 			return true;
 		});
 
-		Data::SetBool(item, GLX::kWantsFocus, true);
+		Data::SetBool(item, GLX::kfocusable, true);
 
 		return item;
 	});
@@ -369,7 +371,7 @@ void ViewImpl::OnUpdate()
 	}
 
 
-	Data::SetBool(m_build_button, GLX::kWantsFocus, can_build);
+	Data::SetBool(m_build_button, GLX::kfocusable, can_build);
 
 	GLX::Activate(m_build_button, can_build);
 }

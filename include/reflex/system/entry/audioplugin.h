@@ -163,13 +163,13 @@ struct Reflex::System::AudioPlugin::Configuration::Class
 
 	//Common
 
-	CString vendor, product;
+	CString vendor, product, version;
 
 	Pair <UInt8> channels_io;
 
 	Pair <bool> midi_io;
 
-	UInt16 nparam = 0;
+	UInt16 num_params = 0;
 
 	Type type = kTypeAudioProcessor;
 
@@ -232,7 +232,6 @@ struct Reflex::System::AudioPlugin::Configuration::Class
 	struct CLAP
 	{
 		CString uid;
-		CString version;
 	}
 
 	clap = {};

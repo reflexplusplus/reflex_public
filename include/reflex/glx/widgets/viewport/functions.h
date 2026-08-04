@@ -20,9 +20,9 @@ namespace Reflex::GLX
 	void UnsyncViewports(AbstractViewPort & target);
 
 
-	void Zoom(Zoomable & viewport, bool axis, Float time, Float vo, Float vr, Float pixel_padding = 0.0f);
+	void Zoom(ZoomArea & viewport, bool axis, Float time, Float vo, Float vr, Float pixel_padding = 0.0f);
 
-	void Reveal(Zoomable & viewport, bool axis, Float vo, Float vr, Float pixel_padding);
+	void Reveal(ZoomArea & viewport, bool axis, Float vo, Float vr, Float pixel_padding);
 
 }
 
@@ -34,9 +34,9 @@ namespace Reflex::GLX
 
 REFLEX_NS(Reflex::GLX::Detail)
 
-void ClearZoomToggle(Zoomable & viewport, AbstractViewBar & viewbar);
+void ClearZoomToggle(ZoomArea & viewport, AbstractViewBar & viewbar);
 
-void ToggleZoom(Zoomable & viewport, AbstractViewBar & viewbar, bool y);
+void ToggleZoom(ZoomArea & viewport, AbstractViewBar & viewbar, bool y);
 
 REFLEX_END
 

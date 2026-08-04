@@ -45,7 +45,7 @@ struct PluginWindowClient :
 	PluginWindowClient(System::Window & owner, File::PersistentPropertySet & session, GLX::Object & view)
 		: WindowClient(owner)
 		, Streamable(session, "bootstrap.plugin_window_size", 1)
-		, m_resizable(Data::GetBool(view, GLX::kresize))
+		, m_resizable(Data::GetBool(view, GLX::kresizable))
 	{
 		SetContent(view);
 
@@ -105,7 +105,7 @@ struct DesktopAppWindowClient : public WindowClient
 		{
 			restored_mode = Max(System::WindowDisplay(binary[0]), System::kWindowDisplayWindowed);
 
-			if (Data::GetBool(view, GLX::kresize))
+			if (Data::GetBool(view, GLX::kresizable))
 			{
 				Data::Unpack(Mid(binary, 1, 16), restored_rect);
 
@@ -406,7 +406,7 @@ private:
 		}
 		else
 		{
-			m_view->ClearMod(kMagnification);
+			m_view->UnsetMod(kMagnification);
 		}
 
 		Data::SetFloat32(global->prefs, kMagnification, magnification);
@@ -522,7 +522,7 @@ void Reflex::Bootstrap::Detail::PublishAppView(System::App::Configuration & conf
 		{
 			view = ctr(app);
 
-			window_flags |= Data::GetBool(view, GLX::kresize) ? System::kWindowStyleResizable : 0;
+			window_flags |= Data::GetBool(view, GLX::kresizable) ? System::kWindowStyleResizable : 0;
 		}
 
 		auto window = System::Window::Create(window_flags, false, host_window);

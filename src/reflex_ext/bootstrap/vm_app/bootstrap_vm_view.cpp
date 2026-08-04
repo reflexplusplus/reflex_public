@@ -29,7 +29,7 @@ struct VmViewWrapperImpl : public VmViewWrapper
 
 			GLX::AddStretch(*this, m_object);
 
-			Data::SetBool(*this, GLX::kresize, Data::GetBool(m_object, GLX::kresize));
+			Data::SetBool(*this, GLX::kresizable, Data::GetBool(m_object, GLX::kresizable));
 
 			//hack for mobile view -> better solution -> get rid of this wrapper layer, make it a delegate ?
 

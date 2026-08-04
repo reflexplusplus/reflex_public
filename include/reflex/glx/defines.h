@@ -92,9 +92,9 @@ namespace Reflex::GLX
 
 
 
-	//flags
+	//property ids
 
-	constexpr UInt32 kresize = MakeKey32("resize");
+	constexpr Key32 kresizable = MakeKey32("resizable");
 
 
 
@@ -141,6 +141,8 @@ namespace Reflex::GLX
 //impl
 
 REFLEX_NS(Reflex::GLX)
+
+constexpr Key32 kresize = kresizable;
 
 [[deprecated("Use kTransactionStageNull")]] constexpr auto kTransactionNull = kTransactionStageNull;
 [[deprecated("Use kTransactionStageBegin")]] constexpr auto kTransactionBegin = kTransactionStageBegin;

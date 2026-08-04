@@ -1,0 +1,9 @@
+<resources output="../../metal_resources.cpp" format="reflex_minimal">
+
+	<Reflex::System::Common>
+
+		<file path="ReflexShaders.metal" id="kMetalShaders"/>
+
+	</>
+
+</resources>

@@ -1,6 +1,6 @@
 @Font Code:
 {
-	path: ":res:IDE/mono";
+	path: "fonts/Roboto_Mono/static/RobotoMono-Regular.ttf";
 
 	size: 24;
 };
@@ -14,7 +14,7 @@ Display:
 	render: x4;
 	render_pad: 4;
 	
-	transition: 0.125;
+	transition: 0.25;
 	
 	size: 320;
 	
@@ -24,8 +24,9 @@ Display:
 	
 	@State hover:
 	{
-		bg: 
-		ColourCanvas(color: 255,128),
+		fg: 
+		Fill(indent: -4; color: 0,128),
+		Blur(radius: 16; content: Text(font: Code; value: &value; justify: center)),
 		Text(font: Code; value: &value; justify: center);
 	};
 };

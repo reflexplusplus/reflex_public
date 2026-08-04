@@ -19,7 +19,7 @@ namespace Reflex::GLX
 	void RedirectFocus(Object & branch_root, Object & object);		//focus 'object' if focus is within 'branch_root'
 
 
-	REFLEX_DECLARE_KEY32(WantsFocus);			//Use Data::SetBool(object, kWantsFocus, true)
+	REFLEX_DECLARE_KEY32(focusable);			//Use Data::SetBool(object, kfocusable, true)
 
 	void EnableTabNavigation(Object & root);		//typically set at branch root to allow on all objects within branch
 

@@ -15,8 +15,6 @@ namespace Reflex::GLX
 
 	using VirtualListScroller = ScrollerOfType <VirtualList>;
 
-	[[deprecated("use VirtualListScroller")]] typedef VirtualListScroller VectorScroller;
-
 }
 
 
