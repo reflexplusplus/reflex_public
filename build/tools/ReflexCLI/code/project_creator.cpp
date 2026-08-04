@@ -321,7 +321,7 @@ WString RenamePath(const WString::View & path, const Array <WString> & rename_ty
 	return path;
 }
 
-void InstallFolder(const TemplateDefinitionEx & tmpl, const Array <Variable> & variables, const WString::View & src_path, const WString::View & dest_path, const WString::View & dest_name, bool overwrite, System::FileHandle & std_out)
+WString InstallFolder(const TemplateDefinitionEx & tmpl, const Array <Variable> & variables, const WString::View & src_path, const WString::View & dest_path, const WString::View & dest_name, bool overwrite, System::FileHandle & std_out)
 {
 	auto content_substitutions = BuildSubstitutionList(tmpl.targets.replace_vars, variables);
 	auto rename_substitutions = BuildSubstitutionList(tmpl.targets.rename_vars, variables);
@@ -378,17 +378,17 @@ void InstallFolder(const TemplateDefinitionEx & tmpl, const Array <Variable> & v
 			}
 		}
 	}
+
+	return dst;
 }
 
 REFLEX_END_INTERNAL
 
-bool ReflexCLI::CreateProject(const TemplateDefinition & base_tmpl, ArrayView <Variable> string_inputs, ArrayView <Variable> path_inputs, CString::View generate, const WString::View & output_root, bool overwrite, System::FileHandle & std_out)
+WString ReflexCLI::CreateProject(const TemplateDefinition & base_tmpl, ArrayView <Variable> string_inputs, ArrayView <Variable> path_inputs, CString::View generate, const WString::View & output_root, bool overwrite, System::FileHandle & std_out)
 {
 	auto tmpl = OpenTemplateDefinitionEx(base_tmpl.folder);
 		
 	AddTargetExcludes(tmpl, generate);
-
-	//InstantiateTemplate(tmpl, strings_paths[0], strings_paths[1], File::CorrectTrailingStroke(output_root), overwrite, std_out);
 
 	Array <Variable> expanded = Join(ExpandStringVariables(tmpl, string_inputs), ExpandPathVariables(tmpl, path_inputs));
 
@@ -408,7 +408,5 @@ bool ReflexCLI::CreateProject(const TemplateDefinition & base_tmpl, ArrayView <V
 
 	if (!System::IsDirectory(dest_root)) Bootstrap::CLI::ThrowError("could not create dest_folder");
 
-	InstallFolder(tmpl, expanded, tmpl.folder, dest_root, Join(repo_name, File::kStroke), overwrite, std_out);
-
-	return true;
+	return InstallFolder(tmpl, expanded, tmpl.folder, dest_root, Join(repo_name, File::kStroke), overwrite, std_out);
 }

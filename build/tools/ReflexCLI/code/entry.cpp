@@ -214,10 +214,12 @@ const CLI::TaskDef kCommands[] =
 					{
 						dest = System::GetCurrentDirectory();
 
-						if (Left<true>(dest, reflex_path.GetSize()) == reflex_path) CLI::ThrowMissingArg("output", "<folder>");
+						if (CaseInsensitive::eq(Left<true>(dest, reflex_path.GetSize()), reflex_path)) CLI::ThrowMissingArg("output", "<folder>");
 					}
 
-					CreateProject(tmpl, groups[0].c, groups[1].c, ValidateTargetsArg(args), dest, CLI::GetBoolArg(args, "overwrite"), std_out);
+					auto folder = CreateProject(tmpl, groups[0].c, groups[1].c, ValidateTargetsArg(args), dest, CLI::GetBoolArg(args, "overwrite"), std_out);
+
+					File::WriteLine(std_out, Join(L"project created at ", folder));
 
 					return;
 				}
