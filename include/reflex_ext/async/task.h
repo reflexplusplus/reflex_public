@@ -67,35 +67,21 @@ public:
 	
 	struct Context
 	{
-		bool Cancelled() const;
+		virtual bool Cancelled() const = 0;
+		virtual void SetProgress(Float32 value_normalized) = 0;
+	};
 
-		void SetProgress(Float32 value_normalized);
-
-		void SetResult(bool success, TRef <Object> payload = {});
-
-
-
-	protected:
-
-		friend Worker;
-
-		AtomicFloat32 m_progress = 0.0f;
-		
-		AtomicUInt8 m_cancelled = false;
-		AtomicUInt8 m_status = kStatusPending;
-
-		bool m_result_ok = false;
-		bool m_result_set = false;
-	
-		Reference <Object> m_result_payload;
-
+	struct Result
+	{
+		bool success = false;
+		Reference <Object> payload;
 	};
 
 
 
 	//lifetime
 	
-	static TRef <Worker> Create(const Function <void(Context & ctx)> & worker);
+	static TRef <Worker> Create(const Function <Result(Context & ctx)> & worker);
 
 	~Worker();
 
@@ -119,10 +105,20 @@ private:
 
 	friend Reflex::Detail::Constructor <Worker>;
 
-	Worker(const Function <void(Context & ctx)> & worker);
+	Worker(const Function <Result(Context & ctx)> & worker);
 
+	struct ContextImpl : public Context
+	{
+		bool Cancelled() const override;
 
-	Context m_context;
+		void SetProgress(Float32 value_normalized) override;
+
+		AtomicFloat32 m_progress = 0.0f;
+		AtomicUInt8 m_cancelled = false;
+		AtomicUInt8 m_status = kStatusPending;
+	};
+
+	ContextImpl m_context;
 
 	AtomicPointer m_presult;
 
@@ -154,23 +150,4 @@ inline Reflex::Async::Task::Status Reflex::Async::Worker::GetStatus() const
 inline Reflex::TRef <Reflex::Object> Reflex::Async::Worker::GetResult()
 {
 	return Cast<Object>(REFLEX_ATOMIC_READ(m_presult));
-}
-
-inline bool Reflex::Async::Worker::Context::Cancelled() const
-{
-	return REFLEX_ATOMIC_READ_UNORDERED(m_cancelled);
-}
-
-inline void Reflex::Async::Worker::Context::SetProgress(Float value)
-{
-	REFLEX_ATOMIC_WRITE_UNORDERED(m_progress, value);
-}
-
-inline void Reflex::Async::Worker::Context::SetResult(bool success, TRef <Object> payload)
-{
-	m_result_ok = success;
-
-	m_result_payload = payload;
-
-	m_result_set = true;
 }

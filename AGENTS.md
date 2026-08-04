@@ -28,10 +28,10 @@
 
 ## Creating Projects
 
-- When creating a new Reflex app or test project, use the repo CLI instead of attempting to manually set up projects.
-- Use `bin/tools/win/reflex.exe create --template <id> --vendor <vendor> --product <product> --targets <list> --output <folder>`.
-- Check available templates with `bin/tools/win/reflex.exe list-templates`.
-- Check available targets with `bin/tools/win/reflex.exe list-targets`.
+- When creating a new Reflex app or test project, use the reflex CLI instead of attempting to manually set up projects.
+- Use `reflex create --template <id> --vendor <vendor> --product <product> --target <value[,..]> --output <folder>`.
+- Check available templates with `reflex list-templates`.
+- Check available targets with `reflex list-targets`.
 
 ## Fundamentals
 
@@ -42,10 +42,7 @@
 - It has built-in intrusive lifetime management via `Retain*` / `Release*`.
 - In normal code, avoid calling `Retain*` / `Release*` manually. Prefer `Reference`, `TRef`, and helper APIs such as `Make<T>()` / `New<T>()`.
 - Objects are generally created with `New<T>(...)`, which enables automatic destruction when retain count reaches zero.
-- `New<T>(...)` returns a `TRef<T>`:
-  - non-null
-  - non-owning
-  - callers should retain it via `Reference<T>` if they need to ensure lifetime beyond immediate use
+- `New<T>(...)` returns a `TRef<T>`, not a `Reference<T>`.
 - `Make<T>(...)` is the convenience wrapper that returns a strong owning `Reference<T>` instead of `TRef<T>`.
 - `New<T>(...)` uses forwarding, so there are cases where argument deduction cannot resolve the call cleanly, especially with untyped brace arguments such as `{}`.
 - In those cases, prefer `REFLEX_CREATE(TYPE, ...)`.
@@ -53,20 +50,27 @@
 
 ### `Reflex::TRef`
 
+- `TRef<T>` is one of the 2 primary Reflex smart-pointer/reference types, and it is critical to understand that it is **not** the owning one.
 - `TRef<T>` is a lightweight, non-owning, non-null reference wrapper over a retainable object pointer.
-- `TRef<T>` does **not** retain ownership.
-- `TRef<T>` means:
+- `TRef<T>` is transitory or temporary.
+- `TRef<T>` is generally used for transient arguments and return values, not for long-lived storage.
+- `TRef<T>` does **not** affect retain count.
+- Think of `TRef<T>` as a raw pointer with stronger semantics:
   - the pointer is logically non-null
   - the target is a Reflex retainable object
   - callers must retain or store into an owning reference type if they need to guarantee lifetime
+- `TRef<T>` is therefore commonly used:
+  - as the return type of factory-style `Create` / `New` APIs
+  - as a function argument when the API contract implies the receiver may retain it if needed
 - Do not describe `TRef` as owning.
 - Do not infer that returning `TRef` extends lifetime.
 - `TRef` is pointer-sized and is intended to be cheap to pass around.
 
 ### `Reflex::Reference`
 
-- `Reference<T>` is the owning/retaining intrusive reference type.
-- Constructing or assigning a `Reference<T>` retains the target; destroying or clearing it releases the target.
+- `Reference<T>` is the other primary Reflex smart-pointer type, and it is the strong owning/retaining one.
+- `Reference<T>` increments retain count on construction/assignment and decrements it on destruction/clear.
+- Unlike COM-style conventions, Reflex objects are created with a retain count of `0`, so `Reference<T>` has straightforward paired retain/release behavior.
 - When code needs to keep an object alive beyond an immediate expression or callback, `Reference<T>` is typically the right tool.
 - If you need to turn a `TRef<T>` into an owning reference, use `Reference<T>`.
 

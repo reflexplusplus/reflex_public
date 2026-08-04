@@ -16,7 +16,6 @@
 		1781143C2C3648D600E9C968 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1781143B2C3648D600E9C968 /* Foundation.framework */; };
 		178178BB2D6778A500BCB67F /* AudioToolbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 178178BA2D6778A500BCB67F /* AudioToolbox.framework */; };
 		1796D1A42D150E460068430A /* UniformTypeIdentifiers.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1796D1A32D150E460068430A /* UniformTypeIdentifiers.framework */; };
-		17992F4F2B8EE8A5003FC4A9 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 17992F4B2B8EE8A5003FC4A9 /* Main.storyboard */; };
 		17992F502B8EE8A5003FC4A9 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 17992F4D2B8EE8A5003FC4A9 /* LaunchScreen.storyboard */; };
 		17992F522B8EE8AF003FC4A9 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 17992F512B8EE8AF003FC4A9 /* Assets.xcassets */; };
 		17B16A7E2BD13613007507E5 /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 17B16A7D2BD13613007507E5 /* AVFoundation.framework */; };
@@ -38,7 +37,6 @@
 		17839E6C2B8EE7FB001E3A78 /* _PRODUCT-NAME_.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "_PRODUCT-NAME_.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		1796D1A32D150E460068430A /* UniformTypeIdentifiers.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UniformTypeIdentifiers.framework; path = System/Library/Frameworks/UniformTypeIdentifiers.framework; sourceTree = SDKROOT; };
 		17992F3F2B8EE888003FC4A9 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		17992F4C2B8EE8A5003FC4A9 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		17992F4E2B8EE8A5003FC4A9 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		17992F512B8EE8AF003FC4A9 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		17B16A7D2BD13613007507E5 /* AVFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVFoundation.framework; path = System/Library/Frameworks/AVFoundation.framework; sourceTree = SDKROOT; };
@@ -108,7 +106,6 @@
 		17C1BB9B2BADDE97003BE009 /* Resources */ = {
 			isa = PBXGroup;
 			children = (
-				17992F4B2B8EE8A5003FC4A9 /* Main.storyboard */,
 				17992F512B8EE8AF003FC4A9 /* Assets.xcassets */,
 				17992F4D2B8EE8A5003FC4A9 /* LaunchScreen.storyboard */,
 				17992F3F2B8EE888003FC4A9 /* Info.plist */,
@@ -183,7 +180,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				17992F4F2B8EE8A5003FC4A9 /* Main.storyboard in Resources */,
 				1AF818142DE890F800D7EA96 /* paths.xcconfig in Resources */,
 				17992F502B8EE8A5003FC4A9 /* LaunchScreen.storyboard in Resources */,
 				17992F522B8EE8AF003FC4A9 /* Assets.xcassets in Resources */,
@@ -250,14 +246,6 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXVariantGroup section */
-		17992F4B2B8EE8A5003FC4A9 /* Main.storyboard */ = {
-			isa = PBXVariantGroup;
-			children = (
-				17992F4C2B8EE8A5003FC4A9 /* Base */,
-			);
-			name = Main.storyboard;
-			sourceTree = "<group>";
-		};
 		17992F4D2B8EE8A5003FC4A9 /* LaunchScreen.storyboard */ = {
 			isa = PBXVariantGroup;
 			children = (
@@ -420,7 +408,6 @@
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "_PRODUCT-NAME_ would like to access the microphone";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
-				INFOPLIST_KEY_UIMainStoryboardFile = Main;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -457,7 +444,6 @@
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "_PRODUCT-NAME_ would like to access the microphone";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
-				INFOPLIST_KEY_UIMainStoryboardFile = Main;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				LD_RUNPATH_SEARCH_PATHS = (

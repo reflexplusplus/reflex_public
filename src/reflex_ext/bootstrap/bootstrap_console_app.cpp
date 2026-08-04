@@ -8,9 +8,11 @@
 
 REFLEX_BEGIN_INTERNAL(Reflex::Bootstrap::CLI)
 
+constexpr Key32 kcommand = K32("command");
+
 void LoadArgsFile(Data::PropertySet & args)
 {
-	if (auto args_path = GetFilenameArg(args, "args", false))
+	if (auto args_path = GetFilename(args, "args", false))
 	{
 		Data::Assimilate(args, Data::DecodePropertySet(Data::kJsonFormat, File::Open(args_path)));
 	}
@@ -25,13 +27,27 @@ bool IsKey(const CString::View & string)
 
 struct NullProgressBarImpl : public ProgressBar
 {
-	void SetProgress(Float progress) override {}
+	void Render(Float32 progress = 0.0f) override {}
 };
+
+void AppendText(ArrayRegion <char> & region, const CString::View & text)
+{
+	MemCopy(text.data, region.data, text.size);
+	region = Nudge(region, text.size);
+}
+
+void AppendFilled(ArrayRegion <char> & region, UInt size, char value)
+{
+	Fill({ region.data, size }, value);
+	region = Nudge(region, size);
+}
 
 template <bool PROGRESS>
 struct ProgressBarImpl : public ProgressBar
 {
 	static constexpr UInt kBarWidth = 32;
+	static constexpr UInt kAnsiColourSize = 5;
+	static constexpr UInt kNumProgressColours = 4;
 
 	static constexpr const char kSpinner[] = "|/-\\";
 
@@ -43,27 +59,21 @@ struct ProgressBarImpl : public ProgressBar
 
 		if constexpr (PROGRESS)
 		{
-			total += kBarWidth + 3;
+			total += kBarWidth + 3 + (kAnsiColourSize * kNumProgressColours);
 		}
 
 		m_buffer.Reserve(total);
+		m_buffer.SetSize<kAllocateNone>(total);
 
-		m_buffer.Push<kAllocateNone>('\r');
+		auto region = ToRegion(m_buffer);
 
-		m_buffer.Append<kAllocateNone>(title);
-		m_buffer.Push<kAllocateNone>(' ');
+		*region.data = '\r';
+		region = Nudge(region, 1);
 
-		if constexpr (PROGRESS)
-		{
-			m_buffer.Push<kAllocateNone>('[');
-			m_bar_region = Extend<kAllocateNone>(m_buffer, kBarWidth);
-			m_buffer.Push<kAllocateNone>(']');
-			m_buffer.Push<kAllocateNone>(' ');
-		}
+		AppendText(region, title);
+		*region.data = ' ';
 
-		m_buffer.Push<kAllocateNone>(' ');	//spinner
-
-		REFLEX_ASSERT(m_buffer.GetSize() == total);
+		m_prefix_size = total - region.size + 1;
 
 		File::WriteBytes(out, Data::Pack(CString::View("\x1b[?25l")));
 	}
@@ -73,30 +83,43 @@ struct ProgressBarImpl : public ProgressBar
 		File::WriteBytes(out, Data::Pack(CString::View("\r\x1b[2K\x1b[?25h")));
 	}
 
-	void SetProgress(Float progress) override
+	void Render(Float32 progress = 0.0f) override
 	{
+		CString::Region region = { m_buffer.GetData() + m_prefix_size, m_buffer.GetSize() - m_prefix_size };
+
 		if constexpr (PROGRESS)
 		{
 			progress = Clip(progress, 0.0f, 1.0f);
 
 			UInt filled = Truncate(progress * Float32(kBarWidth));
+			UInt remaining = kBarWidth - filled;
 
-			auto [done, remain] = Reflex::Detail::Splice<false>(m_bar_region, filled);
-
-			Fill(done, '#');
-			Fill(remain, '.');
+			AppendText(region, Detail::kColours[kColourDefault]);
+			*region.data = '[';
+			region = Nudge(region, 1);
+			AppendText(region, Detail::kColours[kColourGreen]);
+			AppendFilled(region, filled, '#');
+			AppendText(region, Detail::kColours[kColourBrightBlack]);
+			AppendFilled(region, remaining, '.');
+			AppendText(region, Detail::kColours[kColourDefault]);
+			*region.data = ']';
+			region = Nudge(region, 1);
+			*region.data = ' ';
+			region = Nudge(region, 1);
 		}
 
-		m_buffer.GetLast() = kSpinner[(m_spinner++ & 3)];
+		*region.data = kSpinner[(m_spinner++ & 3)];
 
 		File::WriteBytes(out, Data::Pack(m_buffer));
+		
+		out->Flush(false);
 	}
 
 	const TRef <System::FileHandle> out;
 
 	CString m_buffer;
 
-	ArrayRegion <char> m_bar_region;
+	UInt m_prefix_size;
 
 	UInt m_spinner;
 };
@@ -125,44 +148,53 @@ Reflex::Data::PropertySet Reflex::Bootstrap::CLI::Detail::PackArgs(ArrayView <CS
 
 	if (cmdline && !IsKey(cmdline.GetFirst()))
 	{
-		Data::SetCString(args, "cmd", cmdline.GetFirst());
+		Data::SetCString(args, kcommand, cmdline.GetFirst());
 
 		cmdline = Mid(cmdline, 1);
 	}
 
 	CString::View key;
+	Key32 value_key = K32("value");
 
 	for (auto token : cmdline)
 	{
 		bool expect_value = True(key);
 
-		if (IsKey(token) == expect_value)
+		if (expect_value)
 		{
-			if (expect_value)
-			{
-				ThrowError(Join("missing value for ", key));
-			}
-			else
-			{
-				ThrowError(Join("unexpected token '", token, "'; multi-word values must be quoted"));
-			}
-		}
-		else if (expect_value)
-		{
+			if (IsKey(token)) ThrowError(Join("missing value for ", key));
+
 			Data::SetCString(args, key, token);
 
 			key = {};
 		}
-		else
+		else if (IsKey(token))
 		{
 			key = Mid(token, 2);
 		}
+		else
+		{
+			Data::SetCString(args, value_key, token);
+
+			value_key.value++;
+		}
 	}
+
+	if (key) ThrowError(Join("missing value for ", key));
 
 	return args;
 }
 
-Reflex::WString Reflex::Bootstrap::CLI::GetFilenameArg(const Data::PropertySet & args, CString::View id, bool check_exists)
+Reflex::Array <Reflex::CString::View> Reflex::Bootstrap::CLI::GetStringArray(const Data::PropertySet & args, Key32 id)
+{
+	auto split = Split(Data::GetCString(args, id), ',');
+
+	Remove(split, "");
+
+	return split;
+}
+
+Reflex::WString Reflex::Bootstrap::CLI::GetFilename(const Data::PropertySet & args, CString::View id, bool check_exists)
 {
 	auto corrected = File::CorrectStrokes(ToWString(Data::GetCString(args, id)));
 
@@ -187,9 +219,9 @@ Reflex::WString Reflex::Bootstrap::CLI::GetFilenameArg(const Data::PropertySet &
 	return corrected;
 }
 
-Reflex::WString Reflex::Bootstrap::CLI::GetFolderArg(const Data::PropertySet & args, CString::View id, bool check_exists)
+Reflex::WString Reflex::Bootstrap::CLI::GetFolder(const Data::PropertySet & args, CString::View id, bool check_exists)
 {
-	auto folder = File::CorrectTrailingStroke(GetFilenameArg(args, id, false));
+	auto folder = File::CorrectTrailingStroke(GetFilename(args, id, false));
 
 	if (check_exists && !System::IsDirectory(folder))
 	{
@@ -251,8 +283,9 @@ void Reflex::Bootstrap::CLI::Await(System::FileHandle & out, const CString::View
 	task_context;
 
 	auto display = Make<ProgressBar>(out, title, show_progress);
+	display->Render();
 
-	auto task = Make<Async::Worker>([bg_fn, &task_context](Async::Worker::Context & ctx)
+	auto task = Make<Async::Worker>([bg_fn, &task_context](Async::Worker::Context & ctx) -> Async::Worker::Result
 	{
 		try
 		{
@@ -260,11 +293,11 @@ void Reflex::Bootstrap::CLI::Await(System::FileHandle & out, const CString::View
 
 			bg_fn(task_context);
 
-			ctx.SetResult(true);
+			return { true };
 		}
 		catch (const CString & error)
 		{
-			ctx.SetResult(false, New<Data::CStringProperty>(error));
+			return { false, New<Data::CStringProperty>(error) };
 		}
 	});
 
@@ -272,7 +305,7 @@ void Reflex::Bootstrap::CLI::Await(System::FileHandle & out, const CString::View
 
 	while (!task->Completed())
 	{
-		display->SetProgress(task->GetProgress());
+		display->Render(task->GetProgress());
 
 		System::SuspendThread(100);
 
@@ -292,7 +325,11 @@ void Reflex::Bootstrap::CLI::Await(System::FileHandle & out, const CString::View
 	{
 		if (auto error  = DynamicCast<Data::CStringProperty>(task->GetResult()))
 		{
-			Print(out, kColourBrightRed, error->value);
+			ThrowError(error->value);
+		}
+		else
+		{
+			ThrowError(title);
 		}
 	}
 }
@@ -311,7 +348,7 @@ Reflex::UInt8 Reflex::Bootstrap::CLI::Dispatch(const ArrayView <CString::View> &
 
 		LoadArgsFile(args);
 
-		bool verbose = (flags & kFlagForceVerbose) || GetBoolArg(args, "verbose");
+		bool verbose = (flags & kFlagForceVerbose) || GetBool(args, "verbose");
 
 		if (verbose)
 		{
@@ -322,7 +359,7 @@ Reflex::UInt8 Reflex::Bootstrap::CLI::Dispatch(const ArrayView <CString::View> &
 			Output::Disable();
 		}
 
-		auto task_arg = Data::GetCString(args, "cmd");
+		auto task_arg = Data::GetCString(args, kcommand);
 
 		if (auto task = SearchValue<FieldCompare<&TaskDef::id>>(tasks, task_arg ? Key32(task_arg) : tasks[0].id))
 		{

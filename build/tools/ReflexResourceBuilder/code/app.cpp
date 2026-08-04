@@ -41,19 +41,14 @@ struct AppImpl : public App
 
 Reflex::TRef <Reflex::System::Task> ResourceBuilder::Compile(const WString::View & path)
 {
-	Array <WString> args;
-	args.Push(L"build-resources");
-	args.Push(L"--path");
-	args.Push(path);
-
 	auto exe_path = ReflexCLI::GetReflexExecutablePath(ReflexCLI::GetReflexPath());
 
 	REFLEX_ASSERT(exe_path);
 	REFLEX_ASSERT(File::Exists(exe_path));
 
-	auto process = System::Process::Create(exe_path, args, { .allow_window = false });
+	auto process = System::Process::Create(exe_path, { L"build-resources", L"--path", path }, { .allow_window = false });
 
-	REFLEX_ASSERT(process->Status());
+	REFLEX_ASSERT(IsValid(process));
 
 	return process;
 }

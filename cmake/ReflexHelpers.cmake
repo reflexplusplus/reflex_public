@@ -821,6 +821,14 @@ function(_reflex_add_plugin_format base_target format sources name vendor versio
         )
         target_link_libraries(${_t} PRIVATE ${_fmtlib})
 
+        # BUNDLE_EXTENSION only applies under BUNDLE (Apple). On Windows match the
+        # canonical VS project (templates/cpp_audioplugin/projects/win/vcxproj/
+        # VST3.vcxproj: TargetExt=.vst3): emit a flat <name>.vst3 module. Without
+        # this the module is <name>.dll and collides with the CLAP target's .dll.
+        if(WIN32)
+            set_target_properties(${_t} PROPERTIES SUFFIX ".vst3")
+        endif()
+
         if(APPLE AND NOT CMAKE_SYSTEM_NAME STREQUAL "iOS")
             _reflex_link_apple_audio_frameworks(${_t})
         endif()
@@ -853,6 +861,12 @@ function(_reflex_add_plugin_format base_target format sources name vendor versio
             BUNDLE_EXTENSION "clap"
         )
         target_link_libraries(${_t} PRIVATE ${_fmtlib})
+
+        # See VST3 above: match the canonical VS project (CLAP.vcxproj
+        # TargetExt=.clap) and emit a flat <name>.clap module on Windows.
+        if(WIN32)
+            set_target_properties(${_t} PROPERTIES SUFFIX ".clap")
+        endif()
 
         if(APPLE AND NOT CMAKE_SYSTEM_NAME STREQUAL "iOS")
             _reflex_link_apple_audio_frameworks(${_t})

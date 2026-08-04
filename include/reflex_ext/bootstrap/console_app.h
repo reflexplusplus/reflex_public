@@ -1,6 +1,7 @@
 #pragma once
 
 #include "common/global.h"
+#include "reflex_ext/async.h"
 
 
 
@@ -57,16 +58,13 @@ namespace Reflex::Bootstrap::CLI
 
 		static TRef <ProgressBar> Create(System::FileHandle & out, const CString::View & title, bool show_progress);
 
-		virtual void SetProgress(Float proportion) = 0;
-
-		void Step() { SetProgress(0.0f); }
+		virtual void Render(Float32 progress = 0.0f) = 0;
 	};
 
-	struct TaskContext : public System::FileHandle
+	struct TaskContext : 
+		public System::FileHandle, 
+		public Async::Worker::Context
 	{
-		virtual bool Cancelled() const = 0;
-
-		virtual void SetProgress(Float progress) = 0;
 	};
 
 
@@ -75,11 +73,13 @@ namespace Reflex::Bootstrap::CLI
 
 	CString::View GetString(const Data::PropertySet & args, Key32 id);
 
-	WString GetFilenameArg(const Data::PropertySet & args, CString::View id, bool check_exists);
+	Array <CString::View> GetStringArray(const Data::PropertySet & args, Key32 id);
 
-	WString GetFolderArg(const Data::PropertySet & args, CString::View id, bool check_exists);
+	WString GetFilename(const Data::PropertySet & args, CString::View id, bool check_exists);
 
-	bool GetBoolArg(const Data::PropertySet & args, Key32 id);
+	WString GetFolder(const Data::PropertySet & args, CString::View id, bool check_exists);
+
+	bool GetBool(const Data::PropertySet & args, Key32 id);
 
 
 
@@ -136,7 +136,7 @@ inline Reflex::CString::View Reflex::Bootstrap::CLI::GetString(const Data::Prope
 	return Data::GetCString(args, id);
 }
 
-inline bool Reflex::Bootstrap::CLI::GetBoolArg(const Data::PropertySet & args, Key32 id)
+inline bool Reflex::Bootstrap::CLI::GetBool(const Data::PropertySet & args, Key32 id)
 {
 	return Data::GetCString(args, id) == Reflex::Detail::kFalseTrue[1];
 }

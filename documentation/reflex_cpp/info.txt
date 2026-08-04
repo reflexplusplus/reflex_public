@@ -807,7 +807,7 @@
 
 #p Async tasks are reference-counted. Clients typically hold a Reference <Async::Task>.  Destroying this reference automatically requests cancellation of the task (assuming one-owner).
 
-#p For custom workers, task cancellation is cooperative. Worker implementations must explicitly observe and respect the task's run flag via calling Cancelled() and if true, return early. In this case typically you should also ctx.SetResult(false) to indicate failure.
+#p For custom workers, task cancellation is cooperative. Worker implementations must explicitly observe and respect the task's run flag via calling Cancelled() and if true, return early with { false, {} } to indicate failure.
 
 #h1 Observation
 
@@ -822,7 +822,7 @@
 #h1 Examples
 <code> 
 #p //start a background task
-#p auto task_ref = Make<Async::Worker>([](Async::Worker::Context & ctx)
+#p auto task_ref = Make<Async::Worker>([](Async::Worker::Context & ctx) -> Async::Worker::Result
 #p {
 #p 	auto result = New<Data::UInt32Property>(); //use whatever payload type is suitable
 #p 	
@@ -836,9 +836,14 @@
 #p 		n++;
 #p 	}
 #p 	
+#p 	if (ctx.Cancelled())
+#p 	{
+#p 		return { false, {} };
+#p 	}
+#p 	
 #p 	result->value = n;
 #p 	
-#p 	ctx.SetResult(n == 100, result);
+#p 	return { n == 100, result };
 #p });
 #p 
 #p // monitor progress
@@ -6503,9 +6508,10 @@ See also Bootstrap::Detail::SetStyle.
 
 <code>
 #p // create and start a background task
-#p auto task = New<Async::Worker>([](Async::Worker::Context& ctx)
+#p auto task = New<Async::Worker>([](Async::Worker::Context& ctx) -> Async::Worker::Result
 #p {
-#p  // ... do work, call ctx.SetResult when done
+#p 	// ... do work, then return success and optional payload
+#p 	return { true, {} };
 #p });
 #p 
 #p // attach completion callback - lifetime tied to *this
@@ -9176,3 +9182,97 @@ See also Bootstrap::Detail::SetStyle.
 	Module: ["Reflex", "GLX", "Events"];
 };
 
+58:
+{
+	@WString Description: "#p Logical OR helper that exists in addition to the built-in operator for cases where all argument expressions should still be evaluated before combining the result.
+
+#p This is useful for patterns such as:
+
+<code>
+#p if (Or(CallA(), CallB()))
+#p {
+#p }
+</code>
+
+#p Both CallA() and CallB() are evaluated because they are function arguments. This differs from the built-in $q||$ operator, which short-circuits expression evaluation.";
+
+	Path: ["Reflex", "Or"];
+};
+
+59:
+{
+	@WString Description: "#p Logical AND helper that exists in addition to the built-in operator for cases where all argument expressions should still be evaluated before combining the result.
+
+#p This is useful for patterns such as:
+
+<code>
+#p if (And(CallA(), CallB()))
+#p {
+#p }
+</code>
+
+#p Both CallA() and CallB() are evaluated because they are function arguments. This differs from the built-in $q&&$ operator, which short-circuits expression evaluation.";
+
+	Path: ["Reflex", "And"];
+};
+
+60:
+{
+	@WString Description: "#p Generic dereference helper used so templated code can accept either an object/reference-like wrapper or a raw pointer through a common path.
+
+#p Overloads exist for direct references and pointer-like types. In generic code this is often clearer than spelling out $q*$q at each call site.";
+
+	Path: ["Reflex", "Deref"];
+};
+
+61:
+{
+	@WString Description: "#p Generic address-of helper used where the normal $q&$q operator is intentionally unavailable or would pick the wrong overload.
+
+#p This is particularly useful for wrapper types such as TRef or ArrayRegion, which delete $qoperator&$q to prevent accidental misuse. Use GetAdr when you explicitly want the wrapper's storage address rather than the address of its underlying pointee/data.";
+
+	Path: ["Reflex", "GetAdr"];
+};
+
+62:
+{
+	@WString Description: "#p Tests whether an object or object-reference compares equal to the null instance for its type.
+
+#p This is mainly intended for generic code working with Reflex object/reference wrappers, where comparing against the type's null value is clearer than checking raw pointer state directly.";
+
+	Path: ["Reflex", "IsNull"];
+};
+
+63:
+{
+	@WString Description: "#p Tests whether an object or object-reference does not compare equal to the null instance for its type.
+
+#p This is the inverse of IsNull and is mainly intended for generic code working with Reflex object/reference wrappers.";
+
+	Path: ["Reflex", "IsValid"];
+};
+
+64:
+{
+	@WString Description: "#p Returns a reference to the wrapped raw pointer storage.
+
+#p This is mainly used when comparing or interoperating with raw pointers, or when passing the wrapped pointer through low-level helper APIs that expect a pointer reference.";
+
+	Path: ["Reflex", "TRef", "Adr"];
+};
+
+65:
+{
+	@WString Description: "#p Returns a reference to the wrapped raw pointer storage.
+
+#p This is mainly used when comparing or interoperating with raw pointers, or when passing the wrapped pointer through low-level helper APIs that expect a pointer reference.";
+
+	Path: ["Reflex", "Reference", "Adr"];
+};
+
+66:
+{
+	@WString Description: "#p Releases the current referenced object, if any, and resets the reference to its null value.";
+
+	Path: ["Reflex", "Reference", "Clear"];
+};

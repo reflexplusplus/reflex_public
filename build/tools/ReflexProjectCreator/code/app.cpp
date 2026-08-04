@@ -18,7 +18,7 @@ struct AppImpl : public App
 
 	void InstantiateTemplate(const TemplateDefinition & tmpl, ArrayView <Pair<CString>> inputs, ArrayView <CString> targets, const WString & dest, bool overwrite) override;
 
-	void RunTask(CString::View cmd, Array <WString> && args, const Function <bool(const Data::Archive & output)> & done = {});
+	void RunTask(CString::View command, Array <WString> && args, const Function <bool(const Data::Archive & output)> & done = {});
 
 
 	void OnReset(Key32 context) override;
@@ -127,7 +127,7 @@ void AppImpl::InstantiateTemplate(const TemplateDefinition & tmpl, ArrayView <Pa
 		args.Push(ToWString(value));
 	}
 
-	args.Push(L"--targets");
+	args.Push(L"--target");
 	args.Push(ToWString(Merge(targets, ',')));
 	args.Push(L"--output");
 	args.Push(dest);
@@ -168,16 +168,16 @@ void AppImpl::InstantiateTemplate(const TemplateDefinition & tmpl, ArrayView <Pa
 	});
 }
 
-void AppImpl::RunTask(CString::View cmd, Array <WString> && args, const Function <bool(const Data::Archive & output)> & done)
+void AppImpl::RunTask(CString::View command, Array <WString> && args, const Function <bool(const Data::Archive & output)> & done)
 {
-	auto temp_file = File::AcquireTempFile(ToWString(cmd));
+	auto temp_file = File::AcquireTempFile(ToWString(command));
 
-	Key32 id = cmd;
+	Key32 id = command;
 
 	auto & job = m_jobs.Acquire(id);
 
-	args.Push(L"--cmd");
-	args.Push(ToWString(cmd));
+	args.Push(L"--command");
+	args.Push(ToWString(command));
 	args.Push(L"--detail");
 	args.Push(L"true");
 
@@ -185,7 +185,7 @@ void AppImpl::RunTask(CString::View cmd, Array <WString> && args, const Function
 
 	temp_file.b.Clear();	//System::Process now owns the temp file handle
 
-	REFLEX_ASSERT(job.task->Status());
+	REFLEX_ASSERT(IsValid(job.task));
 
 	job.clock = Async::CreatePeriodicClock(0.25f, [this, id, done, filename = temp_file.a, &job]()
 	{
