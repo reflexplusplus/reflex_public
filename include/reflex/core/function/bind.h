@@ -18,3 +18,22 @@ namespace Reflex
 	template <class TYPE> inline auto ByRef(TYPE & value) { return std::reference_wrapper<TYPE>(value); }
 
 }
+
+
+
+
+//
+//Detail
+
+REFLEX_NS(Reflex::Detail)
+
+template <class FUNCTION_POINTER_TYPE, class RETURN, class... ARGS> FUNCTION_POINTER_TYPE CastFunctionPointer(RETURN(*function)(ARGS...))
+{
+	static_assert(sizeof(FUNCTION_POINTER_TYPE) == sizeof(function));
+
+	FUNCTION_POINTER_TYPE result;
+	MemCopy(&function, &result, sizeof(result));
+	return result;
+}
+
+REFLEX_END

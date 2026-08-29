@@ -1,2 +1,7 @@
+.DS_Store
 /third_party/
 **/*.cache
+/projects/
+/output/
+reflex_log.txt
+reflex_leaks.txt

@@ -15,8 +15,8 @@ struct AbstractClone : public GLX::Object
 	virtual void SetContent(Object & source) = 0;
 };
 
-TRef <AbstractClone> CreateCloneView();
+[[nodiscard]] TRef <AbstractClone> CreateCloneView();
 
-TRef <AbstractClone> CreateSnapshot(bool antialias = false);
+[[nodiscard]] TRef <AbstractClone> CreateSnapshot(bool antialias = false);
 
 REFLEX_END

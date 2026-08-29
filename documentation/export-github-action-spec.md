@@ -301,11 +301,9 @@ Preferred long-term direction:
 1. tag and `version.txt` must be validated to match
 2. workflow should fail if they diverge
 
-### Documentation tool complication
+### Documentation tool
 
-Moving binary/tool building fully to cloud is complicated because the ReflexDocumentation app currently depends on access to `nsa/reflex_libraries`.
-
-That means ReflexDocumentation should be treated as a separate dependency/stage, not folded blindly into the main repo export logic.
+ReflexDocumentation lives in the `reflex_libraries` repo, whose CI builds it against the reflex release declared in that repo's `reflex.ref` and attaches `reflex-docs-{macos,windows}.zip` to that release. The docs zips must be present on the release before the export/mirror workflow runs.
 
 ### Recommended binary/task split
 

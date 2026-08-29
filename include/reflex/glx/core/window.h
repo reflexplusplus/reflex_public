@@ -101,7 +101,9 @@ protected:
 
 	//system callbacks (handled by this class)
 
-	virtual void OnSetOwner(System::Window * window) override;
+	virtual void OnAttachWindow(System::Window & window, System::WindowDisplay & initial_mode, System::iRect & initial_rect) override;
+
+	virtual void OnDetachWindow() override;
 
 
 	virtual void OnSetRect(System::WindowDisplay state, const System::iRect & rect, const System::iRect & interactable, Int32 dpifactor) override;

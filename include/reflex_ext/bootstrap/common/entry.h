@@ -13,7 +13,7 @@
 namespace Reflex::Bootstrap
 {
 
-	template <class APP, class ... VARGS> inline TRef <Global> StartApp(System::App::Configuration & config, const CString::View & vendor, const CString::View & product, Key32 resources_subdomain, const char * entry, VARGS && ... vargs);
+	template <class APP, class ... VARGS> [[nodiscard]] inline TRef <Global> StartApp(System::App::Configuration & config, const CString::View & vendor, const CString::View & product, Key32 resources_subdomain, const char * entry, VARGS && ... vargs);
 
 	template <class APP, class VIEW> inline void PublishAppView(System::App::Configuration & config);
 

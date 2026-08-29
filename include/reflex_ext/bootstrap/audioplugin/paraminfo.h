@@ -86,7 +86,11 @@ struct Reflex::Bootstrap::ParamDesc : public Object
 
 
 //
-//Legacy
+//impl
+
+REFLEX_NS(Reflex::Bootstrap::Detail)
+using ParamDefs = ObjectOf < Array < Pair < Key32, ConstReference <ParamDesc> > > >;
+REFLEX_END
 
 namespace Reflex::Bootstrap
 {

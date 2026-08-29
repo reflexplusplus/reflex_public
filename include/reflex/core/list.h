@@ -936,7 +936,7 @@ template <class CALLBACK, class TYPE, bool RETAIN, class BASE, class... VARGS> R
 
 	REFLEX_STATIC_ASSERT(kIsObject<BASE>);
 
-	Context ctx = { callback, std::forward<VARGS>(args)... };
+	Context ctx = { callback, { std::forward<VARGS>(args)... } };
 
 	return Detail::SafeIterate(Reinterpret<Reflex::List<Object>>(list), ItemType::GetOffset(), kIsSingleThreadExclusive<ItemType>, &ctx, [](void * data, Object & object)
 	{

@@ -1,0 +1,8 @@
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+[PROJECT_ENTRIES]Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+[CONFIGS]	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+[TARGETS]	EndGlobalSection
+EndGlobal

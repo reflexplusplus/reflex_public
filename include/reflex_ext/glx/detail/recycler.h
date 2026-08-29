@@ -60,7 +60,7 @@ public:
 
 private:
 
-	static TRef <Object> CreateImpl() { return New<Object>(); }
+	[[nodiscard]] static TRef <Object> CreateImpl() { return New<Object>(); }
 
 	TRef <Object> AcquireImpl(const Function <TRef<Object>()> & ctr, Key32 id, ItemPositioning positioning, const Style & style);
 

@@ -17,7 +17,7 @@ namespace Reflex::GLX::Detail
 	class Font;
 
 
-	TRef <Reflex::Object> DecodeFontFile(const File::ResourcePool::StreamContext & ctx, System::FileHandle & instream);
+	[[nodiscard]] TRef <Reflex::Object> DecodeFontFile(const File::ResourcePool::StreamContext & ctx, System::FileHandle & instream);
 
 	ConstTRef <Data::ArchiveObject> RetrieveFontFile(const WString::View & path);
 
@@ -83,9 +83,9 @@ public:
 
 	//lifetime (cached/shared)
 
-	static TRef <Font> Create(const Data::PropertySet & parameters);
+	[[nodiscard]] static TRef <Font> Create(const Data::PropertySet & parameters);
 
-	static TRef <Font> Create(const ArrayView <FaceDesc> & faces);	
+	[[nodiscard]] static TRef <Font> Create(const ArrayView <FaceDesc> & faces);
 
 
 

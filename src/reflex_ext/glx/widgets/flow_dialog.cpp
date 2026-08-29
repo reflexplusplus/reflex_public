@@ -70,7 +70,7 @@ void Reflex::GLX::FlowDialog::UpdateButtons(const Page & page)
 
 		TRef button = m_buttons[next];
 
-		if (auto pstep = QueryPage(id))
+		if (QueryPage(id))
 		{
 			function = [this, next, id]()
 			{
@@ -178,10 +178,14 @@ bool Reflex::GLX::FlowDialog::OnEvent(Object & src, Event & e)
 
 					ShowPage(button.id, Direction(idx));
 
-					return true;	//dont trap the key, then char will be forwarded to text inputs
+					return true;
 				}
 			}
 			break;
+
+		case kKeyCodeEscape:
+			ShowPage(m_buttons[0].id, kDirectionBack);
+			return true;
 
 		default:
 			break;

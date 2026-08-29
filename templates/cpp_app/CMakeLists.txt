@@ -12,6 +12,9 @@ endif()
 find_package(Reflex REQUIRED CONFIG
     PATHS "${REFLEX_DIR}/cmake"
     NO_DEFAULT_PATH
+    # iOS sets CMAKE_FIND_ROOT_PATH_MODE_PACKAGE=ONLY, which re-roots PATHS
+    # onto the SDK sysroot and never searches the real directory.
+    NO_CMAKE_FIND_ROOT_PATH
 )
 
 # ---- App target ----
@@ -21,7 +24,7 @@ reflex_add_app(_PRODUCT-NAME-SYMBOL_
         code/app.cpp
         code/entry.cpp
         code/resources.cpp
-        code/view.cpp
+        code/view/view.cpp
     NAME               "_PRODUCT-NAME_"
     VENDOR             "_VENDOR-NAME_"
     PACKAGE_ID_VENDOR  "_PACKAGE-ID-VENDOR_"

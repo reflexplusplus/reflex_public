@@ -127,9 +127,9 @@ namespace Reflex::GLX
 
 	//to vbo
 
-	TRef <System::Renderer::Graphic> CreateGraphic(const Points::View & points, System::Renderer::PrimitiveType primitive_type = System::Renderer::kPrimitiveTypeTriangles);
+	[[nodiscard]] TRef <System::Renderer::Graphic> CreateGraphic(const Points::View & points, System::Renderer::PrimitiveType primitive_type = System::Renderer::kPrimitiveTypeTriangles);
 
-	TRef <System::Renderer::Graphic> CreateGraphic(const ColourPoints::View & colour_points, System::Renderer::PrimitiveType primitive_type = System::Renderer::kPrimitiveTypeTriangles);
+	[[nodiscard]] TRef <System::Renderer::Graphic> CreateGraphic(const ColourPoints::View & colour_points, System::Renderer::PrimitiveType primitive_type = System::Renderer::kPrimitiveTypeTriangles);
 
 }
 

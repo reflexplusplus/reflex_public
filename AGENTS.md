@@ -27,8 +27,9 @@
 
 ## Project Creation
 
-- Create apps and tests with the CLI: `reflex create --template <id> --vendor <vendor> --product <product> --target <id[,..]> --output <folder>`.
-- List available options with `reflex templates` and `reflex targets`.
+- Create apps and tests with the CLI: `reflex create --template <id> --vendor <vendor> --product <product> --generate <platform[,..]> --output <folder>`.
+- List templates with `reflex templates`; each template declares its supported generation platforms.
+- Generate native build projects from an existing project description with `reflex generate --path <project.cfg>`.
 
 ## Object Lifetimes
 
@@ -45,6 +46,8 @@
 - Do not include individual reflex headers in standard project templates; the framework API is already available.
 - Keep `ArrayView` and string views within the lifetime of their source data.
 - `ArrayView::size` is not `Array::GetSize`; use the appropriate API for the type in hand.
+- Within Reflex, always represent path separators with `File::kStroke` (`/`), which is the application-level proxy for `System::kPathDelimiter`. All Reflex `System` and `File` functions expect this canonical representation and perform any required platform translation themselves. Convert separators manually only when passing a path to a non-Reflex API or writing a platform-specific format that explicitly requires native path syntax.
+- Paths representing folders must always end with a trailing stroke. Reflex path-manipulation functions expect this convention, and functions that return folder paths include the trailing `/`; examples include folders returned by `System::GetPath` and `File::List`. Preserve the trailing stroke when storing, joining, or passing folder paths.
 
 ## Debugging
 

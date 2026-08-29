@@ -53,7 +53,7 @@ public:
 
 	//lifetime
 
-	static TRef <PropertyEditor> Create(const Data::Detail::StandardPropertySheetInterface & propertysheet_interface, const Interface & iface);
+	[[nodiscard]] static TRef <PropertyEditor> Create(const Data::Detail::StandardPropertySheetInterface & propertysheet_interface, const Interface & iface);
 
 
 

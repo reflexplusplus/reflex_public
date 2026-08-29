@@ -108,7 +108,7 @@ REFLEX_SET_TRAIT(Reflex::GLX::Menu, IsSingleThreadExclusive);
 
 REFLEX_NS(Reflex::GLX::Detail)
 
-inline TRef <Object> CreateMenuContent() { return Menu::Create(); };
+[[nodiscard]] inline TRef <Object> CreateMenuContent() { return Menu::Create(); };
 
 bool PopupHasFocus(Object & menu, Object & focus);	//returns true if menu, or open sub menu contains focus
 

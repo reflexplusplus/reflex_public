@@ -52,7 +52,7 @@ public:
 
 	virtual Optional <Int32> GetExitCode() const = 0;
 
-	virtual void Detach() = 0;
+	[[deprecated]] virtual void Detach() = 0;
 
 	virtual void Terminate() = 0;
 

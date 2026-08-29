@@ -1,5 +1,58 @@
 # Breaking Changes
 
+## v0.3.30
+
+### Bootstrap audio plugins now register a list of classes
+
+The Bootstrap audio-plugin contract now supports multiple plugin classes in one binary. This is a source compatibility break even for plugins that publish only one class.
+
+```cpp
+// Before
+static Class MakeClass();
+static TRef<Instance> Create(System::AudioPlugin & owner);
+
+InstanceImpl(System::AudioPlugin & owner)
+    : Instance(owner, kMagic, kChunkVersion)
+{
+}
+
+// After
+static Array<Class> MakeClasses();
+static TRef<Instance> Create(
+    const Class & cls,
+    System::AudioPlugin & owner);
+
+InstanceImpl(const Class & cls, System::AudioPlugin & owner)
+    : Instance(cls, owner, kMagic, kChunkVersion)
+{
+}
+```
+
+Return the old class in a one-element array, update `Create` to accept the selected `cls`, and pass that same class to the `Bootstrap::AudioPlugin` base constructor. Bootstrap now calls `PopulateParameters(...)` once per class.
+
+Preserve every identifier used by an already released plugin. In particular, every class now requires a stable, unique `clap.uid` even for non-CLAP builds because Bootstrap uses it to associate parameter definitions with the selected class. Changing CLAP, VST2, VST3, or Audio Unit identifiers can make hosts treat the update as a different plugin.
+
+Audio Unit projects now declare one or more components through `AU_COMPONENTS`, using comma-separated `subtype:type[:name]` records. `AU_VENDOR_4CC` is the shared manufacturer identifier.
+
+For CMake, replace:
+
+```cmake
+AU_TYPE_4CC   "aufx"
+AU_UID_4CC    "MyFx"
+AU_VENDOR_4CC "MyCo"
+```
+
+with:
+
+```cmake
+AU_COMPONENTS "MyFx:aufx"
+AU_VENDOR_4CC "MyCo"
+```
+
+Use the same values in `project.cfg`, with property syntax, and run `reflex generate --path <project.cfg>` after changing them.
+
+For the complete registration, identifier-stability, parameter, and multi-class Audio Unit requirements, run `reflex doc info Reflex::Bootstrap::AudioPlugin --root reflex_cpp`.
+
 ## v0.2.02
 
 ### Pointer capture now defaults to linked drag/up after trapped `kMouseDown`
@@ -38,22 +91,6 @@ See documentation/glx-pointer-events-migration-guide.md
 ### Bootstrap::App inherits Streamable
 
 Your App impl no longer needs to inherit from Streamable, after updating, pass your chunkversion to the constructor.
-
-### AudioUnit 4CC token names renamed across CMake and macOS template surface
-
-AudioUnit token names were aligned so the public CMake API and the macOS plist/Xcode template surface now use explicit `_4CC` suffixes and the clearer `VENDOR` terminology.
-
-When updating an existing CMake-based AudioUnit project, make these replacements:
-
-- `AU_TYPE` -> `AU_TYPE_4CC`
-- `AU_SUBTYPE` -> `AU_UID_4CC`
-- `AU_MANUFACTURER` -> `AU_VENDOR_4CC`
-
-When updating generated macOS template/Xcode AudioUnit settings or plist substitutions, make this replacement:
-
-- `AU_COMPANY_4CC` -> `AU_VENDOR_4CC`
-
-The underlying values are unchanged: these are naming updates only. The important requirement remains that each AudioUnit 4CC token must still be a 4-character code.
 
 ### `System::FileHandle::Flush` now requires a `bool commit` argument
 

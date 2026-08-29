@@ -192,7 +192,7 @@ namespace ReflexCLI::Documentation
 	Pair < Array <CString::View>, UInt > BuildModulePath(const ModuleNode & node);
 	Array <ConstTRef <ModuleNode>> SortChildModules(const ModuleNode & parent, bool namespace_first);
 
-	Reference <Data::Table> CreateTable(const WString::View & folder, Data::KeyMap & keymap);
+	TRef <Data::Table> CreateTable(const WString::View & folder, Data::KeyMap & keymap);
 	CString::View GetSubCategory(Docformat::Category category, Docformat::TypeFlags flags);
 	Data::Table::ConstRowCursor FindSymbol(const Data::Table & table, Docformat::Symbol symbol);
 	Data::Archive ReplaceMarkupTokens(CString::View view);

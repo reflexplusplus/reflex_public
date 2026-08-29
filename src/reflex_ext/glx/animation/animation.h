@@ -26,7 +26,7 @@ struct InterpolatedAnimationImpl : public InterpolatedAnimation
 {
 public:
 
-	typedef FunctionPointer <void(InterpolatedAnimationImpl&,GLX::Object&,Float)> InterpolateFn;
+	using InterpolateFn = FunctionPointer <void(InterpolatedAnimationImpl&,GLX::Object&,Float)>;
 
 	InterpolatedAnimationImpl(InterpolateFn interpolatefn);
 

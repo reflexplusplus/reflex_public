@@ -100,9 +100,6 @@ Console::MainWindowDelegate::MainWindowDelegate(Console & console, System::Windo
 	m_panels(Detail::CreatePanels(root)),
 	m_onclose(onclose)
 {
-	owner.SetClient(this);
-
-
 	Retain(styles);
 
 	m_tabgroup.SetStyle(styles["Dialog"]);
@@ -146,7 +143,7 @@ Console::MainWindowDelegate::MainWindowDelegate(Console & console, System::Windo
 	{
 		Data::Deserialize(stream, rect, Reinterpret<UInt32>(m_focused), Reinterpret<UInt32>(console.m_undocked));
 
-		bool ok = true;
+		bool ok = false;
 
 		for (auto & irect : System::GetScreens())
 		{
@@ -182,11 +179,13 @@ Console::MainWindowDelegate::MainWindowDelegate(Console & console, System::Windo
 		}
 	}
 
+	rect.size = Max(rect.size, GLX::Detail::ComputeContentSize(m_tabgroup));
+
+	Pair <System::WindowDisplay,System::iRect> unused;
+	owner.SetClient(this, unused.a, unused.b);
+	owner.SetRect({ { Truncate(rect.origin.x), Truncate(rect.origin.y) }, { Truncate(rect.size.w), Truncate(rect.size.h) } });
+	owner.SetDisplayMode(System::kWindowDisplayWindowed);
 	SetTitle(L"Reflex");
-
-	SetRect(rect);
-
-	SetDisplayMode(System::kWindowDisplayWindowed);
 
 
 	GLX::BindEvent(m_tabgroup, GLX::Selector::kSelectPanel, [this](GLX::Object & src, GLX::Event & e)
@@ -234,7 +233,7 @@ Console::MainWindowDelegate::MainWindowDelegate(Console & console, System::Windo
 
 				bool value = Data::GetBool(prefs, id);
 
-				GLX::BindClick(GLX::AddMenuOption(menu, i.b, value), [this, &prefs, id, value]()
+				GLX::BindClick(GLX::AddMenuOption(menu, i.b, value), [&prefs, id, value]()
 				{
 					Data::SetBool(prefs, id, !value);
 
@@ -275,11 +274,10 @@ Console::UndockedPanel::UndockedPanel(MainWindowDelegate & windowdlg, Key32 pane
 	: m_window(System::Window::Create(System::kWindowStyleResizable | System::kWindowStyleMinimisable, true)),
 	m_glxwindow(New<WindowDelegate>(false))
 {
-	m_window->SetClient(m_glxwindow);
-
 	auto & tabgroup = windowdlg.m_tabgroup;
 
 	auto selector = tabgroup.GetSelector();
+	GLX::Rect rect;
 
 	REFLEX_LOOP(idx, selector->GetNumPanel())
 	{
@@ -295,7 +293,7 @@ Console::UndockedPanel::UndockedPanel(MainWindowDelegate & windowdlg, Key32 pane
 
 			GLX::Detail::Hide(m_button);
 
-			GLX::Rect rect = { { 64.0f, 64.0f }, selector->GetRect().size };
+			rect = { { 64.0f, 64.0f }, selector->GetRect().size };
 
 			if (auto binary = Data::GetBinary(TheGlobal::Get()->m_prefs, kUndockedRect))
 			{
@@ -310,8 +308,6 @@ Console::UndockedPanel::UndockedPanel(MainWindowDelegate & windowdlg, Key32 pane
 
 			rect.size = Max(rect.size, contentsize);
 
-			m_glxwindow->SetRect(rect);
-
 			GLX::BindEventVoid(panel, GLX::kRequestClose, []()
 			{
 				auto console = TheConsole::Get();
@@ -323,6 +319,9 @@ Console::UndockedPanel::UndockedPanel(MainWindowDelegate & windowdlg, Key32 pane
 		}
 	}
 
+	Pair <System::WindowDisplay,System::iRect> unused;
+	m_window->SetClient(m_glxwindow, unused.a, unused.b);
+	m_window->SetRect({ { Truncate(rect.origin.x), Truncate(rect.origin.y) }, { Truncate(rect.size.w), Truncate(rect.size.h) } });
 	m_window->SetDisplayMode(System::kWindowDisplayWindowed);
 }
 

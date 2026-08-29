@@ -35,7 +35,7 @@ public:
 	{
 		Function <TRef<Object>(Object & global, App & instance)> instance_ctr;
 
-		Function <TRef<Window>(App & instance, void * host_window)> view_ctr;
+		Function <TRef<Window::Client>(App & instance, UInt8 & window_flags)> view_ctr;
 
 		Array < Tuple<WString, WChar, Function<void()>> > app_menu;	//macos
 	};

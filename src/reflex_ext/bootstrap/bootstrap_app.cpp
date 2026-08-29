@@ -32,6 +32,8 @@ void Reflex::Bootstrap::App::OnReleaseData()
 
 bool Reflex::Bootstrap::App::Open(const WString & path)
 {
+	using OpenFunctionPointer = bool (App::*)(const WString &, Data::Archive::View);
+
 	bool ok = false;
 
 	auto data = File::Open(path);
@@ -40,7 +42,7 @@ bool Reflex::Bootstrap::App::Open(const WString & path)
 	{
 		m_session_listener.Clear();	//avoid feedback
 
-		const decltype (&App::OnImport) fns[2] = { &App::Open, &App::OnImport };
+		OpenFunctionPointer fns[2] = { &App::Open, &App::Import };
 
 		for (auto fn : fns)
 		{
@@ -143,7 +145,7 @@ void Reflex::Bootstrap::App::AttachSessionListener()
 	}
 }
 
-bool Reflex::Bootstrap::App::Open(const WString::View & path, const Data::Archive::View & data)
+bool Reflex::Bootstrap::App::Open(const WString & path, Data::Archive::View data)
 {
 	if (Data::Unpack<UInt32>(data) == magic)
 	{

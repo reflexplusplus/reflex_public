@@ -1,0 +1,78 @@
+#include "app.h"
+#include "view.h"
+
+
+
+
+//
+//entrypoint
+
+Reflex::TRef <Reflex::Object> Reflex::System::App::OnStart(const ArrayView <CString::View> & cmdline, Configuration & config)
+{
+	#if REFLEX_DEBUG
+	constexpr auto get_agent_args = [](ArrayView <CString::View> cmdline)
+	{
+		auto request_path = Join(Bootstrap::Detail::ExtractProjectDir(__FILE__), L"reflex_cmdline.json");
+
+		if (auto request = File::Open(request_path))
+		{
+			File::Delete(request_path);
+
+			return Data::DecodePropertySet(Data::kJsonFormat, request);
+		}
+
+		return Bootstrap::ParseCmdlineArgs(cmdline, true);
+	};
+
+	auto args = get_agent_args(cmdline);
+
+	if (Data::GetBool(args, K32("terminate-on-assert")))
+	{
+		System::Detail::DebugBreak = [](const char * msg)
+		{
+			auto file = Output::GetLogFile();
+
+			file->Flush(true);
+
+			File::WriteLine(file, "*** REFLEX_ASSERT ***");
+			File::WriteLine(file, msg);
+
+			System::Detail::EnumerateStackTrace(file.Adr(), [](void * pfile, UInt frame, const void * address, const char * symbol)
+			{
+				auto file = Cast<System::FileHandle>(pfile);
+
+				auto buffer = Reflex::Detail::DebugJoin(" ", frame, address, symbol);
+
+				File::WriteLine(*file, buffer);
+			});
+
+			file->Flush(true);
+
+			System::Detail::Terminate(1);
+		};
+	}
+	#endif
+
+	Bootstrap::PublishAppView< ::Notes::App, ::Notes::View >(config);
+	
+	auto global = Bootstrap::StartApp< ::Notes::App >
+	(
+		config,
+		"Reflex++",
+		"Notes",
+		MakeKey32("Notes"),
+		__FILE__
+	);
+
+#if REFLEX_DEBUG
+	if (auto delay = Data::GetFloat32(args, "auto-quit"))
+	{
+		SetAbstractProperty(global, "auto-quit", Async::CreatePeriodicClock(delay, []()
+		{
+			System::App::Quit();
+		}));
+	}
+#endif
+
+	return global;
+}

@@ -29,7 +29,8 @@ DerivedData/
 
 *.wasm
 
-.claude/
+.claude/*
+!.claude/commands/
 .codex-build/
 
 # Python
@@ -54,3 +55,6 @@ cmake-build-*/
 /ReflexProjectCreator.command
 
 /tmp
+
+# Specs and plans are working documents, kept locally and not committed.
+docs/superpowers/

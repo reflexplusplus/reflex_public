@@ -56,12 +56,12 @@ REFLEX_SET_TRAIT(Reflex::GLX::Detail::LayoutModel, IsSingleThreadExclusive);
 
 template <class OBJECT> inline Reflex::GLX::Detail::LayoutModel::AccommodateFn Reflex::GLX::Detail::CastAccommodateFn(FunctionPointer <void(OBJECT & object, bool & isresponsive, System::fSize & contentsize)> accommodate)
 {
-	return reinterpret_cast<Core::Object::AccommodateFn>(accommodate);
+	return Reflex::Detail::CastFunctionPointer<Core::Object::AccommodateFn>(accommodate);
 }
 
 template <class OBJECT> inline Reflex::GLX::Detail::LayoutModel::AlignFn Reflex::GLX::Detail::CastAlignFn(FunctionPointer <void(OBJECT & object, bool isresponsive, Float & contenth)> align)
 {
-	return reinterpret_cast<Core::Object::AlignFn>(align);
+	return Reflex::Detail::CastFunctionPointer<Core::Object::AlignFn>(align);
 }
 
 template <class OBJECT> inline Reflex::Pair <Reflex::GLX::Detail::LayoutModel::AccommodateFn, Reflex::GLX::Detail::LayoutModel::AlignFn> Reflex::GLX::Detail::CastLayoutFns(FunctionPointer <void(OBJECT & object, bool & isresponsive, System::fSize & contentsize)> accommodate, FunctionPointer <void(OBJECT & object, bool isresponsive, Float & contenth)> align)

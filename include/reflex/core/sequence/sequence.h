@@ -216,34 +216,30 @@ private:
 		VALUE value;
 	};
 
-	struct DfArray : public Array <ItemImpl*>
+	struct IndirectArray : public Array <ItemImpl*>
 	{
 		using Base = Array <ItemImpl*>;
 
-		DfArray(Allocator & allocator);
-
-		DfArray(const DfArray & pool, Allocator & allocator);
+		IndirectArray(Allocator & allocator);
+		IndirectArray(const IndirectArray & pool, Allocator & allocator);
 
 		void Clear();
 
 		void Remove(UInt idx);
-
 		void Remove(UInt idx, UInt n);
 
 		ItemImpl & Insert(UInt idx, ItemImpl && rhs);
-
 		ItemImpl & Push(ItemImpl && rhs);
 
 		ItemImpl & operator[](UInt idx);
-
 		const ItemImpl & operator[](UInt idx) const;
 
-		void operator=(const DfArray & pool);
+		void operator=(const IndirectArray & pool);
 	};
 
 	using ArrayBaseType = ConditionalType <CONTIGUOUS, Array<ItemImpl>, Array <ItemImpl*>>;
 
-	using ArrayImpl = ConditionalType <CONTIGUOUS,Array<ItemImpl>,DfArray>;
+	using ArrayImpl = ConditionalType <CONTIGUOUS,Array<ItemImpl>,IndirectArray>;
 
 	void Modify();
 
@@ -728,13 +724,13 @@ struct Reflex::Sequence<KEY,VALUE,COMPARE,CONTIGUOUS>::ItemImpl::Compare
 	}
 };
 
-template <class KEY, class VALUE, class COMPARE, bool CONTIGUOUS> inline Reflex::Sequence<KEY,VALUE,COMPARE,CONTIGUOUS>::DfArray::DfArray(Allocator & allocator)
+template <class KEY, class VALUE, class COMPARE, bool CONTIGUOUS> inline Reflex::Sequence<KEY,VALUE,COMPARE,CONTIGUOUS>::IndirectArray::IndirectArray(Allocator & allocator)
 	: Array<ItemImpl*>(allocator)
 {
 	REFLEX_STATIC_ASSERT(!CONTIGUOUS);
 }
 
-template <class KEY, class VALUE, class COMPARE, bool CONTIGUOUS> inline Reflex::Sequence<KEY,VALUE,COMPARE,CONTIGUOUS>::DfArray::DfArray(const DfArray & source, Allocator & allocator)
+template <class KEY, class VALUE, class COMPARE, bool CONTIGUOUS> inline Reflex::Sequence<KEY,VALUE,COMPARE,CONTIGUOUS>::IndirectArray::IndirectArray(const IndirectArray & source, Allocator & allocator)
 	: Array<ItemImpl*>(allocator)
 {
 	REFLEX_STATIC_ASSERT(!CONTIGUOUS);
@@ -745,13 +741,13 @@ template <class KEY, class VALUE, class COMPARE, bool CONTIGUOUS> inline Reflex:
 
 	for (auto & item : *this)
 	{
-		item = Detail::Allocate<ItemImpl>(allocator, AllocInfo(Detail::GetDebugTypeName<Sequence>(), "DfArray(const DfArray&)"));
+		item = Detail::Allocate<ItemImpl>(allocator, AllocInfo("Sequence::IndirectArray::IndirectArray(const IndirectArray&)"));
 
 		Detail::Constructor<ItemImpl>::Construct(item, **psrc++);
 	}
 }
 
-template <class KEY, class VALUE, class COMPARE, bool CONTIGUOUS> inline void Reflex::Sequence<KEY,VALUE,COMPARE,CONTIGUOUS>::DfArray::Clear()
+template <class KEY, class VALUE, class COMPARE, bool CONTIGUOUS> inline void Reflex::Sequence<KEY,VALUE,COMPARE,CONTIGUOUS>::IndirectArray::Clear()
 {
 	for (auto & item : *this)
 	{
@@ -763,7 +759,7 @@ template <class KEY, class VALUE, class COMPARE, bool CONTIGUOUS> inline void Re
 	Base::Clear();
 }
 
-template <class KEY, class VALUE, class COMPARE, bool CONTIGUOUS> REFLEX_INLINE void Reflex::Sequence<KEY,VALUE,COMPARE,CONTIGUOUS>::DfArray::Remove(UInt idx)
+template <class KEY, class VALUE, class COMPARE, bool CONTIGUOUS> REFLEX_INLINE void Reflex::Sequence<KEY,VALUE,COMPARE,CONTIGUOUS>::IndirectArray::Remove(UInt idx)
 {
 	auto item = Base::operator[](idx);
 
@@ -774,7 +770,7 @@ template <class KEY, class VALUE, class COMPARE, bool CONTIGUOUS> REFLEX_INLINE 
 	Base::Remove(idx);
 }
 
-template <class KEY, class VALUE, class COMPARE, bool CONTIGUOUS> REFLEX_INLINE void Reflex::Sequence<KEY,VALUE,COMPARE,CONTIGUOUS>::DfArray::Remove(UInt idx, UInt n)
+template <class KEY, class VALUE, class COMPARE, bool CONTIGUOUS> REFLEX_INLINE void Reflex::Sequence<KEY,VALUE,COMPARE,CONTIGUOUS>::IndirectArray::Remove(UInt idx, UInt n)
 {
 	REFLEX_LOOP_PTR(Base::GetData() + idx, pitem, n)
 	{
@@ -788,9 +784,9 @@ template <class KEY, class VALUE, class COMPARE, bool CONTIGUOUS> REFLEX_INLINE 
 	Base::Remove(idx, n);
 }
 
-template <class KEY, class VALUE, class COMPARE, bool CONTIGUOUS> REFLEX_INLINE typename Reflex::Sequence<KEY,VALUE,COMPARE,CONTIGUOUS>::ItemImpl & Reflex::Sequence<KEY,VALUE,COMPARE,CONTIGUOUS>::DfArray::Insert(UInt idx, ItemImpl && rhs)
+template <class KEY, class VALUE, class COMPARE, bool CONTIGUOUS> REFLEX_INLINE typename Reflex::Sequence<KEY,VALUE,COMPARE,CONTIGUOUS>::ItemImpl & Reflex::Sequence<KEY,VALUE,COMPARE,CONTIGUOUS>::IndirectArray::Insert(UInt idx, ItemImpl && rhs)
 {
-	auto item = Detail::Allocate<ItemImpl>(Base::allocator, AllocInfo(Detail::GetDebugTypeName<Sequence>(), "Insert"));
+	auto item = Detail::Allocate<ItemImpl>(Base::allocator, AllocInfo("Sequence::IndirectArray::Insert"));
 
 	Detail::Constructor<ItemImpl>::Construct(item, std::move(rhs));
 
@@ -799,9 +795,9 @@ template <class KEY, class VALUE, class COMPARE, bool CONTIGUOUS> REFLEX_INLINE 
 	return *item;
 }
 
-template <class KEY, class VALUE, class COMPARE, bool CONTIGUOUS> REFLEX_INLINE typename Reflex::Sequence<KEY, VALUE, COMPARE, CONTIGUOUS>::ItemImpl & Reflex::Sequence<KEY, VALUE, COMPARE, CONTIGUOUS>::DfArray::Push(ItemImpl && rhs)
+template <class KEY, class VALUE, class COMPARE, bool CONTIGUOUS> REFLEX_INLINE typename Reflex::Sequence<KEY, VALUE, COMPARE, CONTIGUOUS>::ItemImpl & Reflex::Sequence<KEY, VALUE, COMPARE, CONTIGUOUS>::IndirectArray::Push(ItemImpl && rhs)
 {
-	auto item = Detail::Allocate<ItemImpl>(Base::allocator, AllocInfo(Detail::GetDebugTypeName<Sequence>(), "Push"));
+	auto item = Detail::Allocate<ItemImpl>(Base::allocator, AllocInfo("Sequence::IndirectArray::Push"));
 
 	Detail::Constructor<ItemImpl>::Construct(item, std::move(rhs));
 
@@ -810,17 +806,17 @@ template <class KEY, class VALUE, class COMPARE, bool CONTIGUOUS> REFLEX_INLINE 
 	return *item;
 }
 
-template <class KEY, class VALUE, class COMPARE, bool CONTIGUOUS> REFLEX_INLINE typename Reflex::Sequence<KEY,VALUE,COMPARE,CONTIGUOUS>::ItemImpl & Reflex::Sequence<KEY,VALUE,COMPARE,CONTIGUOUS>::DfArray::operator[](UInt idx)
+template <class KEY, class VALUE, class COMPARE, bool CONTIGUOUS> REFLEX_INLINE typename Reflex::Sequence<KEY,VALUE,COMPARE,CONTIGUOUS>::ItemImpl & Reflex::Sequence<KEY,VALUE,COMPARE,CONTIGUOUS>::IndirectArray::operator[](UInt idx)
 {
 	return *this->Base::operator[](idx);
 }
 
-template <class KEY, class VALUE, class COMPARE, bool CONTIGUOUS> REFLEX_INLINE const typename Reflex::Sequence<KEY,VALUE,COMPARE,CONTIGUOUS>::ItemImpl & Reflex::Sequence<KEY,VALUE,COMPARE,CONTIGUOUS>::DfArray::operator[](UInt idx) const
+template <class KEY, class VALUE, class COMPARE, bool CONTIGUOUS> REFLEX_INLINE const typename Reflex::Sequence<KEY,VALUE,COMPARE,CONTIGUOUS>::ItemImpl & Reflex::Sequence<KEY,VALUE,COMPARE,CONTIGUOUS>::IndirectArray::operator[](UInt idx) const
 {
 	return *this->Base::operator[](idx);
 }
 
-template <class KEY, class VALUE, class COMPARE, bool CONTIGUOUS> inline void Reflex::Sequence<KEY,VALUE,COMPARE,CONTIGUOUS>::DfArray::operator=(const DfArray & source)
+template <class KEY, class VALUE, class COMPARE, bool CONTIGUOUS> inline void Reflex::Sequence<KEY,VALUE,COMPARE,CONTIGUOUS>::IndirectArray::operator=(const IndirectArray & source)
 {
 	auto & allocator = *Base::allocator;
 
@@ -832,7 +828,7 @@ template <class KEY, class VALUE, class COMPARE, bool CONTIGUOUS> inline void Re
 
 	for (auto & item : *this)
 	{
-		item = Detail::Allocate<ItemImpl>(allocator, AllocInfo(Detail::GetDebugTypeName<Sequence>(), "operator="));
+		item = Detail::Allocate<ItemImpl>(allocator, AllocInfo("Sequence::IndirectArray::operator="));
 
 		Detail::Constructor<ItemImpl>::Construct(item, **psrc++);
 	}

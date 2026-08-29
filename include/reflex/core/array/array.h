@@ -300,15 +300,6 @@ struct NullTerminator <TYPE,true>
 	REFLEX_INLINE static void Apply(TYPE & value) { value = 0; }
 };
 
-template <class TYPE> REFLEX_INLINE const char * GetDebugTypeName()
-{
-#if REFLEX_DEBUG && defined(REFLEX_RTTI_ENABLED)
-	return typeid(TYPE).name();
-#else
-	return "unavailable";
-#endif
-}
-
 REFLEX_END
 
 template <class TYPE> REFLEX_INLINE Reflex::Array<TYPE>::Array() : Array(g_default_allocator) {}
@@ -354,7 +345,7 @@ template <class TYPE> inline Reflex::Array<TYPE>::Array(UInt length, Allocator &
 
 template <class TYPE> inline Reflex::Array<TYPE>::Array(const View & view, Allocator & allocator)
 	: allocator(allocator)
-	, m_ptr(Detail::NullTerminator<TYPE,kIsNullTerminated>::Allocate(allocator, view.size, AllocInfo(Detail::GetDebugTypeName<TYPE>(), "Array(const View & view)")))
+	, m_ptr(Detail::NullTerminator<TYPE,kIsNullTerminated>::Allocate(allocator, view.size, AllocInfo("Array::Array(const View & view)")))
 	, m_capacity(view.size)
 	, m_size(view.size)
 {
@@ -377,7 +368,7 @@ template <class TYPE> inline Reflex::Array<TYPE>::Array(Array && value)
 {
 	if (kIsNullTerminated)
 	{
-		m_ptr = Detail::NullTerminator<TYPE, true>::Allocate(allocator, 0, AllocInfo(Detail::GetDebugTypeName<TYPE>(), "Array(Array &&)"));
+		m_ptr = Detail::NullTerminator<TYPE, true>::Allocate(allocator, 0, AllocInfo("Array::Array(Array &&)"));
 		m_capacity = 0;
 		m_size = 0;
 
@@ -651,7 +642,7 @@ template <class TYPE> inline TYPE & Reflex::Array<TYPE>::Insert(UInt idx, TYPE &
 		{
 			m_capacity = Detail::CalculateExpandedCapacity(m_size);
 
-			auto ptr = Detail::NullTerminator<TYPE,kIsNullTerminated>::Allocate(allocator, m_capacity, AllocInfo(Detail::GetDebugTypeName<TYPE>(), "Array::Insert"));
+			auto ptr = Detail::NullTerminator<TYPE,kIsNullTerminated>::Allocate(allocator, m_capacity, AllocInfo("Array::Insert"));
 
 			MemCopy(m_ptr, ptr, sizeof(TYPE) * idx);
 
@@ -680,7 +671,7 @@ template <class TYPE> inline TYPE & Reflex::Array<TYPE>::Insert(UInt idx, TYPE &
 		{
 			m_capacity = Detail::CalculateExpandedCapacity(m_size);
 
-			auto ptr = Detail::NullTerminator<TYPE,kIsNullTerminated>::Allocate(allocator, m_capacity, AllocInfo(Detail::GetDebugTypeName<TYPE>(), "Array::Insert"));
+			auto ptr = Detail::NullTerminator<TYPE,kIsNullTerminated>::Allocate(allocator, m_capacity, AllocInfo("Array::Insert"));
 
 			{
 				UInt pos = idx;
@@ -931,7 +922,7 @@ template <class TYPE> inline Reflex::Array <TYPE> & Reflex::Array<TYPE>::operato
 
 			m_capacity = length;
 
-			m_ptr = Detail::NullTerminator<TYPE,kIsNullTerminated>::Allocate(allocator, m_capacity, AllocInfo(Detail::GetDebugTypeName<TYPE>(), "Array::operator="));
+			m_ptr = Detail::NullTerminator<TYPE,kIsNullTerminated>::Allocate(allocator, m_capacity, AllocInfo("Array::operator="));
 		}
 
 		m_size = length;
@@ -950,7 +941,7 @@ template <class TYPE> inline Reflex::Array <TYPE> & Reflex::Array<TYPE>::operato
 
 			m_capacity = length;
 
-			m_ptr = Detail::NullTerminator<TYPE,kIsNullTerminated>::Allocate(allocator, m_capacity, AllocInfo(Detail::GetDebugTypeName<TYPE>(), "Array::operator="));
+			m_ptr = Detail::NullTerminator<TYPE,kIsNullTerminated>::Allocate(allocator, m_capacity, AllocInfo("Array::operator="));
 
 			idx = length;
 
@@ -1029,7 +1020,7 @@ template <class TYPE> template <bool OVER> inline bool Reflex::Array<TYPE>::DoAl
 {
 	m_capacity = OVER ? Detail::CalculateExpandedCapacity(capacity) : capacity;
 
-	if (auto ptr = Detail::NullTerminator<TYPE,kIsNullTerminated>::Allocate(allocator, m_capacity, AllocInfo(Detail::GetDebugTypeName<TYPE>(), "Array::DoAllocate")))
+	if (auto ptr = Detail::NullTerminator<TYPE,kIsNullTerminated>::Allocate(allocator, m_capacity, AllocInfo("Array::DoAllocate")))
 	{
 		if constexpr (kIsRawConstructible<TYPE>)
 		{

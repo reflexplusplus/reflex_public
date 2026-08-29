@@ -241,7 +241,7 @@ UInt FilesView::OnUpdate(File::ResourcePool::Lock & lock)
 		if (filters.Search(type->type_id)) m_filters.Set(type->type_id);
 	});
 
-	lock.Enumerate([this, &filters](const File::ResourcePool::Token & token)
+	lock.Enumerate([this](const File::ResourcePool::Token & token)
 	{
 		auto type = token.object->object_t;
 

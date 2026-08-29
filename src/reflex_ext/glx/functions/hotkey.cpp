@@ -22,7 +22,7 @@ void Reflex::GLX::SetHotKey(WindowClient & window, KeyCode keycode, UInt8 modifi
 	
 	keymap->value.Set(keycode_with_modifiers, onkey);
 
-	BindEvent(root, K32("SetHotKey"), [root, keymap, onkey](Object & src, Event & e)
+	BindEvent(root, K32("SetHotKey"), [keymap, onkey](Object & src, Event & e)
 	{
 		if (auto ponkey = keymap->value.Search(GLX_KEY_CODE(GetKeyCode(e), GetModifierKeys(e))))
 		{

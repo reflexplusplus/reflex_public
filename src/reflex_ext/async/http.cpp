@@ -40,7 +40,9 @@ Reflex::TRef <Reflex::Object> Reflex::Async::Detail::StandardHttpRequestCallback
 
 	if (m_is_json)
 	{
-		return New<Data::PropertySet>(Data::DecodePropertySet(Data::kJsonFormat, m_body, m_decode_json_flags));
+		Data::PropertySet options;
+		Data::SetUInt32(options, "flags", m_decode_json_flags);
+		return New<Data::PropertySet>(Data::DecodePropertySet(Data::kJsonFormat, m_body, options));
 	}
 	else
 	{

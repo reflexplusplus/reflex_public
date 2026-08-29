@@ -34,7 +34,7 @@ public:
 	
 	//lifetime
 
-	template <class ... VARGS> static TRef <TYPE> Acquire(VARGS &&... v);
+	template <class ... VARGS> [[nodiscard]] static TRef <TYPE> Acquire(VARGS &&... v);
 
 
 

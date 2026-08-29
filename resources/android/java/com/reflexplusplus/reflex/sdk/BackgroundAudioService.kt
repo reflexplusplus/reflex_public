@@ -14,43 +14,40 @@ import androidx.core.app.NotificationCompat
 // just keep outputting the audio on the main thread if it works as is.
 class BackgroundAudioService : Service() {
 
-    override fun onBind(intent: Intent?) = null
+	override fun onBind(intent: Intent?) = null
 
-    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+	override fun onStartCommand(intent: Intent?, flags: Int, startId: Int) = START_NOT_STICKY
+
+	override fun onCreate() {
+		super.onCreate()
+
+		createNotificationChannel()
+
+		val kNotificationId = 1
+		val notification = createNotification()
+
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-			// Create a notification for the foreground service
-			createNotificationChannel()
-
-			val notification = createNotification()
-			startForeground(1, notification, ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PLAYBACK)
+			startForeground(kNotificationId, notification,ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PLAYBACK)
+		} else {
+			startForeground(kNotificationId, notification)
 		}
-		else {
-			startService(Intent(this@BackgroundAudioService, BackgroundAudioService::class.java))
-		}
+	}
 
-		return START_STICKY
-    }
+	private fun createNotificationChannel() {
+		val channel = NotificationChannel(
+			"AudioServiceChannel",
+			"Audio Service Channel",
+			NotificationManager.IMPORTANCE_LOW
+		)
+		val manager = getSystemService(NotificationManager::class.java)
+		manager.createNotificationChannel(channel)
+	}
 
-//	// MEMO? Doesn't seem called, instead we'll use isServiceRunning in the activity
-//	override fun onTaskRemoved(rootIntent: Intent?) {
-//		super.onTaskRemoved(rootIntent)
-//	}
-
-    private fun createNotificationChannel() {
-        val channel = NotificationChannel(
-            "MusicServiceChannel",
-            "Music Service Channel",
-            NotificationManager.IMPORTANCE_LOW
-        )
-        val manager = getSystemService(NotificationManager::class.java)
-        manager.createNotificationChannel(channel)
-    }
-
-    private fun createNotification(): Notification {
-        return NotificationCompat.Builder(this, "MusicServiceChannel")
-            .setContentTitle("Music Player")
-            .setContentText("Playing music...")
-            .setSmallIcon(android.R.drawable.ic_media_play)
-            .build()
-    }
+	private fun createNotification(): Notification {
+		return NotificationCompat.Builder(this, "AudioServiceChannel")
+			.setContentTitle("Audio Player")
+			.setContentText("Playing audio…")
+			.setSmallIcon(android.R.drawable.ic_media_play)
+			.build()
+	}
 }

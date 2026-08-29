@@ -144,41 +144,46 @@ Reflex::Array <Reflex::CString::View> Reflex::Bootstrap::CLI::GetStringArray(con
 	return split;
 }
 
-Reflex::WString Reflex::Bootstrap::CLI::GetFilename(const Data::PropertySet & args, CString::View id, bool check_exists)
+Reflex::WString Reflex::Bootstrap::CLI::Detail::ExpandPath(CString::View id, WString::View input, bool folder, bool check_exists)
 {
-	auto corrected = File::CorrectStrokes(ToWString(Data::GetCString(args, id)));
+	constexpr CString::View kHint[] = { "<filename>", "<folder>" };
+	constexpr WChar kDoubleStroke[] = { File::kStroke, File::kStroke, 0 };
 
-	const WChar double_stroke[] = { File::kStroke, File::kStroke, 0 };
+	auto corrected = File::CorrectStrokes(input);
 
-	corrected = Replace(corrected, ToView(double_stroke), ToView(File::kStroke));
-
-	if (corrected.GetSize() > 1 && corrected[0] == File::kDot && corrected[1] == File::kStroke)
+	if (corrected)
 	{
-		corrected = File::ResolveIncludePath(System::GetCurrentDirectory(), corrected);
+		corrected = Replace(corrected, ToView(kDoubleStroke), ToView(File::kStroke));
+
+		if (corrected.GetFirst() == L'~')
+		{
+			if (corrected.GetSize() == 1)
+			{
+				corrected = System::GetPath(System::kPathUserHome);
+			}
+			else if (corrected.GetSize() > 1 && corrected[1] == File::kStroke)
+			{
+				corrected = File::ResolveIncludePath(System::GetPath(System::kPathUserHome), Mid(corrected, 2));
+			}
+			else
+			{
+				ThrowMissingArg(id, kHint[folder]);
+			}
+		}
+		else
+		{
+			corrected = File::ResolveIncludePath(System::GetCurrentDirectory(), corrected);
+		}
 	}
-	else
-	{
-		corrected = File::ResolveRelativePath(corrected);
-	}
 
-	if (check_exists && !System::Exists(corrected))
+	if (check_exists)
 	{
-		ThrowMissingArg(id, "<filename>");
+		auto fn = folder ? &System::IsDirectory : &System::Exists;
+
+		if (!fn(corrected)) ThrowMissingArg(id, kHint[folder]);
 	}
 
 	return corrected;
-}
-
-Reflex::WString Reflex::Bootstrap::CLI::GetFolder(const Data::PropertySet & args, CString::View id, bool check_exists)
-{
-	auto folder = File::CorrectTrailingStroke(GetFilename(args, id, false));
-
-	if (check_exists && !System::IsDirectory(folder))
-	{
-		ThrowMissingArg(id, "<folder>");
-	}
-
-	return folder;
 }
 
 const Reflex::CString::View Reflex::Bootstrap::CLI::Detail::kColours[kNumColour] =
@@ -204,7 +209,7 @@ const Reflex::CString::View Reflex::Bootstrap::CLI::Detail::kColours[kNumColour]
 	"\x1b[97m",	//kColourBrightWhite
 };
 
-void Reflex::Bootstrap::CLI::Await(System::FileHandle & out, const CString::View & title, bool show_progress, const Function<bool()> & should_abort, const Function<void(TaskContext & ctx)> & bg_fn)
+void Reflex::Bootstrap::CLI::Await(System::FileHandle & out, CString::View title, bool show_progress, const Function <bool()> & should_abort, const Function <void(TaskContext & ctx)> & bg_fn)
 {
 	struct TaskContextImpl : public TaskContext
 	{
@@ -285,10 +290,8 @@ void Reflex::Bootstrap::CLI::Await(System::FileHandle & out, const CString::View
 	}
 }
 
-Reflex::UInt8 Reflex::Bootstrap::CLI::Dispatch(const ArrayView <CString::View> & cmdline, const ArrayView <TaskDef> & tasks, UInt8 flags)
+Reflex::UInt8 Reflex::Bootstrap::CLI::Detail::Dispatch(ArrayView <CString::View> cmdline, ArrayView <TaskDef> tasks, UInt8 flags, System::FileHandle & out, void * client, FunctionPointer <bool(void * client, ArrayView <CString::View> cmdline, Key32 task, const Data::PropertySet & args, System::FileHandle & out)> fallback)
 {
-	auto std_out = Make<System::FileHandle>(System::FileHandle::kStandardStreamOut);
-	
 	auto time = System::GetElapsedTime();
 
 	bool ok = true;
@@ -299,11 +302,9 @@ Reflex::UInt8 Reflex::Bootstrap::CLI::Dispatch(const ArrayView <CString::View> &
 
 		LoadArgsFile(args);
 
-		bool verbose = (flags & kFlagForceVerbose) || GetBool(args, "verbose");
-
-		if (verbose)
+		if ((flags & kFlagForceVerbose) || GetBool(args, "verbose"))
 		{
-			Output::SetLogFile(std_out);
+			Output::SetLogFile(out);
 		}
 		else
 		{
@@ -314,16 +315,16 @@ Reflex::UInt8 Reflex::Bootstrap::CLI::Dispatch(const ArrayView <CString::View> &
 
 		if (auto task = SearchValue<FieldCompare<&TaskDef::id>>(tasks, task_arg ? Key32(task_arg) : tasks[0].id))
 		{
-			task->fn(args, std_out);
+			task->fn(args, out);
 
 			if (flags & kFlagPrintDuration)
 			{
-				File::WriteLine(std_out, Join("duration: ", ToCString(SetDelta(time, System::GetElapsedTime()), 2), " sec"));
+				File::WriteLine(out, Join("duration: ", ToCString(SetDelta(time, System::GetElapsedTime()), 2), " sec"));
 			}
 		}
 		else
 		{
-			ThrowError("unknown task");
+			ok = fallback(client, cmdline, task_arg, args, out);
 		}
 	}
 	catch (const CString & error)
@@ -332,7 +333,7 @@ Reflex::UInt8 Reflex::Bootstrap::CLI::Dispatch(const ArrayView <CString::View> &
 
 		if (flags & kFlagPrintError)
 		{
-			Print(std_out, kColourBrightRed, error);
+			Print(out, kColourBrightRed, error);
 		}
 	}
 

@@ -132,7 +132,7 @@ public:
 
 	//callbacks
 
-	virtual void SetClient(TRef <Client> client) = 0;
+	virtual void SetClient(TRef <Client> client, WindowDisplay & initial_mode, iRect & initial_rect) = 0;
 
 	virtual TRef <Client> GetClient() = 0;
 
@@ -156,7 +156,11 @@ public:
 
 	virtual void SetDisplayMode(WindowDisplay mode) = 0;
 
+	virtual WindowDisplay GetDisplayMode() const = 0;
+
 	virtual void SetRect(const iRect & rect) = 0;
+
+	virtual iRect GetRect() const = 0;
 
 	virtual void SendTop() = 0;
 
@@ -180,7 +184,7 @@ public:
 
 	//screencapture
 
-	virtual TRef < ObjectOf <RawBitmap> > CreateExportBitmapBuffer(UInt8 flags = 0) const = 0;
+	[[nodiscard]] virtual TRef < ObjectOf <RawBitmap> > CreateExportBitmapBuffer(UInt8 flags = 0) const = 0;
 
 	virtual void ExportBitmap(TRef < ObjectOf <RawBitmap> > buffer) const = 0;
 
@@ -204,12 +208,14 @@ public:
 
 	static Client & null;
 
-	virtual void OnSetOwner(Window * window) = 0;
+	virtual void OnAttachWindow(Window & window, WindowDisplay & initial_mode, iRect & initial_rect) = 0;
+
+	virtual void OnDetachWindow() = 0;
 
 
 	virtual ScreenOrientation OnGetScreenOrientation() = 0;
 
-	virtual iSize OnGetContentSize() = 0;
+	virtual Pair <iSize> OnGetContentBounds() = 0;	//{ minimum, maximum }
 
 	
 	virtual void OnSetRect(WindowDisplay displaymode, const iRect & rect, const iRect & interactable, Int32 dpifactor) = 0;

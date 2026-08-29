@@ -27,7 +27,7 @@ public:
 	
 	REFLEX_OBJECT(GLX::PopupBehaviour, Delegate);
 
-	static TRef <PopupBehaviour> Create();
+	[[nodiscard]] static TRef <PopupBehaviour> Create();
 
 
 	virtual void SetConfig(FunctionPointer <TRef<GLX::Object>()> create_content = &Detail::CreateMenuContent, Key32 forward_event = Menu::kMenuOpen, Key32 content_style = kmenu) = 0;

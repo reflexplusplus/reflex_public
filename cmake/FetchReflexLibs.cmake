@@ -7,17 +7,32 @@
 #   - reflex (licensed/private): set REFLEX_GITHUB_TOKEN
 #
 # Target-awareness (REFLEX_DISTRIBUTION = public | licensed):
-#   public   -> fetch libs + tools + docs   (reflex_public has no src/ or build/)
-#   licensed -> fetch libs + docs           (reflex builds tools locally)
+#   both -> fetch libs + tools + docs
+# The flavour selects which release the assets come from, not which are fetched.
 # Auto-detected from the presence of build/tools/ unless set explicitly.
 #
 # Version source (first that resolves): REFLEX_VERSION, version.txt, "latest".
-# tools/docs assets exist for macOS + Windows only.
+# Libraries follow the TARGET platform; tools and docs are host binaries and
+# follow the BUILD HOST. They are published for macOS + Windows only.
 #
 # This is a no-op when libraries are already present without a fetch marker
 # (i.e. a local source build), so it never clobbers locally built libs.
 
-# Map the CMake platform to the release-asset platform name.
+# Map the build host to the release-asset platform name. The reflex CLI
+# (build-plist / build-resources) and ReflexDocumentation run on the machine
+# doing the build, so they must never follow the target platform: cross-compiling
+# to iOS or Android still needs the host's tools.
+function(_reflex_host_asset_platform _out)
+    if(CMAKE_HOST_WIN32)
+        set(${_out} "windows" PARENT_SCOPE)
+    elseif(CMAKE_HOST_APPLE)
+        set(${_out} "macos" PARENT_SCOPE)
+    else()
+        set(${_out} "" PARENT_SCOPE)   # no tools/docs assets published for Linux
+    endif()
+endfunction()
+
+# Map the CMake target platform to the release-asset platform name.
 function(_reflex_asset_platform _out)
     if(WIN32)
         set(${_out} "windows" PARENT_SCOPE)
@@ -211,15 +226,17 @@ function(reflex_fetch_libs)
     endif()
 
     set(_tools_dir "${REFLEX_ROOT}/bin/tools")
+    _reflex_host_asset_platform(_host_platform)
 
-    # Tools (public flavour only; macOS/Windows only) -> bin/tools.
-    if("${REFLEX_DISTRIBUTION}" STREQUAL "public" AND NOT "${_platform}" STREQUAL "linux")
-        _reflex_fetch_asset("${_json}" "${_token}" "reflex-tools-${_platform}.zip" "${_tools_dir}" _tools_rc)
+    # Tools (both flavours) -> bin/tools. Keyed on the host, not the target,
+    # so an iOS or Android configure still lands a usable reflex CLI.
+    if(NOT "${_host_platform}" STREQUAL "")
+        _reflex_fetch_asset("${_json}" "${_token}" "reflex-tools-${_host_platform}.zip" "${_tools_dir}" _tools_rc)
     endif()
 
-    # ReflexDocumentation (both flavours; macOS/Windows only) -> bin/tools.
-    if(NOT "${_platform}" STREQUAL "linux")
-        _reflex_fetch_asset("${_json}" "${_token}" "reflex-docs-${_platform}.zip" "${_tools_dir}" _docs_rc)
+    # ReflexDocumentation (both flavours) -> bin/tools. Host binary, as above.
+    if(NOT "${_host_platform}" STREQUAL "")
+        _reflex_fetch_asset("${_json}" "${_token}" "reflex-docs-${_host_platform}.zip" "${_tools_dir}" _docs_rc)
     endif()
 
     file(REMOVE "${_json_tmp}")

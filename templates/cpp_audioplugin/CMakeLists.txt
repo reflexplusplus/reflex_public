@@ -12,6 +12,9 @@ endif()
 find_package(Reflex REQUIRED CONFIG
     PATHS "${REFLEX_DIR}/cmake"
     NO_DEFAULT_PATH
+    # iOS sets CMAKE_FIND_ROOT_PATH_MODE_PACKAGE=ONLY, which re-roots PATHS
+    # onto the SDK sysroot and never searches the real directory.
+    NO_CMAKE_FIND_ROOT_PATH
 )
 
 # ---- Format selection ----
@@ -49,13 +52,15 @@ reflex_add_audio_plugin(_PRODUCT-NAME-SYMBOL_
     FORMATS  ${_FORMATS}
     SOURCES
         ${REFLEX_DIR}/src/reflex_ext.cpp
+        code/resources.cpp
         code/entry.cpp
         code/instance.cpp
-        code/resources.cpp
         code/view.cpp
     NAME               "_PRODUCT-NAME_"
     VENDOR             "_VENDOR-NAME_"
     VERSION            "1.0.0"
     PACKAGE_ID_VENDOR  "_PACKAGE-ID-VENDOR_"
     PACKAGE_ID_PRODUCT "_PACKAGE-ID-PRODUCT_"
+    AU_COMPONENTS      "_PRODUCT-4CC_:aufx"
+    AU_VENDOR_4CC      "_VENDOR-4CC_"
 )

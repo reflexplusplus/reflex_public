@@ -36,7 +36,7 @@ public:
 	[[nodiscard]] static TRef <Global> Acquire(CString::View vendor, CString::View product, WString::View project_dir, Key32 resource_group = kNullKey);
 
 
-	virtual TRef <Object> CreateDeepLinkListener(const Function<void(CString::View)> & callback) = 0;
+	[[nodiscard]] virtual TRef <Object> CreateDeepLinkListener(const Function<void(CString::View)> & callback) = 0;
 
 
 	virtual TRef <Object> EnableIde(bool enable) = 0;
@@ -63,3 +63,12 @@ protected:
 	Global(CString::View vendor, CString::View product, WString::View project_dir, Key32 resources_subdomain);
 
 };
+
+
+
+
+//
+//Secondary API
+
+#define REFLEX_BOOTSTRAP_NULL_INSTANCE_EX(MODULE, NS, TYPE, IMPL, VAR, ORDER) namespace NS { Reflex::Detail::Module::Member <IMPL> VAR(MODULE, ORDER); } NS::TYPE & NS::TYPE::null = NS::VAR
+#define REFLEX_BOOTSTRAP_NULL_INSTANCE(NS, TYPE) REFLEX_BOOTSTRAP_NULL_INSTANCE_EX(Reflex::Bootstrap::module, NS, TYPE, TYPE, g##_null_##TYPE, 0)

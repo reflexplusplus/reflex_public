@@ -58,6 +58,4 @@ private:
 
 	bool m_loop;
 
-	bool m_play;
-
 };

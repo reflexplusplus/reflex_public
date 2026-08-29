@@ -12,6 +12,9 @@ endif()
 find_package(Reflex REQUIRED CONFIG
     PATHS "${REFLEX_DIR}/cmake"
     NO_DEFAULT_PATH
+    # iOS sets CMAKE_FIND_ROOT_PATH_MODE_PACKAGE=ONLY, which re-roots PATHS
+    # onto the SDK sysroot and never searches the real directory.
+    NO_CMAKE_FIND_ROOT_PATH
 )
 
 # ---- Console app target ----

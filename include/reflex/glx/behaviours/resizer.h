@@ -54,7 +54,7 @@ struct Reflex::GLX::ResizeBehaviour : public AbstractDragBehaviour
 	static constexpr UInt32 kClassID = MakeKey32("ResizeBehaviour");
 
 
-	static TRef <ResizeBehaviour> Create();
+	[[nodiscard]] static TRef <ResizeBehaviour> Create();
 
 	virtual void SetHandleSize(Float size) = 0;
 
@@ -78,7 +78,7 @@ struct Reflex::GLX::MoveBehaviour : public AbstractDragBehaviour
 	static constexpr UInt32 kClassID = ResizeBehaviour::kClassID + 1;
 
 
-	static TRef <MoveBehaviour> Create();
+	[[nodiscard]] static TRef <MoveBehaviour> Create();
 
 	using AbstractDragBehaviour::AbstractDragBehaviour;
 };

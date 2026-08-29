@@ -11,10 +11,10 @@
 namespace Reflex::Bootstrap::Detail
 {
 
-	TRef <GLX::WindowClient> CreateAppWindow(System::Window & window, GLX::Object & view);
+	[[nodiscard]] TRef <GLX::WindowClient> CreateAppWindow(System::Window & window, GLX::Object & view);
 
 	
-	TRef <Data::PropertySet> CreateStylesheetOptions(bool dark_theme, Float font_scale, System::iSize screen_size);
+	[[nodiscard]] TRef <Data::PropertySet> CreateStylesheetOptions(bool dark_theme, Float font_scale, System::iSize screen_size);
 
 	inline FunctionPointer <TRef<Data::PropertySet>()> g_create_stylesheet_options = []()
 	{

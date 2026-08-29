@@ -228,13 +228,13 @@ template <class POLICY, class ARRAY, class FROM, class TO> inline auto Reflex::R
 
 	using ArrayViewType = decltype(array_view);
 
-	if constexpr (std::is_convertible<FROM,ArrayViewType>::value && std::is_convertible<TO,ArrayViewType>::value)
+	if constexpr (std::is_convertible<decltype(from),ArrayViewType>::value && std::is_convertible<decltype(to),ArrayViewType>::value)
 	{
 		return Detail::ReplaceRegion<POLICY>(array_view, ToView(from), ToView(to));
 	}
 	else
 	{
-		REFLEX_STATIC_ASSERT((!std::is_convertible<FROM,ArrayViewType>::value || std::is_convertible<TO,ArrayViewType>::value));
+		REFLEX_STATIC_ASSERT((!std::is_convertible<decltype(from),ArrayViewType>::value || std::is_convertible<decltype(to),ArrayViewType>::value));
 
 		Array rtn = array_view;
 

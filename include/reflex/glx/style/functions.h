@@ -29,7 +29,7 @@ namespace Reflex::GLX
 
 REFLEX_NS(Reflex::GLX::Detail)
 
-TRef <Reflex::Object> DecodeStyleSheet(const File::ResourcePool::StreamContext & ctx, System::FileHandle & instream);
+[[nodiscard]] TRef <Reflex::Object> DecodeStyleSheet(const File::ResourcePool::StreamContext & ctx, System::FileHandle & instream);
 
 ConstTRef <Style> FindStyle(const Style & start, const ArrayView <Key32> & path);
 

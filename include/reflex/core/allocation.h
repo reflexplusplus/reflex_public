@@ -39,9 +39,9 @@ public:
 	
 	//lifetime
 	
-	static TRef <Allocation> Create(UInt size = 0);
+	[[nodiscard]] static TRef <Allocation> Create(UInt size = 0);
 
-	static TRef <Allocation> Create(ArrayView <TYPE> data);
+	[[nodiscard]] static TRef <Allocation> Create(ArrayView <TYPE> data);
 
 
 	

@@ -119,6 +119,7 @@ namespace Reflex::System
 		kPathDesktop,
 		kPathApplicationData,
 		kPathUserData,
+		kPathUserHome,
 		kPathUserDocuments,
 
 		kNumPath,

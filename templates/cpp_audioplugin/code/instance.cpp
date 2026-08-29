@@ -13,12 +13,14 @@ using namespace Reflex;
 static constexpr UInt16 kParameterGroupMode = MakeBit(0);
 static constexpr UInt16 kParameterGroupOsc = MakeBit(1);
 
-struct InstanceImpl : public Instance
+class InstanceImpl : public Instance
 {
+public:
+	
 	static constexpr UInt16 kChunkVersion = 0;							//change to 1 to activate persistence callbacks
 
-	InstanceImpl(System::AudioPlugin & owner)
-		: Instance(owner, MakeKey32("_PRODUCT-NAME-SYMBOL_"), kChunkVersion)	//first parameter is 4 byte header for the file format
+	InstanceImpl(const Class & cls, System::AudioPlugin & owner)
+		: Instance(cls, owner, MakeKey32("_PRODUCT-NAME-SYMBOL_"), kChunkVersion)	//first parameter is 4 byte header for the file format
 		, m_amp(0.0f)
 		, m_phase_inc(0.0f)
 		, m_phase(0.0f)
@@ -158,70 +160,94 @@ struct InstanceImpl : public Instance
 
 } }	//end internal namespace
 
-Reflex::Bootstrap::AudioPlugin::Class _PRODUCT-NAME-SYMBOL_::Instance::MakeClass()
+Reflex::Array <Reflex::Bootstrap::AudioPlugin::Class> _PRODUCT-NAME-SYMBOL_::Instance::MakeClasses()
 {
-	constexpr bool kIsInstrument = false;	//quick config of instrument or effect, for AU builds, ensure this matches the AU_TYPE_4CC eg "aufx"
+	constexpr CString::View kProductIdentifier = REFLEX_STRINGIFY(PRODUCT_PACKAGE_IDENTIFIER);
+	constexpr CString::View kProductVersion = REFLEX_STRINGIFY(PRODUCT_VERSION);
 
-	constexpr auto kType = kIsInstrument ? Class::kTypeAudioGenerator : Class::kTypeAudioProcessor;
+	const UInt kNumClass = 1;
+	const auto kPluginType = Class::kTypeAudioEffect;
 
+	//AudioUnit can not be published programatically, instead IDs are written into the plist
+	//the standard AudioPlugin project writes the plist ids from the AU_COMPONENTS string
+	constexpr CString::View kAudioUnitComponents = REFLEX_STRINGIFY(AU_COMPONENTS);
+	constexpr CString::View kAudioUnitVendor4CC = REFLEX_STRINGIFY(AU_VENDOR_4CC);
+	auto au_classes = Split(kAudioUnitComponents, ',');
+	REFLEX_ASSERT(au_classes.GetSize() == kNumClass);
 
-	Class cls;
+	Array <Class> classes(kNumClass);
+
+	Class & cls = classes.GetFirst();
 
 	cls.vendor = Bootstrap::global->vendor;
-
 	cls.product = Bootstrap::global->product;
+	cls.version = kProductVersion ? kProductVersion : ToView("1.0.0");
 
-#ifdef PRODUCT_VERSION
-	cls.version = REFLEX_STRINGIFY(PRODUCT_VERSION);
-#else
-	cls.version = "1.0.0";
-#endif
-
-
-	cls.type = kType;
-
+	cls.type = kPluginType;
 	cls.category = Class::kUncategorised;
+
+
+	//CLAP uid (required by Bootstrap::AudioPlugin)
+
+	cls.clap.uid = kProductIdentifier;
+
+
+	//VST3 uid
+
+	auto sha = Data::SHA1(Data::Pack(kProductIdentifier));
+
+	MemCopy(sha.GetData(), &cls.vst3.uid, 16);
+
+
+	//AU uid & type
+
+	if (kAudioUnitComponents)
+	{
+		auto parts = Split(au_classes.GetFirst(), ':');	//uid_4cc:type_4cc[:name]
+
+		REFLEX_ASSERT(parts.GetSize() == 2 || parts.GetSize() == 3);
+
+		if (parts.GetSize() > 2) cls.product = parts[2];
+
+		auto write_4cc = [](CString::View uid)
+		{
+			REFLEX_ASSERT(uid.size == 4);
+			UInt32 _4cc;
+			auto dst = Reinterpret<UInt8>(&_4cc);
+			dst[0] = uid[3];
+			dst[1] = uid[2];
+			dst[2] = uid[1];
+			dst[3] = uid[0];
+			return _4cc;
+		};
+
+		cls.audiounit.company_4cc = write_4cc(kAudioUnitVendor4CC);
+		cls.audiounit.uid_4cc = write_4cc(parts[0]);
+
+		auto idx = Search(Class::AudioUnit::kTypes, write_4cc(parts[1]));
+		REFLEX_ASSERT_EX(idx, "unsupported AU component type");
+		if (idx) cls.type = Class::Type(idx.value);
+	}
+
+
+	//parameters
 
 	cls.num_params = 4;
 
-	cls.channels_io = { UInt8(kIsInstrument ? 0 : 2), 2 };
-
-	cls.midi_io = { kIsInstrument, false };
-
-
-	//CLAP specific
-
-	cls.clap.uid = Lowercase(Join(Filter(cls.vendor, ' '), '.', Filter(cls.product, ' '), '.', ToCString(cls.channels_io.a), ':', ToCString(cls.channels_io.b)));
-
-
-	//VST3 specific
-
-	cls.vst3.uid = { K64("_VENDOR-NAME_"), K64("_PRODUCT-NAME_") };
-
-
-	//AU specific
-
-	cls.audiounit.company_4cc = CC32("_VENDOR-4CC_");
-
-	cls.audiounit.uid_4cc = CC32("_PRODUCT-4CC_");
 	
-#ifdef AU_TYPE_4CC
-	// AudioUnit requires the AU_TYPE 4CC to be declared in both the Info.plist
-	// and at run time. Reflex derives the run-time value from cls.type.
-	// Verify at compile time that the plist AU_TYPE_4CC matches.
-	constexpr auto kAudioUnitType = Class::AudioUnit::kTypes[kType];
-	REFLEX_STATIC_ASSERT(kAudioUnitType == CC32(REFLEX_STRINGIFY(AU_TYPE_4CC)));
-#endif
+	//io
 
+	cls.channels_io = { UInt8(cls.type == Class::kTypeAudioGenerator ? 0 : 2), 2 };
+	cls.midi_io = { cls.type != Class::kTypeAudioProcessor, false };
 
-	return cls;
+	return classes;
 }
 
 void _PRODUCT-NAME-SYMBOL_::Instance::PopulateParameters(const Class & cls, ArrayRegion < Pair <Key32, ConstReference <ParamDesc> > > paramdefs)
 {
 	UInt idx = 0;
 
-	auto AddParam = [&paramdefs, &idx](Key32 id, UInt16 change_flags, TRef <ParamDesc> desc)
+	auto add_param = [&paramdefs, &idx](Key32 id, UInt16 change_flags, TRef <ParamDesc> desc)
 	{
 		desc->change_flags = change_flags;
 
@@ -231,9 +257,9 @@ void _PRODUCT-NAME-SYMBOL_::Instance::PopulateParameters(const Class & cls, Arra
 	};
 
 
-	AddParam("mode", kParameterGroupMode, ParamDesc::CreateEnum("Mode", { "Sine", "Square" }, 0));
+	add_param("mode", kParameterGroupMode, ParamDesc::CreateEnum("Mode", { "Sine", "Square" }, 0));
 
-	AddParam("freq", kParameterGroupOsc, ParamDesc::CreateReal("Freq", 100.0f, 1000.0f, 0.0f, 0.0f))->to_string = [](Bootstrap::Value32 value)
+	add_param("freq", kParameterGroupOsc, ParamDesc::CreateReal("Freq", 100.0f, 1000.0f, 0.0f, 0.0f))->to_string = [](Bootstrap::Value32 value)
 	{
 		if (value.fvalue >= 1000.0f)
 		{
@@ -245,17 +271,17 @@ void _PRODUCT-NAME-SYMBOL_::Instance::PopulateParameters(const Class & cls, Arra
 		}
 	};
 
-	AddParam("amp", kParameterGroupOsc, ParamDesc::CreateReal("Amp", 0.0f, 1.0f, 0.0f, 0.0f));
+	add_param("amp", kParameterGroupOsc, ParamDesc::CreateReal("Amp", 0.0f, 1.0f, 0.0f, 0.0f));
 
-	AddParam("fx", kParameterGroupMode, ParamDesc::CreateBool("FX", false));
+	add_param("fx", kParameterGroupMode, ParamDesc::CreateBool("FX", false));
 
 
 	REFLEX_ASSERT(idx == paramdefs.size);
 }
 
-Reflex::TRef <_PRODUCT-NAME-SYMBOL_::Instance> _PRODUCT-NAME-SYMBOL_::Instance::Create(System::AudioPlugin & instance)
+Reflex::TRef <_PRODUCT-NAME-SYMBOL_::Instance> _PRODUCT-NAME-SYMBOL_::Instance::Create(const Class & cls, System::AudioPlugin & instance)
 {
-	return New<InstanceImpl>(instance);
+	return New<InstanceImpl>(cls, instance);
 }
 
 Reflex::Output _PRODUCT-NAME-SYMBOL_::output("_PRODUCT-NAME_");

@@ -1,0 +1,6 @@
+// Top-level build file where you can add configuration options common to all sub-projects/modules.
+plugins {
+	alias(libs.plugins.android.[ANDROID_PLUGIN]) apply false
+}
+
+defaultTasks 'assemble[DEFAULT_CONFIGURATION]'

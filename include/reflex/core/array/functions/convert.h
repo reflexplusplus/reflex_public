@@ -43,6 +43,7 @@ namespace Reflex
 
 	template <class TYPE, class auto_1> Array <TYPE> ToArray(auto_1 && iterable);
 
+	template <class auto_1, class auto_2> auto MakeArray(auto_1 && iterable, auto_2 callable);
 
 
 	//prohibit
@@ -65,7 +66,6 @@ template <class TYPE, class auto_1> inline Reflex::Array <TYPE> Reflex::ToArray(
 	Array <TYPE> rtn;
 
 	auto itr = iterable.begin();
-
 	auto end = iterable.end();
 
 	rtn.Allocate(UInt(end - itr));
@@ -73,6 +73,25 @@ template <class TYPE, class auto_1> inline Reflex::Array <TYPE> Reflex::ToArray(
 	while (itr != end)
 	{
 		rtn.template Push<kAllocateNone>(*itr++);
+	}
+
+	return rtn;
+}
+
+template <class auto_1, class auto_2> inline auto Reflex::MakeArray(auto_1 && iterable, auto_2 callable)
+{
+	using Type = NonConstT<NonRefT<decltype(callable(*iterable.begin()))>>;
+
+	Array <Type> rtn;
+
+	auto itr = iterable.begin();
+	auto end = iterable.end();
+
+	rtn.Allocate(UInt(end - itr));
+
+	while (itr != end)
+	{
+		rtn.template Push<kAllocateNone>(callable(*itr++));
 	}
 
 	return rtn;

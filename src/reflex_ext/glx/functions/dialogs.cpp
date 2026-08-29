@@ -32,7 +32,7 @@ Reflex::WString Reflex::GLX::ShowFileDialog(Data::PropertySet & prefs, Key32 id,
 	{
 		if (!Search<CaseInsensitive>(filters, File::GetExtension(filename)))
 		{
-			path = File::CorrectExtension(path, filters.GetFirst());
+			path = File::SetExtension(path, filters.GetFirst());
 		}
 	}
 

@@ -122,7 +122,7 @@ public:
 
 	virtual TRef <ComputedStyle> Mutate(const ComputedStyle & b) const = 0;
 
-	virtual TRef <GLX::Core::Renderer> CreateRenderer(GLX::Object & object) const = 0;
+	[[nodiscard]] virtual TRef <GLX::Core::Renderer> CreateRenderer(GLX::Object & object) const = 0;
 
 
 

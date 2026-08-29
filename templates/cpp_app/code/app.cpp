@@ -10,8 +10,10 @@ namespace _PRODUCT-NAME-SYMBOL_ { namespace {	//begin internal namespace
 
 using namespace Reflex;
 
-struct AppImpl : public App
+class AppImpl : public App
 {
+public:
+	
 	static constexpr UInt16 kChunkVersion = 0;
 
 	AppImpl()

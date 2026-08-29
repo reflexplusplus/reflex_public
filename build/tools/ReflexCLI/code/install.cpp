@@ -34,8 +34,8 @@ bool IsReflexRepositoryPath(WString::View path)
 	return false;
 }
 
-#if defined(REFLEX_OS_MACOS)
-WString SetPathImpl(WString::View reflex_path)
+#if defined(REFLEX_OS_MACOS) || defined(REFLEX_OS_LINUX)
+WString SetUnixPathImpl(WString::View reflex_path, WString::View platform, ArrayView <Pair <WString::View>> profiles)
 {
 	static constexpr WString::View kExportPath = L"export PATH=";
 
@@ -58,21 +58,18 @@ WString SetPathImpl(WString::View reflex_path)
 
 	if (!home) CLI::ThrowError("HOME environment variable is not set");
 
-	WString profile_path;
-
-	switch (MakeKey32(File::SplitFilename(shell).b))
+	WString::View profile = L".profile";
+	auto shell_name = MakeKey32(File::SplitFilename(shell).b);
+	for (auto & item : profiles)
 	{
-	case K32("zsh"):
-		profile_path = Join(home, L".zshrc");
-		break;
-
-	case K32("bash"):
-		profile_path = Join(home, L".bash_profile");
-		break;
-
-	default:
-		profile_path = Join(home, L".profile");
+		if (shell_name == MakeKey32(item.a))
+		{
+			profile = item.b;
+			break;
+		}
 	}
+
+	auto profile_path = Join(home, profile);
 
 	Data::Archive output;
 
@@ -91,13 +88,37 @@ WString SetPathImpl(WString::View reflex_path)
 		}
 	}
 
-	auto cli_path = Join(reflex_path, L"bin/tools/macos");
+	auto cli_path = Join(reflex_path, L"bin/tools/", platform);
 
 	Data::WriteLine(output, Join(kExportPath, WChar(kDoubleQuote), cli_path, L":$PATH", WChar(kDoubleQuote)));
 
 	if (!File::Save(profile_path, output)) ThrowError("failed to update shell profile", profile_path);
 
 	return cli_path;
+}
+#endif
+
+#if defined(REFLEX_OS_MACOS)
+WString SetPathImpl(WString::View reflex_path)
+{
+	static constexpr Pair <WString::View> kProfiles[] =
+	{
+		{ L"zsh", L".zshrc" },
+		{ L"bash", L".bash_profile" },
+	};
+
+	return SetUnixPathImpl(reflex_path, L"macos", kProfiles);
+}
+#elif defined(REFLEX_OS_LINUX)
+WString SetPathImpl(WString::View reflex_path)
+{
+	static constexpr Pair <WString::View> kProfiles[] =
+	{
+		{ L"zsh", L".zshrc" },
+		{ L"bash", L".bashrc" },
+	};
+
+	return SetUnixPathImpl(reflex_path, L"linux", kProfiles);
 }
 #elif defined(REFLEX_OS_WINDOWS)
 WString ReadWindowsUserPath(HKEY key)
@@ -156,7 +177,7 @@ WString SetPathImpl(WString::View reflex_path)
 		if (entry && !IsReflexRepositoryPath(entry)) entries.Push(entry);
 	}
 
-	entries.Push(Join(Replace(reflex_path, System::kPathDelimiter, L'\\'), L"bin\\tools\\win"));
+	entries.Push(PlatformPath(Join(reflex_path, L"bin/tools/win"), System::kPlatformWindows));
 
 	auto updated_path = Merge(entries, L';');
 
@@ -179,16 +200,7 @@ WString SetPathImpl(WString::View reflex_path)
 
 void WaitForProcess(CString::View label, const WString & process_path, ArrayView <WString> args)
 {
-	if (auto process = Make<System::Process>(process_path, args, System::Process::Options{ .allow_window = false }))
-	{
-		process->Wait();
-
-		auto exit_code = process->GetExitCode();
-
-		if (And(exit_code, exit_code.value == 0)) return;
-	}
-
-	CLI::ThrowError(Join(label, " failed"));
+	Require(RunCommand(process_path, args), label, "failed");
 }
 
 void UnzipFile(CString::View label, WString::View zip_path, WString::View dest_path, System::FileHandle & std_out)
@@ -529,7 +541,7 @@ void CreateDeferredBatch(WString::View temp_path, ArrayView <DeferredMove> defer
 
 	for (auto & move : deferred_moves)
 	{
-		File::WriteLine(batch_file, Join(L"move /Y \"", Replace(move.src_path, File::kStroke, L'\\'), L"\" \"", Replace(move.dst_path, File::kStroke, L'\\'), L"\""));
+		File::WriteLine(batch_file, Join(L"move /Y \"", PlatformPath(move.src_path, System::kPlatformWindows), L"\" \"", PlatformPath(move.dst_path, System::kPlatformWindows), L"\""));
 	}
 
 	File::WriteLine(batch_file);

@@ -42,8 +42,11 @@ public:
 
 	enum StandardStream : UInt8
 	{
-		kStandardStreamIn,
-		kStandardStreamOut,
+		kStandardIn,
+		kStandardOut,
+
+		kStandardStreamIn = kStandardIn,
+		kStandardStreamOut = kStandardOut,
 	};
 
 

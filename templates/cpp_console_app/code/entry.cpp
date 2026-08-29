@@ -16,10 +16,11 @@ using namespace Reflex;
 Output _PRODUCT-NAME-SYMBOL_::output("_PRODUCT-NAME_");
 
 _PRODUCT-NAME-SYMBOL_::ConsoleSession::ConsoleSession(ArrayView <CString::View> cmdline, CString::View vendor, CString::View product)
-	: m_filesystem(File::VirtualFileSystem::Create(File::kdisk)),
-	m_standard_in(System::FileHandle::Create(System::FileHandle::kStandardStreamIn)),
-	m_standard_out(System::FileHandle::Create(System::FileHandle::kStandardStreamOut)),
-	m_lock(m_filesystem)
+	: m_filesystem(File::VirtualFileSystem::Create(File::kdisk))
+	, m_standard_in(System::FileHandle::Create(System::FileHandle::kStandardStreamIn))
+	, m_standard_out(System::FileHandle::Create(System::FileHandle::kStandardStreamOut))
+	, m_lock(m_filesystem)
+	, m_cmdline(MakeArray(cmdline, [](CString::View i) -> CString { return i; }))
 {
 	if constexpr (REFLEX_DEBUG)
 	{

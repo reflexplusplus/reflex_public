@@ -10,7 +10,7 @@ namespace _PRODUCT-NAME-SYMBOL_ { namespace {	//begin internal namespace
 
 using namespace Reflex;
 
-struct ViewImpl : public View
+class ViewImpl : public View
 {
 public:
 

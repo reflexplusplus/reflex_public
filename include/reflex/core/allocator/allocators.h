@@ -20,7 +20,7 @@ namespace Reflex
 	class StandardAllocator;
 
 
-	TRef <Allocator> CreateAllocator(Key32 type, const Object & params);
+	[[nodiscard]] TRef <Allocator> CreateAllocator(Key32 type, const Object & params);
 
 	extern const Key32 kRecycleAllocID;
 

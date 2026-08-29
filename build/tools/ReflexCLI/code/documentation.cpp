@@ -1,4 +1,5 @@
 #include "documentation.h"
+#include "common.h"
 
 REFLEX_BEGIN_INTERNAL(ReflexCLI::Documentation)
 
@@ -205,10 +206,15 @@ REFLEX_END_INTERNAL
 
 ReflexCLI::Documentation::ModuleNode & ReflexCLI::Documentation::ModuleNode::null = g_null_module;
 
-Reflex::Reference <Reflex::Data::Table> ReflexCLI::Documentation::CreateTable(const WString::View & folder, Data::KeyMap & keymap)
+Reflex::TRef <Reflex::Data::Table> ReflexCLI::Documentation::CreateTable(const WString::View & folder, Data::KeyMap & keymap)
 {
 	auto symbols_decoded = Data::DecodePropertySet(Data::kPropertySheetFormat, File::Open(Join(folder, L"symbols.txt")));
 	auto info_decoded = Data::DecodePropertySet(Data::kPropertySheetFormat, File::Open(Join(folder, L"info.txt")));
+
+	if (auto error = Data::GetError(info_decoded))
+	{
+		ThrowError(Join(error.value.b, ": ", error.value.c), ToCString(error.value.a));
+	}
 
 	Data::RegisterKey(keymap, "module");
 	Data::RegisterKey(keymap, "namespace");
@@ -400,9 +406,6 @@ Reflex::Reference <Reflex::Data::Table> ReflexCLI::Documentation::CreateTable(co
 	for (auto & [adr, ref] : info_decoded.Iterate<Data::PropertySet>())
 	{
 		auto path = Data::GetCStringArray(ref, kPath);
-
-		auto ns = path.GetFirst();
-		auto name = path.GetLast();
 
 		auto path_symbol = MakeSymbol(CopyUnowned(path));
 

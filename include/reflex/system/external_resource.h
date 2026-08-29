@@ -38,5 +38,5 @@ public:
 
 	virtual Array <UInt8> GetPersistentToken() = 0;
 
-	virtual TRef <FileHandle> Open(FileHandle::Mode mode) = 0;
+	[[nodiscard]] virtual TRef <FileHandle> Open(FileHandle::Mode mode) = 0;
 };

@@ -194,7 +194,7 @@ struct ResourceBuilder
 
 ResourceBuilder::ResourceBuilder()
 {
-	auto file = [this](const WString::View & localpath, Array <Item> & items, const Data::PropertySet & attributes)
+	auto file = [](const WString::View & localpath, Array <Item> & items, const Data::PropertySet & attributes)
 	{
 		auto item = AddItem(items, attributes, localpath);
 
@@ -206,13 +206,13 @@ ResourceBuilder::ResourceBuilder()
 		PopulateSourceInfo(*item, resolved_path);
 	};
 
-	auto folder = [this](const WString::View & localpath, Array <Item> & items, const Data::PropertySet & attributes)
+	auto folder = [](const WString::View & localpath, Array <Item> & items, const Data::PropertySet & attributes)
 	{
 		constexpr auto convert = [](const ArrayView <CString::View> & values)
 		{
 			Array <WString> result;
 
-			for (auto & value : values) result.Push(ToWString(value));
+			for (auto & value : values) if (value) result.Push(ToWString(value));
 
 			return result;
 		};
@@ -291,7 +291,7 @@ Pair <WString> ResourceBuilder::GetOutputPaths(const WString::View & xml_locatio
 	{
 		if (relative_path)
 		{
-			return File::ResolveIncludePath(location, File::CorrectExtension(ToWString(relative_path), ext));
+			return File::ResolveIncludePath(location, File::SetExtension(ToWString(relative_path), ext));
 		}
 
 		return {};
@@ -299,7 +299,7 @@ Pair <WString> ResourceBuilder::GetOutputPaths(const WString::View & xml_locatio
 
 	if (auto cpp_path = make_path(xml_location, Data::GetCString(xml, MakeKey32("output")), L"cpp"))
 	{
-		return { File::CorrectExtension(cpp_path, L"h"), cpp_path };
+		return { File::SetExtension(cpp_path, L"h"), cpp_path };
 	}
 
 	return
@@ -316,7 +316,7 @@ void ResourceBuilder::Compile(const WString::View & path, volatile Float & progr
 	File::VirtualFileSystem::Lock lock(Bootstrap::global->resourcepool->filesystem);
 
 	auto xml_location = File::SplitFilename(path).a;
-	auto cache_path = File::CorrectExtension(path, L"cache");
+	auto cache_path = File::SetExtension(path, L"cache");
 	auto xml = Data::DecodePropertySet(Data::kReflexXmlFormat, File::Open(path));
 	auto [h_path, cpp_path] = GetOutputPaths(xml_location, xml);
 
@@ -378,7 +378,7 @@ void ResourceBuilder::Compile(const WString::View & path, volatile Float & progr
 
 	for (auto & i : m_root) DeclareNamespace(h, i);
 
-		SaveGeneratedFile(h_path, buffer->value);
+	SaveGeneratedFile(h_path, buffer->value);
 
 	buffer->value.Clear();
 
@@ -401,8 +401,8 @@ void ResourceBuilder::Compile(const WString::View & path, volatile Float & progr
 		for (auto & i : group.items) WriteItem(cpp, file_scratch, ns, i, total, done, progress);
 	}
 
-		SaveGeneratedFile(cpp_path, buffer->value);
-		SaveGeneratedFile(cache_path, Data::Pack(dependency_hash));
+	SaveGeneratedFile(cpp_path, buffer->value);
+	SaveGeneratedFile(cache_path, Data::Pack(dependency_hash));
 
 	output.LogEx(kLogNormal, {}, path, ' ', total, " files, ", ToCString(Float64(buffer->value.GetSize()) / Float64(1024 * 1024), 2), "mb, ", (System::GetElapsedTime() - start_time) * 1000.0, "ms");
 

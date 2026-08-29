@@ -76,17 +76,17 @@ namespace Reflex::Data
 
 REFLEX_NS(Reflex::Data::Detail)
 
-TRef <Table> Select(const Table & table, ArrayView <QueryData> ops, ArrayView<Key32> columns, bool match_all, const KeyMap * keymap);
+[[nodiscard]] TRef <Table> Select(const Table & table, ArrayView <QueryData> ops, ArrayView<Key32> columns, bool match_all, const KeyMap * keymap);
 
 void Select(const Table & table, ArrayView <QueryData> ops, bool match_all, void * client, FunctionPointer <void(void*, const Table::ConstRowCursor&)> callback, const KeyMap * keymap);
 
-TRef <Table> Slice(const Table & table, ArrayView <Key32> columns, ArrayView <UInt> row_indices);
+[[nodiscard]] TRef <Table> Slice(const Table & table, ArrayView <Key32> columns, ArrayView <UInt> row_indices);
 
-TRef <Table> Aggregate(const Table & table, ArrayView < Pair <Key32,AggregateOp> > ops);
+[[nodiscard]] TRef <Table> Aggregate(const Table & table, ArrayView < Pair <Key32,AggregateOp> > ops);
 
-TRef <Table> GroupBy(const Table & table, Key32 column, ArrayView < Pair <Key32,AggregateOp> > ops);
+[[nodiscard]] TRef <Table> GroupBy(const Table & table, Key32 column, ArrayView < Pair <Key32,AggregateOp> > ops);
 
-TRef <Table> CountBy(const Table & table, Key32 column, bool ratio = false);
+[[nodiscard]] TRef <Table> CountBy(const Table & table, Key32 column, bool ratio = false);
 
 void Delete(Table & table, ArrayView <UInt> row_indices_ascending);
 

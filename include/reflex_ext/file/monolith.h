@@ -59,7 +59,7 @@ public:
 
 	virtual bool Remove(Key64 partitionid) = 0;
 
-	virtual TRef <System::FileHandle> Write(Key64 partitionid, UInt32 size) = 0;
+	[[nodiscard]] virtual TRef <System::FileHandle> Write(Key64 partitionid, UInt32 size) = 0;
 
 	virtual bool Commit() = 0;
 
@@ -69,6 +69,6 @@ public:
 
 	virtual void Enumerate(const Function <void(Key64,UInt32)> & callback) const = 0;
 
-	virtual TRef <System::FileHandle> Read(Key64 partitionid) const = 0;
+	[[nodiscard]] virtual TRef <System::FileHandle> Read(Key64 partitionid) const = 0;
 
 };

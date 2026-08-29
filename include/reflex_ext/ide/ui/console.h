@@ -10,6 +10,6 @@
 
 REFLEX_NS(Reflex::IDE)
 
-TRef <Object> AcquireConsole(TRef <GLX::Object> root, const Function <void()> & onclose);
+[[nodiscard]] TRef <Object> AcquireConsole(TRef <GLX::Object> root, const Function <void()> & onclose);
 
 REFLEX_END

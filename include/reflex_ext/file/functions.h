@@ -16,7 +16,7 @@ namespace Reflex::File
 	Data::Archive ReadPartition(const Monolith & monolith, Key64 id);
 
 
-	TRef <System::FileHandle> CreateRegionReader(System::FileHandle & file, UInt start, UInt length);
+	[[nodiscard]] TRef <System::FileHandle> CreateRegionReader(System::FileHandle & file, UInt start, UInt length);
 
 }
 

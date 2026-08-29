@@ -1,0 +1,19 @@
+#!/bin/sh
+
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+
+if [ -z "${ANDROID_HOME:-}" ] && [ -z "${ANDROID_SDK_ROOT:-}" ] && [ "$(uname)" = Darwin ] && [ -d "$HOME/Library/Android/sdk" ]; then
+	export ANDROID_HOME="$HOME/Library/Android/sdk"
+	export ANDROID_SDK_ROOT="$ANDROID_HOME"
+fi
+
+if [ -n "${JAVA_HOME:-}" ] && [ -x "$JAVA_HOME/bin/java" ]; then
+	JAVA_EXE="$JAVA_HOME/bin/java"
+elif [ "$(uname)" = Darwin ] && [ -x "/Applications/Android Studio.app/Contents/jbr/Contents/Home/bin/java" ]; then
+	JAVA_EXE="/Applications/Android Studio.app/Contents/jbr/Contents/Home/bin/java"
+else
+	JAVA_EXE=java
+fi
+
+cd "$SCRIPT_DIR"
+exec "$JAVA_EXE" -classpath "$SCRIPT_DIR/gradle/wrapper/gradle-wrapper.jar" org.gradle.wrapper.GradleWrapperMain "$@"

@@ -76,13 +76,13 @@ public:
 	
 	const TRef <System::AudioPlugin> instance;
 
-	
-	
+
+
 protected:
 	
 	//lifetime
 
-	AudioPlugin(System::AudioPlugin & owner, UInt32 magic, UInt16 chunkversion);
+	AudioPlugin(const Class & cls, System::AudioPlugin & owner, UInt32 magic, UInt16 chunkversion);
 
 
 
@@ -123,7 +123,7 @@ private:
 
 	struct Parameters : public Streamable
 	{
-		Parameters(AudioPlugin & instance);
+		Parameters(const Class & cls, AudioPlugin & instance);
 		
 		void OnReset(Key32 context) override;
 	
@@ -134,10 +134,10 @@ private:
 
 		AudioPlugin & instance;
 		
-		const TRef < ObjectOf < Array <Pair < Key32, ConstReference <ParamDesc> > > > > paramdefs;
+		const ConstTRef < Detail::ParamDefs > paramdefs;
 		
 		Array < ConstReference <ParamDesc> > info;
-		
+
 		Array <Key32> ids;
 
 		Array <Value32> values;

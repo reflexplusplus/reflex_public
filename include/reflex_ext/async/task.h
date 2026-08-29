@@ -81,7 +81,7 @@ public:
 
 	//lifetime
 	
-	static TRef <Worker> Create(const Function <Result(Context & ctx)> & worker);
+	[[nodiscard]] static TRef <Worker> Create(const Function <Result(Context & ctx)> & worker);
 
 	~Worker();
 

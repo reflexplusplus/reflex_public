@@ -178,7 +178,7 @@ ReorderContainer::~ReorderContainer()
 			}
 		}
 
-		if (auto plist = DynamicCast<List>(*m_list))
+		if (DynamicCast<List>(*m_list))
 		{
 			GetContainingViewPort(m_list)->DisableAutoScroll();
 		}
@@ -257,7 +257,7 @@ Pair <ListLayout::AccommodateFn,ListLayout::AlignFn> ListLayout::OnRebuild(GLX::
 
 	std_accommodate = base.a;
 
-	if (auto reorder = object.QueryProperty<ReorderContainer>(kNullKey))
+	if (object.QueryProperty<ReorderContainer>(kNullKey))
 	{
 		base.a = CastAccommodateFn<List>(&ListLayout::OnAccommodate);
 	}

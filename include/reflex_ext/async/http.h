@@ -13,7 +13,7 @@ namespace Reflex::Async
 
 	using HttpHeaders = Array < Pair <CString> >;
 
-	TRef <Task> CreateHttpRequest(const CString::View & method, const CString::View & url, const HttpHeaders & headers, const Data::Archive::View & body, Output & debug_output = File::output);
+	[[nodiscard]] TRef <Task> CreateHttpRequest(const CString::View & method, const CString::View & url, const HttpHeaders & headers, const Data::Archive::View & body, Output & debug_output = File::output);
 
 }
 
@@ -78,7 +78,7 @@ enum NetworkSimulation : UInt32
 	kNetworkSimulationBroadband = 8000000,		//64Mbps
 };
 
-TRef <Task> CreateHttpRequest(const CString::View & method, const CString::View & url, const HttpHeaders & headers, const Data::Archive::View & body, TRef <HttpRequestCallbacks> callbacks, NetworkSimulation network_simulation = kNetworkSimulationNone, Output & output = File::output);
+[[nodiscard]] TRef <Task> CreateHttpRequest(const CString::View & method, const CString::View & url, const HttpHeaders & headers, const Data::Archive::View & body, TRef <HttpRequestCallbacks> callbacks, NetworkSimulation network_simulation = kNetworkSimulationNone, Output & output = File::output);
 
 Worker::Result Fetch(Worker::Context & ctx, CString::View method, CString::View url, HttpHeaders::View headers, Data::Archive::View body, HttpRequestCallbacks & callbacks, NetworkSimulation network_simulation = kNetworkSimulationNone, Output & output = File::output);	//synchronous function
 
@@ -106,4 +106,3 @@ inline Reflex::TRef <Reflex::Async::Task> Reflex::Async::CreateHttpRequest(const
 {
 	return Detail::CreateHttpRequest(method, url, headers, body, New<Detail::StandardHttpRequestCallbacks>(), Detail::kNetworkSimulationNone, output);
 }
-

@@ -7,8 +7,7 @@
 //playlist
 
 Reflex::GLX::PlayList::PlayList()
-	: m_loop(false),
-	m_play(false)
+	: m_loop(false)
 {
 }
 

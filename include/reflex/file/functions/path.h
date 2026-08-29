@@ -57,7 +57,9 @@ namespace Reflex::File
 
 	bool CheckExtension(const WString::View & filename, const WString::View & extension);
 
-	WString CorrectExtension(const WString::View & path, const WString::View & extension);
+	WString SetExtension(const WString::View & path, const WString::View & extension);
+
+	[[deprecated("use SetExtension")]] WString CorrectExtension(const WString::View & path, const WString::View & extension);
 
 
 	WString::View ResolveExistingFolder(const WString::View & path);

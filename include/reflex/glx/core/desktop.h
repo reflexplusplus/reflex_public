@@ -51,9 +51,9 @@ public:
 
 	//notifications
 
-	virtual TRef <Reflex::Object> CreateAnimationClock(const Function <void(Float32)> & listener) = 0;
+	[[nodiscard]] virtual TRef <Reflex::Object> CreateAnimationClock(const Function <void(Float32)> & listener) = 0;
 
-	virtual TRef <Reflex::Object> CreateListener(Notification notification, const Function <void()> & listener) = 0;
+	[[nodiscard]] virtual TRef <Reflex::Object> CreateListener(Notification notification, const Function <void()> & listener) = 0;
 
 
 

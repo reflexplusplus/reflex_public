@@ -70,7 +70,7 @@ public:
 
 	static Array <CString::View> GetAvailablePlatforms();
 
-	static TRef <Audio> Acquire(CString::View platform);
+	[[nodiscard]] static TRef <Audio> Acquire(CString::View platform);
 
 
 
@@ -83,7 +83,7 @@ public:
 
 	virtual Array <DeviceDesc> GetAvailableDevices() const = 0;
 
-	virtual TRef <Device> CreateDevice(ArrayView <UInt8> id) = 0;
+	[[nodiscard]] virtual TRef <Device> CreateDevice(ArrayView <UInt8> id) = 0;
 };
 
 

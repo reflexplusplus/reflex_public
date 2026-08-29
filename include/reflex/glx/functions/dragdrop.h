@@ -19,11 +19,11 @@ namespace Reflex::GLX
 	template <class TYPE> inline TYPE * QueryDragDropData(GLX::Event & e);
 
 
-	TRef <Reflex::Object> CreateDragDropBeginListener(const Function <void(Reflex::Object&)> & callback);
+	[[nodiscard]] TRef <Reflex::Object> CreateDragDropBeginListener(const Function <void(Reflex::Object&)> & callback);
 
-	TRef <Reflex::Object> CreateDragDropEndListener(const Function <void()> & callback);
+	[[nodiscard]] TRef <Reflex::Object> CreateDragDropEndListener(const Function <void()> & callback);
 
-	TRef <Reflex::Object> CreateDragDropTargetListener(const Function <void(GLX::Object&)> & callback);
+	[[nodiscard]] TRef <Reflex::Object> CreateDragDropTargetListener(const Function <void(GLX::Object&)> & callback);
 
 }
 

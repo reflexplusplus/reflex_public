@@ -205,11 +205,11 @@ public:
 
 	//create texture
 
-	virtual TRef <Graphic> CreateTextures(ArrayView < Pair <fRect> > rects) const = 0;
+	[[nodiscard]] virtual TRef <Graphic> CreateTextures(ArrayView < Pair <fRect> > rects) const = 0;
 
-	virtual TRef <Graphic> CreateTextures(ArrayView < Pair <fRect> > rects, TextureEffect mode, ArrayView <Float> parameters) const = 0;
+	[[nodiscard]] virtual TRef <Graphic> CreateTextures(ArrayView < Pair <fRect> > rects, TextureEffect mode, ArrayView <Float> parameters) const = 0;
 
-	virtual TRef <Graphic> CreateTextures(ArrayView < Pair <fRect> > rects, TextureComposite mode, ConstTRef <Canvas> bitmap_source, ArrayView <Float> parameters) const = 0;
+	[[nodiscard]] virtual TRef <Graphic> CreateTextures(ArrayView < Pair <fRect> > rects, TextureComposite mode, ConstTRef <Canvas> bitmap_source, ArrayView <Float> parameters) const = 0;
 };
 
 

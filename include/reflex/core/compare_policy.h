@@ -15,7 +15,7 @@ namespace Reflex
 
 	struct KeyCompare;
 
-	template <auto MEMBER> struct FieldCompare;
+	template <auto MEMBER, class POLICY = StandardCompare> struct FieldCompare;
 
 }
 
@@ -51,13 +51,13 @@ struct Reflex::KeyCompare
 //
 //FieldCompare
 
-template <auto MEMBER>
+template <auto MEMBER, class POLICY>
 struct Reflex::FieldCompare
 {
 	template <class OBJ, class VALUE> static bool eq(OBJ && obj, VALUE && value)
 	{
 		REFLEX_STATIC_ASSERT(std::is_member_object_pointer_v<decltype(MEMBER)>);
 
-		return std::forward<OBJ>(obj).*MEMBER == std::forward<VALUE>(value);
+		return POLICY::eq(std::forward<OBJ>(obj).*MEMBER, std::forward<VALUE>(value));
 	}
 };

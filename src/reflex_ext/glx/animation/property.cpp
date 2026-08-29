@@ -11,13 +11,13 @@ Reflex::GLX::InterpolatedAnimationImpl::InterpolateFn Reflex::GLX::AbstractPrope
 	switch (n)
 	{
 	case 1:
-		return reinterpret_cast<InterpolateFn>(&OnInterpolate<1>);
+		return Reflex::Detail::CastFunctionPointer<InterpolateFn>(&OnInterpolate<1>);
 	case 2:
-		return reinterpret_cast<InterpolateFn>(&OnInterpolate<2>);
+		return Reflex::Detail::CastFunctionPointer<InterpolateFn>(&OnInterpolate<2>);
 	case 4:
-		return reinterpret_cast<InterpolateFn>(&OnInterpolate<4>);
+		return Reflex::Detail::CastFunctionPointer<InterpolateFn>(&OnInterpolate<4>);
 	default:
-		return 0;
+		return nullptr;
 	}
 }
 

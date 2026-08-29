@@ -236,6 +236,7 @@ bool ViewImpl::OnEvent(GLX::Object & source, GLX::Event & e)
 				GLX::BindClick(menu->AddItem(ToWString(tmpl.name)), [this, folder = tmpl.folder]()
 				{
 					m_current_template = folder;
+					m_reset = true;
 
 					Update();
 				});
@@ -308,24 +309,17 @@ void ViewImpl::OnUpdate()
 		return item;
 	});
 
-	auto targets = app->GetTargets();
+	auto current = GetCurrentTemplate();
+	auto platforms = current ? ToView(current->platforms) : ArrayView<CString>();
 
-	if (targets)
+	if (SetFiltered(m_reset, false))
 	{
-		if (SetFiltered(m_reset, false))
-		{
-			m_targets.Clear();
-
-			for (auto [target, enabled] : targets)
-			{
-				if (enabled) m_targets.Push(target);
-			}
-		}
+		m_targets = platforms;
 	}
 
 	bool can_build = True(m_targets);
 
-	for (auto & [target,enabled] : targets)
+	for (auto & target : platforms)
 	{
 		auto item = Cast<GLX::Button>(targets_recycler.Acquire(target));
 
@@ -338,7 +332,7 @@ void ViewImpl::OnUpdate()
 		GLX::AddInline(m_sections[kSectionTargets], item);
 	}
 
-	if (auto current = GetCurrentTemplate())
+	if (current)
 	{
 		for (auto & info : current->strings)
 		{

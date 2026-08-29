@@ -11,9 +11,9 @@
 namespace Reflex::GLX
 {
 
-	TRef <Reflex::Object> CreateAnimationClock(const Function <void(Float32 delta)> & callback);
+	[[nodiscard]] TRef <Reflex::Object> CreateAnimationClock(const Function <void(Float32 delta)> & callback);
 
-	TRef <Reflex::Object> CreatePeriodicClock(Float interval, const Function <void()> & callback);
+	[[nodiscard]] TRef <Reflex::Object> CreatePeriodicClock(Float interval, const Function <void()> & callback);
 
 
 	void AttachAnimationClock(Object & object, Key32 id, const Function <void(Float32 delta)> & callback);

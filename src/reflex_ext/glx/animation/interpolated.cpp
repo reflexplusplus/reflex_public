@@ -12,7 +12,7 @@ REFLEX_BEGIN_INTERNAL(Reflex::GLX)
 struct OpacityAnimation : public InterpolatedAnimationImpl
 {
 	OpacityAnimation(Key32 id, Float from, Float to, Detail::ComputedStyle::Render render)
-		: InterpolatedAnimationImpl(reinterpret_cast<InterpolateFn>(&OnInterpolate)),
+		: InterpolatedAnimationImpl(Reflex::Detail::CastFunctionPointer<InterpolateFn>(&OnInterpolate)),
 		m_id(id),
 		m_render(render),
 		m_from(from),
@@ -121,7 +121,7 @@ Reflex::TRef <Reflex::GLX::InterpolatedAnimation> Reflex::GLX::CreateInterpolate
 	struct Callback : public InterpolatedAnimationImpl
 	{
 		Callback(const Function <void(GLX::Object&,Float)> & callback)
-			: InterpolatedAnimationImpl(reinterpret_cast<InterpolateFn>(&OnInterpolate))
+			: InterpolatedAnimationImpl(Reflex::Detail::CastFunctionPointer<InterpolateFn>(&OnInterpolate))
 			, m_callback(callback)
 			, m_flipped(0)
 		{
@@ -158,7 +158,7 @@ Reflex::TRef <Reflex::GLX::InterpolatedAnimation> Reflex::GLX::CreateWaitAnimati
 	struct Wait : public InterpolatedAnimationImpl
 	{
 		Wait()
-			: InterpolatedAnimationImpl(reinterpret_cast<InterpolateFn>(&OnInterpolate))
+			: InterpolatedAnimationImpl(Reflex::Detail::CastFunctionPointer<InterpolateFn>(&OnInterpolate))
 		{
 		}
 		
@@ -189,7 +189,7 @@ Reflex::TRef <Reflex::GLX::InterpolatedAnimation> Reflex::GLX::CreatePositionAni
 	struct AxisMoveAnimation : public InterpolatedAnimationImpl
 	{
 		AxisMoveAnimation(bool y, Float from, Float to)
-			: InterpolatedAnimationImpl(reinterpret_cast<InterpolateFn>(&OnInterpolate)),
+			: InterpolatedAnimationImpl(Reflex::Detail::CastFunctionPointer<InterpolateFn>(&OnInterpolate)),
 			m_yaxis(y),
 			m_start(from),
 			m_difference(to - from)

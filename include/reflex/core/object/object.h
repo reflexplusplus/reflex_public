@@ -195,8 +195,6 @@ private:
 
 	UInt8 m_released;
 
-	UInt8 m_contextflags;
-
 };
 
 

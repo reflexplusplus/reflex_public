@@ -27293,9 +27293,9 @@
 
 	@UInt32 Index: 746;
 
-	@UInt64 Symbol: 2858318139697010751;
+	@UInt64 Symbol: 11768330986133264447;
 
-	Name: "CorrectExtension";
+	Name: "SetExtension";
 
 	Category: "function";
 

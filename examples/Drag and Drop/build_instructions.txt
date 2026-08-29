@@ -1,0 +1,9 @@
+Use the Reflex++ CLI to generate native projects in `projects/`:
+
+    cd path/to/this/example
+    reflex generate
+
+Alternatively, build with CMake:
+
+    cmake -S . -B build
+    cmake --build build --config Debug

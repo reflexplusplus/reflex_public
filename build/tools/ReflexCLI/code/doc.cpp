@@ -130,21 +130,17 @@ WString GetDocumentationFolder(WString::View repo, CString::View codebase)
 	return {};
 }
 
-Reference <TableIndex> CreateIndex(CString::View codebase)
-{
-	Data::KeyMap unused;
-	
-	return New<TableIndex>(*CreateTable(GetDocumentationFolder(GetReflexPath(), codebase), unused));
-}
-
 DocContext CreateDocContext(const Data::PropertySet & args)
 {
+	Data::KeyMap unused;
+
 	DocContext context;
 
 	auto root_codebase = Data::GetCString(args, "root");
 
 	context.codebase = root_codebase ? root_codebase : RestoreCodebase();
-	context.index = CreateIndex(context.codebase);
+
+	context.index = New<TableIndex>(CreateTable(GetDocumentationFolder(GetReflexPath(), context.codebase), unused));
 
 	if (!root_codebase)
 	{
@@ -169,7 +165,7 @@ Array <Pair<CString::View, bool>> BuildChain(const ModuleNode & module, bool inc
 	return chain;
 }
 
-void PrintModulePath(System::FileHandle & out, const TableIndex & index, const ModuleNode & location, const ModuleNode & node, CString::View suffix = {})
+void PrintModulePath(System::FileHandle & out, const ModuleNode & location, const ModuleNode & node, CString::View suffix = {})
 {
 	auto build_string = [&](const ModuleNode & module)
 	{
@@ -248,7 +244,7 @@ void PrintSymbol(System::FileHandle & out, const TableIndex & index, const Modul
 {
 	if (symbol.category_ex >= kCategoryExNamespace)
 	{
-		PrintModulePath(out, index, location, index.GetModule(symbol.symbol), suffix);
+		PrintModulePath(out, location, index.GetModule(symbol.symbol), suffix);
 	}
 	else
 	{
@@ -481,7 +477,7 @@ void WriteTypeChildren(System::FileHandle & out, const TableIndex & index, const
 	}
 }
 
-void Codebase(const Data::PropertySet & args, CString::View codebase, System::FileHandle & out)
+void Codebase(CString::View codebase, System::FileHandle & out)
 {
 	if (codebase && GetDocumentationFolder(GetReflexPath(), codebase))
 	{
@@ -491,7 +487,7 @@ void Codebase(const Data::PropertySet & args, CString::View codebase, System::Fi
 	File::WriteLine(out, RestoreCodebase());
 }
 
-void Codebases(const Data::PropertySet & args, System::FileHandle & out)
+void Codebases(System::FileHandle & out)
 {
 	auto codebase = RestoreCodebase();
 
@@ -525,7 +521,7 @@ void Where(const Data::PropertySet & args, System::FileHandle & out)
 
 	auto parent = location->GetParent();
 
-	PrintModulePath(out, *context.index, parent ? *parent : *context.index->GetRootModule(), location);
+	PrintModulePath(out, parent ? *parent : *context.index->GetRootModule(), location);
 }
 
 void Push(const Data::PropertySet & args, CString::View id, System::FileHandle & out)
@@ -561,7 +557,7 @@ void Push(const Data::PropertySet & args, CString::View id, System::FileHandle &
 
 		SetModulePath(context.codebase, context.path);
 
-		PrintModulePath(out, *context.index, location, context.index->GetModule(MakeSymbol(context.path)));
+		PrintModulePath(out, location, context.index->GetModule(MakeSymbol(context.path)));
 	}
 	else
 	{
@@ -920,8 +916,8 @@ void ReflexCLI::Doc(const Data::PropertySet & args, System::FileHandle & out)
 	case K32("list"): List(args, arg, out); return;
 	case K32("info"): Info(args, arg, out); return;
 	case K32("push"): Push(args, arg, out); return;
-	case K32("codebase"): Codebase(args, arg, out); return;
-	case K32("codebases"): Codebases(args, out); return;
+	case K32("codebase"): Codebase(arg, out); return;
+	case K32("codebases"): Codebases(out); return;
 	case K32("where"): Where(args, out); return;
 	case K32("pop"): Pop(args, out); return;
 	default:

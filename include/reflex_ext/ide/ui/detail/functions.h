@@ -12,7 +12,7 @@ REFLEX_NS(Reflex::IDE::Detail)
 
 ConstTRef <GLX::StyleSheet> RetrieveStyleSheet();
 
-TRef <GLX::Object> CreateInfoItem(const WString & key, const WString::View & value, bool path);
+[[nodiscard]] TRef <GLX::Object> CreateInfoItem(const WString & key, const WString::View & value, bool path);
 
 Array < Tuple <WString, Detail::ConsolePanel&> > CreatePanels(TRef <GLX::Object> root);
 
@@ -38,4 +38,3 @@ inline Reflex::ConstTRef <Reflex::GLX::StyleSheet> Reflex::IDE::Detail::Retrieve
 {
 	return GLX::RetrieveStyleSheet(L":res:Reflex::IDE/styles.txt");
 }
-

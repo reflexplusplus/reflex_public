@@ -94,6 +94,8 @@ protected:
 
 	CommonReference() {}
 
+	CommonReference(const CommonReference & value) = default;
+
 	CommonReference(TYPE * ptr) : m_object(ptr) { REFLEX_ASSERT(ptr); }
 
 	CommonReference(NoValue special_uninitialized) : m_object(nullptr) {}

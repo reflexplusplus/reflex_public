@@ -13,9 +13,21 @@ REFLEX_NS(Reflex::Data::Detail)
 
 struct PropertySheetInterface : public Object	//TODO Interface not object
 {
-	using LineScope = Reflex::Detail::ScopeOf <UInt*,true>;
-
 	using ObjectWithType = Pair < Reference <Object>, TypeID >;
+
+	struct Context
+	{
+		Context(Object & state, KeyMap & keymap, UInt & line)
+			: state(state),
+			keymap(keymap),
+			line(line)
+		{
+		}
+
+		Object & state;
+		KeyMap & keymap;
+		UInt & line;
+	};
 
 	enum TokenType : UInt8
 	{
@@ -32,24 +44,24 @@ struct PropertySheetInterface : public Object	//TODO Interface not object
 	};
 
 
-	virtual bool Begin(PropertySet & root) const { return true; }
+	virtual Object * OnBegin(PropertySet & root) const = 0;
 
-	virtual void End(PropertySet & root) const { }
+	virtual void OnEnd(Context & context, PropertySet & root) const { }
 
-	virtual PropertySheetInterface & GetInterface(ObjectWithType & object) { return *this; }
+	virtual PropertySheetInterface & GetInterface(Context & context, ObjectWithType & object) { return *this; }
+
+	virtual const Object * OnQueryConditionalProperty(Context & context, const PropertySet & options, Address property) const;
 
 
-	virtual bool OnSetOption(Key32 id, const CString::View & value) const = 0;
+	virtual bool OnSetOption(Context & context, Key32 id, const CString::View & value) const = 0;
 
-	virtual bool OnCondition(const ArrayView < Pair <TokenType,CString::View> > & condition) const = 0;
+	virtual ObjectWithType CreateObject(Context & context, Object & parent, const CString::View & type, Key32 id, bool is_stub) const = 0;
 
-	virtual ObjectWithType CreateObject(Object & parent, const CString::View & type, Key32 id, bool is_stub) const = 0;
+	virtual ObjectWithType CreateObjectArray(Context & context, const CString::View & type, const Array <ObjectWithType> & values) const = 0;
 
-	virtual ObjectWithType CreateObjectArray(const CString::View & type, const Array <ObjectWithType> & values) const = 0;
+	virtual ObjectWithType CreateValue(Context & context, const CString::View & type, TokenType value_t, const CString::View & value) const = 0;
 
-	virtual ObjectWithType CreateValue(KeyMap & keymap, const CString::View & type, TokenType value_t, const CString::View & value) const = 0;
-
-	virtual ObjectWithType CreateValueArray(KeyMap & keymap, const CString::View & type, TokenType tokentype, const Array <CString::View> & values) const = 0;
+	virtual ObjectWithType CreateValueArray(Context & context, const CString::View & type, TokenType tokentype, const Array <CString::View> & values) const = 0;
 };
 
 struct StandardPropertySheetInterface : public PropertySheetInterface
@@ -84,7 +96,7 @@ struct StandardPropertySheetInterface : public PropertySheetInterface
 	virtual void RegisterValueTypeHandler(Key32 type_name, TokenType tokentype, const ValueType & type) = 0;
 };
 
-TRef <Format> CreateCustomFormat(PropertySheetInterface & callbacks, const ArrayView <TypeID> & supported);
+[[nodiscard]] TRef <Format> CreatePropertySetFormat(TRef <PropertySheetInterface> iface, ArrayView <TypeID> supported);
 
 template <class TYPE> inline PropertySheetInterface::ObjectWithType MakeObjectWithType(TYPE & object = *REFLEX_CREATE(TYPE))
 {

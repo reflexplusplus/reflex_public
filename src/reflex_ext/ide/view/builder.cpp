@@ -143,7 +143,7 @@ struct BuilderImpl : public Detail::BuilderPanel
 			if (Search(i.value, address)) return true;
 		}
 	
-		if (auto token = FindToken(address))
+		if (FindToken(address))
 		{
 			Open(address, true);
 		}
@@ -440,7 +440,7 @@ protected:
 		TextEditorWithLineNumbers()
 			: GLX::Object(GLX::Detail::kStandardLayoutRealigningContent)
 		{
-			linenumbers.SetPopulateCallback([this](UInt line, ArrayRegion < Reference <Object> > items, const GLX::Style & style)
+			linenumbers.SetPopulateCallback([](UInt line, ArrayRegion < Reference <Object> > items, const GLX::Style & style)
 			{
 				for (auto & i : items)
 				{
@@ -1070,15 +1070,16 @@ void BuilderImpl::TextEditor::ClearError()
 
 void BuilderImpl::TextEditor::ShowError(const Reflex::Object & error)
 {
-	auto [line,stage,desc] = Data::GetError(error);
+	if (auto value = Data::GetError(error))
+	{
+		m_texteditor->SetError(value.value.a);
 
-	if (line != kMaxUInt32) m_texteditor->SetError(line);
+		auto error_display = AcquireFooter(Data::kError, L"Error");
 
-	auto error_display = AcquireFooter(Data::kError, L"Error");
+		GLX::SetText(*error_display->GetFirst(), ToWString(value.value.b));
 
-	GLX::SetText(*error_display->GetFirst(), ToWString(stage));
-
-	GLX::SetText(*error_display->GetLast(), ToWString(desc));
+		GLX::SetText(*error_display->GetLast(), ToWString(value.value.c));
+	}
 }
 
 bool BuilderImpl::TextEditor::OnEvent(GLX::Object & src, GLX::Event & e)
@@ -1211,7 +1212,7 @@ bool BuilderImpl::TextEditor::OnEvent(GLX::Object & src, GLX::Event & e)
 					{
 						auto button = GLX::AddInline(bar, GLX::Init(New<GLX::Button>(i.a), option));
 
-						GLX::BindClick(button, [prefs, option = i.b, button]()
+						GLX::BindClick(button, [option = i.b, button]()
 						{
 							auto value = !GetPreference(option);
 

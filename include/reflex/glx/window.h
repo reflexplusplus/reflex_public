@@ -80,7 +80,7 @@ protected:
 
 	System::ScreenOrientation OnGetScreenOrientation() override;
 
-	System::iSize OnGetContentSize() override;
+	Pair <System::iSize> OnGetContentBounds() override;
 
 	void OnSetRect(System::WindowDisplay state, const System::iRect & rect, const System::iRect & interactable, Int32 dpifactor) override;
 

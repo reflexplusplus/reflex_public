@@ -43,31 +43,34 @@ public:
 	using ConstItr = TYPE *;
 	using ConstReverseItr = TYPE *;
 
-	using InverseConstType = ConditionalType < kIsConst<TYPE>, NonConstT<TYPE>, const TYPE >;
+	using ItemType = NonConstT <TYPE>;
 
-	static constexpr bool kIsNullTerminated = Reflex::IsNullTerminated<NonConstT<TYPE>>::value;
+	static constexpr bool kIsNullTerminated = Reflex::IsNullTerminated<ItemType>::value;
 
 
 
 	//lifetime
 
+	constexpr ArrayRegion(const ArrayRegion & ref) = default;
+
 	constexpr ArrayRegion();
 
-	ArrayRegion(std::initializer_list < NonConstT<TYPE> > && params);
+	ArrayRegion(std::initializer_list <ItemType> && params);
 
 	constexpr ArrayRegion(TYPE * data, UInt size);
 
 	template <UInt SIZE> constexpr ArrayRegion(TYPE(&data)[SIZE]);
 
-	template <UInt SIZE> constexpr ArrayRegion(InverseConstType(&data)[SIZE]);
+	template <UInt SIZE> constexpr ArrayRegion(ItemType(&data)[SIZE]) requires(kIsConst<TYPE>);
 
-	constexpr ArrayRegion(const TYPE * nullterminated);		//for string
+	constexpr ArrayRegion(const ItemType * nullterminated) requires(kIsConst<TYPE> && kIsNullTerminated);		//for string
 
-	ArrayRegion(ConditionalType < kIsConst<TYPE>, const Array <NonConstT<TYPE>>, Array <TYPE> > & array);
-
-	constexpr ArrayRegion(const ArrayRegion & ref) = default;
+	ArrayRegion(ConditionalType < kIsConst<TYPE>, const Array <ItemType>, Array <TYPE> > & array);
 
 	consteval ArrayRegion(TYPE * data, UInt size, bool vc_workaround) : data(data), size(size) {}
+
+
+	ArrayRegion(ItemType * nullterminated) requires(kIsConst<TYPE> && kIsNullTerminated) = delete;
 
 	ArrayRegion(nullptr_t) = delete;
 
@@ -90,6 +93,21 @@ public:
 	//operators
 
 	ArrayRegion & operator=(const ArrayRegion & value) = default;
+
+	ArrayRegion & operator=(std::initializer_list <ItemType> && params);
+
+	template <UInt SIZE> ArrayRegion & operator=(TYPE(&data)[SIZE]);
+
+	template <UInt SIZE> ArrayRegion & operator=(ItemType(&data)[SIZE]) requires(kIsConst<TYPE>);
+
+	ArrayRegion & operator=(const ItemType * nullterminated) requires(kIsConst<TYPE> && kIsNullTerminated);
+
+
+	ArrayRegion & operator=(Array <ItemType> && value) = delete;		//typically unsafe
+
+	ArrayRegion & operator=(ItemType * nullterminated) requires(kIsConst<TYPE> && kIsNullTerminated) = delete;
+
+	ArrayRegion & operator=(nullptr_t) = delete;
 
 
 	explicit operator bool() const { return True(this->size); }
@@ -199,21 +217,20 @@ template <class TYPE> template <Reflex::UInt SIZE> inline constexpr Reflex::Arra
 	}
 }
 
-template <class TYPE> template <Reflex::UInt SIZE> inline constexpr Reflex::ArrayRegion<TYPE>::ArrayRegion(InverseConstType(&data)[SIZE])
+template <class TYPE> template <Reflex::UInt SIZE> inline constexpr Reflex::ArrayRegion<TYPE>::ArrayRegion(ItemType(&data)[SIZE]) requires(kIsConst<TYPE>)
 	: data(data)
 	, size(SIZE - kIsNullTerminated)
 {
 	static_assert(!(kIsConst<TYPE> && kIsNullTerminated), "passing non-const character buffer to String::View is ambiguous");
 }
 
-template <class TYPE> inline constexpr Reflex::ArrayRegion<TYPE>::ArrayRegion(const TYPE * nullterminated)
+template <class TYPE> inline constexpr Reflex::ArrayRegion<TYPE>::ArrayRegion(const ItemType * nullterminated) requires(kIsConst<TYPE> && kIsNullTerminated)
 	: data(nullterminated)
 	, size(RawStringLength(nullterminated))
 {
-	REFLEX_STATIC_ASSERT(kIsNullTerminated);
 }
 
-template <class TYPE> REFLEX_INLINE Reflex::ArrayRegion<TYPE>::ArrayRegion(std::initializer_list < NonConstT<TYPE> > && value)
+template <class TYPE> REFLEX_INLINE Reflex::ArrayRegion<TYPE>::ArrayRegion(std::initializer_list <ItemType> && value)
 	: data(RemoveConst(value.begin()))
 	, size(UInt(value.size()))
 {
@@ -243,6 +260,45 @@ template <class TYPE> REFLEX_INLINE TYPE & Reflex::ArrayRegion<TYPE>::operator[]
 	REFLEX_ASSERT(idx < this->size);
 
 	return this->data[idx];
+}
+
+template <class TYPE> inline Reflex::ArrayRegion <TYPE> & Reflex::ArrayRegion<TYPE>::operator=(std::initializer_list <ItemType> && params)
+{
+	data = RemoveConst(params.begin());
+	size = UInt(params.size());
+
+	return *this;
+}
+
+template <class TYPE> template <Reflex::UInt SIZE> inline Reflex::ArrayRegion <TYPE> & Reflex::ArrayRegion<TYPE>::operator=(TYPE(&data)[SIZE])
+{
+	ArrayRegion::data = data;
+	ArrayRegion::size = SIZE - kIsNullTerminated;
+
+	if constexpr (kIsConst<TYPE> && kIsNullTerminated)
+	{
+		REFLEX_ASSERT(RawStringLength(data) == (SIZE - 1));
+	}
+
+	return *this;
+}
+
+template <class TYPE> template <Reflex::UInt SIZE> inline Reflex::ArrayRegion <TYPE> & Reflex::ArrayRegion<TYPE>::operator=(ItemType(&data)[SIZE]) requires(kIsConst<TYPE>)
+{
+	static_assert(!kIsNullTerminated, "assigning non-const character buffer to String::View is ambiguous");
+
+	ArrayRegion::data = data;
+	ArrayRegion::size = SIZE - kIsNullTerminated;
+
+	return *this;
+}
+
+template <class TYPE> inline Reflex::ArrayRegion <TYPE> & Reflex::ArrayRegion<TYPE>::operator=(const ItemType * nullterminated) requires(kIsConst<TYPE> && kIsNullTerminated)
+{
+	data = nullterminated;
+	size = RawStringLength(nullterminated);
+
+	return *this;
 }
 
 template <class TYPE> REFLEX_INLINE bool Reflex::ArrayRegion<TYPE>::operator==(const ArrayRegion & value) const

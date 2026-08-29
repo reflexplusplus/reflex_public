@@ -52,7 +52,7 @@ protected:
 
 	//setup
 
-	TRef <Object> CreateListener(const Function <void(Detail::ArgPassType <TYPES> ...)> & callback);
+	[[nodiscard]] TRef <Object> CreateListener(const Function <void(Detail::ArgPassType <TYPES> ...)> & callback);
 
 
 
@@ -142,6 +142,8 @@ protected:
 
 
 	//bind
+
+	Listener() = default;
 
 	Listener(Signal & signal, const FunctionType & fn);
 

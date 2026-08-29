@@ -21,7 +21,7 @@ namespace Reflex
 	template <class TYPE, class ... VARGS> Reference <TYPE> Make(VARGS && ... vargs);
 
 
-	template <class TYPE> inline TRef < ObjectOf <TYPE> > CreateObjectOf(const TYPE & value);
+	template <class TYPE> [[nodiscard]] inline TRef < ObjectOf <TYPE> > CreateObjectOf(const TYPE & value);
 
 }
 

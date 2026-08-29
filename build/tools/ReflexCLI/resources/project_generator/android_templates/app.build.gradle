@@ -1,0 +1,64 @@
+plugins {
+	alias(libs.plugins.android.application)
+}
+
+def projectRoot = file("${projectDir.absolutePath}/../../..").canonicalFile
+
+android {
+	namespace = [PACKAGE_ID]
+	compileSdk = [ANDROID_SDK]
+
+	defaultConfig {
+		applicationId = [PACKAGE_ID]
+		minSdk = [ANDROID_MIN_SDK]
+		targetSdk = [ANDROID_SDK]
+		manifestPlaceholders = [reflexNativeLibrary: [NATIVE_LIBRARY]]
+
+		versionCode = 1
+		versionName = "1.0"
+		externalNativeBuild {
+			cmake {
+			}
+		}
+	}
+
+	buildTypes {
+		debug {
+			externalNativeBuild {
+				cmake {
+					arguments "-DANDROID_STL=[DEBUG_RUNTIME_LIBRARY]"
+				}
+			}
+			ndk {
+				abiFilters.addAll([DEBUG_ABIS])
+			}
+		}
+
+		release {
+			externalNativeBuild {
+				cmake {
+					arguments "-DANDROID_STL=[RELEASE_RUNTIME_LIBRARY]"
+				}
+			}
+			ndk {
+				abiFilters.addAll([RELEASE_ABIS])
+			}
+			minifyEnabled = false
+			proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+		}
+	}
+
+	compileOptions {
+		sourceCompatibility JavaVersion.VERSION_11
+		targetCompatibility JavaVersion.VERSION_11
+	}
+[BUILD_FEATURES]	externalNativeBuild {
+		cmake {
+			path = file('CMakeLists.txt')
+			version = '3.22.1'
+		}
+	}
+}
+
+[BUILD_ACTIONS][ARTIFACT_OUTPUTS]dependencies {
+[DEPENDENCIES]}

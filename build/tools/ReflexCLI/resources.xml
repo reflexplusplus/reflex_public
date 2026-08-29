@@ -1,13 +1,21 @@
 <resources output="code/resources.cpp">
 
-	<ReflexCLI>
-		<file id="app_plist" path="resources/app.plist"/>
-		<file id="audioapp_plist" path="resources/audioapp.plist"/>
-		<file id="ios_app_plist" path="resources/ios_app.plist"/>
-		<file id="ios_audioapp_plist" path="resources/ios_audioapp.plist"/>
-		<file id="clap_vst_plist" path="resources/clap_vst.plist"/>
-		<file id="audiounit_plist" path="resources/audiounit.plist"/>
-		<file id="auv3_plist" path="resources/auv3.plist"/>
-	</ReflexCLI>
+	<ReflexCLI::ProjectGen>
+
+		<Android>
+			<folder path="resources/project_generator/android" public="true" compress="auto"/>
+			<folder path="resources/project_generator/android_templates" compress="auto"/>
+			<file path="resources/project_generator/android_listing.txt" id="listing.txt"/>
+		</Android>
+
+		<VisualStudio>
+			<folder path="resources/project_generator/windows_templates" compress="auto"/>
+		</VisualStudio>
+
+		<Linux>
+			<folder path="resources/project_generator/linux_templates" compress="auto"/>
+		</Linux>
+
+	</ReflexCLI::ProjectGen>
 
 </resources>

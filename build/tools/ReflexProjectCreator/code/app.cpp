@@ -14,8 +14,6 @@ struct AppImpl : public App
 
 	ArrayView <TemplateDefinition> GetTemplates() const override;
 
-	ArrayView <Pair<CString,bool>> GetTargets() const override;
-
 	void InstantiateTemplate(const TemplateDefinition & tmpl, ArrayView <Pair<CString>> inputs, ArrayView <CString> targets, const WString & dest, bool overwrite) override;
 
 	void RunTask(CString::View command, Array <WString> && args, const Function <bool(const Data::Archive & output)> & done = {});
@@ -32,9 +30,6 @@ struct AppImpl : public App
 
 	Array <TemplateDefinition> m_templates;
 	
-	Array <Pair<CString,bool>> m_targets;
-
-
 	struct Job
 	{ 
 		Reference <Object> clock;
@@ -46,7 +41,7 @@ struct AppImpl : public App
 };
 
 AppImpl::AppImpl()
-	: App(K32("ProjectCreator"), 2)
+	: App(K32("ProjectCreator"), 3)
 	, m_reflex_path(ReflexCLI::GetReflexPath())
 {
 }
@@ -59,11 +54,6 @@ WString::View AppImpl::GetReflexPath() const
 ArrayView <TemplateDefinition> AppImpl::GetTemplates() const
 {
 	return m_templates;
-}
-
-ArrayView <Pair<CString,bool>> AppImpl::GetTargets() const
-{
-	return m_targets;
 }
 
 void AppImpl::OnReset(Key32 context)
@@ -82,37 +72,6 @@ void AppImpl::OnReset(Key32 context)
 		return SetFiltered(m_templates, templates);
 	});
 
-	RunTask("targets", {}, [this](const Data::Archive & output)
-	{
-		Array <Pair<CString,bool>> targets;
-
-		auto itr = ToView(output);
-	
-		CString line;
-
-		while (Data::ReadLine(itr, line))
-		{
-			auto & target = targets.Push({ Trim(line), false });
-
-			switch (MakeKey32(target.a))
-			{
-			case K32("android"):
-				target.b = true;
-				break;
-
-			case K32("windows"):
-				target.b = System::kPlatform == System::kPlatformWindows;
-				break;
-
-			case K32("macos"):
-			case K32("ios"):
-				target.b = System::kPlatform == System::kPlatformMacOS;
-				break;
-			}
-		}
-
-		return SetFiltered(m_targets, targets);
-	});
 }
 
 void AppImpl::InstantiateTemplate(const TemplateDefinition & tmpl, ArrayView <Pair<CString>> inputs, ArrayView <CString> targets, const WString & dest, bool overwrite)
@@ -138,7 +97,7 @@ void AppImpl::InstantiateTemplate(const TemplateDefinition & tmpl, ArrayView <Pa
 		args.Push(ToWString(value));
 	}
 
-	args.Push(L"--target");
+	args.Push(L"--generate");
 	args.Push(ToWString(Merge(targets, ',')));
 	args.Push(L"--output");
 	args.Push(path);
@@ -199,14 +158,14 @@ void AppImpl::RunTask(CString::View command, Array <WString> && args, const Func
 
 void AppImpl::OnRestore(Data::Archive::View & stream, Key32 context)
 {
-	Data::Deserialize(stream, m_templates, m_targets);
+	Data::Deserialize(stream, m_templates);
 
 	OnReset(context);	//check for changes
 }
 
 void AppImpl::OnStore(Data::Archive & stream) const
 {
-	Data::Serialize(stream, m_templates, m_targets);
+	Data::Serialize(stream, m_templates);
 }
 
 } } //end internal namespace
@@ -216,4 +175,26 @@ Reflex::Output ReflexProjectCreator::output("ProjectCreator");
 Reflex::TRef <ReflexProjectCreator::App> ReflexProjectCreator::App::Create()
 {
 	return New<ReflexProjectCreator::AppImpl>();
+}
+
+void ReflexCLI::TokenDefinition::Serialize(Data::Archive & stream) const
+{
+	Data::Serialize(stream, id, token, name);
+}
+
+void ReflexCLI::TokenDefinition::Deserialize(Data::Archive::View & stream)
+{
+	Data::Deserialize(stream, id, token, name);
+}
+
+void ReflexCLI::TemplateDefinition::Serialize(Data::Archive & stream) const
+{
+	Data::SerializeUTF8(stream, folder);
+	Data::Serialize(stream, name, description_utf8, platforms, paths, strings);
+}
+
+void ReflexCLI::TemplateDefinition::Deserialize(Data::Archive::View & stream)
+{
+	Data::DeserializeUTF8(stream, folder);
+	Data::Deserialize(stream, name, description_utf8, platforms, paths, strings);
 }

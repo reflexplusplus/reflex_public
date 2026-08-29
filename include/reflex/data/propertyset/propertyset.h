@@ -103,11 +103,6 @@ protected:
 
 	mutable SequenceType m_properties;
 
-
-
-private:
-	[[deprecated]] virtual void Store(Data::Archive&) const final {}	//prevent use old API
-	[[deprecated]] virtual void Restore(Data::Archive::View&) final {}
 };
 
 REFLEX_SET_TRAIT(Data::PropertySet, IsBoolCastable);

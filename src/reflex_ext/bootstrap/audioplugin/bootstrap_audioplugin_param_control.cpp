@@ -279,7 +279,7 @@ Reflex::TRef <Reflex::Bootstrap::ParamControl> Reflex::Bootstrap::ParamControl::
 {
 	auto control = Create(instance.GetParameterInfo(paramidx), instance.GetParameterValues()[paramidx]);
 
-	GLX::SetEventDelegate(control, {}, [&instance, paramidx](GLX::Object & src, GLX::Event & e)
+	GLX::BindEvent(control, GLX::kTransaction, [&instance, paramidx](GLX::Object & src, GLX::Event & e)
 	{
 		switch (GLX::GetTransactionStage(e))
 		{

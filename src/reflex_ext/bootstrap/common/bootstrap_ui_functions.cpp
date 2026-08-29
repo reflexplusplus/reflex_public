@@ -152,8 +152,8 @@ Reflex::TRef <Reflex::Data::PropertySet> Reflex::Bootstrap::Detail::CreateStyles
 
 	Data::SetKey32(options, K32("environment"), kEnvironments[System::kEnvironmentType]);
 
-	Data::SetFloat32(options, "screen_width", ToFloat32(screen_size.w));
-	Data::SetFloat32(options, "screen_height", ToFloat32(screen_size.h));
+	Data::SetInt32(options, "screen_width", screen_size.w);
+	Data::SetInt32(options, "screen_height", screen_size.h);
 
 	Data::SetKey32(options, K32("theme"), dark_theme ? K32("dark") : K32("light"));
 

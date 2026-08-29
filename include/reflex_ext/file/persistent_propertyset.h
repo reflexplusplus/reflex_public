@@ -62,7 +62,7 @@ public:
 
 	//subscribe
 	
-	TRef <Object> CreateListener(const Function <void(Notification notification, Key32 context)> & callback);
+	[[nodiscard]] TRef <Object> CreateListener(const Function <void(Notification notification, Key32 context)> & callback);
 
 
 

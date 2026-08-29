@@ -29,8 +29,8 @@ public:
 	REFLEX_NONCOPYABLE(ScopedLocator);
 
 	template <class ... VARGS> ScopedLocator(VirtualFileSystem::Lock & lock, VARGS && ... vargs)
-		: locator(New<TYPE>(std::forward<VARGS>(vargs)...)),
-		lock(lock)
+		: lock(lock)
+		, locator(New<TYPE>(std::forward<VARGS>(vargs)...))
 	{
 		lock.Attach(locator);
 	}

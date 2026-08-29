@@ -25,41 +25,41 @@ namespace Reflex::GLX
 
 	//periodic
 
-	TRef <Animation> CreateStateAnimation(Key32 state = kSelectedState);
+	[[nodiscard]] TRef <Animation> CreateStateAnimation(Key32 state = kSelectedState);
 
-	TRef <Animation> CreateCallbackAnimation(const Function <void(Object & target)> & callback);
+	[[nodiscard]] TRef <Animation> CreateCallbackAnimation(const Function <void(Object & target)> & callback);
 
 
 
 	//linear
 
-	TRef <InterpolatedAnimation> CreateWaitAnimation();
+	[[nodiscard]] TRef <InterpolatedAnimation> CreateWaitAnimation();
 
-	TRef <InterpolatedAnimation> CreatePositionAnimation(bool y, Float from, Float to);
+	[[nodiscard]] TRef <InterpolatedAnimation> CreatePositionAnimation(bool y, Float from, Float to);
 
-	TRef <InterpolatedAnimation> CreateOpacityAnimation(Key32 opacity_id, Float from, Float to, Detail::ComputedStyle::Render render = Detail::ComputedStyle::kRenderFalse);
-
-
-	TRef <InterpolatedAnimation> CreateFloatPropertyAnimation(Key32 property_id, Float from, Float to);
-
-	TRef <InterpolatedAnimation> CreatePointPropertyAnimation(Key32 property_id, Point from, Point to);
-
-	TRef <InterpolatedAnimation> CreateSizePropertyAnimation(Key32 property_id, Size from, Size to);
-
-	TRef <InterpolatedAnimation> CreateColourPropertyAnimation(Key32 property_id, const Colour & from, const Colour & to);
-
-	TRef <InterpolatedAnimation> CreateMarginPropertyAnimation(Key32 property_id, const Margin & from, const Margin & to);
+	[[nodiscard]] TRef <InterpolatedAnimation> CreateOpacityAnimation(Key32 opacity_id, Float from, Float to, Detail::ComputedStyle::Render render = Detail::ComputedStyle::kRenderFalse);
 
 
-	TRef <InterpolatedAnimation> CreateInterpolatedAnimation(const Function <void(Object & target, Float x)> & callback);
+	[[nodiscard]] TRef <InterpolatedAnimation> CreateFloatPropertyAnimation(Key32 property_id, Float from, Float to);
+
+	[[nodiscard]] TRef <InterpolatedAnimation> CreatePointPropertyAnimation(Key32 property_id, Point from, Point to);
+
+	[[nodiscard]] TRef <InterpolatedAnimation> CreateSizePropertyAnimation(Key32 property_id, Size from, Size to);
+
+	[[nodiscard]] TRef <InterpolatedAnimation> CreateColourPropertyAnimation(Key32 property_id, const Colour & from, const Colour & to);
+
+	[[nodiscard]] TRef <InterpolatedAnimation> CreateMarginPropertyAnimation(Key32 property_id, const Margin & from, const Margin & to);
+
+
+	[[nodiscard]] TRef <InterpolatedAnimation> CreateInterpolatedAnimation(const Function <void(Object & target, Float x)> & callback);
 
 
 
 	//logarithmic
 
-	TRef <Animation> CreateMaxBoundsAnimation(Key32 bounds_id, bool yaxis, Float from, Float to);
+	[[nodiscard]] TRef <Animation> CreateMaxBoundsAnimation(Key32 bounds_id, bool yaxis, Float from, Float to);
 
-	TRef <Animation> CreateLogarithmicAnimation(Float from, Float to, const Function <void(Object & target, Float x)> & callback, Float decay_factor = 0.005f);
+	[[nodiscard]] TRef <Animation> CreateLogarithmicAnimation(Float from, Float to, const Function <void(Object & target, Float x)> & callback, Float decay_factor = 0.005f);
 
 
 
@@ -81,9 +81,9 @@ namespace Reflex::GLX
 
 REFLEX_NS(Reflex::GLX::Detail)
 
-TRef <InterpolatedAnimation> CreatePropertyAnimation(Address property_adr, const ArrayView <Float32> & from, const ArrayView <Float32> & to);
+[[nodiscard]] TRef <InterpolatedAnimation> CreatePropertyAnimation(Address property_adr, const ArrayView <Float32> & from, const ArrayView <Float32> & to);
 
-[[deprecated]] TRef <Animation> CreateZoomAnimation(Key32 magnification_id, Float from, Float to);	//use PropertyAnimation and Scale layer
+[[nodiscard, deprecated]] TRef <Animation> CreateZoomAnimation(Key32 magnification_id, Float from, Float to);	//use PropertyAnimation and Scale layer
 
 REFLEX_END
 

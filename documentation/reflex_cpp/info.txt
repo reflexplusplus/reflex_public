@@ -1609,42 +1609,12 @@ See also Bootstrap::Detail::SetStyle.
 #p }
 </code>
 
-#h1 Stylesheet Conditionals
+#h1 Bootstrap Conditional Variables
 
-#p GLX stylesheets support conditional variables. When using the Bootstrap::SetStyleSheet(...) wrapper, a set of default variables based on the current environment is automatically attached to the stylesheet.
+#p Stylesheets use the standard PropertySheet conditional syntax.
+#link symbol: [$qReflex$q, $qData$q, $qkPropertySheetFormat$q]; text: $qPropertySheet syntax and conditionals$q;
 
-#p Stylesheets support preprocessor-style conditionals using #if, #elif, and #else. Each branch body must be wrapped in { ... }.
-
-<code>
-#p #if (theme == dark)
-#p {
-#p 	background: $202124;
-#p 	colour: $f5f5f5;
-#p }
-#p #else
-#p {
-#p 	background: $ffffff;
-#p 	colour: $111111;
-#p }
-</code>
-
-#p Conditions can use symbolic comparisons, numeric comparisons, and $qand$q / $qor$q:
-
-<code>
-#p #if (environment == desktop) and (screen_width >= 1200)
-#p {
-#p 	padding: 24;
-#p }
-#p
-#p #if (environment == mobile) or (screen_width < 700)
-#p {
-#p 	padding: 12;
-#p }
-</code>
-
-#h2 Default Variables
-
-#p When using the Bootstrap styling path, the default conditional variables are:
+#p Bootstrap::SetStyleSheet(...) supplies these default conditional variables:
 
 <code>
 #p platform (windows, macos, linux, android, ios, webasm)
@@ -1654,28 +1624,9 @@ See also Bootstrap::Detail::SetStyle.
 #p font_scale
 </code>
 
-#p Symbolic values can be compared with $q==$q and $q!=$q:
-
-<code>
-#p #if (platform == windows) { ... }
-#p #if (theme == dark) { ... }
-#p #if (environment == plugin) { ... }
-#p #if (environment == desktop) or (environment == plugin) { ... }
-</code>
-
-#p Numeric values can be compared:
-
-<code>
-#p #if (screen_width < 1400) { ... }
-#p #if (screen_height >= 900) { ... }
-#p #if (font_scale > 1.0) { ... }
-</code>
-
 #p These values reflect the current platform, environment type, theme, screen size, and UI font scale.
 
-#p Custom conditional variables can also be supplied, allowing you to define additional symbolic or numeric values for use in stylesheet conditionals. This can be used for app modes, product editions, feature flags, layout variants, or custom breakpoints.
-
-#p Note: the 'Emulate Mobile' option available in the Config -> Graphics panel of the dev console is useful for testing screen_w, screen_h and the mobile environment, which are emulated in that mode.
+#p Note: the 'Emulate Mobile' option available in the Config -> Graphics panel of the dev console is useful for testing screen_width, screen_height and the mobile environment, which are emulated in that mode.
 
 #h1 Patterns and tips
 
@@ -2747,24 +2698,6 @@ See also Bootstrap::Detail::SetStyle.
 	Path: ["Reflex", "GetAdr"];
 
 	Module: ["Reflex", "Object"];
-};
-
-62:
-{
-	@WString Description: "#p Tests whether an object or object-reference compares equal to the null instance for its type.
-
-#p This is mainly intended for generic code working with Reflex object/reference wrappers, where comparing against the type's null value is clearer than checking raw pointer state directly.";
-
-	Path: ["Reflex", "IsNull"];
-};
-
-63:
-{
-	@WString Description: "#p Tests whether an object or object-reference does not compare equal to the null instance for its type.
-
-#p This is the inverse of IsNull and is mainly intended for generic code working with Reflex object/reference wrappers.";
-
-	Path: ["Reflex", "IsValid"];
 };
 
 64:
@@ -5061,8 +4994,123 @@ See also Bootstrap::Detail::SetStyle.
 
 193:
 {
-	@WString Description: "#p Human-readable Reflex property-sheet serializer.
-	
+	@WString Description: "#p Reflex's native human-readable property-sheet serializer. PropertySheet is the common text syntax for Reflex configuration, stylesheets, and other editable structured data.
+
+#h1 Basic syntax
+
+#p A document is an object containing named properties. Use $q:$q to assign a value, $q;$q to terminate a property, and braces for nested objects. Unquoted words are identifiers; quote text that contains spaces or punctuation.
+
+<code>
+#p title: $qExample$q;
+#p enabled: true;
+#p size: 640,480;
+#p options:
+#p {
+#p 	quality: high;
+#p };
+#p sources: [$qcode/main.cpp$q, $qcode/app.cpp$q];
+</code>
+
+#p Values can be booleans, integers, floating-point numbers, strings, identifiers, nested objects, and arrays. Commas create arrays, and brackets are optional around arrays with two or more items. Use brackets to force an empty or single-item array. A leading $q@$q names an explicit object type, and $q&name$q creates a property reference where that object type supports references.
+
+<code>
+#p empty: [];
+#p one_item: [value];
+#p many_items: first, second;
+</code>
+
+#h2 Property IDs and Key32 values
+
+#p Property IDs are Key32 values internally. Use an unquoted word for an alphanumeric ID, a single-quoted ID when it contains other characters, or an integer ID. Single quotes also explicitly create a Key32 value.
+
+<code>
+#p '1-45-test': $qhyphenated ID$q;
+#p 'with space': $qspaced ID$q;
+#p 1: $qtest$q;
+#p key_value: 'with space';
+</code>
+
+#h2 Binary values
+
+#p A $q$$q followed by hexadecimal digits encodes binary data. It is not a colour notation: PropertySheet does not support $q#RRGGBB$q values.
+
+<code>
+#p payload: $DEADBEEF;
+</code>
+
+#h2 Multiple typed values and inheritance arrays
+
+#p The $q|$q operator stores multiple typed values under one property ID. This is useful when a reader accepts more than one value type.
+
+<code>
+#p multi: 1 | $qone$q | 'one';
+</code>
+
+#p $q>$q is an alternative array separator. It is primarily used by GLX stylesheets for inheritance specifications.
+
+<code>
+#p nums: 1 > 2 > 3;
+</code>
+
+#h1 Conditionals
+
+#p PropertySheet conditionals are evaluated while the document is decoded. Use #if, #elif, and #else; every branch body must be wrapped in braces. Conditional variables are read from the options passed to DecodePropertySet.
+
+<code>
+#p #if (theme == dark)
+#p {
+#p 	background: $202124;
+#p }
+#p #elif (theme == light)
+#p {
+#p 	background: $ffffff;
+#p }
+#p #else
+#p {
+#p 	background: $808080;
+#p }
+</code>
+
+#p Boolean options support shorthand presence tests:
+
+<code>
+#p #if (enabled) { ... }
+#p #if (!enabled) { ... }
+</code>
+
+#p Identifier options support $q==$q and $q!=$q. Int32 and Float32 options support $q<$q, $q<=$q, $q>$q, and $q>=$q. Combine tests with $qand$q or $qor$q:
+
+<code>
+#p #if (environment == desktop) and (screen_width >= 1200)
+#p {
+#p 	padding: 24;
+#p }
+#p #if (environment == mobile) or (screen_width < 700)
+#p {
+#p 	padding: 12;
+#p }
+</code>
+
+#p Supply options when decoding:
+
+<code>
+#p Data::PropertySet options;
+#p Data::SetBool(options, $qenabled$q, true);
+#p auto data = Data::DecodePropertySet(Data::kPropertySheetFormat, bytes, options);
+</code>
+
+#h1 Error handling
+
+#p Decoding reports errors on the returned PropertySet. Check Data::GetError after DecodePropertySet; its value contains the line number, parser stage, and description.
+
+<code>
+#p auto data = Data::DecodePropertySet(Data::kPropertySheetFormat, bytes, options);
+#p if (auto error = Data::GetError(data))
+#p {
+#p 	output.LogEx(kLogError, {}, $qPropertySheet line $q, error.value.a, $q: $q, error.value.c);
+#p }
+</code>
+
 #h1 Supported types
 <list>
 #p PropertySet
@@ -6761,13 +6809,6 @@ See also Bootstrap::Detail::SetStyle.
 	Path: ["Reflex", "File", "ResourcePool"];
 
 	Module: ["Reflex", "File", "IO"];
-};
-
-292:
-{
-	Path: ["Reflex", "File", "CorrectExtension"];
-
-	Module: ["Reflex", "File", "Path"];
 };
 
 293:
@@ -8544,21 +8585,50 @@ See also Bootstrap::Detail::SetStyle.
 
 457:
 {
-	@WString Description: "#p Bootstrap audio-plugin base class.
+	@WString Description: "#p 'Bootstrap::AudioPlugin' is the application-side base class for audio-plugin instances created through the standard Bootstrap entry point. It combines the 'Bootstrap::App' lifecycle and session state with the host-facing 'System::AudioPlugin' instance, class metadata, parameters, processing callbacks, and editor integration.
 
-#p Parameter values are stored automatically, and additional custom state can be persisted through the Streamable callbacks.
+#p A Bootstrap audio-plugin entry point calls 'StartAudioPlugin' to register the available classes and their parameters. When a host requests a class, Bootstrap passes the selected 'Class' to the plugin's 'Create' factory, and the resulting instance handles processing and state for that class.
 
 #h2 Class registration
 
-#p Template projects define plugin class metadata by implementing 'MakeClass()' on the plugin instance type.
+#p Template projects define plugin class metadata by implementing 'MakeClasses()' on the plugin instance type. It returns an 'Array<Class>', allowing one binary to expose more than one plugin class.
 
-#p This is where you declare the plugin type, channel layout, MIDI capabilities, parameter count, and platform-specific identifiers such as VST2/VST3/CLAP ids or AudioUnit 4CC values.
+#p For each class, declare the plugin type, channel layout, MIDI capabilities, parameter count, and platform-specific identifiers such as VST2/VST3/CLAP ids or AudioUnit 4CC values. Bootstrap calls 'PopulateParameters(const Class&, ArrayRegion<...>)' separately for each class, then constructs the selected class through 'Create(const Class&, System::AudioPlugin&)'. Pass that class to the 'AudioPlugin' base constructor so it loads the matching parameter definitions.
+
+#p Do not discard or recreate the class passed to 'Create'. It is the class selected by the host and must be passed unchanged to the 'AudioPlugin' base constructor.
+
+#h2 Class identity and compatibility
+
+#p Every class must have a non-empty 'Class::clap.uid', even when the current build does not publish CLAP. Bootstrap uses a hash of the CLAP uid to associate the selected class with its parameter definitions. The uid must be stable and unique for every class in the binary. For a multi-class product, use stable class-specific ids such as 'com.example.plugin.effect' and 'com.example.plugin.instrument'.
+
+#p All other host-facing identifiers must also remain stable and unique in their format, including 'Class::vst2.uid', 'Class::vst3.uid', and the Audio Unit manufacturer and subtype values. Changing an identifier after release can make a host treat the update as a different plugin and can prevent saved sessions from resolving it.
+
+#p The current new-project template derives its CLAP and VST3 identifiers from 'PRODUCT_PACKAGE_IDENTIFIER'. This is a default for new plugins, not a migration rule. When updating an existing plugin, preserve its published identifiers rather than replacing them with the current template's identifier-generation scheme.
+
+#h2 Audio Unit registration
+
+#p Audio Unit components are declared statically in the bundle Info.plist; they cannot be published dynamically by the C++ application. In the standard Reflex++ pipeline, declare the components in 'project.cfg' with 'AU_COMPONENTS' and the manufacturer with 'AU_VENDOR_4CC'. 'reflex generate' writes those values into the generated project plist and also passes them to the generated C++ project as preprocessor definitions.
+
+#p 'AU_COMPONENTS' is a comma-separated list of 'subtype:type[:name]' records. The subtype, type, and shared manufacturer must each be a 4-character code. Supported types are 'aufx' for an audio effect, 'aumu' for an instrument, and 'aumi' for a MIDI effect. The optional display name cannot contain a comma or colon.
+
+<code>
+#p AU_COMPONENTS: $qMyFx:aufx:Example Effect,MySy:aumu:Example Instrument$q;
+#p AU_VENDOR_4CC: $qMyCo$q;
+</code>
+
+#p The runtime 'Class' selected for an Audio Unit must have matching Audio Unit type, subtype, and manufacturer 4CC values. In particular, its 'Class::type' must map to the same Audio Unit type as the plist component. This is what lets one bundle register several Audio Units and Bootstrap construct the matching class for each registration.
+
+#p Publish one component record for every class that should be available as an Audio Unit. A class used only by another format does not need an Audio Unit component record. Record order is not used for selection; the runtime type, subtype, and manufacturer values are matched to the host's requested component.
+
+#p After changing Audio Unit ids or types in 'project.cfg', run 'reflex generate' again before building. This refreshes the generated project and its plist/preprocessor definitions; changing the config file alone does not update an existing native project.
 
 #h2 Registering parameters
 
 #p Template projects register parameters by implementing 'PopulateParameters(const Class&, ArrayRegion<...>)' on the plugin instance type.
 
 #p The framework sizes the destination region from 'Class::num_params' before calling this method. Fill each slot with the exported parameter id plus a 'Bootstrap::ParamDesc' describing the parameter type, default value, range, and text formatting.
+
+#p Bootstrap calls 'PopulateParameters' once for every class returned by 'MakeClasses'. Parameter ids must be unique within a class, but different classes may reuse the same ids. Use the supplied class when class variants expose different parameters.
 
 #p Each 'ParamDesc' has a 'change_flags' field, which has a default value of 1. This can be used to group parameter changes together, see the processing section below.
 
@@ -8573,6 +8643,10 @@ See also Bootstrap::Detail::SetStyle.
 #p 	defs[2].b->change_flags = kParameterFlagsOutput;
 #p }
 </code>
+
+#h2 Parameter persistence
+
+#p Bootstrap stores registered parameter values automatically. Additional plugin state can be persisted through the inherited 'Streamable' callbacks.
 
 #h2 Processing callbacks
 
@@ -9919,17 +9993,6 @@ See also Bootstrap::Detail::SetStyle.
 	Module: ["Reflex", "Data", "Table"];
 };
 
-582:
-{
-	@WString Description: "#p Table-oriented state base used for lightweight mutation/change tracking.
-
-#p 'Data::State' is an alias over Reflex change-count state machinery and is used by table-related objects to expose inexpensive pull-based change notification.";
-
-	Path: ["Reflex", "Data", "State"];
-
-	Module: ["Reflex", "Data", "Table"];
-};
-
 583:
 {
 	Path: ["Reflex", "Data", "AcquirePropertySet"];
@@ -10414,17 +10477,6 @@ See also Bootstrap::Detail::SetStyle.
 	Module: ["Reflex", "Containers"];
 };
 
-634:
-{
-	@WString Description: "#p Copies an iterable into a new owning Array<T>.
-
-#p Supply the destination element type as the template argument, for example ToArray<Int32>(values). The iterable must provide begin() and end().";
-
-	Path: ["Reflex", "ToArray"];
-
-	Module: ["Reflex", "Containers"];
-};
-
 635:
 {
 	@WString Description: "#p Returns the first n elements as a non-owning view. Left<true>() clamps n to the available size; otherwise n must be within bounds.
@@ -10637,15 +10689,6 @@ See also Bootstrap::Detail::SetStyle.
 	Path: ["Reflex", "Trim"];
 
 	Module: ["Reflex", "Containers", "Array"];
-};
-
-655:
-{
-	@WString Description: "#p Returns true when a character has a value below 33. This treats ASCII space and control characters as whitespace and is the default predicate used by Trim(), TrimLeft(), and TrimRight().";
-
-	Path: ["Reflex", "IsWhiteSpace"];
-
-	Module: ["Reflex", "String"];
 };
 
 656:
@@ -10959,3 +11002,9 @@ See also Bootstrap::Detail::SetStyle.
 	Module: ["Reflex", "Object"];
 };
 
+674:
+{
+	Path: ["Reflex", "File", "SetExtension"];
+
+	Module: ["Reflex", "File", "Path"];
+};

@@ -30,7 +30,7 @@ public:
 	REFLEX_DECLARE_KEY32(split_size);
 
 	
-	static TRef <SplitBehaviour> Create();
+	[[nodiscard]] static TRef <SplitBehaviour> Create();
 
 	void EnableSplit(GLX::Object & item) { Data::SetBool(item, kresizable, true); }
 

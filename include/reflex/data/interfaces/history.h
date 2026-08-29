@@ -97,7 +97,7 @@ private:
 
 	struct ItemImpl : public Reflex::Item <ItemImpl>
 	{
-		static TRef <ItemImpl> Create(UInt size);
+		[[nodiscard]] static TRef <ItemImpl> Create(UInt size);
 
 		using Item::Attach;
 		using Item::Detach;

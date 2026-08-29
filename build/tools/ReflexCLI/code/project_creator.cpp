@@ -1,20 +1,6 @@
 #include "tasks.h"
 
-#if defined(REFLEX_OS_MACOS) || defined(REFLEX_OS_LINUX) || defined(REFLEX_OS_IOS)
-#include <sys/stat.h>
-#endif
-
-
-
-
 REFLEX_BEGIN_INTERNAL(ReflexCLI)
-
-struct Generator
-{
-	CString token;
-	Key32 op = {};
-	CString param;
-};
 
 struct Targets
 {
@@ -22,13 +8,12 @@ struct Targets
 	Array <WString> exclude_files;
 	Array <WString> replace_types;
 	Array <CString> replace_vars;
-	Array <CString> rename_vars;
 };
 
 struct TemplateDefinitionEx : public TemplateDefinition
 {
-	Array <Generator> path_generators;
-	Array <Generator> string_generators;
+	Array<Variable> path_generators;
+	Array<Variable> string_generators;
 	Targets targets;
 };
 
@@ -38,198 +23,41 @@ struct Substitution
 	Data::Archive to;
 };
 
-bool CopyTemplatePermissions(WString::View source_path, WString::View dest_path)
-{
-#if defined(REFLEX_OS_MACOS) || defined(REFLEX_OS_LINUX) || defined(REFLEX_OS_IOS)
-	constexpr mode_t kExecBits = S_IXUSR | S_IXGRP | S_IXOTH;
-
-	auto source_utf8 = Data::EncodeUTF8(source_path);
-	source_utf8.Push(0);
-
-	auto dest_utf8 = Data::EncodeUTF8(dest_path);
-	dest_utf8.Push(0);
-
-	struct stat source_stat = {};
-	struct stat dest_stat = {};
-
-	if (stat(Reinterpret<char>(source_utf8.GetData()), &source_stat) != 0) return false;
-	if (stat(Reinterpret<char>(dest_utf8.GetData()), &dest_stat) != 0) return false;
-
-	return chmod(Reinterpret<char>(dest_utf8.GetData()), (dest_stat.st_mode & ~kExecBits) | (source_stat.st_mode & kExecBits)) == 0;
-#else
-	return true;
-#endif
-}
-
 void AppendCStringArray(const Data::PropertySet & config, Array <CString> & generators, Key32 id)
 {
-	for (auto & value : Data::GetCStringArray(config, id)) generators.Push(value);
+	generators.Append(GetCStrings(config, id));
 }
 
 void AppendCStringArray(const Data::PropertySet & config, Array <WString> & generators, Key32 id)
 {
-	for (auto & value : Data::GetCStringArray(config, id)) generators.Push(ToWString(value));
+	for (auto & value : GetCStrings(config, id)) generators.Push(ToWString(value));
 }
 
-void AppendGeneratorArray(Array <Generator> & generators, const ArrayView < ConstReference <Data::PropertySet> > & values)
+WString EvaluateTemplateExpression(const TemplateDefinitionEx & tmpl, WString::View value, ArrayView<Variable> variables)
 {
-	for (auto & value : values)
-	{
-		generators.Push
-		({
-			Data::GetCString(value, "token"),
-			Data::GetKey32(value, "op"),
-			Data::GetCString(value, "param")
-		});
-	}
+	return EvaluateVariableExpressions(value, variables, kVariableSyntaxTemplate, {});
 }
 
-TemplateDefinitionEx OpenTemplateDefinitionEx(const WString::View & template_folder)
+Array<Variable> ExpandGeneratedVariables(const TemplateDefinitionEx & tmpl, ArrayView<Variable> generators, ArrayView<Variable> inputs, bool normalize_paths)
 {
-	TemplateDefinitionEx tmpl;
+	Array<Variable> scope = inputs;
+	for (auto & generator : generators) scope.Push(generator);
 
-	auto config = OpenTemplateCfg(template_folder);
-
-	Cast<TemplateDefinition>(tmpl) = DecodeTemplate(config);
-
-	auto generate = Data::GetPropertySet(config, "generate");
-	AppendGeneratorArray(tmpl.path_generators, Data::GetPropertySetArray(generate, "paths"));
-	AppendGeneratorArray(tmpl.string_generators, Data::GetPropertySetArray(generate, "strings"));
-
-	auto exclude = Data::GetPropertySet(config, "exclude");
-	AppendCStringArray(exclude, tmpl.targets.exclude_folders, "folders");
-	AppendCStringArray(exclude, tmpl.targets.exclude_files, "files");
-
-	auto replace = Data::GetPropertySet(config, "replace");
-	AppendCStringArray(replace, tmpl.targets.replace_types, "types");
-	AppendCStringArray(replace, tmpl.targets.replace_vars, "vars");
-
-	auto rename = Data::GetPropertySet(config, "rename");
-	AppendCStringArray(rename, tmpl.targets.rename_vars, "vars");
-
-	return tmpl;
-}
-
-void AddTargetExcludes(TemplateDefinitionEx & tmpl, ArrayView <CString> targets)
-{
-	if (!targets) Bootstrap::CLI::ThrowError("invalid --target value");
-	
-	if (!Search<StringCompare>(targets, "cmake"))
+	Array<Variable> result;
+	for (auto & generator : generators)
 	{
-		tmpl.targets.exclude_files.Push(L"CMakeLists.txt");
-	}
-
-	for (auto & i : kTargets)
-	{
-		if (!Search<StringCompare>(targets, i))
+		auto value = EvaluateTemplateExpression(tmpl, generator.value, scope);
+		if (normalize_paths)
 		{
-			CString::View folder = i;
-
-			switch (MakeKey32(i))
-			{
-			case K32("cmake"):
-				tmpl.targets.exclude_files.Push(L"CMakeLists.txt");
-				break;
-
-			case K32("windows"):
-				folder = "win";
-				//fallthru
-
-			default:
-				tmpl.targets.exclude_folders.Push(Join(ToWString(folder), File::kStroke));
-				break;
-			}
+			value = File::CorrectStrokes(value);
+			File::RemoveTrailingStroke(value);
 		}
+		result.Push({ generator.name, std::move(value) });
 	}
+	return result;
 }
 
-WString::View FindVariable(const Array <Variable> & variables, CString::View token)
-{
-	struct Policy
-	{
-		static bool eq(const Variable & var, const CString::View & token)
-		{
-			return var.token == token;
-		}
-	};
-	
-	if (auto pvar = SearchValue<Policy>(variables, token))
-	{
-		return pvar->value;
-	}
-
-	return {};
-}
-
-WString Generate4CC(const WString::View & value)
-{
-	auto bytes = Data::Pack(Key32(value).value);
-	
-	UInt8 out[2] = { UInt8(bytes[0] ^ bytes[1]), UInt8(bytes[2] ^ bytes[3]) };
-
-	return ToWString(Data::BytesToHex({ out, 2 }));
-}
-
-Array <Variable> ExpandPathVariables(const TemplateDefinitionEx & tmpl, ArrayView <Variable> paths)
-{
-	Array <Variable> expanded;
-
-	for (auto & generator : tmpl.path_generators)
-	{
-		switch (generator.op.value)
-		{
-			case K32("Relative"):
-			{
-				auto store = File::ResolveIncludePath(tmpl.folder, ToWString(generator.param));
-				expanded.Push({ generator.token, File::RemoveTrailingStroke(store) });
-			}
-			break;
-
-		default:
-			Bootstrap::CLI::ThrowError("Unknown generator op");
-		}
-	}
-
-	for (auto & path : paths) expanded.Push({ path.token, File::RemoveTrailingStroke(path.value) });
-
-	return expanded;
-}
-
-Array <Variable> ExpandStringVariables(const TemplateDefinitionEx & tmpl, ArrayView <Variable> strings)
-{
-	Array <Variable> expanded = strings;
-
-	for (auto & generator : tmpl.string_generators)
-	{
-		WString value = FindVariable(strings, generator.param);
-
-		switch (generator.op.value)
-		{
-		case K32("Strip"):
-			expanded.Push({ generator.token, StripValue(value, '_')});
-			break;
-
-		case K32("PackageIdentifier"):
-			expanded.Push({ generator.token, Lowercase(StripValue(Replace(value, L'_', L'-'), '-'))});
-			break;
-
-		case K32("Generate4CC"):
-			expanded.Push({ generator.token, Generate4CC(value) });
-			break;
-
-		case K32("Constant"):
-			expanded.Push({ generator.token, ToWString(generator.param) });
-			break;
-
-		default:
-			Bootstrap::CLI::ThrowError("Unknown generator op");
-		}
-	}
-
-	return expanded;
-}
-
-Array <Substitution> BuildSubstitutionList(const Array <CString> & tokens, const Array <Variable> & variables)
+Array <Substitution> BuildSubstitutionList(ArrayView <CString> tokens, const Array <Variable> & variables)
 {
 	Array <CString> ordered = tokens;
 		
@@ -249,9 +77,9 @@ Array <Substitution> BuildSubstitutionList(const Array <CString> & tokens, const
 
 	for (auto & token : ordered)
 	{
-		if (auto value = FindVariable(variables, token))
+		if (auto variable = FindVariable(variables, token))
 		{
-			substitutions.Push({ Data::Pack(Join("_", token, "_")), Data::EncodeUTF8(value) });
+			substitutions.Push({ Data::Pack(VariableReference(token, kVariableSyntaxTemplate)), Data::EncodeUTF8(variable->value) });
 		}
 		else
 		{
@@ -293,37 +121,31 @@ bool HasListedExtension(const WString::View & path, const Array <WString> & exte
 	return True(Search<CaseInsensitive>(extensions, File::SplitExtension(path).b));
 }
 
-bool CanWrite(const WString::View & path, bool overwrite)
+bool CanWrite(const WString::View & path, System::FileHandle & std_in, System::FileHandle & std_out, const Function <bool(const WString&)> & overwrite)
 {
-	constexpr WString::View kProtected[] =
-	{
-		L"h",
-		L"cpp",
-		L"c",
-		L"glx"
-	};
-
-	if (overwrite) return true;
+	constexpr WString::View kProtected[] = { L"cfg", L"h", L"cpp", L"c", L"glx"};
 
 	if (System::Exists(path))
 	{
-		return !Search<CaseInsensitive>(kProtected, File::SplitExtension(path).b);
+		if (!Search<CaseInsensitive>(kProtected, File::SplitExtension(path).b)) return true;
+
+		return overwrite(path);
 	}
 
 	return true;
 }
 
-WString RenamePath(const WString::View & path, const Array <Substitution> & substitutions)
-{
-	auto renamed = ReplaceAll(Data::EncodeUTF8(path), substitutions);
-			
-	return Data::DecodeUTF8(renamed);
-}
-
-WString InstallFolder(const TemplateDefinitionEx & tmpl, const Array <Variable> & variables, const WString::View & src_path, const WString::View & dest_path, const WString::View & dest_name, bool overwrite, System::FileHandle & std_out, bool & wrote_files)
+WString InstallFolder(const TemplateDefinitionEx & tmpl, const Array <Variable> & variables, const WString::View & src_path, const WString::View & dest_path, const WString::View & dest_name, bool & wrote_files, System::FileHandle & std_in, System::FileHandle & std_out, const Function <bool(const WString&)> & overwrite)
 {
 	auto content_substitutions = BuildSubstitutionList(tmpl.targets.replace_vars, variables);
-	auto rename_substitutions = BuildSubstitutionList(tmpl.targets.rename_vars, variables);
+	auto copy_permissions = [](WString::View source_path, WString::View dest_path)
+	{
+		constexpr UInt32 kExecuteBits = 0111;
+		UInt32 source_permissions, dest_permissions;
+		return GetFilePermissions(source_path, source_permissions) &&
+			GetFilePermissions(dest_path, dest_permissions) &&
+			SetFilePermissions(dest_path, (dest_permissions & ~kExecuteBits) | (source_permissions & kExecuteBits));
+	};
 
 	auto dst = Join(dest_path, dest_name);
 
@@ -333,14 +155,13 @@ WString InstallFolder(const TemplateDefinitionEx & tmpl, const Array <Variable> 
 
 	for (auto & folder : folders)
 	{
-		if (!Search(tmpl.targets.exclude_folders, folder.key))
+		auto folder_path = Join(src_path, folder.key);
+		auto relative_folder = File::MakeRelativePath(tmpl.folder, folder_path);
+		if (!Search(tmpl.targets.exclude_folders, folder.key) && !Search(tmpl.targets.exclude_folders, relative_folder))
 		{
-			auto folder_path = Join(src_path, folder.key);
-			auto folder_renamed = File::CorrectTrailingStroke(RenamePath(File::RemoveTrailingStroke(folder.key), /*tmpl.targets.rename_types,*/ rename_substitutions));
-
 			bool wrote_files_beneath = false;
 
-			InstallFolder(tmpl, variables, folder_path, dst, folder_renamed, overwrite, std_out, wrote_files_beneath);
+			InstallFolder(tmpl, variables, folder_path, dst, folder.key, wrote_files_beneath, std_in, std_out, overwrite);
 
 			wrote_files_here |= wrote_files_beneath;
 		}
@@ -351,12 +172,11 @@ WString InstallFolder(const TemplateDefinitionEx & tmpl, const Array <Variable> 
 		if (!Search(tmpl.targets.exclude_files, file.key))
 		{
 			auto file_path = Join(src_path, file.key);
-			auto file_renamed = RenamePath(file.key, /*tmpl.targets.rename_types,*/ rename_substitutions);
-			auto dst_path = Join(dst, file_renamed);
+			auto dst_path = Join(dst, file.key);
 
-			if (!CanWrite(dst_path, overwrite))
+			if (!CanWrite(dst_path, std_in, std_out, overwrite))
 			{
-				File::WriteLine(std_out, Join(L"skipping: ", dst_path));
+				Bootstrap::CLI::Print(std_out, Bootstrap::CLI::kColourBrightBlack, Join("skipping ", Data::Unpack<CString::View>(Data::EncodeUTF8(dst_path))));
 			}
 			else
 			{
@@ -364,31 +184,22 @@ WString InstallFolder(const TemplateDefinitionEx & tmpl, const Array <Variable> 
 				{
 					File::MakePath(dst);
 
-					if (!System::IsDirectory(dst))
-					{
-						ThrowError("could not create", dst);
-					}
+					Require(System::IsDirectory(dst), "could not create", dst);
 				}
 
-				if (HasListedExtension(file_renamed, tmpl.targets.replace_types))
+				if (HasListedExtension(file.key, tmpl.targets.replace_types))
 				{
 					auto bytes = ReplaceAll(File::Open(file_path), content_substitutions);
 
-					if (!SaveGeneratedFile(dst_path, bytes))
-					{
-						ThrowError("failed to write", dst_path);
-					}
+					Require(SaveGeneratedFile(dst_path, bytes), "failed to write", dst_path);
 
-					if (!CopyTemplatePermissions(file_path, dst_path))
-					{
-						ThrowError("failed to copy permissions", dst_path);
-					}
+					Require(copy_permissions(file_path, dst_path), "failed to copy permissions", dst_path);
 				}
 				else if (!File::Copy(file_path, dst_path))
 				{
 					ThrowError("failed to copy", file_path);
 				}
-				else if (!CopyTemplatePermissions(file_path, dst_path))
+				else if (!copy_permissions(file_path, dst_path))
 				{
 					ThrowError("failed to copy permissions", dst_path);
 				}
@@ -424,19 +235,43 @@ bool ReflexCLI::StringCompare::eq(CString::View a, CString::View b)
 	return true;
 }
 
-Reflex::WString ReflexCLI::CreateProject(const TemplateDefinition & base_tmpl, ArrayView <Variable> string_inputs, ArrayView <Variable> path_inputs, ArrayView <CString> targets, const WString & destination, bool overwrite, System::FileHandle & std_out)
+Reflex::WString ReflexCLI::CreateProject(const TemplateDefinition & base_tmpl, ArrayView <Variable> string_inputs, ArrayView <Variable> path_inputs, ArrayView <CString::View> targets, const WString & destination, System::FileHandle & std_in, System::FileHandle & out, const Function <bool(const WString&)> & overwrite)
 {
-	auto tmpl = OpenTemplateDefinitionEx(base_tmpl.folder);
-		
-	AddTargetExcludes(tmpl, targets);
+	TemplateDefinitionEx tmpl;
+	auto config = OpenTemplateCfg(base_tmpl.folder);
+	Cast<TemplateDefinition>(tmpl) = DecodeTemplate(config);
 
-	Array <Variable> expanded = Join(ExpandStringVariables(tmpl, string_inputs), ExpandPathVariables(tmpl, path_inputs));
+	auto generate = Data::GetPropertySet(config, "generate");
+	auto keymap = Data::GetKeyMap(config);
+	tmpl.path_generators = DecodeVariables(generate, "paths", keymap);
+	tmpl.string_generators = DecodeVariables(generate, "strings", keymap);
 
+	auto exclude = Data::GetPropertySet(config, "exclude");
+	AppendCStringArray(exclude, tmpl.targets.exclude_folders, "folders");
+	AppendCStringArray(exclude, tmpl.targets.exclude_files, "files");
+
+	auto replace = Data::GetPropertySet(config, "replace");
+	AppendCStringArray(replace, tmpl.targets.replace_types, "types");
+	AppendCStringArray(replace, tmpl.targets.replace_vars, "vars");
+
+	if (!targets) Bootstrap::CLI::ThrowError("invalid --target value");
+	Array<Variable> expanded = string_inputs;
+	for (auto & path : path_inputs)
+	{
+		auto value = File::CorrectStrokes(path.value);
+		File::RemoveTrailingStroke(value);
+		expanded.Push({ path.name, std::move(value) });
+	}
+	for (auto & variable : ExpandGeneratedVariables(tmpl, tmpl.string_generators, expanded, false)) expanded.Push(std::move(variable));
+	for (auto & variable : ExpandGeneratedVariables(tmpl, tmpl.path_generators, expanded, true)) expanded.Push(std::move(variable));
 	File::MakePath(destination);
 
 	if (!System::IsDirectory(destination)) Bootstrap::CLI::ThrowError("could not create dest_folder");
 
 	bool wrote_files = false;
+	auto folder = InstallFolder(tmpl, expanded, tmpl.folder, destination, {}, wrote_files, std_in, out, overwrite);
 
-	return InstallFolder(tmpl, expanded, tmpl.folder, destination, {}, overwrite, std_out, wrote_files);
+	GenerateProject(Join(folder, L"project.cfg"), targets, out);
+
+	return folder;
 }

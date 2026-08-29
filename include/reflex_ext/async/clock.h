@@ -11,9 +11,9 @@
 namespace Reflex::Async
 {
 
-	TRef <Object> CreateClock(const Function <void()> & callback);
+	[[nodiscard]] TRef <Object> CreateClock(const Function <void()> & callback);
 
-	template <class auto_1, class CALLBACK> inline TRef <Object> CreateClock(auto_1 && ptr_or_ref, CALLBACK && callback);
+	template <class auto_1, class CALLABLE> [[nodiscard]] TRef <Object> CreateClock(auto_1 && ptr_or_ref, CALLABLE && callback);
 
 }
 
@@ -23,11 +23,12 @@ namespace Reflex::Async
 //
 //impl
 
-template <class auto_1, class CALLBACK> inline Reflex::TRef <Reflex::Object> Reflex::Async::CreateClock(auto_1 && tref, CALLBACK && callback)
+template <class auto_1, class CALLABLE> inline Reflex::TRef <Reflex::Object> Reflex::Async::CreateClock(auto_1 && tref, CALLABLE && callback)
 {
 	auto & ref = Deref(tref);
 
-	FunctionPointer <void(decltype(ref))> confirm_castable = callback;
+	auto typed = FunctionPointer<void(decltype(ref)&)>(callback);
+	auto downcast = Reflex::Detail::CastFunctionPointer<FunctionPointer <void(void *)>>(typed);
 
-	return System::CreateListener(System::kNotificationClock, &ref, reinterpret_cast<FunctionPointer<void(void *)>>(confirm_castable));
+	return System::CreateListener(System::kNotificationClock, &ref, downcast);
 }

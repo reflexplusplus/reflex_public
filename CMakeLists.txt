@@ -6,8 +6,11 @@ project(Reflex LANGUAGES CXX)
 #
 # Consumed as a subproject (FetchContent_MakeAvailable / CPMAddPackage), this
 # exposes the Reflex::* targets and the reflex_add_* helper functions. Prebuilt
-# libraries for the host platform are downloaded from this repo's GitHub Release
+# libraries for the host platform are downloaded from the repo's GitHub Release
 # on first configure (see cmake/FetchReflexLibs.cmake) — no manual install step.
+# Set REFLEX_GITHUB_TOKEN for the licensed repo. With the full source tree
+# present, format targets build from source instead of linking the prebuilt lib
+# (REFLEX_BUILD_TARGETS_FROM_SOURCE, ON by default in that case).
 #
 #   include(FetchContent)
 #   FetchContent_Declare(reflex
@@ -26,4 +29,7 @@ project(Reflex LANGUAGES CXX)
 
 find_package(Reflex REQUIRED CONFIG
     PATHS "${CMAKE_CURRENT_LIST_DIR}/cmake"
-    NO_DEFAULT_PATH)
+    NO_DEFAULT_PATH
+    # iOS sets CMAKE_FIND_ROOT_PATH_MODE_PACKAGE=ONLY, which re-roots PATHS
+    # onto the SDK sysroot and never searches the real directory.
+    NO_CMAKE_FIND_ROOT_PATH)

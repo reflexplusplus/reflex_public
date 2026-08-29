@@ -57,7 +57,7 @@ protected:
 	void Notify(bool edited);
 
 
-	virtual bool OnImport(const WString::View & path, const Data::Archive::View & bytes) { return false; };
+	virtual bool Import(const WString & path, Data::Archive::View bytes) { return false; };
 
 
 	void OnReleaseData() override;
@@ -66,7 +66,7 @@ protected:
 
 private:
 
-	bool Open(const WString::View & path, const Data::Archive::View & bytes);
+	bool Open(const WString & path, Data::Archive::View bytes);
 
 	void AttachSessionListener();
 

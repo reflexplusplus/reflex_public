@@ -34,7 +34,7 @@ public:
 
 	//config
 
-	static Class MakeClass();
+	static Reflex::Array <Class> MakeClasses();
 
 	static void PopulateParameters(const Class & cls, Reflex::ArrayRegion < Reflex::Pair <Reflex::Key32, Reflex::ConstReference <Reflex::Bootstrap::ParamDesc> > > paramdefs);
 
@@ -42,7 +42,7 @@ public:
 
 	//ctr
 
-	static Reflex::TRef <Instance> Create(Reflex::System::AudioPlugin & instance);
+	static Reflex::TRef <Instance> Create(const Class & cls, Reflex::System::AudioPlugin & instance);
 
 
 

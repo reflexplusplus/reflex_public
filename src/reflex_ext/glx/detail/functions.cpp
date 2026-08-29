@@ -70,8 +70,6 @@ template <class AXIS> void Exchange(Object & self, Object & current, Object & ne
 	constexpr Float st_in = 0.5f;
 	constexpr Float st_max = 192.0f;
 
-	typedef typename AXIS::Ortho Ortho;
-
 
 	auto & size = self.GetRect().size;
 

@@ -185,20 +185,20 @@ Reflex::TRef <Reflex::GLX::Detail::Layer> inline Reflex::GLX::Detail::Layer::Cre
 
 template <class IMPL> inline void Reflex::GLX::Detail::LayerImpl<IMPL>::SetOnCreateState(FunctionPointer<TRef<Object>(const IMPL & self, GLX::Object & object)> callback)
 {
-	Layer::OnCreateState = reinterpret_cast<decltype(Layer::OnCreateState)>(callback);
+	Layer::OnCreateState = Reflex::Detail::CastFunctionPointer<decltype(Layer::OnCreateState)>(callback);
 }
 
 template <class IMPL> template <class STATE> inline void Reflex::GLX::Detail::LayerImpl<IMPL>::SetOnAccommodate(FunctionPointer<void(const IMPL & self, STATE & state, Size & contentsize)> callback)
 {
-	Layer::OnAccommodate = reinterpret_cast<decltype(Layer::OnAccommodate)>(callback);
+	Layer::OnAccommodate = Reflex::Detail::CastFunctionPointer<decltype(Layer::OnAccommodate)>(callback);
 }
 
 template <class IMPL> template <class STATE> inline void Reflex::GLX::Detail::LayerImpl<IMPL>::SetOnAlign(FunctionPointer<void(const IMPL & self, STATE & state, Size size, Float & contenth)> callback)
 {
-	Layer::OnAlign = reinterpret_cast<decltype(Layer::OnAlign)>(callback);
+	Layer::OnAlign = Reflex::Detail::CastFunctionPointer<decltype(Layer::OnAlign)>(callback);
 }
 
 template <class IMPL> template <class STATE> inline void Reflex::GLX::Detail::LayerImpl<IMPL>::SetOnRedraw(FunctionPointer<TRef<System::Renderer::Graphic>(const IMPL & self, STATE & state, Size pixelsize, UInt8 flags)> callback)
 {
-	Layer::OnRedraw = reinterpret_cast<decltype(Layer::OnRedraw)>(callback);
+	Layer::OnRedraw = Reflex::Detail::CastFunctionPointer<decltype(Layer::OnRedraw)>(callback);
 }

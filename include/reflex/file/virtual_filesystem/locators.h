@@ -31,9 +31,9 @@ public:
 
 	FileLocator();
 
-	TRef <System::FileHandle> OnRead(ArrayView <WString::View> subdomain, WString::View path, Attributes & attributes) const override;
+	[[nodiscard]] TRef <System::FileHandle> OnRead(ArrayView <WString::View> subdomain, WString::View path, Attributes & attributes) const override;
 
-	TRef <System::FileHandle> OnWrite(ArrayView <WString::View> subdomain, WString::View path, bool append) const override;
+	[[nodiscard]] TRef <System::FileHandle> OnWrite(ArrayView <WString::View> subdomain, WString::View path, bool append) const override;
 
 	bool OnDelete(ArrayView <WString::View> subdomain, WString::View path) const override;
 };

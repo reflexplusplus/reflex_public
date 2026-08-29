@@ -39,15 +39,17 @@ namespace Reflex
 
 REFLEX_NS(Reflex::Detail)
 
-template <class CHARACTER> REFLEX_INLINE CHARACTER RemapCharacter(const UInt8 map[128], CHARACTER character)
+template <class CHARACTER> REFLEX_INLINE CHARACTER RemapCharacter(const UInt8 map[256], CHARACTER character)
 {
-	if (character < 256)
+	if constexpr (kIsType<CHARACTER,char>)
 	{
-		return map[character];
+		return CHARACTER(map[UInt8(character)]);
 	}
 	else
 	{
-		return character;
+		auto index = UInt32(character);
+
+		return (index < 256) ? CHARACTER(map[index]) : character;
 	}
 }
 
@@ -65,12 +67,12 @@ REFLEX_END
 
 REFLEX_INLINE char Reflex::Lowercase(char character)
 {
-	return Detail::kLowerCase[character];
+	return Detail::RemapCharacter(Detail::kLowerCase, character);
 }
 
 REFLEX_INLINE char Reflex::Uppercase(char character)
 {
-	return Detail::kUpperCase[character];
+	return Detail::RemapCharacter(Detail::kUpperCase, character);
 }
 
 REFLEX_INLINE char16_t Reflex::Lowercase(char16_t character)

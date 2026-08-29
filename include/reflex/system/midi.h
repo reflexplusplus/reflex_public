@@ -41,7 +41,7 @@ public:
 
 	//lifetime
 
-	static TRef <Midi> Create();
+	[[nodiscard]] static TRef <Midi> Create();
 
 
 	//info
@@ -51,9 +51,9 @@ public:
 
 	//endpoints
 
-	virtual TRef <Input> CreateInput(ArrayView <UInt8> id, void * client, InputCallback callback) = 0;
+	[[nodiscard]] virtual TRef <Input> CreateInput(ArrayView <UInt8> id, void * client, InputCallback callback) = 0;
 
-	virtual TRef <Output> CreateOutput(ArrayView <UInt8> id) = 0;
+	[[nodiscard]] virtual TRef <Output> CreateOutput(ArrayView <UInt8> id) = 0;
 };
 
 

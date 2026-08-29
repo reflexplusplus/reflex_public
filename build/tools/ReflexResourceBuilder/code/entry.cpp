@@ -1,65 +1,72 @@
 #include "app.h"
 #include "view.h"
 
-
-
-
-//
-//
-
-namespace ResourceBuilder { namespace {	//begin internal namespace
-
-void CompileFromCmdLine(const ArrayView <CString::View> & cmds)
-{
-	auto global = AutoRelease(Bootstrap::Global::Acquire("Reflex++", "Resource Builder", Bootstrap::Detail::ExtractProjectDir(__FILE__), K32("ResourceBuilder")));
-
-	CString cmdline = Merge(cmds, ' ');
-
-	CString::View unquoted = Trim(cmdline, [](char c)	//remove quotes
-	{
-		return c == '"';
-	});
-
-	WString path = ToWString(unquoted);
-
-	path = File::CorrectStrokes(path);	//windows to reflex
-
-	path = File::RemoveDuplicateStrokes(path);	//remove "//" as these will mess up ResolveRelativePath
-
-	path = File::ResolveRelativePath(path);
-
-	auto std_out = Make<System::FileHandle>(System::FileHandle::kStandardStreamOut);
-
-	File::WriteLine(std_out, Join("warning: ReflexResourceBuilder cmdline usage is deprecated. Use: reflex build-resources --path \"", ToCString(path), '"'));
-
-	auto task = AutoRelease(Compile(path));
-
-	task->Wait();
-}
-
-} }
-
 Reflex::TRef <Reflex::Object> Reflex::System::App::OnStart(const ArrayView <CString::View> & cmdline, Configuration & config)
 {
-	if (cmdline)
+#if REFLEX_DEBUG
+	constexpr auto get_agent_args = [](ArrayView <CString::View> cmdline)
 	{
-		Output::SetLogFile(New<System::FileHandle>(System::FileHandle::kStandardStreamOut));
+		auto request_path = Join(Bootstrap::Detail::ExtractProjectDir(__FILE__), L"reflex_cmdline.json");
 
-		ResourceBuilder::CompileFromCmdLine(cmdline);
+		if (auto request = File::Open(request_path))
+		{
+			File::Delete(request_path);
 
-		return Object::null;	//for desktop app builds, returning null object here will behave like a console (terminate immediately, instead of starting message loop)
-	}
-	else
+			return Data::DecodePropertySet(Data::kJsonFormat, request);
+		}
+
+		return Bootstrap::ParseCmdlineArgs(cmdline, true);
+	};
+
+	auto args = get_agent_args(cmdline);
+
+	if (Data::GetBool(args, K32("terminate-on-assert")))
 	{
-		Bootstrap::PublishAppView<ResourceBuilder::App,ResourceBuilder::View>(config);
+		System::Detail::DebugBreak = [](const char * msg)
+		{
+			auto file = Output::GetLogFile();
 
-		return Bootstrap::StartApp<ResourceBuilder::App>
-		(
-			config,
-			"Reflex++",
-			"Resource Builder",
-			MakeKey32("ResourceBuilder"),
-			__FILE__
-		);
+			file->Flush(true);
+
+			File::WriteLine(file, "*** REFLEX_ASSERT ***");
+			File::WriteLine(file, msg);
+
+			System::Detail::EnumerateStackTrace(file.Adr(), [](void * pfile, UInt frame, const void * address, const char * symbol)
+			{
+				auto file = Cast<System::FileHandle>(pfile);
+
+				auto buffer = Reflex::Detail::DebugJoin(" ", frame, address, symbol);
+
+				File::WriteLine(*file, buffer);
+			});
+
+			file->Flush(true);
+
+			System::Detail::Terminate(1);
+		};
 	}
+#endif
+
+	Bootstrap::PublishAppView<ResourceBuilder::App,ResourceBuilder::View>(config);
+
+	auto global = Bootstrap::StartApp<ResourceBuilder::App>
+	(
+		config,
+		"Reflex++",
+		"Resource Builder",
+		MakeKey32("ResourceBuilder"),
+		__FILE__
+	);
+
+#if REFLEX_DEBUG
+	if (auto delay = Data::GetFloat32(args, "auto-quit"))
+	{
+		SetAbstractProperty(global, "auto-quit", Async::CreatePeriodicClock(delay, []()
+		{
+			System::App::Quit();
+		}));
+	}
+#endif
+
+	return global;
 }

@@ -26,10 +26,10 @@ REFLEX_END_INTERNAL
 
 Reflex::Bootstrap::ParamDesc & Reflex::Bootstrap::ParamDesc::null = Reflex::Bootstrap::g_null_param_info;
 
-Reflex::Bootstrap::AudioPlugin::Parameters::Parameters(AudioPlugin & instance)
+Reflex::Bootstrap::AudioPlugin::Parameters::Parameters(const Class & cls, AudioPlugin & instance)
 	: Streamable(instance.session, MakeKey32("parameters"), 1)
 	, instance(instance)
-	, paramdefs(global->QueryProperty<Detail::ParamDefsProperty>(MakeKey32("bootstrap.paramdefs")))
+	, paramdefs(Cast<Detail::ParamDefs>(Data::GetPropertySet(global, K32("bootstrap.paramdefs"))->QueryProperty<Reflex::Object>(MakeKey32(cls.clap.uid))))
 	, info(paramdefs->value.GetSize())
 	, ids(info.GetSize())
 	, values(info.GetSize())
@@ -123,10 +123,10 @@ void Reflex::Bootstrap::AudioPlugin::Parameters::OnStore(Data::Archive & stream)
 	MemCopy(values.GetData(), bytes + bytesize32, bytesize32);
 }
 
-Reflex::Bootstrap::AudioPlugin::AudioPlugin(System::AudioPlugin & system, UInt32 magic, UInt16 chunkversion)
+Reflex::Bootstrap::AudioPlugin::AudioPlugin(const Class & cls, System::AudioPlugin & system, UInt32 magic, UInt16 chunkversion)
 	: App(magic, chunkversion)
 	, instance(system)
-	, m_parameters(*this)
+	, m_parameters(cls, *this)
 	, m_session_listener(session->CreateListener([this](File::PersistentPropertySet::Notification notification, Key32 ctx)
 	{
 		if (notification != File::PersistentPropertySet::kNotificationStore)

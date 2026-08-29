@@ -15,7 +15,8 @@
 #   Reflex::TargetVST2         (Windows + macOS)
 #   Reflex::TargetAU           (macOS only)
 #
-# Helper functions (from ReflexHelpers.cmake):
+# Low-level target operations (from ReflexBuild.cmake) and helper functions
+# (from ReflexHelpers.cmake):
 #   reflex_add_app(target ...)
 #   reflex_add_vm_app(target ...)
 #   reflex_add_audio_plugin(target ...)
@@ -29,6 +30,9 @@ get_filename_component(REFLEX_ROOT "${CMAKE_CURRENT_LIST_DIR}/.." ABSOLUTE)
 # resolve it even when find_package ran in a subproject scope — e.g. when the
 # SDK is pulled in via FetchContent/CPM and consumed from the parent project.
 set(REFLEX_ROOT "${REFLEX_ROOT}" CACHE INTERNAL "Reflex SDK root directory" FORCE)
+
+include("${CMAKE_CURRENT_LIST_DIR}/ReflexBuild.cmake")
+reflex_detect_platform()
 
 # =========================================================
 # Validate installation
@@ -265,6 +269,16 @@ if(EXISTS "${REFLEX_ROOT}/src/reflex/system")
     option(REFLEX_BUILD_TARGETS_FROM_SOURCE "Build Reflex target libs from source" ON)
 else()
     option(REFLEX_BUILD_TARGETS_FROM_SOURCE "Build Reflex target libs from source" OFF)
+endif()
+
+# =========================================================
+# macOS code signing
+# =========================================================
+
+# Linker ad-hoc signatures seal no resources, so strict verification fails and hosts skip the plug-in.
+if(APPLE AND NOT CMAKE_SYSTEM_NAME STREQUAL "iOS")
+    option(REFLEX_CODESIGN "Sign macOS bundles after build" ON)
+    set(REFLEX_CODESIGN_IDENTITY "-" CACHE STRING "codesign identity for macOS bundles ('-' = ad-hoc)")
 endif()
 
 # =========================================================

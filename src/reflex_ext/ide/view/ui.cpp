@@ -68,6 +68,7 @@ public:
 	{
 	}
 
+	using GLX::Object::OnFocus;
 
 
 	Reference <Reflex::Object> m_onfocus;
@@ -119,6 +120,8 @@ struct UI::Panel : public GLX::Object
 	virtual void OnSetStyle(const ComputedStyle & cstyle) = 0;
 
 	virtual void OnAttachWindow() override { Update(); }
+
+	using GLX::Object::OnSetStyle;
 };
 
 struct UI::Objects : public Panel
@@ -715,15 +718,11 @@ void UI::OnClock(Float)
 	{
 		auto & root = *m_root;
 
-		UInt count = 0;
-
 		UIntNative hash = 0;
 
 		for (auto & i : Object::BranchIterator(root))
 		{
 			hash ^= ToUIntNative(&i);
-
-			++count;
 		}
 
 		if (SetFiltered(m_hash_z, hash))

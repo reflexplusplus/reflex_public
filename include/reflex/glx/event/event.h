@@ -47,7 +47,7 @@ public:
 
 	//clone
 
-	virtual TRef <Event> Clone() const;
+	[[nodiscard]] virtual TRef <Event> Clone() const;
 
 
 

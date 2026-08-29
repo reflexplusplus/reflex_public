@@ -48,7 +48,7 @@ SettingsPanel::SettingsPanel()
 	m_tabgroup.AddPanel(L"Graphics", REFLEX_CREATE(GraphicsSettings, m_stylesheet, true));
 
 
-	GLX::BindClick(m_logfile, [this]()
+	GLX::BindClick(m_logfile, []()
 	{
 		Data::SetBool(global->prefs, kLogFile, !Data::GetBool(global->prefs, kLogFile));
 

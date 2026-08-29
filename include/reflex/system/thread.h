@@ -66,7 +66,7 @@ public:
 
 	//lifetime
 
-	static TRef <CriticalSection> Create(bool recursive = false, Allocator & allocator = g_default_allocator);
+	[[nodiscard]] static TRef <CriticalSection> Create(bool recursive = false, Allocator & allocator = g_default_allocator);
 
 
 

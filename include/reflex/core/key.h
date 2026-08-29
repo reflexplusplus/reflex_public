@@ -85,7 +85,7 @@ public:
 
 
 
-	UINT value;
+	UINT value;	//! Empty strings hash to kHashSeed, not zero.
 
 };
 

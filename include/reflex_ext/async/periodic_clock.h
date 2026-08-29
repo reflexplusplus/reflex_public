@@ -11,7 +11,7 @@
 namespace Reflex::Async
 {
 
-	TRef <Object> CreatePeriodicClock(Float32 interval, const Function <void()> & callback);
+	[[nodiscard]] TRef <Object> CreatePeriodicClock(Float32 interval, const Function <void()> & callback);
 
 }
 

@@ -30,7 +30,7 @@ The Reflex API is available at `_REFLEX-PATH_/include`.
 
 ## Project Creation
 
-- Create apps and tests with the CLI: `reflex create --template <id> --vendor <vendor> --product <product> --target <id[,..]> --output <folder>`.
+- Create apps and tests with the CLI: `reflex create --template <id> --vendor <vendor> --product <product> --generate <id[,..]> --output <folder>`.
 - List available options with `reflex templates` and `reflex targets`.
 
 ## Object Lifetimes
@@ -48,14 +48,18 @@ The Reflex API is available at `_REFLEX-PATH_/include`.
 - Do not include individual reflex headers in standard project templates; the framework API is already available.
 - Keep `ArrayView` and string views within the lifetime of their source data.
 - `ArrayView::size` is not `Array::GetSize`; use the appropriate API for the type in hand.
+- Within Reflex, always represent path separators with `File::kStroke` (`/`), which is the application-level proxy for `System::kPathDelimiter`. All Reflex `System` and `File` functions expect this canonical representation and perform any required platform translation themselves. Convert separators manually only when passing a path to a non-Reflex API or writing a platform-specific format that explicitly requires native path syntax.
+- Paths representing folders must always end with a trailing stroke. Reflex path-manipulation functions expect this convention, and functions that return folder paths include the trailing `/`; examples include folders returned by `System::GetPath` and `File::List`. Preserve the trailing stroke when storing, joining, or passing folder paths.
 
 ## Debugging
 
 - Use the project namespace's `output` symbol for logging. If it is unavailable in the current scope, use `Reflex::File::output`.
 - Debug builds write runtime output to `reflex_log.txt` and leak reports to `reflex_leaks.txt` in the project folder.
 - For automated window screenshots, use `Reflex::GLX::CaptureWindow`; see the documentation for a working example.
-- For autonomous assertion debugging, the C++ Console App debug template supports `--terminate-on-assert`. An assertion then flushes its message and any available stack trace to `reflex_log.txt` before terminating with exit code 1, rather than waiting at a debug break.
-- See `code/entry.cpp`, `System::OnStart`, for command-line parsing and the installed `OnDebugBreak` handler.
+- For autonomous UI-app testing, the C++ App, C++ Audio Plugin, and ReflexVm App debug templates support `--auto-quit <seconds>` (for example, `--auto-quit 0.5`). It closes the app through its normal quit path after the requested duration, allowing agents to launch and verify UI apps without UI interaction.
+- For autonomous assertion debugging, use `--terminate-on-assert`. An assertion then flushes its message and any available stack trace to `reflex_log.txt` before terminating with exit code 1, rather than waiting at a debug break.
+- When a supporting template's UI launcher cannot pass command-line arguments, create `reflex_cmdline.json` in the project directory before launch. It contains a JSON argument object, for example `{ "auto-quit": 0.5, "terminate-on-assert": true }`; the template reads and deletes this one-shot request at startup. The file takes the place of the normal command line for agent-option parsing.
+- See `code/entry.cpp`, `System::App::OnStart`, in the C++ App, C++ Audio Plugin, and ReflexVm App templates for command-line parsing, automatic exit, and the installed `OnDebugBreak` handler.
 
 ## Resources and Hot Reload
 

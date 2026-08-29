@@ -46,8 +46,6 @@ public:
 
 	virtual ArrayView <TemplateDefinition> GetTemplates() const = 0;
 
-	virtual ArrayView <Pair<CString,bool>> GetTargets() const = 0;
-
 	virtual void InstantiateTemplate(const TemplateDefinition & tmpl, ArrayView <Pair<CString>> inputs, ArrayView <CString> targets, const WString & dest, bool overwrite) = 0;
 
 

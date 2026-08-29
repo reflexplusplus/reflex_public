@@ -70,7 +70,7 @@ Tree::Node * FindNextNode(Tree::Node & node)
 
 Tree::Node * FindPrevNode(Tree::Node & node)
 {
-	if (auto tree = QueryParentByType<Tree>(node))
+	if (QueryParentByType<Tree>(node))
 	{
 		if (auto prev = node.GetPrev())
 		{

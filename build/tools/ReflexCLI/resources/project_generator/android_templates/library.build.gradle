@@ -1,0 +1,71 @@
+plugins {
+	alias(libs.plugins.android.library)
+}
+
+def projectRoot = file("${projectDir.absolutePath}/../../..").canonicalFile
+
+android {
+	namespace = [PACKAGE_ID]
+	compileSdk = [ANDROID_SDK]
+
+	defaultConfig {
+		minSdk = [ANDROID_MIN_SDK]
+		targetSdk = [ANDROID_SDK]
+		externalNativeBuild {
+			cmake {
+			}
+		}
+	}
+
+	buildTypes {
+		debug {
+			externalNativeBuild {
+				cmake {
+					arguments "-DANDROID_STL=[DEBUG_RUNTIME_LIBRARY]"
+				}
+			}
+			ndk {
+				abiFilters.addAll([DEBUG_ABIS])
+			}
+		}
+
+		release {
+			externalNativeBuild {
+				cmake {
+					arguments "-DANDROID_STL=[RELEASE_RUNTIME_LIBRARY]"
+				}
+			}
+			ndk {
+				abiFilters.addAll([RELEASE_ABIS])
+			}
+			minifyEnabled = false
+		}
+	}
+
+	compileOptions {
+		sourceCompatibility JavaVersion.VERSION_11
+		targetCompatibility JavaVersion.VERSION_11
+	}
+
+	externalNativeBuild {
+		cmake {
+			path = file('CMakeLists.txt')
+			version = '3.22.1'
+		}
+	}
+
+	buildFeatures {
+		prefab = true
+		prefabPublishing = true
+	}
+
+	prefab {
+[PREFAB_TARGETS]	}
+
+	packagingOptions {
+		exclude("**.so")
+	}
+}
+
+[BUILD_ACTIONS][ARTIFACT_OUTPUTS]dependencies {
+[DEPENDENCIES]}

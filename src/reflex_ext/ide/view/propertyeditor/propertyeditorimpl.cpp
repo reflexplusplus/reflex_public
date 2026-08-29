@@ -63,7 +63,7 @@ struct PropertyEditorImpl::Dialog::Field : public GLX::Object
 {
 public:
 
-	Field(PropertyEditorImpl & view, const Interface::PropertyRef & propertyref);
+	Field(const Interface::PropertyRef & propertyref);
 
 	void Apply();
 
@@ -84,10 +84,7 @@ private:
 
 
 
-	PropertyEditorImpl & view;
-
 	Interface::PropertyRef m_property;
-
 
 	GLX::TextArea m_textedit;
 
@@ -697,8 +694,6 @@ Data::PropertySet * PropertyEditorImpl::PropertyEditorImpl::GetNext(Data::Proper
 
 bool PropertyEditorImpl::PropertyEditorImpl::BeginAddNode(View & view, Data::PropertySet & parent)
 {
-	typedef Dialog::Field Field;
-
 	//constexpr auto OnDone = [](const Array <Dialog::Field*> & fields, PropertyEditorImpl & view, Data::PropertySet & parent)
 	//{
 	//	Transaction t(view);
@@ -1034,9 +1029,8 @@ void PropertyEditorImpl::PopulateProperties()
 	}
 }
 
-PropertyEditorImpl::Dialog::Field::Field(PropertyEditorImpl & view, const Interface::PropertyRef & propertyref)
-	: view(view),
-	m_textedit(false)
+PropertyEditorImpl::Dialog::Field::Field(const Interface::PropertyRef & propertyref)
+	: m_textedit(false)
 {
 	m_popup.SetDelegate({}, New<GLX::PopupBehaviour>());
 

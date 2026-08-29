@@ -135,10 +135,10 @@ template <Reflex::AllocatePolicy POLICY> inline void Reflex::GLX::Detail::AddQua
 {
 	auto pts = Extend<POLICY>(buffer, 6);
 
-	System::ColourPoint a = { x1, y1, colour };
-	System::ColourPoint b = { x1, y2, colour };
-	System::ColourPoint c = { x2, y1, colour };
-	System::ColourPoint d = { x2, y2, colour };
+	System::ColourPoint a = { { x1, y1 }, colour };
+	System::ColourPoint b = { { x1, y2 }, colour };
+	System::ColourPoint c = { { x2, y1 }, colour };
+	System::ColourPoint d = { { x2, y2 }, colour };
 
 	pts[0] = a;
 	pts[1] = b;
@@ -147,4 +147,3 @@ template <Reflex::AllocatePolicy POLICY> inline void Reflex::GLX::Detail::AddQua
 	pts[4] = b;
 	pts[5] = d;
 }
-

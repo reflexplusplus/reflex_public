@@ -241,33 +241,33 @@ bool Reflex::GLX::RotarySlider::OnEvent(Object & src, Event & e)
 
 		if (!ignore && !QueryDelegate(TextEditBehaviour::kDynamicTypeInfo))
 		{
-			if (auto step = GetRange().b)
+			Float32 inc;
+
+			switch (GetKeyCode(e))
 			{
-				step *= (modifiers & kModifierKeyShift) ? 0.1f : 1.0f;
+			case kKeyCodeDown:
+			case kKeyCodeNumericMinus:
+				inc = -1.0f;
+				break;
 
-				auto value = GetValue();
-				
-				auto trap = false;
+			case kKeyCodeUp:
+			case kKeyCodeNumericPlus:
+				inc = 1.0f;
+				break;
 
-				switch (GetKeyCode(e))
-				{
-				case kKeyCodeDown:
-				case kKeyCodeNumericMinus:
-					value -= step;
-					trap = true;
-					break;
-					
-				case kKeyCodeUp:
-				case kKeyCodeNumericPlus:
-					value += step;
-					trap = true;
-					break;
-				}
-				
-				SetValueTransacted(value);
-				
-				return trap;
+			default:
+				return Object::OnEvent(src, e);
 			}
+
+			auto [range, step] = GetRange();
+
+			inc *= (step ? step : (range.length * 0.01f));
+
+			if (modifiers & kModifierKeyShift) inc *= 0.1f;
+
+			SetValueTransacted(GetValue() + inc);
+
+			return true;
 		}
 	}
 

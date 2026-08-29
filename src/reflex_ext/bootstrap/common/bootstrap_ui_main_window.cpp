@@ -16,10 +16,16 @@ template <class TYPE> inline TYPE GetConfig(Key32 id, TYPE fallback = {})
 
 struct WindowClient : public GLX::WindowClient
 {
-	WindowClient(System::Window & owner)
+	WindowClient()
 		: GLX::WindowClient(global->IdeEnabled())
 	{
-		owner.SetClient(this);
+	}
+
+	void OnAttachWindow(System::Window & window, System::WindowDisplay & initial_mode, System::iRect & initial_rect) override
+	{
+		GLX::WindowClient::OnAttachWindow(window, initial_mode, initial_rect);
+
+		window.SetTitle(ToWString(global->product));
 	}
 
 	void SetContent(GLX::Object & view)
@@ -42,16 +48,13 @@ struct PluginWindowClient :
 	public WindowClient, 
 	public Streamable
 {
-	PluginWindowClient(System::Window & owner, File::PersistentPropertySet & session, GLX::Object & view)
-		: WindowClient(owner)
+	PluginWindowClient(File::PersistentPropertySet & session, GLX::Object & view)
+		: WindowClient()
 		, Streamable(session, "bootstrap.plugin_window_size", 1)
 		, m_resizable(Data::GetBool(view, GLX::kresizable))
 	{
 		SetContent(view);
-
 		Streamable::RestoreState();
-
-		SetDisplayMode(System::kWindowDisplayWindowed);	//TODO this should not be neccesary on plugin
 	}
 
 	~PluginWindowClient()
@@ -61,7 +64,7 @@ struct PluginWindowClient :
 
 	void OnReset(Key32 context) override
 	{
-		SetRect({ {}, GetContent()->contentsize });
+		SetSize(GetContent()->contentsize);
 	}
 
 	void OnRestore(Data::Archive::View & stream, Key32 context) override
@@ -70,28 +73,51 @@ struct PluginWindowClient :
 
 		if (m_resizable)
 		{
-			SetRect({ {}, Max(content_size, Data::Deserialize<System::fSize>(stream))});
+			SetSize(Max(content_size, Data::Deserialize<System::fSize>(stream)));
 		}
 		else
 		{
-			SetRect({ {}, content_size });
+			SetSize(content_size);
 		}
 	}
 
 	void OnStore(Data::Archive & stream) const override
 	{
-		Data::Serialize(stream, GetRect().size);
+		Data::Serialize(stream, m_last_size);
 	}
 
+	void OnAttachWindow(System::Window & window, System::WindowDisplay & initial_mode, System::iRect & initial_rect) override
+	{
+		WindowClient::OnAttachWindow(window, initial_mode, initial_rect);
+
+		initial_rect.size = { Truncate(m_last_size.w), Truncate(m_last_size.h) };
+	}
+
+	void OnSetRect(System::WindowDisplay mode, const System::iRect & rect, const System::iRect & interactable, Int32 dpifactor) override
+	{
+		WindowClient::OnSetRect(mode, rect, interactable, dpifactor);
+
+		if (mode == System::kWindowDisplayWindowed) m_last_size = GetRect().size;
+	}
+
+	void SetSize(GLX::Size size)
+	{
+		m_last_size = size;
+
+		owner->SetRect({ {}, { Truncate(size.w), Truncate(size.h) } });
+	}
+
+
 	bool m_resizable;
+	GLX::Size m_last_size;
 };
 
 struct DesktopAppWindowClient : public WindowClient
 {
 	static constexpr UInt32 kWindowState = K32("bootstrap.window_state");
 
-	DesktopAppWindowClient(System::Window & owner, GLX::Object & view)
-		: WindowClient(owner)
+	DesktopAppWindowClient(GLX::Object & view)
+		: WindowClient()
 	{
 		SetContent(view);
 
@@ -119,9 +145,9 @@ struct DesktopAppWindowClient : public WindowClient
 			restored_rect = Detail::ConstrainRectToDisplay(restored_rect, default_rect.size);
 		}
 
-		SetRect(restored_rect);
-
-		SetDisplayMode(restored_mode);
+		m_pending_rect = { { Truncate(restored_rect.origin.x), Truncate(restored_rect.origin.y) }, { Truncate(restored_rect.size.w), Truncate(restored_rect.size.h) } };
+		m_windowed_rect = restored_rect;
+		m_initial_mode = restored_mode;
 	}
 
 	~DesktopAppWindowClient()
@@ -130,7 +156,7 @@ struct DesktopAppWindowClient : public WindowClient
 
 		UInt8 window_state[17];
 		window_state[0] = UInt8(GetDisplayMode());
-		MemCopy(&GetRect(), window_state + 1, 16);
+		MemCopy(&m_windowed_rect, window_state + 1, 16);
 
 		Data::SetBinary(global->prefs, kWindowState, ToView(window_state));
 	}
@@ -139,6 +165,25 @@ struct DesktopAppWindowClient : public WindowClient
 	{
 		System::App::Quit();
 	}
+
+	void OnAttachWindow(System::Window & window, System::WindowDisplay & initial_mode, System::iRect & initial_rect) override
+	{
+		WindowClient::OnAttachWindow(window, initial_mode, initial_rect);
+
+		initial_mode = m_initial_mode;
+		initial_rect = m_pending_rect;
+	}
+
+	void OnSetRect(System::WindowDisplay mode, const System::iRect & rect, const System::iRect & interactable, Int32 dpifactor) override
+	{
+		WindowClient::OnSetRect(mode, rect, interactable, dpifactor);
+
+		if (mode == System::kWindowDisplayWindowed) m_windowed_rect = GetRect();
+	}
+
+	System::iRect m_pending_rect;
+	GLX::Rect m_windowed_rect;
+	System::WindowDisplay m_initial_mode;
 };
 
 struct MobileWindowClient : public WindowClient
@@ -160,8 +205,8 @@ struct MobileWindowClient : public WindowClient
 		}
 	}
 
-	MobileWindowClient(System::Window & owner, GLX::Object & view)
-		: WindowClient(owner)
+	MobileWindowClient(GLX::Object & view)
+		: WindowClient()
 		, m_view(view)
 	{
 		if (global->IdeEnabled())
@@ -270,9 +315,9 @@ struct EmulatedMobileWrapper : public GLX::Object
 
 	EmulatedMobileWrapper(GLX::Object & view)
 		: m_view(view)
+		, m_landscape(L"LS")
 		, m_magnify_out(L"-")
 		, m_magnify_in(L"+")
-		, m_landscape(L"LS")
 	{
 		auto styles = IDE::Detail::RetrieveStyleSheet();
 
@@ -430,13 +475,13 @@ private:
 
 
 
+	TRef <GLX::Object> m_view;
+
 	GLX::Button m_landscape, m_magnify_out, m_magnify_in;
 
 	GLX::Popup m_popup;
 
 	GLX::Object m_header;
-
-	TRef <GLX::Object> m_view;
 
 
 	static constexpr Key32 kMobileDevice = "bootstrap.mobile_device";
@@ -466,16 +511,16 @@ REFLEX_END_INTERNAL
 
 Reflex::TRef <Reflex::GLX::WindowClient> Reflex::Bootstrap::Detail::CreateAppWindow(System::Window & window, GLX::Object & view)
 {
-	auto window_client = New<WindowClient>(window);
-
+	auto window_client = New<WindowClient>();
 	window_client->SetContent(view);
-
+	Pair <System::WindowDisplay,System::iRect> unused;
+	window.SetClient(window_client, unused.a, unused.b);
 	return window_client;
 }
 
 void Reflex::Bootstrap::Detail::PublishAppView(System::App::Configuration & config, const Function <TRef<GLX::Object>(Object & instance_delegate)> & ctr)
 {
-	config.view_ctr = [ctr](System::App & system, void * host_window)
+	config.view_ctr = [ctr](System::App & system, UInt8 & window_flags) -> TRef<System::Window::Client>
 	{
 		auto config = AcquireProperty<Data::MapOfKey32Property<UInt32>>(global->prefs, kViewGraphicsConfig);	//restore graphics settings
 
@@ -485,15 +530,12 @@ void Reflex::Bootstrap::Detail::PublishAppView(System::App::Configuration & conf
 
 		auto session = app->QueryProperty<File::PersistentPropertySet>("session", Bootstrap::global->prefs.Adr());	//need this backdoor temporarily, to support legacy non-App clients
 
-		TRef <GLX::WindowClient> client = kNoValue;
-
-		TRef <GLX::Object> view = kNoValue;
-
-		UInt8 window_flags = System::kWindowStyleFrame | System::kWindowStyleMinimisable;
-
 		GLX::Core::Context ctx;
 
 		GLX::AnimationScope scope(GetConfig<bool>("view.allow_init_animations", true));
+
+
+		TRef <GLX::Object> view = kNoValue;
 
 		if (System::kEnvironmentType == System::kEnvironmentTypeDesktopApp && GLX::kIsMobile)
 		{
@@ -511,32 +553,31 @@ void Reflex::Bootstrap::Detail::PublishAppView(System::App::Configuration & conf
 		else
 		{
 			view = ctr(app);
-
-			window_flags |= Data::GetBool(view, GLX::kresizable) ? System::kWindowStyleResizable : 0;
 		}
 
-		auto window = System::Window::Create(window_flags, false, host_window);
+		if (Data::GetBool(view, GLX::kresizable)) window_flags |= System::kWindowStyleResizable;
+
+
+		TRef <GLX::WindowClient> client = kNoValue;
 
 		switch (System::kEnvironmentType)
 		{
 		case System::kEnvironmentTypeAudioPlugin:
 		case System::kEnvironmentTypeLibrary:
-			client = New<PluginWindowClient>(window, *session, view);
+			client = New<PluginWindowClient>(*session, view);
 			break;
 
 		case System::kEnvironmentTypeDesktopApp:
-			client = New<DesktopAppWindowClient>(window, view);
+			client = New<DesktopAppWindowClient>(view);
 			break;
 
 		default:
-			client = New<MobileWindowClient>(window, view);
+			client = New<MobileWindowClient>(view);
 			break;
 		}
 
-		client->SetTitle(ToWString(global->product));
-
 		GLX::FocusBranch(view);
 
-		return window;
+		return client;
 	};
 }

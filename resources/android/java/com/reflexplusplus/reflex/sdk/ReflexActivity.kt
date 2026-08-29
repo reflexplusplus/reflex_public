@@ -2,7 +2,6 @@ package com.reflexplusplus.reflex.sdk
 
 import android.Manifest
 import android.annotation.SuppressLint
-import android.app.ActivityManager
 import android.app.AlertDialog
 import android.app.ComponentCaller
 import android.app.NativeActivity
@@ -23,32 +22,31 @@ import android.net.Uri
 import android.os.Build
 import android.os.Build.VERSION
 import android.os.Bundle
-import android.os.Debug
 import android.os.Handler
 import android.os.Looper
 import android.provider.OpenableColumns
 import android.provider.Settings
-import android.text.Editable
 import android.text.InputType
-import android.text.TextWatcher
 import android.util.Log
 import android.view.KeyEvent
 import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
 import android.view.inputmethod.EditorInfo
-import android.view.inputmethod.InputMethodManager
 import android.webkit.MimeTypeMap
 import android.webkit.URLUtil
 import android.widget.EditText
-import android.widget.TextView
-import android.widget.Toast
+import android.window.OnBackInvokedDispatcher
+import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import androidx.core.graphics.Insets
+import androidx.core.net.toUri
+import androidx.core.os.ConfigurationCompat
 import androidx.core.view.OnApplyWindowInsetsListener
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.core.widget.doOnTextChanged
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -58,6 +56,7 @@ import kotlinx.coroutines.launch
 import java.io.File
 import java.io.FileOutputStream
 import java.io.InputStream
+import java.net.URLConnection
 import java.nio.ByteBuffer
 import java.nio.charset.Charset
 import java.util.Locale
@@ -66,25 +65,19 @@ import java.util.concurrent.CountDownLatch
 import kotlin.concurrent.timerTask
 import kotlin.math.floor
 import kotlin.math.min
-import androidx.core.net.toUri
-import java.net.URLConnection
+import kotlin.time.Duration.Companion.milliseconds
 
 open class ReflexActivity(private val filepathsResourceId: Int) : NativeActivity(), OnApplyWindowInsetsListener {
 	companion object {
 		private var appContext: Context? = null
 
-		private fun isServiceRunning(serviceClass: Class<*>) =
-			(appContext!!.getSystemService(ACTIVITY_SERVICE) as ActivityManager)
-				.getRunningServices(Int.MAX_VALUE)
-				.find { serviceClass.name == it.service.className } != null
-
 		@JvmStatic @Suppress("unused") // Used from C++
-		fun isBackgroundAudioServiceRunning() = isServiceRunning(BackgroundAudioService::class.java)
+		fun getOperatingSystemVersion() = "${VERSION.RELEASE} (${Build.DISPLAY})"
 
-		@JvmStatic @Suppress("unused") // Used from C++
-		fun getOperatingSystemVersion(): String {
-			return "${VERSION.RELEASE} (${Build.DISPLAY})"
-		}
+		@JvmStatic
+		external fun devLog(s: String) // Do not call before onCodeReady
+		@JvmStatic
+		external fun devWarn(s: String) // Warning: do not call before onCodeReady
 	}
 
 	private val kAccessModeOpenReadOnly = 1
@@ -104,26 +97,20 @@ open class ReflexActivity(private val filepathsResourceId: Int) : NativeActivity
 	private external fun onAudioDevicesChanged()
 	private external fun onRecordingPermissionResult(granted: Boolean)
 	private external fun onWindowInsetsChanged(interactable: IntArray)
+	private external fun onBackButtonPressed()
 	external fun onTextInputUpdate(text: String, selectionStart: Int, selectionEnd: Int)
 	external fun onTextInputFinished()
 	external fun onDeepLink(url: String)
 	external fun onUpdateTheme()
-	// Others
-	private external fun devLog(s: String) // Warning: do not call before onCodeReady
-	private external fun devWarn(s: String) // Warning: do not call before onCodeReady
 	private external fun notifyResultFromOpenFileDialog(result: Array<ByteArray>?)
 	private external fun notifyResultFromMessageBox(result: Int)
 	private external fun imeInsertText(charsToErase: Int, charsToInsert: String)
-	private var serviceIntent: Intent? = null
 
 	private val audioManager by lazy {
 		getSystemService(AUDIO_SERVICE) as AudioManager
 	}
 	private val clipboardManager by lazy {
 		getSystemService(CLIPBOARD_SERVICE) as ClipboardManager
-	}
-	private val inputMethodManager by lazy {
-		getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
 	}
 	private var hasRecordingPermission: Boolean? = null
 	private val paths = mutableMapOf<String, String>()
@@ -140,15 +127,14 @@ open class ReflexActivity(private val filepathsResourceId: Int) : NativeActivity
 	private val kPermissionRequestCode = 1
 	private val kLaunchForResultRequestCode = 0x1000
 	private var resultHandlerCallback: (Int, Intent?) -> Unit = { _, _ -> }
-	private lateinit var textInputField: EditText
-	private lateinit var keyboardInputView: EditText
-	private var textInputActive = false
+	private var textInputField: EditText? = null
+	private lateinit var textInputFocusSink: View
 
 	// MEMO: the background audio thread cannot be re-enabled while the app in the background,
 	// so if a music player quickly stops and starts the audio while the app is in the background,
 	// the service will be stopped and not restarted, leading to the audio being stopped by the system
 	// shortly after. Delaying deactivation of the service fixes that.
-	private val kStopBackgroundAudioServiceDelayMillis = 1000L
+	private val kStopBackgroundAudioServiceDelayMillis = 1000.milliseconds
 	private var bgAudioServiceJob: Job? = null
 	private val bgAudioServiceScope = CoroutineScope(Dispatchers.Main + SupervisorJob())
 
@@ -167,51 +153,18 @@ open class ReflexActivity(private val filepathsResourceId: Int) : NativeActivity
 		onCodeReady(intScreenDensity)
 		devLog("onCodeReady: density=${realScreenDensity}, rounded to $intScreenDensity")
 
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+			onBackInvokedDispatcher.registerOnBackInvokedCallback(OnBackInvokedDispatcher.PRIORITY_DEFAULT) { onBackButtonPressed() }
+		}
+
 		ViewCompat.setOnApplyWindowInsetsListener(window.decorView, this)
 
-		// We need a view (even though nothing will be drawn on a NativeActivity) to show the software keyboard
-		keyboardInputView = EditText(this)
-		keyboardInputView.visibility = View.VISIBLE
-		keyboardInputView.inputType = EditorInfo.TYPE_CLASS_TEXT or EditorInfo.TYPE_TEXT_FLAG_NO_SUGGESTIONS or EditorInfo.TYPE_TEXT_FLAG_MULTI_LINE
-		keyboardInputView.setOnKeyListener(object : View.OnKeyListener {
-			override fun onKey(v: View?, keyCode: Int, event: KeyEvent?): Boolean {
-				if (keyCode == KeyEvent.KEYCODE_DEL && event?.action == KeyEvent.ACTION_DOWN) {
-					imeInsertText(1, "")
-					return true
-				}
-				return false
-			}
-		})
-		keyboardInputView.addTextChangedListener(object : TextWatcher {
-			override fun afterTextChanged(s: Editable?) {}
-			override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
-
-			override fun onTextChanged(s: CharSequence?, cursorAt: Int, before: Int, count: Int) {
-				if (s == null || count <= 0) return
-
-				imeInsertText(0, s.substring(cursorAt, cursorAt + count))
-			}
-		})
-		addContentView(keyboardInputView, ViewGroup.LayoutParams(1, 1))
-
-		// For single-line editing
-		textInputField = EditText(this)
-		textInputField.visibility = View.VISIBLE // Invisible but active for IME
-		textInputField.showSoftInputOnFocus = true
-		textInputField.imeOptions = EditorInfo.IME_ACTION_DONE
-		textInputField.maxLines = 1
-		textInputField.inputType = InputType.TYPE_CLASS_TEXT
-		textInputField.addTextChangedListener(object : TextWatcher {
-			override fun afterTextChanged(s: Editable?) {}
-			override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
-
-			override fun onTextChanged(s: CharSequence?, cursorAt: Int, before: Int, count: Int) {
-				if (textInputActive) {
-					onTextInputUpdate(s.toString(), cursorAt + count, cursorAt + count)
-				}
-			}
-		})
-		addContentView(textInputField, ViewGroup.LayoutParams(1, 1))
+		// Move focus here before removing the editor so the IME no longer serves an EditText.
+		textInputFocusSink = View(this).apply {
+			isFocusable = true
+			isFocusableInTouchMode = true
+		}
+		addContentView(textInputFocusSink, ViewGroup.LayoutParams(1, 1))
 
 		if (intent?.data != null) {
 			onDeepLink(intent.data.toString())
@@ -233,6 +186,13 @@ open class ReflexActivity(private val filepathsResourceId: Int) : NativeActivity
 		if (newIntent?.data != null) {
 			onDeepLink(newIntent.data.toString())
 		}
+	}
+
+
+	// Necessary to intercept back button on android version < 13
+	@SuppressLint("GestureBackNavigation")
+	override fun onBackPressed() {
+		onBackButtonPressed()
 	}
 
 
@@ -307,25 +267,24 @@ open class ReflexActivity(private val filepathsResourceId: Int) : NativeActivity
 
 	@Suppress("Unused")
 	private fun enableBackgroundAudioService(enabled: Boolean) {
-		val serviceIntent = serviceIntent ?: Intent(this, BackgroundAudioService::class.java)
+		runOnUiThread {
+			val context = applicationContext
+			val intent = Intent(context, BackgroundAudioService::class.java)
 
-		if (enabled) {
-			bgAudioServiceJob?.cancel()
-			bgAudioServiceJob = null
+			if (enabled) {
+				bgAudioServiceJob?.cancel()
+				bgAudioServiceJob = null
 
-			// Already running
-			if (!isBackgroundAudioServiceRunning()) {
-				startService(serviceIntent)
+				ContextCompat.startForegroundService(context, intent)
 			}
-		}
-		else {
-			// Stop already requested
-			if (bgAudioServiceJob != null || !isBackgroundAudioServiceRunning()) return
+			else {
+				// Stop already requested
+				if (bgAudioServiceJob != null) return@runOnUiThread
 
-			bgAudioServiceJob = bgAudioServiceScope.launch {
-				delay(kStopBackgroundAudioServiceDelayMillis)
-				if (isBackgroundAudioServiceRunning()) {
-					stopService(serviceIntent)
+				bgAudioServiceJob = bgAudioServiceScope.launch {
+					delay(kStopBackgroundAudioServiceDelayMillis)
+					bgAudioServiceJob = null
+					stopService(intent)
 				}
 			}
 		}
@@ -549,11 +508,7 @@ open class ReflexActivity(private val filepathsResourceId: Int) : NativeActivity
 
 	@Suppress("unused") // Used from C++
 	fun getLanguage(): String =
-		if (VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-			resources.configuration.locales.get(0).language // first preferred locale
-		} else {
-			resources.configuration.locale.language
-		}
+		ConfigurationCompat.getLocales(resources.configuration)[0]?.language ?: "en"
 
 
 	@Suppress("unused") // Used from C++
@@ -566,21 +521,6 @@ open class ReflexActivity(private val filepathsResourceId: Int) : NativeActivity
 	@Suppress("unused") // Used from C++
 	fun getFontSize(): Float {
 		return resources.configuration.fontScale
-	}
-
-
-	@Suppress("unused") // Used from C++
-	fun showKeyboard(shown: Boolean) {
-		runOnUiThread {
-			val insetsController = WindowCompat.getInsetsController(window, keyboardInputView)
-			keyboardInputView.text.clear()
-			if (shown) {
-				insetsController.show(WindowInsetsCompat.Type.ime())
-			}
-			else {
-				insetsController.hide(WindowInsetsCompat.Type.ime())
-			}
-		}
 	}
 
 
@@ -598,28 +538,62 @@ open class ReflexActivity(private val filepathsResourceId: Int) : NativeActivity
 
 		runOnUiThread {
 			if (enable) {
-				textInputActive = false	// textInputField.setText triggers the onTextChanged callback
-				textInputField.inputType = when (textType) {
-					kVirtualKeyboardInputNormal -> InputType.TYPE_CLASS_TEXT
-					kVirtualKeyboardInputURL -> InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_URI
-					kVirtualKeyboardInputEmail -> InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS
-					kVirtualKeyboardInputNumber -> InputType.TYPE_CLASS_NUMBER
-					kVirtualKeyboardInputPassword -> InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD
-					kVirtualKeyboardInputPhoneNumber -> InputType.TYPE_CLASS_PHONE
-					else -> InputType.TYPE_CLASS_TEXT
+				// We need a view (even though nothing will be drawn on a NativeActivity) to show the software keyboard.
+				// For single-line editing
+				textInputField = EditText(this).apply {
+					// TODO: [Florian] add on Linear a potential improvement, to add an option struct for that
+					val actionButton = EditorInfo.IME_ACTION_DONE // ✔️ as "enter"/"return" button
+					showSoftInputOnFocus = true
+					imeOptions = actionButton
+					maxLines = 1
+					inputType = InputType.TYPE_CLASS_TEXT
+
+					inputType = when (textType) {
+						kVirtualKeyboardInputNormal -> InputType.TYPE_CLASS_TEXT
+						kVirtualKeyboardInputURL -> InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_URI
+						kVirtualKeyboardInputEmail -> InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS
+						kVirtualKeyboardInputNumber -> InputType.TYPE_CLASS_NUMBER
+						kVirtualKeyboardInputPassword -> InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD
+						kVirtualKeyboardInputPhoneNumber -> InputType.TYPE_CLASS_PHONE
+						else -> InputType.TYPE_CLASS_TEXT
+					}
+					setText(text)
+					setSelection(selectionStart, selectionEnd)
+
+					// TODO: [Florian] check what happens with hardware Enter
+					setOnEditorActionListener { view, actionId, event ->
+						val softKeyboardEnter = (actionId == actionButton)
+						val hardwareEnter = event?.keyCode == KeyEvent.KEYCODE_ENTER && event.action == KeyEvent.ACTION_UP
+
+						if (softKeyboardEnter || hardwareEnter) {
+							imeInsertText(0, "\n")
+							true
+						} else {
+							false
+						}
+					}
+
+					doOnTextChanged { text, cursorAt, _, count ->
+						onTextInputUpdate(text.toString(), cursorAt + count, cursorAt + count)
+					}
+
+					addContentView(this, ViewGroup.LayoutParams(1, 1))
+					requestFocus()
+					WindowCompat.getInsetsController(window, this).show(WindowInsetsCompat.Type.ime())
 				}
-				textInputField.setText(text)
-				textInputField.setSelection(selectionStart, selectionEnd)
-				textInputField.requestFocus()
-				inputMethodManager.showSoftInput(textInputField, InputMethodManager.SHOW_IMPLICIT)
-				textInputActive = true
 			}
 			else {
-				textInputActive = false
-				textInputField.text.clear()
-				textInputField.clearFocus()
-				inputMethodManager.hideSoftInputFromWindow(textInputField.windowToken, 0)
-				window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN)
+				textInputField?.let {
+					it.text.clear()
+					it.clearFocus()
+					textInputFocusSink.requestFocus()
+
+					WindowCompat.getInsetsController(window, it).hide(WindowInsetsCompat.Type.ime())
+					window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN)
+
+					(it.parent as? ViewGroup)?.removeView(it)
+					textInputField = null
+				}
 			}
 		}
 	}
@@ -670,12 +644,6 @@ open class ReflexActivity(private val filepathsResourceId: Int) : NativeActivity
 		}
 
 		return insets
-	}
-
-
-	@Suppress("unused") // Used from C++
-	fun isDebuggerAttached(): Boolean {
-		return Debug.isDebuggerConnected()
 	}
 
 

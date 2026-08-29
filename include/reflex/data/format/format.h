@@ -36,9 +36,9 @@ public:
 
 	void Reset(PropertySet & data) const;
 
-	bool Decode(PropertySet & out, const Archive::View & in, UInt32 options = 0) const;
+	bool Decode(PropertySet & out, const Archive::View & in, const PropertySet & options = PropertySet::null) const;
 
-	bool Encode(Archive & out, const PropertySet & in) const;
+	bool Encode(Archive & out, const PropertySet & in, const PropertySet & options = PropertySet::null) const;
 
 
 
@@ -46,9 +46,9 @@ protected:
 
 	virtual void OnReset(PropertySet & data) const = 0;
 
-	virtual bool OnDecode(PropertySet & out, const Archive::View & in, UInt32 options) const = 0;
+	virtual bool OnDecode(PropertySet & out, const Archive::View & in, const PropertySet & options) const = 0;
 
-	virtual bool OnEncode(Archive & out, const PropertySet & in, UInt32 options) const = 0;
+	virtual bool OnEncode(Archive & out, const PropertySet & in, const PropertySet & options) const = 0;
 
 
 	REFLEX_IF_DEBUG(bool CheckTypes(const PropertySet & data) const;)

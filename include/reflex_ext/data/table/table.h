@@ -514,7 +514,7 @@ template <bool CONST> template <class TYPE> inline TYPE Reflex::Data::Table::Cel
 template <class TYPE, bool CONST>
 struct Reflex::Data::Table::ValueCellImpl : public CellPtrImpl <CONST>
 {
-	static constexpr NullType verify[IsScalar<TYPE>::value];
+	REFLEX_STATIC_ASSERT(kIsScalar<TYPE>||kIsType<NonConstT<TYPE>,Key32>);
 
 	using CellPtrImpl<CONST>::CellPtrImpl;
 

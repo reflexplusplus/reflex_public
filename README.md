@@ -3,28 +3,61 @@
 C++20 cross-platform framework for building audio plugins (VST3, CLAP, VST2, AU,
 AUv3) and GUI applications. Targets macOS, iOS, Windows, Linux, and WebAssembly.
 
-This repository ships the public headers, CMake integration, and a small amount
-of source. Prebuilt static libraries for each platform are attached to the
-[GitHub Releases](https://github.com/reflexplusplus/reflex_public/releases) and
-are **downloaded automatically** the first time you configure — there is no
-manual install step.
+This repository provides the public headers, CMake integration, and the
+`reflex_ext` source. Reflex++ also requires prebuilt static libraries, which can
+be installed via the ReflexCLI or fetched by CMake.
 
-## Requirements
+## Installation via ReflexCLI
+
+### Bootstrap the CLI
+
+Run the appropriate bootstrap command in Terminal on macOS or PowerShell on
+Windows. It creates a Reflex++ folder, downloads the CLI, and adds it to your
+`PATH`.
+
+macOS:
+
+```sh
+curl -fsSL https://reflexplusplus.dev/install/macos/bootstrap.sh | sh
+```
+
+Windows (PowerShell):
+
+```powershell
+irm https://reflexplusplus.dev/install/win/bootstrap.ps1 | iex
+```
+
+Restart Terminal or PowerShell, then install the SDK and prebuilt binaries:
+
+```sh
+reflex install
+```
+
+For more information, see
+[Download Reflex++](https://reflexplusplus.dev/download).
+
+## Installation via CMake
+
+### Requirements
 
 - CMake **3.22+**
 - A C++20 compiler (Apple Clang, MSVC 2022, or Clang/GCC on Linux)
 
-## Add Reflex to your project
-
-### FetchContent (recommended)
+### FetchContent
 
 ```cmake
 include(FetchContent)
+set(REFLEX_VERSION "v0.3.19")
+
 FetchContent_Declare(reflex
     GIT_REPOSITORY https://github.com/reflexplusplus/reflex_public.git
-    GIT_TAG        v0.3.1        # pin a release tag
-    GIT_SHALLOW    TRUE)
+    GIT_TAG        ${REFLEX_VERSION}
+    SOURCE_SUBDIR  nonexistent) # find_package it, don't add as a subproject
 FetchContent_MakeAvailable(reflex)
+
+find_package(Reflex REQUIRED CONFIG
+    PATHS "${reflex_SOURCE_DIR}/cmake"
+    NO_DEFAULT_PATH)
 
 reflex_add_audio_plugin(MyPlugin
     FORMATS Standalone VST3 CLAP AU
@@ -35,20 +68,29 @@ reflex_add_audio_plugin(MyPlugin
     VERSION "1.0.0"
     PACKAGE_ID_VENDOR  "mycompany"
     PACKAGE_ID_PRODUCT "myplugin"
-    AU_TYPE_4CC   "aufx"     # aumu=instrument, aumi=MIDI fx, aufx=effect
-    AU_UID_4CC    "MyPl"
+    AU_COMPONENTS "MyPl:aufx:My Plugin" # subtype:type[:name]; separate components with commas
     AU_VENDOR_4CC "MyCo")
 ```
 
-`FetchContent_MakeAvailable(reflex)` downloads the matching prebuilt libraries
-for your platform from the `v0.3.1` release, then exposes the `Reflex::*` targets
-and the `reflex_add_*` helpers. Pin `GIT_TAG` to a release tag so the source and
-the downloaded libraries always match.
+This downloads the matching prebuilt libraries for your platform and exposes
+the `Reflex::*` targets and `reflex_add_*` helpers. Pin `REFLEX_VERSION` to a
+release tag so the source and downloaded libraries always match.
 
 ### CPM
 
 ```cmake
-CPMAddPackage("gh:reflexplusplus/reflex_public@0.3.1")
+include(cmake/CPM.cmake)
+set(REFLEX_VERSION "v0.3.19")
+
+CPMAddPackage(
+    NAME           reflex
+    GIT_REPOSITORY https://github.com/reflexplusplus/reflex_public.git
+    GIT_TAG        ${REFLEX_VERSION}
+    DOWNLOAD_ONLY  YES)
+
+find_package(Reflex REQUIRED CONFIG
+    PATHS "${reflex_SOURCE_DIR}/cmake"
+    NO_DEFAULT_PATH)
 
 reflex_add_app(MyApp
     SOURCES code/app.cpp code/entry.cpp ${REFLEX_ROOT}/src/reflex_ext.cpp
