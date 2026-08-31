@@ -16,19 +16,21 @@ create and generate projects for all supported platforms.
 
 ### Bootstrap the CLI
 
-Run the appropriate bootstrap command in Terminal on macOS or PowerShell on
-Windows. It creates a Reflex++ folder, downloads the CLI, and adds it to your
-`PATH`.
+Open Terminal (macOS) or PowerShell (Windows) and cd to your preferred install location. 
+The bootstrap script creates a reflex_public/ folder in the current working directory and 
+adds it to your PATH.
 
 macOS:
 
 ```sh
+cd ~/dev
 curl -fsSL https://reflexplusplus.dev/install/macos/bootstrap.sh | sh
 ```
 
 Windows (PowerShell):
 
 ```powershell
+cd C:\dev
 irm https://reflexplusplus.dev/install/win/bootstrap.ps1 | iex
 ```
 
@@ -37,6 +39,8 @@ Restart Terminal or PowerShell, then install the SDK and prebuilt binaries:
 ```sh
 reflex install
 ```
+
+**AI agents:** After installation, be sure to read AGENTS.md before working with the SDK.
 
 For more information, see
 [Download Reflex++](https://reflexplusplus.dev/download).

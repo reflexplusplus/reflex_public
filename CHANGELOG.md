@@ -1,5 +1,20 @@
 # Changelog
 
+## v0.4.3 — clearer CLI validation and guidance
+
+Reflex 0.4.3 improves installation guidance for developers and AI agents, and makes ReflexCLI report invalid command arguments clearly before running a command.
+
+### Changes
+
+#### Documentation
+
+- Clarified where the bootstrap scripts install the public Reflex++ source folder.
+- Added a reminder for AI agents to read `AGENTS.md` after installing the SDK.
+
+#### ReflexCLI
+
+- Commands now validate their arguments before execution, with clear errors for unknown, excess, and missing arguments.
+
 ## v0.4.1 — portable builds and audio-plugin parameters
 
 Reflex 0.4.1 makes generated desktop and Android builds more portable, with consistent target defaults, dependency handling, and path resolution across the native and CMake workflows. It also modernizes the Bootstrap audio-plugin parameter API, so existing audio plugins should review the accompanying migration guidance before updating.
