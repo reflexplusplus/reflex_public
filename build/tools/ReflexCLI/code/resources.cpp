@@ -1065,9 +1065,9 @@ const Reflex::File::EnumerableEmbeddedResource ReflexCLI::ProjectGen::Android::g
 //
 //app.build.gradle
 
-const Reflex::UInt64 kReflexCLI_ProjectGen_Android_app_build_gradle[102] =
+const Reflex::UInt64 kReflexCLI_ProjectGen_Android_app_build_gradle[103] =
 {
-	0x6c7007f3000004c7ull, 0x0a7b20736e696775ull, 0x6c287361696c6109ull, 0x24f300162e736269ull, 0x64696f72646e612eull, 0x6163696c7070612eull, 0x0a7d0a296e6f6974ull, 0x6f7270206665640aull, 
+	0x6c7007f3000004d2ull, 0x0a7b20736e696775ull, 0x6c287361696c6109ull, 0x24f300162e736269ull, 0x64696f72646e612eull, 0x6163696c7070612eull, 0x0a7d0a296e6f6974ull, 0x6f7270206665640aull, 
 	0x746f6f527463656aull, 0x28656c6966203d20ull, 0x4405f200167b2422ull, 0x6c6f7362612e7269ull, 0x7d68746150657475ull, 0x2203f300032e2e2full, 0x696e6f6e61632e29ull, 0x0a656c69466c6163ull, 
 	0x15f000830000650aull, 0x63617073656d616eull, 0x4341505b203d2065ull, 0x5d44495f4547414bull, 0x6c69706d6f63090aull, 0x0df0001b6b645365ull, 0x5f44494f52444e41ull, 0x64090a0a5d4b4453ull, 
 	0x6f43746c75616665ull, 0x091700486769666eull, 0x09003264492000b1ull, 0x4a6e696d094b004dull, 0x8b004e4e494d3200ull, 0x7465677261740909ull, 0x0907f0006a010020ull, 0x736566696e616d09ull, 
@@ -1079,10 +1079,10 @@ const Reflex::UInt64 kReflexCLI_ProjectGen_Android_app_build_gradle[102] =
 	0x0026272824001850ull, 0x6f2d02f602ee2d13ull, 0x2e657a696d697470ull, 0x22202c2927747874ull, 0x2e73656c7572a600ull, 0xff0301df276f7270ull, 0xe3020383704f2002ull, 0x6372756f730af201ull, 
 	0x697461706d6f4365ull, 0x4a207974696c6962ull, 0x2ea0026156617661ull, 0x5f4e4f4953524556ull, 0x2d0f02d402026431ull, 0x425b0a7d03ff1300ull, 0x4145465f444c4955ull, 0x02445d5345525554ull, 
 	0x74617044028c0706ull, 0x614d4327b2040868ull, 0xdf737473694c656bull, 0xa502f90301280000ull, 0x32322e3327203d20ull, 0x720a7d2400df312eull, 0x4f4954434115f100ull, 0x495452415b5d534eull, 
-	0x54554f5f54434146ull, 0x7065645d53545550ull, 0xe269636e65646e65ull, 0x455045445b01f002ull, 0x534549434e45444eull, 0x00000000000a7d5dull, 
+	0x54554f5f54434146ull, 0x7065645d53545550ull, 0xe269636e65646e65ull, 0x4e455045445be002ull, 0x5d534549434e4544ull, 0x494e474953900041ull, 0x000000000a5d474eull, 
 };
 
-const Reflex::File::EmbeddedResource ReflexCLI::ProjectGen::Android::app_build_gradle = { { reinterpret_cast<const Reflex::UInt8*>(&kReflexCLI_ProjectGen_Android_app_build_gradle), 811u }, 1223u };
+const Reflex::File::EmbeddedResource ReflexCLI::ProjectGen::Android::app_build_gradle = { { reinterpret_cast<const Reflex::UInt8*>(&kReflexCLI_ProjectGen_Android_app_build_gradle), 820u }, 1234u };
 
 
 
@@ -1099,22 +1099,6 @@ const Reflex::UInt64 kReflexCLI_ProjectGen_Android_build_gradle[28] =
 };
 
 const Reflex::File::EmbeddedResource ReflexCLI::ProjectGen::Android::build_gradle = { { reinterpret_cast<const Reflex::UInt8*>(&kReflexCLI_ProjectGen_Android_build_gradle), 221u }, 218u };
-
-
-
-
-//
-//CMakeConfiguration.txt
-
-const Reflex::UInt64 kReflexCLI_ProjectGen_Android_CMakeConfiguration_txt[29] =
-{
-	0x666944f50000011full, 0x5449444e4f435b28ull, 0x505b0a295d4e4f49ull, 0x5d534547414b4341ull, 0x6f72705f74657309ull, 0x4154287974726570ull, 0x494c5b2054454752ull, 0x50205d5952415242ull, 
-	0x2059545245504f52ull, 0x4e4154535f585843ull, 0x50435b2044524144ull, 0x0a295d04f8000e50ull, 0x5f74656772617409ull, 0x2873656372756f73ull, 0x4554415649c00040ull, 0x704352554f535b0aull, 
-	0x4e495b0a290ef000ull, 0x49445f4544554c43ull, 0x4549524f54434552ull, 0x4e494645445b5d53ull, 0x6f63ef004c030021ull, 0x706f5f656c69706dull, 0xa00200546e6f6974ull, 0x5f454c49504d4f43ull, 
-	0x03005c0200d7504full, 0x001502005c0a00baull, 0x4b4e494c45006701ull, 0x6669646e65800031ull, 0x00000000000a2928ull, 
-};
-
-const Reflex::File::EmbeddedResource ReflexCLI::ProjectGen::Android::CMakeConfiguration_txt = { { reinterpret_cast<const Reflex::UInt8*>(&kReflexCLI_ProjectGen_Android_CMakeConfiguration_txt), 227u }, 287u };
 
 
 

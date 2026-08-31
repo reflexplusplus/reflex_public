@@ -79,6 +79,21 @@ function(_reflex_build_config_expression output config value)
     endif()
 endfunction()
 
+function(_reflex_build_apply_target_defaults target)
+    _reflex_build_require_target("${target}")
+    if(MSVC)
+        target_compile_options(${target} PRIVATE /MP)
+    endif()
+    if(WIN32)
+        target_compile_definitions(${target} PRIVATE UNICODE _UNICODE)
+    endif()
+    if(CMAKE_GENERATOR STREQUAL "Xcode")
+        set_target_properties(${target} PROPERTIES
+            XCODE_GENERATE_SCHEME ON
+            XCODE_SCHEME_ENVIRONMENT "MALLOC_PERMIT_INSANE_REQUESTS=1")
+    endif()
+endfunction()
+
 function(reflex_add_target target)
     cmake_parse_arguments(PARSE_ARGV 1 ARG "" "TYPE" "SOURCES")
     if(ARG_UNPARSED_ARGUMENTS)
@@ -103,17 +118,15 @@ function(reflex_add_target target)
         add_library(${target} STATIC ${ARG_SOURCES})
     elseif(_type STREQUAL "DYNAMIC_LIBRARY")
         add_library(${target} SHARED ${ARG_SOURCES})
+    elseif(_type STREQUAL "MODULE_LIBRARY")
+        add_library(${target} MODULE ${ARG_SOURCES})
     else()
         message(FATAL_ERROR
-            "reflex_add_target(${target}): TYPE must be CONSOLE, APP, STATIC_LIBRARY, or DYNAMIC_LIBRARY")
+            "reflex_add_target(${target}): TYPE must be CONSOLE, APP, STATIC_LIBRARY, DYNAMIC_LIBRARY, or MODULE_LIBRARY")
     endif()
 
-    # Visual Studio project generation always selects the Unicode character
-    # set. Match that semantic for CMake targets so Windows API aliases resolve
-    # to their wide-character forms when Reflex platform sources are compiled.
-    if(WIN32)
-        target_compile_definitions(${target} PRIVATE UNICODE _UNICODE)
-    endif()
+    # Match the native emitters' baseline compiler settings.
+    _reflex_build_apply_target_defaults(${target})
 endfunction()
 
 function(reflex_target_set_cpp_standard target standard)
@@ -472,6 +485,21 @@ function(reflex_target_add_build_action target)
             endforeach()
             set(ARG_${_kind} ${_configured})
         endforeach()
+    endif()
+
+    # PRE_BUILD is a genuine pre-compilation event only for Visual Studio, but
+    # its target signature cannot express dependencies.
+    if(ARG_PHASE STREQUAL "PRE_BUILD"
+            AND CMAKE_GENERATOR MATCHES "^Visual Studio"
+            AND NOT ARG_INPUTS
+            AND (ARG_ALWAYS_RUN OR NOT ARG_OUTPUTS))
+        add_custom_command(TARGET ${target} PRE_BUILD
+            COMMAND ${ARG_COMMAND}
+            WORKING_DIRECTORY "${ARG_WORKING_DIRECTORY}"
+            BYPRODUCTS ${ARG_OUTPUTS}
+            COMMENT "${ARG_NAME}"
+            VERBATIM COMMAND_EXPAND_LISTS)
+        return()
     endif()
 
     if(ARG_PHASE STREQUAL "POST_BUILD")

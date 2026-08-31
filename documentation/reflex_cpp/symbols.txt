@@ -24412,6 +24412,16 @@
 					Name: "data";
 				},
 
+				{
+					IsConst: true;
+
+					IsRef: true;
+
+					@UInt64 TypeID: 13039646562789154425;
+
+					Name: "options";
+				},
+
 			];
 		},
 
@@ -24465,7 +24475,11 @@
 				},
 
 				{
-					@UInt64 TypeID: 15243775351508400843;
+					IsConst: true;
+
+					IsRef: true;
+
+					@UInt64 TypeID: 13039646562789154425;
 
 					Name: "options";
 				},
@@ -24560,6 +24574,16 @@
 					Name: "propertyset";
 				},
 
+				{
+					IsConst: true;
+
+					IsRef: true;
+
+					@UInt64 TypeID: 13039646562789154425;
+
+					Name: "options";
+				},
+
 			];
 		},
 
@@ -24608,6 +24632,16 @@
 					@UInt64 TypeID: 13039646562789154425;
 
 					Name: "propertyset";
+				},
+
+				{
+					IsConst: true;
+
+					IsRef: true;
+
+					@UInt64 TypeID: 13039646562789154425;
+
+					Name: "options";
 				},
 
 			];
@@ -24751,6 +24785,16 @@
 					Name: "propertyset";
 				},
 
+				{
+					IsConst: true;
+
+					IsRef: true;
+
+					@UInt64 TypeID: 13039646562789154425;
+
+					Name: "options";
+				},
+
 			];
 
 		},
@@ -24803,7 +24847,11 @@
 				},
 
 				{
-					@UInt64 TypeID: 15243775351508400843;
+					IsConst: true;
+
+					IsRef: true;
+
+					@UInt64 TypeID: 13039646562789154425;
 
 					Name: "options";
 				},
@@ -25032,6 +25080,16 @@
 					Name: "in";
 				},
 
+				{
+					IsConst: true;
+
+					IsRef: true;
+
+					@UInt64 TypeID: 13039646562789154425;
+
+					Name: "options";
+				},
+
 			];
 
 		},
@@ -25087,6 +25145,16 @@
 					@UInt64 TypeID: 13039646562789154425;
 
 					Name: "out";
+				},
+
+				{
+					IsConst: true;
+
+					IsRef: true;
+
+					@UInt64 TypeID: 13039646562789154425;
+
+					Name: "options";
 				},
 
 			];
@@ -27462,6 +27530,44 @@
 					@UInt64 TypeID: 5520716365486586571;
 
 					Name: "path";
+				},
+
+			];
+
+		},
+
+		{
+			Return:
+			{
+				@UInt64 TypeID: 18046280970012949195;
+			};
+
+			Arguments:
+			[
+				{
+					IsConst: true;
+
+					IsRef: true;
+
+					@UInt64 TypeID: 5520716365486586571;
+
+					Name: "base_dir";
+				},
+
+				{
+					IsConst: true;
+
+					IsRef: true;
+
+					@UInt64 TypeID: 5520716365486586571;
+
+					Name: "path";
+				},
+
+				{
+					@UInt64 TypeID: 8976997392607876357;
+
+					Name: "case_sensitive";
 				},
 
 			];

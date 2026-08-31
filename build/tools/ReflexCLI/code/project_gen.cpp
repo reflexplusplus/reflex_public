@@ -16,7 +16,7 @@ Array<PathDesc> GetPaths(const Data::PropertySet & values, CString::View name)
 REFLEX_NOINLINE Array<Variable> GetVariables(const ValidatedPropertySet & values, Key32 property, const Data::KeyMap & keymap)
 {
 	Array<const ValidatedPropertySet *> scopes;
-	for (auto scope = &values; scope; scope = DynamicCast<ValidatedPropertySet>(*scope->parent)) scopes.Push(scope);
+	for (auto scope = &values; scope; scope = scope->parent ? scope->parent.Adr() : nullptr) scopes.Push(scope);
 
 	Array<Variable> result;
 	UInt index = scopes.GetSize();
@@ -24,7 +24,7 @@ REFLEX_NOINLINE Array<Variable> GetVariables(const ValidatedPropertySet & values
 	{
 		if (scopes[index - 1]->type == kPropertySetTypeProject)
 		{
-			auto project = static_cast<const Project *>(scopes[index - 1]);
+			auto project = Cast<Project>(scopes[index - 1]);
 			result = project->GetDocumentVariables(property);
 			--index;
 		}
@@ -79,6 +79,7 @@ void ResolveTargetDependencies(Project & project)
 		if (states[index] == 2) return;
 		states[index] = 1;
 		for (auto & dependency : target->GetDependencies()) validate_acyclic(dependency, validate_acyclic);
+		target->ResolveIncludeDirectories();
 		states[index] = 2;
 	};
 	for (auto & target : project_targets) validate_acyclic(target, validate_acyclic);
@@ -87,11 +88,12 @@ void ResolveTargetDependencies(Project & project)
 void DecodeProjectDocument(Project & project, Array<Reference<Project>> & projects, WString::View path, const Data::PropertySet & options)
 {
 	auto filename = File::ResolveRelativePath(File::CorrectStrokes(path));
-	Require(File::Exists(filename), kProjectInclude, Join("file not found ", EncodeUTF8(filename)));
+	auto blob = File::Open(filename);
+	Require(True(blob), "file not found", EncodeUTF8(filename));
 
 	// Decode generically first to discover this document's ordered include graph.
 	// Each referenced document retains its own root, keymap, source path, and targets.
-	auto source = Data::DecodePropertySet(Data::kPropertySheetFormat, File::Open(filename), options);
+	auto source = Data::DecodePropertySet(Data::kPropertySheetFormat, blob, options);
 	if (auto error = Data::GetError(source)) ThrowError(ToCString(error.value.a), error.value.c);
 	auto variables = DecodeVariables(source, kNullKey, Data::GetKeyMap(source));
 	for (auto & variable : GetPersistentVariables()) SetVariable(variables, variable.name, variable.value);
@@ -116,17 +118,21 @@ void DecodeProjectDocument(Project & project, Array<Reference<Project>> & projec
 
 REFLEX_END_INTERNAL
 
+REFLEX_BOOTSTRAP_NULL_INSTANCE(ReflexCLI::ProjectGen, PathGroup);
 REFLEX_BOOTSTRAP_NULL_INSTANCE(ReflexCLI::ProjectGen, Project);
 REFLEX_BOOTSTRAP_NULL_INSTANCE(ReflexCLI::ProjectGen, Target);
 
 Reflex::Reference<ReflexCLI::ProjectGen::Project> ReflexCLI::ProjectGen::Project::Acquire(Array<Reference<Project>> & projects, WString::View cfg_path, const Data::KeyMap * shared_keymap)
 {
-	auto filename = File::ResolveRelativePath(File::CorrectStrokes(cfg_path));
+	auto filename = ResolveAbsolutePathCase(File::ResolveRelativePath(File::CorrectStrokes(cfg_path)));
+
 	for (auto & project : projects)
 	{
-		if (project->m_cfg_path != filename) continue;
-		Require(project->m_initialized, "circular project include", EncodeUTF8(filename));
-		return project;
+		if (project->m_cfg_path == filename)
+		{
+			Require(project->m_initialized, "circular include", EncodeUTF8(filename));
+			return project;
+		}
 	}
 
 	Reference<Data::KeyMap> created_keymap;
@@ -140,7 +146,6 @@ Reflex::Reference<ReflexCLI::ProjectGen::Project> ReflexCLI::ProjectGen::Project
 	project->m_root = File::SplitFilename(filename).a;
 	projects.Push(project);
 	auto options = Data::GetPropertySet(Bootstrap::global->prefs, kPersistentVariables);
-	Require(File::Exists(filename), "project does not exist", filename);
 	DecodeProjectDocument(*project, projects, filename, options);
 	project->Initialize(filename);
 	project->m_initialized = true;
@@ -223,6 +228,13 @@ void ReflexCLI::ProjectGen::Project::Initialize(WString::View source_cfg_path)
 	m_root = File::SplitFilename(m_cfg_path).a;
 	m_format = UInt32(Data::GetInt32(values, kFormat));
 	Require(m_format == 1, "format", "unsupported format version");
+
+	if (auto value = Data::GetCString(values, kGeneratedDirectory))
+	{
+		constexpr char disallow[] = { L'~', ':', '/', '\\', '.' };
+		for (auto i : disallow) Require(!Search(value, i), kGeneratedDirectory, "must name an immediate sub-folder");
+		m_generated_directory = File::CorrectTrailingStroke(DecodeUTF8(value));
+	}
 
 	auto keymap = Data::AcquireKeyMap(values);
 
@@ -321,7 +333,9 @@ ReflexCLI::ProjectGen::TargetPlatform::TargetPlatform(Target & target, PlatformP
 		if (configuration->type != kPropertySetTypeConfiguration) continue;
 		if (!configuration->IsEnabled()) continue;
 
-		auto configuration_dependencies = configuration->GetKeys(MakeKey32(kDependencies));
+		Array<Key32> configuration_dependencies;
+		if (auto dependencies = configuration->QueryProperty<AppendableKeys>(MakeKey32(kDependencies)))
+			configuration_dependencies.Append(dependencies->values);
 		if (m_configurations)
 		{
 			bool identical = dependency_ids.GetSize() == configuration_dependencies.GetSize();
@@ -383,6 +397,26 @@ void ReflexCLI::ProjectGen::Target::ResolveDependencies()
 			if (!exists) m_dependencies.Push(std::move(dependency));
 		}
 		platform->m_dependency_names.Clear();
+	}
+}
+
+void ReflexCLI::ProjectGen::Target::ResolveIncludeDirectories()
+{
+	for (auto & platform : m_platforms)
+	{
+		for (auto & configuration : platform->GetTargetConfigurations())
+		{
+			Array<const TargetConfiguration *> dependencies;
+			for (auto & dependency : platform->GetDependencies())
+			{
+				auto dependency_platform = dependency->FindPlatform(platform->GetPlatform());
+				REFLEX_ASSERT(dependency_platform);
+				auto dependency_configuration = dependency_platform->FindConfiguration(configuration->GetName());
+				REFLEX_ASSERT(dependency_configuration);
+				dependencies.Push(dependency_configuration);
+			}
+			configuration->ResolveIncludeDirectories(dependencies);
+		}
 	}
 }
 
@@ -590,7 +624,9 @@ Reflex::Array<Reflex::CString> ReflexCLI::ProjectGen::TargetConfiguration::GetSt
 {
 	Key32 id = property;
 	Array<CString> result;
-	for (auto & value : m_source->GetCStrings(id))
+	auto values = m_source->QueryProperty<Data::ArrayOfCStringProperty>(id);
+	if (!values) return result;
+	for (auto & value : values->value)
 	{
 		auto expanded = Expand(value);
 		Require(!Search(result, expanded), property, "duplicate value");
@@ -618,6 +654,12 @@ Reflex::Array<ReflexCLI::Variable> ReflexCLI::ProjectGen::TargetConfiguration::G
 }
 
 Reflex::Reference<ReflexCLI::ProjectGen::PathGroup> ReflexCLI::ProjectGen::TargetConfiguration::GetPaths(bool folders, CString::View property) const
+{
+	if (property == kIncludeDirectories && m_include_directories) return m_include_directories;
+	return GetDeclaredPaths(folders, property);
+}
+
+Reflex::Reference<ReflexCLI::ProjectGen::PathGroup> ReflexCLI::ProjectGen::TargetConfiguration::GetDeclaredPaths(bool folders, CString::View property) const
 {
 	REFLEX_LOCAL(void,AddWildcard)(const TargetConfiguration & self, Key32 property, PathGroup & group, const PathDesc & base, WString::View suffix, bool recursive)
 	{
@@ -696,10 +738,63 @@ Reflex::Reference<ReflexCLI::ProjectGen::PathGroup> ReflexCLI::ProjectGen::Targe
 	}
 	else
 	{
-		for (auto & source : m_source->GetCStrings(id)) AddPath::Call(*this, folders, property, result, source);
+		if (property == kIncludeDirectories || property == kPublicIncludeDirectories)
+		{
+			if (auto values = m_source->QueryProperty<AppendableStrings>(id))
+				for (auto & source : values->values) AddPath::Call(*this, folders, property, result, source);
+		}
+		else if (auto values = m_source->QueryProperty<Data::ArrayOfCStringProperty>(id))
+		{
+			for (auto & source : values->value) AddPath::Call(*this, folders, property, result, source);
+		}
 	}
 
 	return result;
+}
+
+const ReflexCLI::ProjectGen::PathGroup & ReflexCLI::ProjectGen::TargetConfiguration::GetPublicIncludeDirectories() const
+{
+	REFLEX_ASSERT(m_public_include_directories);
+	return *m_public_include_directories;
+}
+
+void ReflexCLI::ProjectGen::TargetConfiguration::ResolveIncludeDirectories(ArrayView<const TargetConfiguration *> dependencies)
+{
+	auto includes = Make<PathGroup>();
+	auto append = [](PathGroup & target, const PathGroup & source, WString::View source_root)
+	{
+		for (auto path : FlattenPaths(source))
+		{
+			if (source_root && !path.is_absolute)
+			{
+				path.path = ResolvePath(source_root, path);
+				path.source = EncodeUTF8(path.path);
+				path.is_absolute = true;
+			}
+			bool found = false;
+			for (auto & existing : target.paths) if (ComparePath(existing.a, path)) found = true;
+			if (!found) target.paths.Push({ std::move(path), MakeKey32(kIncludeDirectories) });
+		}
+	};
+
+	auto declared_includes = GetDeclaredPaths(true, kIncludeDirectories);
+	append(*includes, *declared_includes, {});
+
+	auto has_public_includes = m_source->QueryProperty<AppendableStrings>(MakeKey32(kPublicIncludeDirectories));
+	auto declared_public_includes = GetDeclaredPaths(true, kPublicIncludeDirectories);
+	append(*includes, *declared_public_includes, {});
+	auto public_includes = Make<PathGroup>();
+	append(*public_includes, has_public_includes ? *declared_public_includes : *declared_includes, {});
+
+	for (auto dependency : dependencies)
+	{
+		auto root = dependency->platform->target->project->GetRoot();
+		append(*includes, dependency->GetPublicIncludeDirectories(), root);
+		append(*public_includes, dependency->GetPublicIncludeDirectories(), root);
+	}
+
+	m_include_directories = includes;
+	m_public_include_directories = public_includes;
 }
 
 Reflex::Float32 ReflexCLI::ProjectGen::TargetConfiguration::GetNumber(Key32 id, Float32 fallback) const
@@ -727,7 +822,8 @@ Reflex::UInt ReflexCLI::ProjectGen::TargetConfiguration::GetEnumIndex(CString::V
 Reflex::Array<ReflexCLI::ProjectGen::Architecture> ReflexCLI::ProjectGen::TargetConfiguration::GetArchitectures() const
 {
 	Array<Architecture> result;
-	for (auto value : m_source->GetKeys(MakeKey32(kArchitectures)))
+	auto values = m_source->QueryProperty<Data::ArrayOfKey32Property>(MakeKey32(kArchitectures));
+	if (values) for (auto value : values->value)
 	{
 		Idx architecture;
 		for (UInt i = 0; i < kArchitectureCount; ++i) if (MakeKey32(kArchitectureNames[i]) == value.value) architecture = i;
@@ -742,12 +838,12 @@ Reflex::Array<ReflexCLI::ProjectGen::BuildActionDesc> ReflexCLI::ProjectGen::Tar
 {
 	Key32 id = kBuildPhases[phase];
 	Array<BuildActionDesc> result;
-	auto refs = m_source->GetPropertySets(id);
+	auto refs = m_source->QueryProperty<AppendablePropertySet>(id);
 	if (refs)
 	{
-		REFLEX_LOOP(idx, refs.GetSize())
+		REFLEX_LOOP(idx, refs->values.GetSize())
 		{
-			TRef value = refs[idx];
+			TRef value = refs->values[idx];
 			BuildActionDesc action;
 			auto default_name = Join(kBuildPhases[phase], '_', '#', ToCString(idx + 1));
 			action.name = Data::GetCString(value, kName, default_name);
@@ -878,24 +974,29 @@ void ReflexCLI::GenerateProject(const WString & path, ArrayView <CString::View> 
 	auto root_project = ProjectGen::Project::Acquire(projects, filename);
 	auto & project = *root_project;
 	
-	Array<Pair<WString, ProjectGen::BuildActionDesc>> post_generate;
+	struct PostGenerateAction
+	{
+		ConstTRef <ProjectGen::Project> project;
+		ProjectGen::BuildActionDesc action;
+	};
+	Array<PostGenerateAction> post_generate;
 	Map <CString,Map<WString>> used_paths;
 
 	auto collect_post_generate = [&post_generate, &used_paths](ArrayView <Reference <ProjectGen::TargetConfiguration>> configs)
 	{
 		for (auto & config : configs)
 		{
-			auto project_root = config->platform->target->project->GetRoot();
+			auto project = config->platform->target->project;
 			for (auto & action : config->GetBuildActions(ProjectGen::kBuildPhasePostGenerate, System::kPlatform))
 			{
 				bool found = false;
-				for (auto & existing : post_generate) if (existing.a == project_root && existing.b == action) found = true;
-				if (!found) post_generate.Push({ project_root, std::move(action) });
+				for (auto & existing : post_generate) if (existing.project == project && existing.action == action) found = true;
+				if (!found) post_generate.Push({ project, std::move(action) });
 			}
 
 			for (auto & path : ProjectGen::FlattenPaths(config->GetPaths(true, ProjectGen::kIncludeDirectories)))
 			{
-				if (path.path) used_paths.Acquire(path.source).Set(ProjectGen::ResolvePath(project_root, path));
+				if (path.path) used_paths.Acquire(path.source).Set(ProjectGen::ResolvePath(project->GetRoot(), path));
 			}
 		}
 	};
@@ -945,10 +1046,10 @@ void ReflexCLI::GenerateProject(const WString & path, ArrayView <CString::View> 
 
 	auto previous = System::GetCurrentDirectory();
 
-	for (auto & item : post_generate)
+	for (auto & [project,action]: post_generate)
 	{
-		Require(System::SetCurrentDirectory(item.a), ProjectGen::kBuildPhases[ProjectGen::kBuildPhasePostGenerate], "failed to set working directory");
-		Require(RunCommand(item.b.command.GetFirst(), Mid(item.b.command, 1), &out), "post_generate failed", item.b.name);
+		Require(System::SetCurrentDirectory(project->GetRoot()), ProjectGen::kBuildPhases[ProjectGen::kBuildPhasePostGenerate], "failed to set working directory");
+		Require(RunCommand(action.command.GetFirst(), Mid(action.command, 1), &out), "post_generate failed", action.name);
 	}
 
 	for (auto & i : used_paths)

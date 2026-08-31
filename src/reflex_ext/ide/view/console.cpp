@@ -85,7 +85,7 @@ struct Console : public Object
 
 Console::~Console()
 {
-	if (GLX::module.IsInitalised())
+	if (GLX::module.IsInitialised())
 	{
 		GLX::Core::Context ctx;
 
@@ -336,7 +336,7 @@ REFLEX_END_INTERNAL
 
 Reflex::TRef <Reflex::Object> Reflex::IDE::AcquireConsole(TRef <GLX::Object> root, const Function <void()> & onclose)
 {
-	REFLEX_ASSERT(IDE::kIsAwake && GLX::module.IsInitalised());
+	REFLEX_ASSERT(IDE::kIsAwake && GLX::module.IsInitialised());
 
 	GLX::Core::Context ctx;
 

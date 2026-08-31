@@ -54,13 +54,13 @@ public:
 	void Deinit();
 
 
-	bool IsInitalised() const { return m_is_initalised; }
+	bool IsInitialised() const { return m_is_initialised; }
 
 
 
 private:
 
-	bool m_is_initalised;	//static variables are zero-initialised
+	bool m_is_initialised;	//static variables are zero-initialised
 
 	mutable UInt8 m_num_module, m_num_member;
 	

@@ -10,6 +10,7 @@ namespace ReflexCLI::ProjectGen
 	constexpr CString::View kFormat = "format";
 	constexpr CString::View kProjectInclude = "include";
 	constexpr CString::View kProjectName = "name";
+	constexpr CString::View kGeneratedDirectory = "generated_directory";
 	constexpr CString::View kDefaultConfiguration = "default_configuration";
 	//constexpr CString::View kVariables = "variables";
 	constexpr CString::View kOutputName = "output_name";
@@ -27,13 +28,15 @@ namespace ReflexCLI::ProjectGen
 	constexpr CString::View kAndroidSdk = "sdk";
 	constexpr CString::View kAndroidMinSdk = "min_sdk";
 	constexpr CString::View kAndroidPackageId = "package_id";
-	constexpr CString::View kAndroidAssets = "assets";
+	constexpr CString::View kAndroidMainSourceSet = "main_source_set";
+	constexpr CString::View kAndroidSigningProperties = "signing_properties";
 	constexpr CString::View kOutputDirectory = "output_directory";
 	constexpr CString::View kIntermediateDirectory = "intermediate_directory";
 	constexpr CString::View kCppStandard = "cpp_standard";
 	constexpr CString::View kRtti = "rtti";
 	constexpr CString::View kDefines = "defines";
 	constexpr CString::View kIncludeDirectories = "include_directories";
+	constexpr CString::View kPublicIncludeDirectories = "public_include_directories";
 	constexpr CString::View kCompilerOptions = "compiler_options";
 	constexpr CString::View kWarningLevel = "warning_level";
 	constexpr CString::View kOptimization = "optimization";
@@ -96,6 +99,8 @@ namespace ReflexCLI::ProjectGen
 
 	struct PathGroup : public Node <PathGroup>
 	{
+		static PathGroup & null;
+
 		using Node<PathGroup>::Attach;
 
 		CString name;
@@ -155,6 +160,7 @@ namespace ReflexCLI::ProjectGen
 		CString::View GetName() const { return m_name; }
 		UInt32 GetFormat() const { return m_format; }
 		WString::View GetCfgPath() const { return m_cfg_path; }
+		WString::View GetGeneratedDirectory() const { return m_generated_directory; }
 		CString::View GetDefaultConfiguration() const { return m_default_configuration; }
 		bool IsLibraryOnly() const { return m_library_only; }
 		WString::View GetRoot() const { return m_root; }
@@ -173,6 +179,7 @@ namespace ReflexCLI::ProjectGen
 		CString m_name;
 		UInt32 m_format = 0;
 		WString m_cfg_path;
+		WString m_generated_directory = L"projects/";
 		CString m_default_configuration;
 		bool m_library_only = false;
 		WString m_root;
@@ -198,6 +205,7 @@ namespace ReflexCLI::ProjectGen
 		const TargetPlatform * FindPlatform(BuildPlatform platform) const;
 
 		void ResolveDependencies();
+		void ResolveIncludeDirectories();
 
 	private:
 		bool m_library = false;
@@ -251,17 +259,22 @@ namespace ReflexCLI::ProjectGen
 		Array <BuildActionDesc> GetBuildActions(BuildPhase phase, System::Platform emission_platform) const;
 		OutputType GetProductType() const;
 		CString GetVariable(CString::View variable, CString::View fallback = {}) const;
+		const PathGroup & GetPublicIncludeDirectories() const;
+		void ResolveIncludeDirectories(ArrayView<const TargetConfiguration *> dependencies);
 
 		const TRef <TargetPlatform> platform;
 
 
 	private:
+		Reference<PathGroup> GetDeclaredPaths(bool folders, CString::View property) const;
 		WString Expand(WString::View value, System::Platform emission_platform = System::kNumPlatform, bool allow_deferred = true) const;
 		CString Expand(CString::View value, System::Platform emission_platform = System::kNumPlatform, bool allow_deferred = true) const;
 		UInt GetEnumIndex(CString::View property, ArrayView<CString::View> names, UInt fallback) const;
 
 		const TRef<ValidatedPropertySet> m_source;
 		Array<Variable> m_variables;
+		Reference<PathGroup> m_include_directories;
+		Reference<PathGroup> m_public_include_directories;
 	};
 
 	struct PlatformTarget

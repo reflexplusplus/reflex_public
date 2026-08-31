@@ -33,12 +33,15 @@ REFLEX_END_INTERNAL
 Reflex::WString ReflexCLI::ProjectGen::MakeProjectFolder(const Project & project, BuildPlatform platform)
 {
 	WString directory = project.GetRoot();
-
-	directory.Append(L"projects/");
-	directory.Append(ToWString(kBuildPlatforms[platform]));
-	directory.Push(File::kStroke);
-
+	directory.Append(project.GetGeneratedDirectory());
 	File::MakePath(directory);
+
+	if (platform != kBuildPlatformCMake)
+	{
+		directory.Append(ToWString(kBuildPlatforms[platform]));
+		directory.Push(File::kStroke);
+		System::MakeDirectory(directory);
+	}
 
 	return directory;
 }

@@ -54,11 +54,11 @@ public:
 		return num_outputs > 0;	//allow processing if at least 1 output
 	}
 
-	void OnProcessRt(UInt num_samples, UInt32 parameter_change_flags, const EventBuffer & events_in, Array <Event> & events_out, const ArrayView <const Float*> & inputs, const ArrayView <Float*> & outputs) override
+	void OnProcessRt(UInt num_samples, UInt32 parameter_group_flags, const EventBuffer & events_in, Array <Event> & events_out, const ArrayView <const Float*> & inputs, const ArrayView <Float*> & outputs) override
 	{
 		auto params = GetParameterValues();
 
-		if (parameter_change_flags & kParameterGroupMode)
+		if (parameter_group_flags & kParameterGroupMode)
 		{
 			switch (params[0].ivalue)
 			{
@@ -80,7 +80,7 @@ public:
 			output.Log("Updating mode");
 		}
 
-		if (parameter_change_flags & kParameterGroupOsc)
+		if (parameter_group_flags & kParameterGroupOsc)
 		{
 			auto f = params[1].fvalue;
 
@@ -243,23 +243,19 @@ Reflex::Array <Reflex::Bootstrap::AudioPlugin::Class> _PRODUCT-NAME-SYMBOL_::Ins
 	return classes;
 }
 
-void _PRODUCT-NAME-SYMBOL_::Instance::PopulateParameters(const Class & cls, ArrayRegion < Pair <Key32, ConstReference <ParamDesc> > > paramdefs)
+void _PRODUCT-NAME-SYMBOL_::Instance::PopulateParameters(const Class & cls, ArrayRegion < Pair <Key32, ConstReference <Bootstrap::ParameterDefinition> > > paramdefs)
 {
 	UInt idx = 0;
 
-	auto add_param = [&paramdefs, &idx](Key32 id, UInt16 change_flags, TRef <ParamDesc> desc)
+	auto add_param = [&paramdefs, &idx](Key32 id, TRef <Bootstrap::ParameterDefinition> desc)
 	{
-		desc->change_flags = change_flags;
-
 		paramdefs[idx++] = { id, desc };
-
-		return desc;
 	};
 
 
-	add_param("mode", kParameterGroupMode, ParamDesc::CreateEnum("Mode", { "Sine", "Square" }, 0));
+	add_param("mode", Bootstrap::DefineEnumParameter(L"Mode", { L"Sine", L"Square" }, 0, kParameterGroupMode));
 
-	add_param("freq", kParameterGroupOsc, ParamDesc::CreateReal("Freq", 100.0f, 1000.0f, 0.0f, 0.0f))->to_string = [](Bootstrap::Value32 value)
+	add_param("freq", Bootstrap::DefineContinuousParameter(L"Freq", 100.0f, 1000.0f, 1.0f, 0.0f, kParameterGroupOsc, [](Bootstrap::Value32 value)
 	{
 		if (value.fvalue >= 1000.0f)
 		{
@@ -269,11 +265,14 @@ void _PRODUCT-NAME-SYMBOL_::Instance::PopulateParameters(const Class & cls, Arra
 		{
 			return Join(ToWString(value.fvalue, 0), L" Hz");
 		}
-	};
+	}));
 
-	add_param("amp", kParameterGroupOsc, ParamDesc::CreateReal("Amp", 0.0f, 1.0f, 0.0f, 0.0f));
+	add_param("amp", Bootstrap::DefineContinuousParameter(L"Amp", 0.0f, 1.0f, 0.0f, 0.0f, kParameterGroupOsc, [](Bootstrap::Value32 value)
+	{
+		return Join(ToWString(value.fvalue * 100.0f, 1), L'%');
+	}));
 
-	add_param("fx", kParameterGroupMode, ParamDesc::CreateBool("FX", false));
+	add_param("fx", Bootstrap::DefineBoolParameter(L"FX", false, kParameterGroupMode));
 
 
 	REFLEX_ASSERT(idx == paramdefs.size);

@@ -1,4 +1,4 @@
-#include "tasks.h"
+#include "project_gen.h"
 #include "reflex_ext/bootstrap/console_app.h"
 
 
@@ -8,8 +8,39 @@ REFLEX_BEGIN_INTERNAL(ReflexCLI)
 
 namespace CLI = Bootstrap::CLI;
 
+constexpr WString::View kTemplatesFolder = L"templates/";
 constexpr Key32 kTasks = "tasks";
 constexpr auto kFirstPositionalArg = K32("value");
+
+Array <WString> GetTemplateLibraryPaths()
+{
+	Array <WString> paths = { GetReflexPath() };
+
+	for (auto & i : Data::GetWStringArray(Bootstrap::global->prefs, kTemplateLibraries))
+	{
+		paths.Push(i);
+	}
+
+	return paths;
+}
+
+void RegisterTemplateLibraryPath(const Data::PropertySet & args, bool add)
+{
+	auto path = CLI::GetFolder(args, "value", add);
+	path = ResolveAbsolutePathCase(path);
+	auto libraries = GetTemplateLibraryPaths();
+	auto idx = Search<CaseInsensitive>(libraries, path);
+	if (add)
+	{
+		if (!idx && File::IsDirectory(Join(path, kTemplatesFolder))) libraries.Push(path);
+	}
+	else if (idx)
+	{
+		libraries.Remove(idx.value);
+	}
+	Remove<CaseInsensitive>(libraries, GetReflexPath());
+	Data::SetWStringArray(Bootstrap::global->prefs, kTemplateLibraries, libraries);
+}
 
 CString GetTemplateID(const TemplateDefinition & tmpl)
 {
@@ -89,19 +120,19 @@ Array <TemplateDefinition> GetTemplates()
 {
 	Array <TemplateDefinition> templates;
 
-	auto root = Join(GetReflexPath(), L"templates/");
-
-	if (!System::IsDirectory(root)) Bootstrap::CLI::ThrowError("no templates/ folder found");
-
-	auto [folders, files] = File::List(root, true);
-
-	for (auto & folder : folders)
+	for (auto & i : GetTemplateLibraryPaths())
 	{
-		auto tmpl = DecodeTemplate(OpenTemplateCfg(Join(root, folder.key)));
-
-		if (tmpl.name.Empty()) continue;
-
-		templates.Push(std::move(tmpl));
+		auto root = Join(i, kTemplatesFolder);
+		auto [folders, files] = File::List(root, true);
+		for (auto & folder : folders)
+		{
+			auto tmpl = DecodeTemplate(OpenTemplateCfg(Join(root, folder.key)));
+			if (tmpl.name)
+			{
+				Require(!SearchTemplate(templates, GetTemplateID(tmpl)), "template", Join("duplicate template id ", GetTemplateID(tmpl)));
+				templates.Push(std::move(tmpl));
+			}
+		}
 	}
 
 	return templates;
@@ -205,9 +236,10 @@ void Create(const Data::PropertySet & args, System::FileHandle & std_out)
 
 	auto templates = GetTemplates();
 
-	Array <CString> template_ids;
-
-	for (auto & i : templates) template_ids.Push(GetTemplateID(i));
+	Array <CString> template_ids = MakeArray(templates, [](const TemplateDefinition & tmpl)
+	{
+		return GetTemplateID(tmpl);
+	});
 
 	auto template_from_args = True(Data::GetCString(args, "template"));
 
@@ -296,11 +328,28 @@ void Create(const Data::PropertySet & args, System::FileHandle & std_out)
 
 	Require(True(ptmpl->platforms), "template platforms", "undefined");
 
-	auto generate_from_args = True(Data::GetCString(args, "generate"));
-	auto generate_arg = select("generate", true, ptmpl->platforms, true);
-	auto targets = FindTargets(generate_arg);
-
-	if (!generate_from_args) prompted_inputs.Push({ "generate", ToWString(generate_arg) });
+	Array <CString::View> targets;
+	if (Data::GetCString(args, "generate"))
+	{
+		targets = FindTargets(select("generate", true, ptmpl->platforms, true));
+	}
+	else
+	{
+		switch (System::kPlatform)
+		{
+		case System::kPlatformWindows: 
+			targets = { "windows", "android", "linux" };
+			break;
+		case System::kPlatformMacOS: 
+			targets = { "macos", "ios", "android" };
+			break;
+		case System::kPlatformLinux: 
+			targets = { "linux", "android" };
+			break;
+		default:
+			break;
+		}
+	}
 
 	Optional <bool> overwrite(CLI::GetBool(args, "overwrite"), prompted_inputs.Empty());
 
@@ -348,6 +397,17 @@ WString GetProjectFolder(const Data::PropertySet & args)
 	return System::GetCurrentDirectory();
 }
 
+Reference <ProjectGen::Project> GetProject(const Data::PropertySet & args)
+{
+	Array<Reference<ProjectGen::Project>> projects;
+	return ProjectGen::Project::Acquire(projects, CLI::GetFilename(args, "path", true, "project.cfg"));
+}
+
+WString GetGeneratedPlatformFolder(const ProjectGen::Project & project, CString::View platform)
+{
+	return Join(project.GetRoot(), project.GetGeneratedDirectory(), ToWString(platform), File::kStroke);
+}
+
 void Build(const Data::PropertySet & args, System::FileHandle & std_out)
 {
 	static constexpr WString::View kPrefix = L"Build ";
@@ -355,7 +415,7 @@ void Build(const Data::PropertySet & args, System::FileHandle & std_out)
 	const auto ext = System::kPlatform == System::kPlatformWindows ? kBat : kCommand;
 	auto platform = Data::GetCString(args, kFirstPositionalArg);
 	Require(True(Search(kBuildPlatforms, platform)), "expected platform", "<windows|macos|linux|ios|android> [configuration]");
-	auto directory = Join(GetProjectFolder(args), L"projects/", ToWString(platform), File::kStroke);
+	auto directory = GetGeneratedPlatformFolder(GetProject(args), platform);
 	auto make_config = [ext](WString::View configuration) { return Join(kPrefix, configuration, File::kDot, ext); };
 
 	Array<WString> scripts;
@@ -386,9 +446,9 @@ void Clean(const Data::PropertySet & args, System::FileHandle & std_out)
 	}
 	if (platforms.Empty()) platforms.Append(Left(kBuildPlatforms, kBuildPlatformCMake));
 
-	auto project_folder = GetProjectFolder(args);
+	auto project = GetProject(args);
 	Array<WString> scripts;
-	for (auto platform : platforms) scripts.Push(Join(project_folder, L"projects/", ToWString(platform), File::kStroke, L"Clean.", ext));
+	for (auto platform : platforms) scripts.Push(Join(project->GetRoot(), project->GetGeneratedDirectory(), ToWString(platform), File::kStroke, L"Clean.", ext));
 
 	RunBuildHelpers(scripts, std_out, "clean");
 }
@@ -405,38 +465,23 @@ void Run(const Data::PropertySet & args, System::FileHandle & std_out)
 
 void Edit(const Data::PropertySet & args)
 {
-	auto platform = Data::GetCString(args, kFirstPositionalArg);
-	Require(True(platform), "expected platform", "<windows|macos|ios|android>");
-
-	auto directory = Join(GetProjectFolder(args), L"projects/", ToWString(platform), File::kStroke);
-	Require(File::Exists(directory), "edit failed", "platform has not been generated");
-
-	auto find_project = [&directory](WString::View extension, bool is_folder)
+	auto platform = Data::GetCString(args, kFirstPositionalArg, kBuildPlatforms[System::kPlatform]);
+	auto project = GetProject(args);
+	auto directory = GetGeneratedPlatformFolder(project, platform);
+	auto get_ide_project = [&project, &directory](WString::View extension)
 	{
-		auto [folders,files] = File::List(directory, false);
-		auto & entries = is_folder ? folders : files;
-		WString result;
-		for (auto & [name, unused] : entries)
-		{
-			if (File::CheckExtension(File::RemoveTrailingStroke(name), extension))
-			{
-				Require(result.Empty(), "edit failed", "multiple IDE projects found");
-				result = Join(directory, name);
-			}
-		}
-		Require(True(result), "edit failed", "IDE project was not found");
-		return result;
+		return Join(directory, ToWString(project->GetName()), File::kDot, extension);
 	};
 
 	switch (MakeKey32(platform))
 	{
 	case K32("windows"):
-		Require(System::Open(find_project(L"sln", false)), "edit failed", "could not open Visual Studio");
+		Require(System::Open(get_ide_project(L"sln")), "edit failed", "could not open Visual Studio");
 		return;
 
 	case K32("macos"):
 	case K32("ios"):
-		Require(System::Open(find_project(L"xcworkspace", true)), "edit failed", "could not open Xcode");
+		Require(System::Open(get_ide_project(L"xcworkspace")), "edit failed", "could not open Xcode");
 		return;
 
 	case K32("android"):
@@ -495,7 +540,9 @@ void ExportState(const Data::PropertySet & args, System::FileHandle & std_out)
 		if (auto tasks = Data::GetPropertySet(Bootstrap::global->prefs, i))
 		{
 			Data::Assimilate(root_keymap, Data::GetKeyMap(tasks));
-			Data::SetPropertySet(root, i, New<Data::PropertySet>(*tasks));
+			auto copy = New<Data::PropertySet>(*tasks);
+			Data::UnsetAll<Data::Key32Property>(copy);
+			Data::SetPropertySet(root, i, copy);
 		}
 	}
 
@@ -509,6 +556,7 @@ void ImportState(const Data::PropertySet & args)
 	if (auto error = Data::GetError(imported)) ThrowError(error.value.c, ToCString(error.value.a));
 	auto keymap = Data::GetKeyMap(imported);
 	if (auto error = Data::GetError(imported)) ThrowError(ToCString(error.value.a), error.value.c);
+	auto task_file_directory = File::RemoveTrailingStroke(File::SplitFilename(path).a);
 
 	if (auto variables = Data::GetPropertySet(imported, kPersistentVariables))
 	{
@@ -544,6 +592,11 @@ void ImportState(const Data::PropertySet & args)
 			auto directory = Data::GetWString(task, "directory");
 			auto commands = Data::GetCStringArray(task, "commands");
 			Require(True(id) && directory && commands.size, "invalid task", "tasks require id, directory, and commands");
+			Data::SetWString(task, "directory", Replace(directory, L"$(TASK_FILE_DIRECTORY)", task_file_directory));
+			Data::SetCStringArray(task, "commands", MakeArray(commands, [replace = EncodeUTF8(task_file_directory)](CString::View i)
+			{
+				return Replace(i, "$(TASK_FILE_DIRECTORY)", replace);
+			}));
 
 			Array<CString> arguments;
 			for (auto & argument : GetCStrings(task, "arguments"))
@@ -576,6 +629,9 @@ const CLI::TaskDef kCommands[] =
 			File::WriteLine(std_out);
 			PrintCommandWithDescription(std_out, "create", "create a new project from a template");
 			PrintCommandWithDescription(std_out, "templates", "list available project templates");
+			//PrintCommandWithDescription(std_out, "template-libraries", "list registered template libraries");
+			//PrintCommandWithDescription(std_out, "add-template-library", "register a library's project templates");
+			//PrintCommandWithDescription(std_out, "remove-template-library", "unregister a library's project templates");
 
 			File::WriteLine(std_out);
 			PrintCommandWithDescription(std_out, "generate", "generate native projects from project.cfg");
@@ -615,7 +671,7 @@ const CLI::TaskDef kCommands[] =
 				print_arg(false, "--vendor <vendor>", "the vendor name for the new project");
 				print_arg(false, "--product <product>", "the product name for the new project");
 				print_arg(false, "--output <folder>", "the destination folder for the generated project");
-				print_arg(true, "--generate <list>", "the platform project(s) to generate, defaults to all supported");
+				print_arg(true, "--generate <list>", "override the platform projects generated for the current host");
 				print_arg(true, "--overwrite false", "allow overwriting source files");
 				return;
 
@@ -627,12 +683,12 @@ const CLI::TaskDef kCommands[] =
 			case K32("build"):
 				print_arg(false, "<platform>", "the generated platform folder, for example windows");
 				print_arg(true, "[configuration]", "run only this configuration, for example debug");
-				print_arg(true, "--path <folder>", "the project folder, defaults to the working folder");
+				print_arg(true, "--path <project.cfg>", "the project description, defaults to ./project.cfg");
 				return;
 
 			case K32("clean"):
 				print_arg(true, "[platform]...", "clean all configurations, defaults to every generated platform");
-				print_arg(true, "--path <folder>", "the project folder, defaults to the working folder");
+				print_arg(true, "--path <project.cfg>", "the project description, defaults to ./project.cfg");
 				return;
 
 			case K32("run"):
@@ -669,6 +725,7 @@ const CLI::TaskDef kCommands[] =
 			case K32("version"):
 			case K32("versions"):
 			case K32("templates"):
+			case K32("template-libraries"):
 			case K32("where"):
 				print_arg(true, "no arguments", "");
 				return;
@@ -678,12 +735,20 @@ const CLI::TaskDef kCommands[] =
 				return;
 
 			case K32("edit"):
-				print_arg(false, "<windows|macos|ios|android>", "the generated IDE project to open");
-				print_arg(true, "--path <folder>", "the project folder, defaults to the working folder");
+				print_arg(true, "[platform]", "the generated IDE project to open, defaults to the current platform");
+				print_arg(true, "--path <project.cfg>", "the project description, defaults to ./project.cfg");
 				return;
 
 			case K32("set-path"):
 				print_arg(false, "<folder>", "the Reflex++ repository to select");
+				return;
+
+			case K32("add-template-library"):
+				print_arg(false, "<folder>", "the library root containing templates/library.cfg");
+				return;
+
+			case K32("remove-template-library"):
+				print_arg(false, "<folder>", "the previously registered library root");
 				return;
 
 			case K32("set"):
@@ -739,7 +804,19 @@ const CLI::TaskDef kCommands[] =
 	}),
 	MakeTask("set-path", [](const Data::PropertySet & args, System::FileHandle & std_out)
 	{
-		SetPath(CLI::GetFolder(args, "value", true), std_out);
+		SetPath(ResolveAbsolutePathCase(CLI::GetFolder(args, "value", true)), std_out);
+	}),
+	MakeTask("template-libraries", [](const Data::PropertySet &, System::FileHandle & std_out)
+	{
+		for (auto & i : GetTemplateLibraryPaths()) File::WriteLine(std_out, i);
+	}),
+	MakeTask("add-template-library", [](const Data::PropertySet & args, System::FileHandle & std_out)
+	{
+		RegisterTemplateLibraryPath(args, true);
+	}),
+	MakeTask("remove-template-library", [](const Data::PropertySet & args, System::FileHandle &)
+	{
+		RegisterTemplateLibraryPath(args, false);
 	}),
 	MakeTask("templates", [](const Data::PropertySet & args, System::FileHandle & std_out)
 	{
@@ -772,10 +849,7 @@ const CLI::TaskDef kCommands[] =
 		}
 		else
 		{
-			for (auto & tmpl : templates)
-			{
-				File::WriteLine(std_out, GetTemplateID(tmpl));
-			}
+			for (auto & tmpl : templates) File::WriteLine(std_out, GetTemplateID(tmpl));
 		}
 	}),
 	MakeTask("install", [](const Data::PropertySet & args, System::FileHandle & std_out)
@@ -823,28 +897,35 @@ const CLI::TaskDef kCommands[] =
 	}),
 	MakeTask("set", [](const Data::PropertySet & args, System::FileHandle & std_out)
 	{
-		auto name = Data::GetCString(args, kFirstPositionalArg);
-		auto value = args.QueryProperty<Data::CStringProperty>(kFirstPositionalArg + 1);
-		Require(IsVariableName(name) && value, "expected variable", "<name> <value>");
+		CString name = Data::GetCString(args, kFirstPositionalArg);
+		auto pvalue = args.QueryProperty<Data::CStringProperty>(kFirstPositionalArg + 1);
+		Require(IsVariableName(name) && pvalue, "expected variable", "<name> <value>");
 		auto variables = Data::AcquirePropertySet(Bootstrap::global->prefs, kPersistentVariables);
-		auto keymap = Data::AcquireKeyMap(*variables);
+		auto keymap = Data::AcquireKeyMap(variables);
 		auto id = Data::RegisterKey(keymap, name);
 		UnsetPersistentVariable(variables, id);
-		if (auto idx = Search(ToView(Reflex::Detail::kFalseTrue), value->value))
+		if (auto idx = Search(ToView(Reflex::Detail::kFalseTrue), pvalue->value))
 		{
-			Data::SetBool(*variables, id, idx.value == 1);
+			Data::SetBool(variables, id, idx.value == 1);
 		}
 		else
 		{
-			Data::SetCString(*variables, id, value->value);
-			Data::SetKey32(*variables, id, Data::RegisterKey(keymap, value->value));
+			CString value = pvalue->value;
+			auto path = DecodeUTF8(pvalue->value);
+			if (File::Exists(path))
+			{
+				value = EncodeUTF8(ResolveAbsolutePathCase(File::CorrectStrokes(path)));
+				value.SetSize(path.GetSize());	//remove trailing stroke if it didnt have one
+			}
+			Data::SetCString(variables, id, value);
+			Data::SetKey32(variables, id, Data::RegisterKey(keymap, value));
 		}
 	}),
 	MakeTask("get", [](const Data::PropertySet & args, System::FileHandle & std_out)
 	{
 		auto name = Data::GetCString(args, kFirstPositionalArg);
 		auto variables = GetPersistentVariables();
-		if (auto variable = FindVariable(variables, name)) File::WriteLine(std_out, EncodeUTF8(variable->value));
+		if (auto variable = FindVariable(variables, name)) File::WriteLine(std_out, variable->value);
 	}),
 	MakeTask("unset", [](const Data::PropertySet & args, System::FileHandle & std_out)
 	{

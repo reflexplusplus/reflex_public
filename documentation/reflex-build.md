@@ -282,7 +282,8 @@ provided libraries and are linked without generating a build target.
 `path` is the exact product path. If omitted, emitters use the symbolic name
 and native toolchain conventions. `cmake_identifier` takes precedence in CMake
 linkage and in Android Prefab consumption. Libraries never produce native
-projects.
+projects. On Android, an `.aar` path is also emitted as a configuration-specific
+Gradle file dependency so its Prefab package is available to CMake.
 
 ### Build settings
 
@@ -292,7 +293,7 @@ projects.
 | `rtti` | Boolean |
 | `optimization` | `none`, `size`, `speed`, or `full` |
 | `defines` | Named string map declared with `@Variables defines` |
-| `include_directories`, `compiler_options` | String or array |
+| `include_directories`, `public_include_directories`, `compiler_options` | String or array |
 | `warning_level` | `none`, `relaxed`, `standard`, or `pedantic` |
 | `floating_point` | `default`, `precise`, `fast`, or `strict` |
 | `runtime_library` | `static` or `dynamic` |
@@ -300,6 +301,11 @@ projects.
 
 Platform and configuration scopes may override these values. Emitters reject
 variation where a native representation requires an invariant value.
+
+`public_include_directories` are available to the declaring target and exported
+to its consumers. `include_directories` remain local when public directories are
+declared; otherwise they are exported for backward compatibility. A target also
+inherits the public include directories of its dependencies.
 
 Preprocessor definitions use variable-map syntax. An empty value emits the
 name alone; a non-empty value emits `NAME=value`. Inherited maps merge by name,

@@ -62,3 +62,5 @@ android {
 
 [BUILD_ACTIONS][ARTIFACT_OUTPUTS]dependencies {
 [DEPENDENCIES]}
+
+[SIGNING]

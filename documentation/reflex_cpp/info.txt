@@ -8052,6 +8052,8 @@ See also Bootstrap::Detail::SetStyle.
 
 409:
 {
+	@WString Description: "#p Returns the mounted volumes as an 'Array<Pair<WString>>'. For each pair, '.a' is the volume's canonical file path (including its trailing '/'), and '.b' is its display name.";
+
 	Path: ["Reflex", "File", "GetVolumes"];
 
 	Module: ["Reflex", "File", "Path"];

@@ -189,6 +189,11 @@ void WriteHeaderFileOnly(Data::Archive & output, UInt indentation, ArrayView<WSt
 	}
 }
 
+void WriteResourceSourceGroup(Data::Archive & output, UInt indentation, ArrayView<WString> paths)
+{
+	if (paths) WriteInvocation(output, indentation, "source_group", L"Resources FILES", paths);
+}
+
 void WriteRuntimeLibrary(Data::Archive & output, UInt indentation, CString::View target, RuntimeLibrary runtime, ArrayView<CString> debug_configurations)
 {
 	Array<WString> values;
@@ -210,27 +215,6 @@ Array<WString> PortablePaths(const TargetConfiguration & config, const PathGroup
 	return result;
 }
 
-bool ContainsPath(ArrayView<PathDesc> paths, const PathDesc & value)
-{
-	for (auto & path : paths) if (path.path == value.path && path.is_absolute == value.is_absolute) return true;
-	return false;
-}
-
-Array<WString> UncommonPaths(const TargetConfiguration & config, const PathGroup & paths, ArrayView<PathDesc> common)
-{
-	Array<WString> result;
-	for (auto & path : FlattenPaths(paths)) if (!ContainsPath(common, path)) result.Push(PortableValue(config, path.path));
-	return result;
-}
-
-enum FileKind : UInt8
-{
-    kFileSources,
-    kFileHeaders,
-    kFileOther,
-    kFileKindCount
-};
-
 enum BuildProperty : UInt8
 {
 	kBuildWarningLevel,
@@ -248,17 +232,12 @@ enum TargetValueKind : UInt8
 	kTargetSources,
 	kTargetHeaders,
 	kTargetOtherFiles,
+	kTargetWindowsResources,
 	kTargetDefinitions,
 	kTargetIncludeDirectories,
 	kTargetCompilerOptions,
 	kTargetLibraries,
 	kTargetValueKindCount
-};
-
-struct CommonFileLists
-{
-	Array<PathDesc> values[kFileKindCount];
-	const TargetConfiguration * context = nullptr;
 };
 
 struct CommonBuildProperties
@@ -274,13 +253,6 @@ struct CommonBuildProperties
 	bool configurations_initialized = false;
 };
 
-struct CommonTargetValues
-{
-	Array<WString> values[kTargetValueKindCount];
-	bool initialized = false;
-};
-
-Array<WString> UncommonFilePaths(const TargetConfiguration & config, FileKind kind, ArrayView<PathDesc> common);
 void IntersectValues(Array<WString> & common, ArrayView<WString> candidate);
 
 Idx IsXCode(BuildPlatform platform)
@@ -296,21 +268,21 @@ Idx IsXCode(BuildPlatform platform)
 	}
 }
 
-Array<WString> TargetConfigurationValues(const Target &, const TargetConfiguration & config, BuildPlatform platform, TargetValueKind kind, const CommonFileLists & common_files, ArrayView<PathDesc> common_include_directories)
+Array<WString> TargetConfigurationValues(const TargetConfiguration & config, BuildPlatform platform, TargetValueKind kind)
 {
+	auto files = GetFiles(config);
 	switch (kind)
 	{
 	case kTargetSources:
-	{
-		auto result = UncommonFilePaths(config, kFileSources, common_files.values[kFileSources]);
-		if (platform == kBuildPlatformWindows) result.Append(PortablePaths(config, *config.GetPaths(false, kWindowsResources)));
-		return result;
-	}
-	case kTargetHeaders: return UncommonFilePaths(config, kFileHeaders, common_files.values[kFileHeaders]);
-	case kTargetOtherFiles: return UncommonFilePaths(config, kFileOther, common_files.values[kFileOther]);
+		return PortablePaths(config, *files.sources);
+	case kTargetHeaders: return PortablePaths(config, *files.headers);
+	case kTargetOtherFiles: return PortablePaths(config, *files.other);
+	case kTargetWindowsResources:
+		if (platform == kBuildPlatformWindows) return PortablePaths(config, *config.GetPaths(false, kWindowsResources));
+		return {};
 	case kTargetDefinitions: return PortableStrings(config, config.GetDefinitions());
 	case kTargetIncludeDirectories:
-		return UncommonPaths(config, *config.GetPaths(true, kIncludeDirectories), common_include_directories);
+		return PortablePaths(config, *config.GetPaths(true, kIncludeDirectories));
 	case kTargetCompilerOptions: return PortableStrings(config, config.GetStrings(kCompilerOptions));
 	case kTargetLibraries:
 	{
@@ -323,27 +295,6 @@ Array<WString> TargetConfigurationValues(const Target &, const TargetConfigurati
 	}
 	default: REFLEX_ASSERT(false); return {};
 	}
-}
-
-CommonTargetValues FindCommonTargetValues(const Target & target, const CommonFileLists & common_files, ArrayView<PathDesc> common_include_directories)
-{
-	CommonTargetValues result;
-	for (auto & platform : target.GetTargetPlatforms())
-	{
-		if (!kPlatformConditions[platform->GetPlatform()]) continue;
-		for (auto & config : platform->GetTargetConfigurations())
-		{
-			if (SetFiltered(result.initialized, true))
-			{
-				REFLEX_LOOP(kind, kTargetValueKindCount) result.values[kind] = TargetConfigurationValues(target, *config, platform->GetPlatform(), TargetValueKind(kind), common_files, common_include_directories);
-			}
-			else
-			{
-				REFLEX_LOOP(kind, kTargetValueKindCount) IntersectValues(result.values[kind], TargetConfigurationValues(target, *config, platform->GetPlatform(), TargetValueKind(kind), common_files, common_include_directories));
-			}
-		}
-	}
-	return result;
 }
 
 Array<WString> BuildPropertyValues(const Project & project, const TargetConfiguration & config)
@@ -438,37 +389,20 @@ void WriteBuildProperty(Data::Archive & output, CString::View target, BuildPrope
 	}
 }
 
-Array<PathDesc> FilePaths(const TargetConfiguration & config, FileKind kind)
+CString CommonTargetValuesVariable(CString::View project_prefix, TargetValueKind kind)
 {
-	auto files = GetFiles(config);
-	switch (kind)
+	constexpr CString::View suffixes[] =
 	{
-	case kFileSources: return FlattenPaths(*files.sources);
-	case kFileHeaders: return FlattenPaths(*files.headers);
-	case kFileOther: return FlattenPaths(*files.other);
-	default: REFLEX_ASSERT(false); return {};
-	}
-}
-
-void IntersectPaths(Array<PathDesc> & common, ArrayView<PathDesc> candidate)
-{
-	Array<PathDesc> intersection;
-	for (auto & path : common)
-		if (ContainsPath(candidate, path)) intersection.Push(std::move(path));
-	common = std::move(intersection);
-}
-
-Array<WString> UncommonFilePaths(const TargetConfiguration & config, FileKind kind, ArrayView<PathDesc> common)
-{
-	Array<WString> result;
-	for (auto & path : FilePaths(config, kind)) if (!ContainsPath(common, path)) result.Push(PortableValue(config, path.path));
-	return result;
-}
-
-CString CommonFilesVariable(CString::View project_prefix, FileKind kind)
-{
-	constexpr CString::View suffixes[] = { "_COMMON_SOURCES", "_COMMON_HEADERS", "_COMMON_OTHER_FILES" };
-	REFLEX_STATIC_ASSERT(GetArraySize(suffixes) == kFileKindCount);
+		"_COMMON_SOURCES",
+		"_COMMON_HEADERS",
+		"_COMMON_OTHER_FILES",
+		"_COMMON_WINDOWS_RESOURCES",
+		"_COMMON_DEFINITIONS",
+		"_COMMON_INCLUDE_DIRECTORIES",
+		"_COMMON_COMPILER_OPTIONS",
+		"_COMMON_LIBRARIES"
+	};
+	REFLEX_STATIC_ASSERT(GetArraySize(suffixes) == kTargetValueKindCount);
 	return Join(project_prefix, suffixes[kind]);
 }
 
@@ -479,10 +413,72 @@ void IntersectValues(Array<WString> & common, ArrayView<WString> candidate)
 	common = std::move(intersection);
 }
 
-Array<WString> UncommonValues(ArrayView<WString> values, ArrayView<WString> common)
+Array<WString> BuildCommonList(const Function<bool(Array<WString> &)> & feed)
+{
+	Array<WString> common;
+	Array<WString> values;
+	bool initialized = false;
+	for (;;)
+	{
+		values.Clear();
+		if (!feed(values)) break;
+		if (!initialized)
+		{
+			common = values;
+			initialized = true;
+		}
+		else IntersectValues(common, values);
+	}
+	return common;
+}
+
+Array<WString> BuildCommonList(ArrayView<Array<WString>> inputs)
+{
+	UInt input = 0;
+	return BuildCommonList([&](Array<WString> & values)
+	{
+		if (input == inputs.size) return false;
+		values = inputs[input++];
+		return true;
+	});
+}
+
+Array<WString> RemoveCommonValues(ArrayView<WString> values, ArrayView<WString> common)
 {
 	Array<WString> result;
 	for (auto & value : values) if (!Search(common, value)) result.Push(value);
+	return result;
+}
+
+struct ListGroup
+{
+	Array<UInt> inputs;
+	Array<WString> values;
+};
+
+Array<ListGroup> BuildListGroups(ArrayView<Array<WString>> inputs)
+{
+	Array<ListGroup> result;
+	auto common = BuildCommonList(inputs);
+	if (common)
+	{
+		ListGroup & group = result.Push({ {}, std::move(common) });
+		REFLEX_LOOP(i, inputs.size) group.inputs.Push(i);
+	}
+
+	for (auto & input : inputs) for (auto & value : input)
+	{
+		bool found = false;
+		for (auto & group : result) if (Search(group.values, value)) found = true;
+		if (found) continue;
+
+		Array<UInt> members;
+		REFLEX_LOOP(i, inputs.size) if (Search(inputs[i], value)) members.Push(i);
+		ListGroup * group = nullptr;
+		for (auto & candidate : result) if (candidate.inputs == members) group = &candidate;
+		if (!group) group = &result.Push({ std::move(members), {} });
+		group->values.Push(value);
+	}
 	return result;
 }
 
@@ -512,6 +508,39 @@ System::Platform EmissionPlatform(BuildPlatform platform)
 	case kBuildPlatformLinux: return System::kPlatformLinux;
 	default: return System::kNumPlatform;
 	}
+}
+
+struct DependencyLists
+{
+	Array<WString> build;
+	Array<WString> link;
+};
+
+DependencyLists GetDependencyLists(const TargetPlatform & platform)
+{
+	DependencyLists result;
+	for (auto & dependency : platform.GetDependencies())
+	{
+		if (!dependency->IsLibrary()) result.build.Push(ToWString(TargetName(dependency->GetName())));
+		auto dependency_platform = dependency->FindPlatform(platform.GetPlatform());
+		REFLEX_ASSERT(dependency_platform);
+		auto dependency_type = GetOutputType(*dependency_platform);
+		if (dependency_type == kOutputType_static_library || dependency_type == kOutputType_dynamic_library)
+			result.link.Push(Value(Identifier(*dependency)));
+	}
+	return result;
+}
+
+struct ProjectCommonLists
+{
+	Array<WString> target_values[kTargetValueKindCount];
+	Array<WString> build_dependencies;
+	Array<WString> link_dependencies;
+};
+
+CString CommonDependencyVariable(CString::View project_prefix, bool link)
+{
+	return Join(project_prefix, link ? "_COMMON_LINK_DEPENDENCIES" : "_COMMON_BUILD_DEPENDENCIES");
 }
 
 void WriteBuildAction(Data::Archive & output, CString::View target, const TargetConfiguration & config, const BuildActionDesc & action, BuildPhase phase, UInt indentation = 1, CString::View configuration = {})
@@ -685,9 +714,8 @@ void WriteProjectDependencies(Data::Archive & output, Project & project, ArrayVi
 }
 
 void WriteTarget(Data::Archive & output, const Project & project, const Target & target,
-	const CommonFileLists & common_files, CString::View common_files_prefix, ArrayView<PathDesc> common_include_directories,
-	CString::View common_include_directories_variable, const CommonBuildProperties & common_build_properties,
-	CString::View common_build_properties_function)
+	const ProjectCommonLists & common_lists, CString::View common_lists_prefix,
+	const CommonBuildProperties & common_build_properties, CString::View common_build_properties_function)
 {
 	Array<const TargetPlatform *> platforms;
 	for (auto & platform : target.GetTargetPlatforms()) if (kPlatformConditions[platform->GetPlatform()]) platforms.Push(platform.Adr());
@@ -738,7 +766,6 @@ void WriteTarget(Data::Archive & output, const Project & project, const Target &
 		Require(platform_debug_runtime_configurations == debug_runtime_configurations, "debug runtime configurations", Join(target.GetName(), ": cannot vary by platform"));
 	}
 
-	auto common_target_values = FindCommonTargetValues(target, common_files, common_include_directories);
 	CString platform_condition;
 	for (auto platform : platforms)
 	{
@@ -757,13 +784,6 @@ void WriteTarget(Data::Archive & output, const Project & project, const Target &
 	if (common_build_properties_function) WriteInvocation(output, 1, common_build_properties_function, ToWString(cmake_target));
 	WriteReflexTargetSetting(output, 1, "cpp_standard", cmake_target, standard == kCppStandard_cxx17 ? L"cxx17" : L"cxx20");
 	WriteInvocation(output, 1, "reflex_target_enable_string_pooling", ToWString(cmake_target));
-	if (common_files.values[kFileSources] || common_files.values[kFileHeaders] || common_files.values[kFileOther])
-	{
-		Array<WString> values;
-		REFLEX_LOOP(kind, kFileKindCount) if (common_files.values[kind]) values.Push(ToWString(Join("${", CommonFilesVariable(common_files_prefix, FileKind(kind)), "}")));
-		WriteTargetValues(output, 1, "target_sources", cmake_target, values);
-	}
-	if (common_include_directories) WriteTargetValues(output, 1, "target_include_directories", cmake_target, { ToWString(Join("${", common_include_directories_variable, "}")) });
 	WriteRuntimeLibrary(output, 1, cmake_target, runtime, debug_runtime_configurations);
 
 	REFLEX_LOOP(property, kBuildPropertyCount)
@@ -771,18 +791,92 @@ void WriteTarget(Data::Archive & output, const Project & project, const Target &
 		if (!common_build_properties.values[property] && target_build_properties[property]) WriteBuildProperty(output, cmake_target, BuildProperty(property), target_build_properties[property]);
 	}
 
-	constexpr CString::View commands[] = { "target_sources", "target_sources", "target_sources", "target_compile_definitions", "target_include_directories", "target_compile_options", "target_link_libraries" };
+	constexpr CString::View commands[] = { "target_sources", "target_sources", "target_sources", "target_sources", "target_compile_definitions", "target_include_directories", "target_compile_options", "target_link_libraries" };
 	REFLEX_STATIC_ASSERT(GetArraySize(commands) == kTargetValueKindCount);
+	REFLEX_LOOP(kind, kTargetValueKindCount) if (common_lists.target_values[kind])
+	{
+		WriteTargetValues(output, 1, commands[kind], cmake_target,
+			{ ToWString(Join("${", CommonTargetValuesVariable(common_lists_prefix, TargetValueKind(kind)), "}")) });
+	}
+	if (common_lists.target_values[kTargetOtherFiles])
+	{
+		WriteResourceSourceGroup(output, 1,
+			{ ToWString(Join("${", CommonTargetValuesVariable(common_lists_prefix, kTargetOtherFiles), "}")) });
+	}
+	if (common_lists.build_dependencies)
+	{
+		WriteInvocation(output, 1, "add_dependencies", ToWString(cmake_target),
+			{ ToWString(Join("${", CommonDependencyVariable(common_lists_prefix, false), "}")) });
+	}
+	if (common_lists.link_dependencies)
+	{
+		WriteTargetValues(output, 1, "target_link_libraries", cmake_target,
+			{ ToWString(Join("${", CommonDependencyVariable(common_lists_prefix, true), "}")) });
+	}
+	Array<Array<WString>> platform_values[kTargetValueKindCount];
+	Array<Array<WString>> link_dependencies;
+	Array<Array<WString>> build_dependencies;
+	Array<WString> other_file_source_group;
+	for (auto platform : platforms)
+	{
+		auto configurations = platform->GetTargetConfigurations();
+		Array<Array<WString>> configured_values[kTargetValueKindCount];
+		for (auto & config : configurations) REFLEX_LOOP(kind, kTargetValueKindCount)
+		{
+			auto values = TargetConfigurationValues(*config, platform->GetPlatform(), TargetValueKind(kind));
+			values = RemoveCommonValues(values, common_lists.target_values[kind]);
+			if (kind == kTargetOtherFiles)
+				for (auto & value : values) if (!Search(other_file_source_group, value)) other_file_source_group.Push(value);
+			configured_values[kind].Push(std::move(values));
+		}
+		REFLEX_LOOP(kind, kTargetValueKindCount)
+		{
+			Array<WString> values;
+			AppendFactoredValues(values, configurations, configured_values[kind]);
+			platform_values[kind].Push(std::move(values));
+		}
+
+		auto dependencies = GetDependencyLists(*platform);
+		link_dependencies.Push(RemoveCommonValues(dependencies.link, common_lists.link_dependencies));
+		build_dependencies.Push(RemoveCommonValues(dependencies.build, common_lists.build_dependencies));
+	}
+
+	auto write_groups = [&](ArrayView<Array<WString>> values, const Function<void(UInt, ArrayView<WString>)> & write)
+	{
+		for (auto & group : BuildListGroups(values))
+		{
+			if (group.inputs.GetSize() == platforms.GetSize()) write(1, group.values);
+			else
+			{
+				CString condition;
+				for (auto input : group.inputs)
+				{
+					if (condition) condition.Append(" OR ");
+					condition.Append(kPlatformConditions[platforms[input]->GetPlatform()]);
+				}
+				WriteLine(output, 1, Join("if(", condition, ")"));
+				write(2, group.values);
+				WriteLine(output, 1, "endif()");
+			}
+		}
+	};
 	REFLEX_LOOP(kind, kTargetValueKindCount)
 	{
-		Array<WString> values;
-		for (auto & value : common_target_values.values[kind]) values.Push(Value(value));
-		WriteTargetValues(output, 1, commands[kind], cmake_target, values);
+		write_groups(platform_values[kind], [&](UInt indentation, ArrayView<WString> values)
+		{
+			WriteTargetValues(output, indentation, commands[kind], cmake_target, values);
+			if (kind == kTargetOtherFiles) WriteHeaderFileOnly(output, indentation, values);
+		});
 	}
-	if (common_target_values.values[kTargetOtherFiles])
+	WriteResourceSourceGroup(output, 1, MakeArray(other_file_source_group, [](WString::View value) { return Value(value); }));
+	write_groups(build_dependencies, [&](UInt indentation, ArrayView<WString> values)
 	{
-		WriteHeaderFileOnly(output, 1, MakeArray(common_target_values.values[kTargetOtherFiles], [](WString::View value) { return Value(value); }));
-	}
+		WriteInvocation(output, indentation, "add_dependencies", ToWString(cmake_target), values);
+	});
+	write_groups(link_dependencies, [&](UInt indentation, ArrayView<WString> values)
+	{
+		WriteTargetValues(output, indentation, "target_link_libraries", cmake_target, values);
+	});
 
 	constexpr BuildPhase action_phases[] = { kBuildPhasePreBuild, kBuildPhasePostBuild };
 	Array<BuildActionDesc> common_actions[GetArraySize(action_phases)];
@@ -821,20 +915,6 @@ void WriteTarget(Data::Archive & output, const Project & project, const Target &
 		{
 			WriteLine(output, 1, Join("if(", kPlatformConditions[platform->GetPlatform()], ")"));
 		}
-
-		Array<WString> link_dependencies;
-		Array<WString> build_dependencies;
-		for (auto & dependency : platform->GetDependencies())
-		{
-			if (!dependency->IsLibrary()) build_dependencies.Push(ToWString(TargetName(dependency->GetName())));
-			auto dependency_platform = dependency->FindPlatform(platform->GetPlatform());
-			REFLEX_ASSERT(dependency_platform);
-			auto dependency_type = GetOutputType(*dependency_platform);
-			if (dependency_type == kOutputType_static_library || dependency_type == kOutputType_dynamic_library)
-				link_dependencies.Push(Value(Identifier(*dependency)));
-		}
-		if (build_dependencies) WriteInvocation(output, indentation, "add_dependencies", ToWString(cmake_target), build_dependencies);
-		WriteTargetValues(output, indentation, "target_link_libraries", cmake_target, link_dependencies);
 
 		WString platform_build_properties[kBuildPropertyCount];
 		bool platform_build_properties_initialized = false;
@@ -914,23 +994,8 @@ void WriteTarget(Data::Archive & output, const Project & project, const Target &
 		for (auto & config : Mid(configurations, 1)) if (config->GetString(kOutputExtension) != common_extension) extension_is_common = false;
 		if (extension_is_common && common_extension) WriteTargetProperty(output, indentation, cmake_target, "SUFFIX", { Value(Join('.', common_extension)) });
 
-		Array<Array<WString>> configured_values[kTargetValueKindCount];
-		Array<WString> factored_values[kTargetValueKindCount];
-		Array<WString> uncommon_other_file_properties;
 		for (auto & config : configurations)
 		{
-			REFLEX_LOOP(kind, kTargetValueKindCount)
-			{
-				auto values = TargetConfigurationValues(target, *config, platform->GetPlatform(), TargetValueKind(kind), common_files, common_include_directories);
-				values = UncommonValues(values, common_target_values.values[kind]);
-				if (kind == kTargetOtherFiles) for (auto & value : values)
-				{
-					auto path = Value(value);
-					if (!Search(uncommon_other_file_properties, path)) uncommon_other_file_properties.Push(std::move(path));
-				}
-				configured_values[kind].Push(std::move(values));
-			}
-
 			if (!extension_is_common)
 			{
 				auto extension = config->GetString(kOutputExtension);
@@ -939,16 +1004,6 @@ void WriteTarget(Data::Archive & output, const Project & project, const Target &
 			auto output_directory = config->GetPath(kOutputDirectory);
 			if (output_directory.path) WriteReflexTargetSetting(output, indentation, "output_directory", cmake_target, Path(*config, output_directory), config->GetName());
 		}
-		REFLEX_LOOP(kind, kTargetValueKindCount)
-		{
-			AppendFactoredValues(factored_values[kind], configurations, configured_values[kind]);
-			WriteTargetValues(output, indentation, commands[kind], cmake_target, factored_values[kind]);
-		}
-		if (uncommon_other_file_properties)
-		{
-			WriteHeaderFileOnly(output, indentation, uncommon_other_file_properties);
-		}
-
 		REFLEX_LOOP(phase_idx, GetArraySize(action_phases))
 		{
 			if (actions_are_common[phase_idx]) continue;
@@ -1009,10 +1064,11 @@ void ReflexCLI::ProjectGen::GenerateCMakeProject(Project & project, BuildPlatfor
 		auto target_platforms = CollectTargetPlatforms(project, selected_platform, generated_platforms);
 		CMake::WriteProjectDependencies(output, project, target_platforms);
 
-		bool common_files_initialized = false;
-		CMake::CommonFileLists common_files;
+		CMake::ProjectCommonLists common_lists;
 		CMake::CommonBuildProperties common_build_properties;
-		Array<PathDesc> common_include_directories;
+		Array<Array<WString>> common_target_value_inputs[CMake::kTargetValueKindCount];
+		Array<Array<WString>> common_build_dependency_inputs;
+		Array<Array<WString>> common_link_dependency_inputs;
 		for (auto & target : project.GetTargets())
 		{
 			if (target->IsLibrary()) continue;
@@ -1020,45 +1076,39 @@ void ReflexCLI::ProjectGen::GenerateCMakeProject(Project & project, BuildPlatfor
 			{
 				if (!CMake::kPlatformConditions[platform->GetPlatform()]) continue;
 				generated_platforms.Push(platform.Adr());
+				auto dependencies = CMake::GetDependencyLists(*platform);
+				common_build_dependency_inputs.Push(std::move(dependencies.build));
+				common_link_dependency_inputs.Push(std::move(dependencies.link));
 				IntersectConfiguredBuildProperties(common_build_properties, project, platform->GetTargetConfigurations());
 				for (auto & config : platform->GetTargetConfigurations())
 				{
 					IntersectBuildProperties(common_build_properties, CMake::BuildPropertyValues(project, *config));
-					if (!common_files_initialized)
-					{
-						REFLEX_LOOP(kind, CMake::kFileKindCount) common_files.values[kind] = FilePaths(*config, CMake::FileKind(kind));
-						common_include_directories = FlattenPaths(*config->GetPaths(true, kIncludeDirectories));
-						common_files.context = config.Adr();
-						common_files_initialized = true;
-						continue;
-					}
-
-					REFLEX_LOOP(kind, CMake::kFileKindCount) CMake::IntersectPaths(common_files.values[kind], CMake::FilePaths(*config, CMake::FileKind(kind)));
-					CMake::IntersectPaths(common_include_directories, FlattenPaths(*config->GetPaths(true, kIncludeDirectories)));
+					REFLEX_LOOP(kind, CMake::kTargetValueKindCount)
+						common_target_value_inputs[kind].Push(CMake::TargetConfigurationValues(*config, platform->GetPlatform(), CMake::TargetValueKind(kind)));
 				}
 			}
 		}
 
-		auto common_files_prefix = Reflex::Uppercase(CMake::TargetName(project.GetName()));
-		auto from_path = [&common_files](const PathDesc & path)
+		auto common_lists_prefix = Reflex::Uppercase(CMake::TargetName(project.GetName()));
+		REFLEX_LOOP(kind, CMake::kTargetValueKindCount)
 		{
-			return CMake::Path(*common_files.context, path);
-		};
-		if (common_files.context)
-		{
-			REFLEX_LOOP(kind, CMake::kFileKindCount)
-			{
-				if (!common_files.values[kind]) continue;
-				CMake::WriteSet(output, 0, CMake::CommonFilesVariable(common_files_prefix, CMake::FileKind(kind)), MakeArray(common_files.values[kind], from_path));
-			}
-			if (common_files.values[CMake::kFileOther])
-			{
-				CMake::WriteHeaderFileOnly(output, 0, { ToWString(Join("${", CMake::CommonFilesVariable(common_files_prefix, CMake::kFileOther), "}")) });
-				Data::WriteLine(output);
-			}
+			common_lists.target_values[kind] = CMake::BuildCommonList(common_target_value_inputs[kind]);
+			if (!common_lists.target_values[kind]) continue;
+			CMake::WriteSet(output, 0, CMake::CommonTargetValuesVariable(common_lists_prefix, CMake::TargetValueKind(kind)),
+				MakeArray(common_lists.target_values[kind], [](WString::View value) { return CMake::Value(value); }));
 		}
-		auto common_include_directories_variable = Join(common_files_prefix, "_COMMON_INCLUDE_DIRECTORIES");
-		CMake::WriteSet(output, 0, common_include_directories_variable, MakeArray(common_include_directories, from_path));
+		if (common_lists.target_values[CMake::kTargetOtherFiles])
+		{
+			CMake::WriteHeaderFileOnly(output, 0,
+				{ ToWString(Join("${", CMake::CommonTargetValuesVariable(common_lists_prefix, CMake::kTargetOtherFiles), "}")) });
+			Data::WriteLine(output);
+		}
+		common_lists.build_dependencies = CMake::BuildCommonList(common_build_dependency_inputs);
+		if (common_lists.build_dependencies)
+			CMake::WriteSet(output, 0, CMake::CommonDependencyVariable(common_lists_prefix, false), common_lists.build_dependencies);
+		common_lists.link_dependencies = CMake::BuildCommonList(common_link_dependency_inputs);
+		if (common_lists.link_dependencies)
+			CMake::WriteSet(output, 0, CMake::CommonDependencyVariable(common_lists_prefix, true), common_lists.link_dependencies);
 		auto common_build_properties_function = Join(Lowercase(CMake::TargetName(project.GetName())), "_apply_common_properties");
 		bool has_common_build_properties = false;
 		REFLEX_LOOP(property, CMake::kBuildPropertyCount)
@@ -1104,7 +1154,7 @@ void ReflexCLI::ProjectGen::GenerateCMakeProject(Project & project, BuildPlatfor
 			if (supported)
 			{
 				if (wrote_target) Data::WriteLine(output);
-				WriteTarget(output, project, *target, common_files, common_files_prefix, common_include_directories, common_include_directories_variable, common_build_properties, common_build_properties_function);
+				WriteTarget(output, project, *target, common_lists, common_lists_prefix, common_build_properties, common_build_properties_function);
 				wrote_target = true;
 			}
 		}

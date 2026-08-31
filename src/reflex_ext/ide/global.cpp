@@ -26,7 +26,7 @@ GlobalImpl::GlobalImpl(Reflex::File::ResourcePool & resourcepool, Data::Property
 	{
 		auto & self = *Cast<GlobalImpl>(pself);
 
-		if (GLX::module.IsInitalised() && ((self.m_counter++ & 31) == 0 || self.m_monitor.Poll()))
+		if (GLX::module.IsInitialised() && ((self.m_counter++ & 31) == 0 || self.m_monitor.Poll()))
 		{
 			GLX::Core::Context context;
 
@@ -54,7 +54,7 @@ GlobalImpl::GlobalImpl(Reflex::File::ResourcePool & resourcepool, Data::Property
 		}
 	}))
 {
-	REFLEX_ASSERT(System::module.IsInitalised());
+	REFLEX_ASSERT(System::module.IsInitialised());
 
 	REFLEX_ASSERT_MAINTHREAD("IDE::GlobalImpl::GlobalImpl");
 
@@ -176,7 +176,7 @@ const bool & Reflex::IDE::kIsAwake = Reflex::IDE::TheGlobal::IsAwake();
 
 Reflex::Reference <Reflex::Object> Reflex::IDE::Start(File::ResourcePool & resourcepool, Data::PropertySet & prefs)
 {
-	REFLEX_ASSERT(File::module.IsInitalised());
+	REFLEX_ASSERT(File::module.IsInitialised());
 	
 	return TheGlobal::Acquire(resourcepool, prefs);
 }

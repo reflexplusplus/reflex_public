@@ -25,25 +25,87 @@ struct Unset : public Object
 	static Unset & null;
 };
 
-struct AppendingArray : public Object
-{
-	REFLEX_OBJECT(AppendingArray, Object);
-	static AppendingArray & null;
-
-	AppendingArray() = default;
-	AppendingArray(TypeID type, Object & values)
-		: type(type)
-		, values(values)
-	{
-	}
-
-	TypeID type = {};
-	Reference<Object, false> values;
-};
-
 REFLEX_END
 
 REFLEX_BEGIN_INTERNAL(ReflexCLI::ProjectGen)
+
+Object * QueryLocalProperty(Data::PropertySet & values, Address address)
+{
+	for (auto & [adr,value] : values.Iterate(address.type_id)) if (adr.id == address.id) return value.Adr();
+	return nullptr;
+}
+
+const Object * QueryLocalProperty(const Data::PropertySet & values, Address address)
+{
+	return QueryLocalProperty(RemoveConst(values), address);
+}
+
+bool IsUnset(Address address)
+{
+	return address.type_id == GetTypeID<Unset>();
+}
+
+bool HasUnset(const Data::PropertySet & values, Key32 id)
+{
+	return QueryLocalProperty(values, MakeAddress<Unset>(id));
+}
+
+template <class TYPE> struct AppendableArrayHandler
+{
+	using Item = typename TYPE::ItemType;
+	using InputArray = ObjectOf<typename TYPE::ValueArray>;
+
+	static void Merge(ValidatedPropertySet & owner, Key32 id, const TYPE & source)
+	{
+		auto address = MakeAddress<TYPE>(id);
+		auto target = Cast<TYPE>(QueryLocalProperty(owner, address));
+		if (!target) target = New<TYPE>().Adr();
+
+		REFLEX_ASSERT(target->local_offset <= target->values.GetSize());
+		REFLEX_ASSERT(source.local_offset <= source.values.GetSize());
+		typename TYPE::ValueArray local;
+		local.Append(Mid(target->values, target->local_offset));
+
+		target->values.Clear();
+		if (!HasUnset(owner, id))
+		{
+			if (owner.parent)
+			{
+				if (auto inherited = owner.parent->QueryProperty<TYPE>(id)) target->values.Append(inherited->values);
+			}
+		}
+		target->local_offset = target->values.GetSize();
+		target->values.Append(local);
+		target->values.Append(Mid(source.values, source.local_offset));
+
+		owner.StoreProperty(address, *target);
+	}
+
+	static void Handle(ValidatedPropertySet & owner, const PropertyRule &, Address address, Object & object)
+	{
+		auto discard = AutoRelease(object);
+		auto incoming = New<TYPE>();
+
+		if (address.type_id == GetTypeID<InputArray>())
+		{
+			incoming->values.Append(Cast<InputArray>(object)->value);
+		}
+		else
+		{
+			if constexpr (kIsObject<Item>)
+			{
+				incoming->values.Push(Cast<Item>(object));
+			}
+			else
+			{
+				REFLEX_ASSERT(address.type_id == GetTypeID<ObjectType<Item>>());
+				incoming->values.Push(Cast<ObjectType<Item>>(object)->value);
+			}
+		}
+
+		Merge(owner, address.id, *incoming);
+	}
+};
 
 struct PropertySheetInterface;
 
@@ -72,17 +134,6 @@ void RequireStructure(bool test, Object & object, CString::View description)
 	if (!test) InvalidStructure(object, description);
 }
 
-Object * QueryLocalProperty(Data::PropertySet & values, Address address)
-{
-	for (auto & item : values.Iterate()) if (item.key == address) return item.value.Adr();
-	return nullptr;
-}
-
-bool IsUnset(Address address)
-{
-	return address.type_id == GetTypeID<Unset>();
-}
-
 void ValidateFiles(const Data::PropertySet & values, Object & owner)
 {
 	auto string_t = GetTypeID<Data::CStringProperty>();
@@ -104,41 +155,11 @@ void ValidateFiles(const Data::PropertySet & values, Object & owner)
 
 Reference<Data::PropertySet> ClonePropertySet(const Data::PropertySet & source, Data::PropertySet * parent = nullptr);
 
-void AppendArray(Object & target, const Object & source, TypeID type)
-{
-	if (type == GetTypeID<Data::ArrayOfCStringProperty>()) Cast<Data::ArrayOfCStringProperty>(target)->value.Append(Cast<Data::ArrayOfCStringProperty>(source)->value);
-	else if (type == GetTypeID<Data::ArrayOfKey32Property>()) Cast<Data::ArrayOfKey32Property>(target)->value.Append(Cast<Data::ArrayOfKey32Property>(source)->value);
-	else if (type == GetTypeID<Data::PropertySetArray>()) Cast<Data::PropertySetArray>(target)->value.Append(Cast<Data::PropertySetArray>(source)->value);
-	else REFLEX_ASSERT(false);
-}
-
-Reference<AppendingArray> CloneAppendingArray(const AppendingArray & source)
-{
-	Reference<Object> values;
-	if (source.type == GetTypeID<Data::ArrayOfCStringProperty>()) values = Make<Data::ArrayOfCStringProperty>(Cast<Data::ArrayOfCStringProperty>(*source.values)->value);
-	else if (source.type == GetTypeID<Data::ArrayOfKey32Property>()) values = Make<Data::ArrayOfKey32Property>(Cast<Data::ArrayOfKey32Property>(*source.values)->value);
-	else if (source.type == GetTypeID<Data::PropertySetArray>()) values = Make<Data::PropertySetArray>(Cast<Data::PropertySetArray>(*source.values)->value);
-	else REFLEX_ASSERT(false);
-	return Make<AppendingArray>(source.type, *values);
-}
-
-void MergeAppendingArray(AppendingArray & target, const AppendingArray & source)
-{
-	REFLEX_ASSERT(target.type == source.type);
-	AppendArray(*target.values, *source.values, target.type);
-}
-
 void RemovePropertiesWithID(Data::PropertySet & values, Key32 id)
 {
 	Array<Address> removed;
 	for (auto & [adr, value] : values.Iterate()) if (adr.id == id) removed.Push(adr);
 	for (auto address : removed) values.UnsetProperty(address);
-}
-
-bool HasUnset(const Data::PropertySet & values, Key32 id)
-{
-	for (auto & [adr, value] : values.Iterate()) if (adr.id == id && IsUnset(adr)) return true;
-	return false;
 }
 
 void StoreProperty(Data::PropertySet & values, Address address, Object & object)
@@ -150,7 +171,9 @@ void StoreProperty(Data::PropertySet & values, Address address, Object & object)
 void CopyInheritedProperties(Data::PropertySet & target, const Data::PropertySet & source)
 {
 	auto keymap_t = GetTypeID<Data::KeyMap>();
-	auto appending_array_t = GetTypeID<AppendingArray>();
+	auto appendable_strings_t = GetTypeID<AppendableStrings>();
+	auto appendable_keys_t = GetTypeID<AppendableKeys>();
+	auto appendable_property_sets_t = GetTypeID<AppendablePropertySet>();
 
 	// Apply reset markers before values so @Unset id; id: value; is independent
 	// of the PropertySet's address ordering.
@@ -159,6 +182,15 @@ void CopyInheritedProperties(Data::PropertySet & target, const Data::PropertySet
 		if (!IsUnset(adr)) continue;
 		RemovePropertiesWithID(target, adr.id);
 		StoreProperty(target, adr, value);
+	}
+
+	// Materialized parent values must be merged before structural children are
+	// rebased onto this scope. PropertySet address order is not source order.
+	for (auto & [adr, value] : source.Iterate())
+	{
+		if (adr.type_id == appendable_strings_t) AppendableArrayHandler<AppendableStrings>::Merge(Cast<ValidatedPropertySet>(target), adr.id, *Cast<AppendableStrings>(value));
+		else if (adr.type_id == appendable_keys_t) AppendableArrayHandler<AppendableKeys>::Merge(Cast<ValidatedPropertySet>(target), adr.id, *Cast<AppendableKeys>(value));
+		else if (adr.type_id == appendable_property_sets_t) AppendableArrayHandler<AppendablePropertySet>::Merge(Cast<ValidatedPropertySet>(target), adr.id, *Cast<AppendablePropertySet>(value));
 	}
 
 	for (auto & [adr, value] : source.Iterate())
@@ -171,17 +203,7 @@ void CopyInheritedProperties(Data::PropertySet & target, const Data::PropertySet
 			Data::Assimilate(Data::AcquireKeyMap(target), Cast<Data::KeyMap>(value));
 			continue;
 		}
-		if (adr.type_id == appending_array_t)
-		{
-			auto source_array = Cast<AppendingArray>(value);
-			if (auto target_object = QueryLocalProperty(target, adr)) MergeAppendingArray(*Cast<AppendingArray>(*target_object), *source_array);
-			else
-			{
-				auto copy = CloneAppendingArray(*source_array);
-				StoreProperty(target, adr, copy);
-			}
-			continue;
-		}
+		if (adr.type_id == appendable_strings_t || adr.type_id == appendable_keys_t || adr.type_id == appendable_property_sets_t) continue;
 
 		if (auto source_values = DynamicCast<Data::PropertySet>(value))
 		{
@@ -233,11 +255,11 @@ Reference<Data::PropertySet> ClonePropertySet(const Data::PropertySet & source, 
 		case kPropertySetTypeTarget:
 		case kPropertySetTypeLibrary:
 		case kPropertySetTypeConfiguration: 
-			result = Make<ValidatedPropertySet>(value->type, *driver->keymap, *parent, driver->id); 
+			result = Make<ValidatedPropertySet>(value->type, *driver->keymap, Cast<ValidatedPropertySet>(*parent), driver->id);
 			break;
 
 		case kPropertySetTypePlatform:
-			result = Make<PlatformPropertySet>(*driver->keymap, *parent, Cast<PlatformPropertySet>(value)->GetPlatform()); 
+			result = Make<PlatformPropertySet>(*driver->keymap, Cast<ValidatedPropertySet>(*parent), Cast<PlatformPropertySet>(value)->GetPlatform());
 			break;
 		
 		default:
@@ -251,26 +273,7 @@ Reference<Data::PropertySet> ClonePropertySet(const Data::PropertySet & source, 
 		result = Make<Data::PropertySet>();
 	}
 
-	for (auto & item : source.Iterate())
-	{
-		if (auto source_array = DynamicCast<AppendingArray>(item.value))
-		{
-			auto copy = CloneAppendingArray(*source_array);
-			if (auto target_values = DynamicCast<ValidatedPropertySet>(*result)) target_values->StoreProperty(item.key, copy);
-			else result->SetProperty(item.key, copy);
-		}
-		else if (auto child = DynamicCast<Data::PropertySet>(item.value))
-		{
-			auto copy = ClonePropertySet(*child, result.Adr());
-			if (auto target_values = DynamicCast<ValidatedPropertySet>(*result)) target_values->StoreProperty(item.key, copy);
-			else result->SetProperty(item.key, copy);
-		}
-		else
-		{
-			if (auto target_values = DynamicCast<ValidatedPropertySet>(*result)) target_values->StoreProperty(item.key, item.value);
-			else result->SetProperty(item.key, item.value);
-		}
-	}
+	CopyInheritedProperties(*result, source);
 	return result;
 }
 
@@ -359,17 +362,17 @@ struct PropertySheetInterface : public Data::Detail::PropertySheetInterface
 		case K32("Template"):
 			RequireNamed();
 			RequireStructure(CheckParent(parent, kPropertySetTypeProject), "Template is only valid at project scope");
-			return Data::Detail::CreateObjectWithType<ValidatedPropertySet>(kPropertySetTypeTemplate, keymap, Cast<Data::PropertySet>(parent), id);
+			return Data::Detail::CreateObjectWithType<ValidatedPropertySet>(kPropertySetTypeTemplate, keymap, Cast<ValidatedPropertySet>(parent), id);
 
 		case K32("Target"):
 			RequireNamed();
 			RequireStructure(CheckParent(parent, kPropertySetTypeProject), "Target is only valid at project scope");
-			return Data::Detail::CreateObjectWithType<ValidatedPropertySet>(kPropertySetTypeTarget, keymap, Cast<Data::PropertySet>(parent), id);
+			return Data::Detail::CreateObjectWithType<ValidatedPropertySet>(kPropertySetTypeTarget, keymap, Cast<ValidatedPropertySet>(parent), id);
 
 		case K32("Library"):
 			RequireNamed();
 			RequireStructure(CheckParent(parent, kPropertySetTypeProject), "Library is only valid at project scope");
-			return Data::Detail::CreateObjectWithType<ValidatedPropertySet>(kPropertySetTypeLibrary, keymap, Cast<Data::PropertySet>(parent), id);
+			return Data::Detail::CreateObjectWithType<ValidatedPropertySet>(kPropertySetTypeLibrary, keymap, Cast<ValidatedPropertySet>(parent), id);
 
 		case K32("windows"):
 			RequireAnonymous();
@@ -394,7 +397,7 @@ struct PropertySheetInterface : public Data::Detail::PropertySheetInterface
 		case K32("Configuration"):
 			RequireNamed();
 			RequireStructure(CheckParent(parent, kPropertySetTypePlatform), "Configuration is only valid in a platform");
-			return Data::Detail::CreateObjectWithType<ValidatedPropertySet>(kPropertySetTypeConfiguration, keymap, Cast<Data::PropertySet>(parent), id);
+			return Data::Detail::CreateObjectWithType<ValidatedPropertySet>(kPropertySetTypeConfiguration, keymap, Cast<ValidatedPropertySet>(parent), id);
 
 		default:
 			InvalidStructure(Join("unknown structural type ", type));
@@ -445,7 +448,7 @@ private:
 		auto values = DynamicCast<ValidatedPropertySet>(parent);
 		RequireStructure(values && (values->type == kPropertySetTypeTemplate || values->type == kPropertySetTypeTarget || values->type == kPropertySetTypeLibrary), "platform is only valid in a Template, Target, or Library");
 
-		return Data::Detail::CreateObjectWithType<PlatformPropertySet>(keymap, Cast<Data::PropertySet>(parent), platform);
+		return Data::Detail::CreateObjectWithType<PlatformPropertySet>(keymap, *values, platform);
 	}
 };
 
@@ -467,16 +470,6 @@ void HandleVariable(ValidatedPropertySet & owner, const PropertyRule & rule, Add
 	HandleSet(owner, rule, address, object);
 }
 
-template <class VALUE> struct ListValue
-{
-	static auto Get(Object & object) { return Cast<VALUE>(object)->value; }
-};
-
-template <> struct ListValue<Data::PropertySet>
-{
-	static auto Get(Object & object) { return Cast<Data::PropertySet>(object); }
-};
-
 template <class VALUE, class ARRAY> void HandleList(ValidatedPropertySet & owner, const PropertyRule & rule, Address address, Object & object)
 {
 	if (address.type_id == GetTypeID<ARRAY>())
@@ -488,37 +481,25 @@ template <class VALUE, class ARRAY> void HandleList(ValidatedPropertySet & owner
 		auto release = AutoRelease(object);
 		Address target = MakeAddress<ARRAY>(rule.address.id);
 		auto values = New<ARRAY>();
-		values->value.Push(ListValue<VALUE>::Get(object));
+		values->value.Push(Cast<VALUE>(object)->value);
 		owner.StoreProperty(target, values);
 	}
 }
 
-template <class VALUE, class ARRAY> void HandleAppendingList(ValidatedPropertySet & owner, const PropertyRule & rule, Address address, Object & object)
+void RequirePropertySetType(Object & object, PropertySetType type)
 {
-	auto release = AutoRelease(object);
-	Reference<ARRAY> values;
-	if (address.type_id == GetTypeID<ARRAY>()) values = Cast<ARRAY>(object);
-	else
-	{
-		values = Make<ARRAY>();
-		values->value.Push(ListValue<VALUE>::Get(object));
-	}
-
-	auto id = rule.address.id;
-	auto target_address = MakeAddress<AppendingArray>(id);
-	if (auto existing = QueryLocalProperty(owner, target_address))
-	{
-		auto target = Cast<AppendingArray>(*existing);
-		RequireStructure(target->type == GetTypeID<ARRAY>(), "incompatible appending array type");
-		AppendArray(*target->values, *values, target->type);
-		return;
-	}
-	auto wrapped = New<AppendingArray>(GetTypeID<ARRAY>(), *values);
-	owner.StoreProperty(target_address, wrapped);
+	if (Cast<ValidatedPropertySet>(object)->type != type) InvalidStructure(object, "invalid property value");
 }
 
-void HandleMergePropertySet(ValidatedPropertySet & owner, const PropertyRule &, Address address, Object & object)
+void HandleBuildSteps(ValidatedPropertySet & owner, const PropertyRule & rule, Address address, Object & object)
 {
+	if (address.type_id == GetTypeID<ValidatedPropertySet>()) RequirePropertySetType(object, kPropertySetTypeBuildStep);
+	AppendableArrayHandler<AppendablePropertySet>::Handle(owner, rule, address, object);
+}
+
+void HandleMap(ValidatedPropertySet & owner, const PropertyRule & rule, Address address, Object & object)
+{
+	RequirePropertySetType(object, rule.property_set_type);
 	address.type_id = GetTypeID<Data::PropertySet>();
 	auto & incoming = *Cast<Data::PropertySet>(object);
 	if (auto existing = QueryLocalProperty(owner, address))
@@ -531,32 +512,10 @@ void HandleMergePropertySet(ValidatedPropertySet & owner, const PropertyRule &, 
 	owner.StoreProperty(address, object);
 }
 
-void RequirePropertySetType(Object & object, PropertySetType type)
-{
-	if (Cast<ValidatedPropertySet>(object)->type != type) InvalidStructure(object, "invalid property value");
-}
-
-void HandleMap(ValidatedPropertySet & owner, const PropertyRule & rule, Address address, Object & object)
-{
-	RequirePropertySetType(object, rule.property_set_type);
-	HandleMergePropertySet(owner, rule, address, object);
-}
-
-void HandleBuildStep(ValidatedPropertySet & owner, const PropertyRule & rule, Address address, Object & object)
-{
-	RequirePropertySetType(object, kPropertySetTypeBuildStep);
-	HandleAppendingList<Data::PropertySet,Data::PropertySetArray>(owner, rule, address, object);
-}
-
 void HandleValidateFiles(ValidatedPropertySet & owner, const PropertyRule &, Address address, Object & object)
 {
 	ValidateFiles(*Cast<Data::PropertySet>(object), object);
 	owner.StoreProperty(address, object);
-}
-
-void HandleReject(ValidatedPropertySet &, const PropertyRule &, Address, Object & object)
-{
-	InvalidStructure(object, "invalid property value");
 }
 
 void HandleInherit(ValidatedPropertySet & owner, const PropertyRule &, Address address, Object & object)
@@ -573,8 +532,8 @@ void HandleInherit(ValidatedPropertySet & owner, const PropertyRule &, Address a
 		if (Search(inherited, name)) InvalidStructure(object, "duplicate inherited template");
 		inherited.Push(name);
 
-		auto root = DynamicCast<ValidatedPropertySet>(*values.parent);
-		REFLEX_ASSERT(root && root->type == kPropertySetTypeProject);
+		auto root = values.parent.Adr();
+		REFLEX_ASSERT(values.parent && root->type == kPropertySetTypeProject);
 		auto project = static_cast<const Project *>(root);
 		auto match = project->FindTemplate(name);
 		RequireStructure(match, object, "inherited template must be declared before use");
@@ -606,7 +565,7 @@ void HandleStructuralChild(ValidatedPropertySet & owner, const PropertyRule &, A
 
 struct FormatHolder
 {
-	template <class TYPE> static void AddKnown(PropertyRules & rules, Key32 id, PropertyHandler handler = &HandleSet, bool appendable = false, PropertySetType property_set_type = kPropertySetTypeVariables)
+	template <class TYPE> static void AddKnown(PropertyRules & rules, Key32 id, PropertyHandler handler = &HandleSet, PropertySetType property_set_type = kPropertySetTypeVariables)
 	{
 		rules.known_properties.Push({ MakeAddress<TYPE>(id), handler, property_set_type });
 	}
@@ -616,46 +575,52 @@ struct FormatHolder
 		rules.free_properties.Push({ MakeAddress<TYPE>({}), handler });
 	}
 
-	static void AddCStringList(PropertyRules & rules, Key32 id, bool appendable = true)
+	static void AddCStringList(PropertyRules & rules, Key32 id)
 	{
-		AddKnown<Data::CStringProperty>(rules, id, &HandleList<Data::CStringProperty, Data::ArrayOfCStringProperty>, appendable);
-		AddKnown<Data::ArrayOfCStringProperty>(rules, id, &HandleList<Data::CStringProperty, Data::ArrayOfCStringProperty>, appendable);
+		AddKnown<Data::CStringProperty>(rules, id, &HandleList<Data::CStringProperty, Data::ArrayOfCStringProperty>);
+		AddKnown<Data::ArrayOfCStringProperty>(rules, id, &HandleList<Data::CStringProperty, Data::ArrayOfCStringProperty>);
 	}
 
-	static void AddKeyList(PropertyRules & rules, Key32 id, bool appendable = true)
+	static void AddKeyList(PropertyRules & rules, Key32 id)
 	{
-		AddKnown<Data::Key32Property>(rules, id, &HandleList<Data::Key32Property, Data::ArrayOfKey32Property>, appendable);
-		AddKnown<Data::ArrayOfKey32Property>(rules, id, &HandleList<Data::Key32Property, Data::ArrayOfKey32Property>, appendable);
+		AddKnown<Data::Key32Property>(rules, id, &HandleList<Data::Key32Property, Data::ArrayOfKey32Property>);
+		AddKnown<Data::ArrayOfKey32Property>(rules, id, &HandleList<Data::Key32Property, Data::ArrayOfKey32Property>);
 	}
 
-	static void AddAppendingKeyList(PropertyRules & rules, Key32 id)
+	static void AddAppendableKeys(PropertyRules & rules, Key32 id)
 	{
-		AddKnown<Data::Key32Property>(rules, id, &HandleAppendingList<Data::Key32Property, Data::ArrayOfKey32Property>);
-		AddKnown<Data::ArrayOfKey32Property>(rules, id, &HandleAppendingList<Data::Key32Property, Data::ArrayOfKey32Property>);
+		AddKnown<Data::Key32Property>(rules, id, &AppendableArrayHandler<AppendableKeys>::Handle);
+		AddKnown<Data::ArrayOfKey32Property>(rules, id, &AppendableArrayHandler<AppendableKeys>::Handle);
 	}
 
-	static void AddAppendingCStringList(PropertyRules & rules, Key32 id)
+	static void AddAppendableStrings(PropertyRules & rules, Key32 id)
 	{
-		AddKnown<Data::CStringProperty>(rules, id, &HandleAppendingList<Data::CStringProperty, Data::ArrayOfCStringProperty>);
-		AddKnown<Data::ArrayOfCStringProperty>(rules, id, &HandleAppendingList<Data::CStringProperty, Data::ArrayOfCStringProperty>);
+		AddKnown<Data::CStringProperty>(rules, id, &AppendableArrayHandler<AppendableStrings>::Handle);
+		AddKnown<Data::ArrayOfCStringProperty>(rules, id, &AppendableArrayHandler<AppendableStrings>::Handle);
+	}
+
+	static void AddAppendablePropertySets(PropertyRules & rules, Key32 id)
+	{
+		AddKnown<ValidatedPropertySet>(rules, id, &AppendableArrayHandler<AppendablePropertySet>::Handle);
+		AddKnown<Data::PropertySetArray>(rules, id, &AppendableArrayHandler<AppendablePropertySet>::Handle);
 	}
 
 	static void AddFiles(PropertyRules & rules, Key32 id)
 	{
 		AddCStringList(rules, id);
 		AddKnown<Data::PropertySet>(rules, id);
-		AddKnown<ValidatedPropertySet>(rules, id, &HandleMap, false, kPropertySetTypeFiles);
+		AddKnown<ValidatedPropertySet>(rules, id, &HandleMap, kPropertySetTypeFiles);
 	}
 
 	static void AddVariables(PropertyRules & rules, Key32 id)
 	{
-		AddKnown<ValidatedPropertySet>(rules, id, &HandleMap, false, kPropertySetTypeVariables);
+		AddKnown<ValidatedPropertySet>(rules, id, &HandleMap, kPropertySetTypeVariables);
 	}
 
 	static void AddBuildSteps(PropertyRules & rules, Key32 id)
 	{
-		AddKnown<ValidatedPropertySet>(rules, id, &HandleBuildStep, true);
-		AddKnown<Data::PropertySetArray>(rules, id, &HandleAppendingList<Data::PropertySet, Data::PropertySetArray>, true);
+		AddKnown<ValidatedPropertySet>(rules, id, &HandleBuildSteps);
+		AddKnown<Data::PropertySetArray>(rules, id, &HandleBuildSteps);
 	}
 
 	static void Append(PropertyRules & target, const PropertyRules & source)
@@ -678,13 +643,16 @@ struct FormatHolder
 		AddKnown<Data::Key32Property>(rules, kCppStandard);
 		AddKnown<Data::BoolProperty>(rules, kRtti);
 		AddVariables(rules, kDefines);
-		AddAppendingCStringList(rules, kIncludeDirectories);
+		AddAppendableStrings(rules, K32("test_strings"));
+		AddAppendablePropertySets(rules, K32("test_objects"));
+		AddAppendableStrings(rules, kIncludeDirectories);
+		AddAppendableStrings(rules, kPublicIncludeDirectories);
 		AddCStringList(rules, kCompilerOptions);
 		AddKnown<Data::Key32Property>(rules, kWarningLevel);
 		AddKnown<Data::Key32Property>(rules, kOptimization);
 		AddKnown<Data::Key32Property>(rules, kFloatingPoint);
 		AddKnown<Data::Key32Property>(rules, kRuntimeLibrary);
-		AddAppendingKeyList(rules, kDependencies);
+		AddAppendableKeys(rules, kDependencies);
 		AddKnown<Data::BoolProperty>(rules, kDebugInformation);
 		AddKnown<Data::BoolProperty>(rules, kDeadStrip);
 		AddKnown<Data::CStringProperty>(rules, kCMakeIdentifier);
@@ -736,7 +704,8 @@ struct FormatHolder
 			AddKnown<Data::CStringProperty>(rules, kAndroidArchiveName);
 			AddKnown<Data::BoolProperty>(rules, kAndroidNativeAppGlue);
 			AddCStringList(rules, kAndroidDependencies);
-			AddKnown<Data::CStringProperty>(rules, kAndroidAssets);
+			AddKnown<Data::CStringProperty>(rules, kAndroidMainSourceSet);
+			AddKnown<Data::CStringProperty>(rules, kAndroidSigningProperties);
 			break;
 
 		default:
@@ -751,15 +720,15 @@ struct FormatHolder
 		AddFree<Data::CStringProperty>(files_rules);
 		AddFree<Data::ArrayOfCStringProperty>(files_rules);
 		AddFree<Data::PropertySet>(files_rules, &HandleValidateFiles);
-		AddFree<Data::Key32Property>(files_rules, &HandleReject);
 
 		AddKnown<Data::CStringProperty>(build_step_rules, kName);
 		AddKnown<Data::BoolProperty>(build_step_rules, kAlwaysRun);
-		for (auto id : { kCommand, kInputs, kOutputs }) AddCStringList(build_step_rules, id, false);
+		for (auto id : { kCommand, kInputs, kOutputs }) AddCStringList(build_step_rules, id);
 
 		AddCStringList(project_rules, kProjectInclude);
 		AddKnown<Data::Int32Property>(project_rules, kFormat);
 		AddKnown<Data::CStringProperty>(project_rules, kProjectName);
+		AddKnown<Data::CStringProperty>(project_rules, kGeneratedDirectory);
 		AddKnown<Data::Key32Property>(project_rules, kDefaultConfiguration);
 		AddVariables(project_rules, kNullKey);
 		AddCStringList(project_rules, kImport);
@@ -822,7 +791,7 @@ const PropertyRule * FindFreeRule(ArrayView<PropertyRule> rules, TypeID type)
 	return nullptr;
 }
 
-const PropertyRules & GetPropertySetRules(ReflexCLI::ProjectGen::PropertySetType type, const Reflex::Data::PropertySet * parent)
+const PropertyRules & GetPropertySetRules(ReflexCLI::ProjectGen::PropertySetType type, const ReflexCLI::ProjectGen::ValidatedPropertySet * parent)
 {
 	using namespace ReflexCLI::ProjectGen;
 	switch (type)
@@ -839,32 +808,13 @@ const PropertyRules & GetPropertySetRules(ReflexCLI::ProjectGen::PropertySetType
 	}
 }
 
-template <class ITEM, class ARRAY> Array <ITEM> GetItems(const ValidatedPropertySet & values, Key32 id)
-{
-	Array<ITEM> result;
-	Array<const ValidatedPropertySet *> scopes;
-	for (auto scope = &values; scope; scope = DynamicCast<ValidatedPropertySet>(*scope->parent)) scopes.Push(scope);
-	for (UInt index = scopes.GetSize(); index--;)
-	{
-		auto scope = scopes[index];
-		if (HasUnset(*scope, id)) result.Clear();
-		auto property_object = QueryLocalProperty(RemoveConst(*scope), MakeAddress<AppendingArray>(id));
-		if (auto property = property_object ? DynamicCast<AppendingArray>(*property_object) : nullptr)
-		{
-			REFLEX_ASSERT(property->type == GetTypeID<ARRAY>());
-			result.Append(Cast<ARRAY>(*property->values)->value);
-			continue;
-		}
-		if (auto property = QueryLocalProperty(RemoveConst(*scope), MakeAddress<ARRAY>(id)))
-		{
-			result.Clear();
-			result.Append(Cast<ARRAY>(*property)->value);
-		}
-	}
-	return result;
-}
-
 REFLEX_END_INTERNAL
+
+REFLEX_BOOTSTRAP_NULL_INSTANCE(ReflexCLI::ProjectGen, ValidatedPropertySet);
+REFLEX_BOOTSTRAP_NULL_INSTANCE(ReflexCLI::ProjectGen, Unset);
+REFLEX_BOOTSTRAP_NULL_INSTANCE(ReflexCLI::ProjectGen, AppendableStrings);
+REFLEX_BOOTSTRAP_NULL_INSTANCE(ReflexCLI::ProjectGen, AppendableKeys);
+REFLEX_BOOTSTRAP_NULL_INSTANCE(ReflexCLI::ProjectGen, AppendablePropertySet);
 
 void ReflexCLI::ProjectGen::ValidatedPropertySet::StoreProperty(Address address, Object & object)
 {
@@ -895,15 +845,11 @@ void ReflexCLI::ProjectGen::ValidatedPropertySet::OnSetProperty(Address address,
 }
 
 ReflexCLI::ProjectGen::ValidatedPropertySet::ValidatedPropertySet()
-	: ValidatedPropertySet(kPropertySetTypeTarget, Null<Data::KeyMap>(), Data::PropertySet::null)
+	: ValidatedPropertySet(kPropertySetTypeTarget, Null<Data::KeyMap>(), ValidatedPropertySet::null)
 {
 }
 
-REFLEX_BOOTSTRAP_NULL_INSTANCE(ReflexCLI::ProjectGen, ValidatedPropertySet);
-REFLEX_BOOTSTRAP_NULL_INSTANCE(ReflexCLI::ProjectGen, Unset);
-REFLEX_BOOTSTRAP_NULL_INSTANCE(ReflexCLI::ProjectGen, AppendingArray);
-
-ReflexCLI::ProjectGen::ValidatedPropertySet::ValidatedPropertySet(PropertySetType type, const Data::KeyMap & keymap, Data::PropertySet & parent, Key32 name)
+ReflexCLI::ProjectGen::ValidatedPropertySet::ValidatedPropertySet(PropertySetType type, const Data::KeyMap & keymap, ValidatedPropertySet & parent, Key32 name)
 	: type(type)
 	, keymap(keymap)
 	, parent(parent)
@@ -912,7 +858,7 @@ ReflexCLI::ProjectGen::ValidatedPropertySet::ValidatedPropertySet(PropertySetTyp
 {
 }
 
-ReflexCLI::ProjectGen::ValidatedPropertySet::ValidatedPropertySet(PropertySetType type, const PropertyRules & rules, const Data::KeyMap & keymap, Data::PropertySet & parent, Key32 name)
+ReflexCLI::ProjectGen::ValidatedPropertySet::ValidatedPropertySet(PropertySetType type, const PropertyRules & rules, const Data::KeyMap & keymap, ValidatedPropertySet & parent, Key32 name)
 	: type(type)
 	, keymap(keymap)
 	, parent(parent)
@@ -923,25 +869,10 @@ ReflexCLI::ProjectGen::ValidatedPropertySet::ValidatedPropertySet(PropertySetTyp
 
 bool ReflexCLI::ProjectGen::ValidatedPropertySet::IsRoot() const
 {
-	return parent.Adr() == &Data::PropertySet::null;
+	return IsNull(parent);
 }
 
-Reflex::Array<Reflex::CString> ReflexCLI::ProjectGen::ValidatedPropertySet::GetCStrings(Key32 id) const
-{
-	return GetItems<CString, Data::ArrayOfCStringProperty>(*this, id);
-}
-
-Reflex::Array<Reflex::Key32> ReflexCLI::ProjectGen::ValidatedPropertySet::GetKeys(Key32 id) const
-{
-	return GetItems<Key32, Data::ArrayOfKey32Property>(*this, id);
-}
-
-Reflex::Array<Reflex::Reference<Reflex::Data::PropertySet>> ReflexCLI::ProjectGen::ValidatedPropertySet::GetPropertySets(Key32 id) const
-{
-	return GetItems<Reference<Data::PropertySet>, Data::PropertySetArray>(*this, id);
-}
-
-ReflexCLI::ProjectGen::PlatformPropertySet::PlatformPropertySet(const Data::KeyMap & keymap, Data::PropertySet & parent, BuildPlatform platform)
+ReflexCLI::ProjectGen::PlatformPropertySet::PlatformPropertySet(const Data::KeyMap & keymap, ValidatedPropertySet & parent, BuildPlatform platform)
 	: ValidatedPropertySet(kPropertySetTypePlatform, g_format_holder->platform_rules[platform], keymap, parent, MakeKey32(kBuildPlatforms[platform]))
 	, m_platform(platform)
 {
@@ -955,7 +886,7 @@ void ReflexCLI::ProjectGen::ValidatedPropertySet::OnQueryProperty(Address addres
 
 	// A value of another type at this scope still masks the inherited value.
 	for (auto & item : Iterate()) if (item.key.id == address.id) return;
-	object = parent->QueryProperty(address, fallback);
+	if (parent) object = parent->QueryProperty(address, fallback);
 }
 
 ReflexCLI::ProjectGen::Project::Project(const Data::KeyMap & keymap)

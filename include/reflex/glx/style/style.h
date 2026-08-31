@@ -92,7 +92,7 @@ protected:
 
 	UInt8 m_non_virtual = true;
 
-	Key32 m_states[4];
+	Key32 m_states[8];
 
 };
 

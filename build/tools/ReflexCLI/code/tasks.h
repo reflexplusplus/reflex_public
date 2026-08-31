@@ -66,6 +66,7 @@ namespace ReflexCLI
 	WString EvaluateVariableExpressions(WString::View source, ArrayView<Variable> variables, VariableSyntax syntax, ArrayView <Key32> deferred_variables, System::Platform platform = System::kNumPlatform);
 	CString EscapeXml(CString::View text);
 	WString PlatformPath(const WString & path, System::Platform platform);
+	WString ResolveAbsolutePathCase(WString::View path);
 	Data::PropertySet OpenTemplateCfg(WString::View template_folder);
 	void EncodeTemplate(const TemplateDefinition & tmpl, Data::PropertySet & config);
 	bool SaveGeneratedFile(const WString & path, Data::Archive::View data);
@@ -129,6 +130,7 @@ namespace ReflexCLI
 	constexpr Key32 kInclude = "include";
 
 	constexpr Key32 kPersistentVariables = K32("variables");
+	constexpr Key32 kTemplateLibraries = K32("template_libraries");
 
 	constexpr CString::View kBuildPlatforms[] = { "windows", "macos", "ios", "android", "linux", "cmake" };
 

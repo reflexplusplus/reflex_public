@@ -1,5 +1,47 @@
 # Breaking Changes
 
+## v0.4.1
+
+### Bootstrap audio-plugin parameters use abstract definitions
+
+`Bootstrap::ParamDesc` is now `Bootstrap::ParameterDefinition`. A definition contains all parameter metadata; there is no separate description object. `ParameterDefinition` is abstract, and Bootstrap's continuous, discrete, enum, and boolean definitions are created through the free factory functions.
+
+Update parameter registration to use the free factory functions and pass the parameter group mask when the definition is created:
+
+```cpp
+// Before
+auto desc = Bootstrap::ParamDesc::CreateReal(
+    "Gain", 0.0f, 1.0f, 0.0f, 0.5f);
+desc->change_flags = kParameterGroupGain;
+
+// After
+auto definition = Bootstrap::DefineContinuousParameter(
+    L"Gain", 0.0f, 1.0f, 0.001f, 0.5f,
+    kParameterGroupGain);
+```
+
+`DefineContinuousParameter(...)` takes `step` where `CreateReal(...)` previously took `origin`; `initial` becomes the control's default/reset value. Its optional final argument is a `FunctionPointer<WString(Value32)>` used to format the value. The remaining standard factories are `DefineDiscreteParameter`, `DefineBoolParameter`, and `DefineEnumParameter`.
+
+The deprecated static compatibility factory remains named `ParameterDefinition::CreateReal(...)` and forwards to `DefineContinuousParameter(...)`.
+
+The old writable `to_string` member is gone. Continuous parameters can supply a formatting callback to `DefineContinuousParameter(...)`. For custom parsing, or behaviour beyond the standard continuous, discrete, enum, and boolean definitions, derive from `ParameterDefinition` and implement its metadata, `ToString(...)`, and `FromString(...)` virtual methods.
+
+For direct metadata access, migrate as follows:
+
+- `name` -> `GetName()`
+- `init_value` -> `GetDefaultValue()`
+- `change_flags` -> `GetGroupFlags()`
+- `flags` -> `GetFlags()`
+- `type` -> `GetType()`
+- `min` and `max` -> `GetRange().a` and `GetRange().b`
+- `origin` -> `GetStep()`
+- `to_string(value)` -> `ToString(value)`; parsing is `FromString(value)`
+- `kTypeReal`, `kTypeEnum`, and `kTypeBool` -> `kTypeContinuous`, `kTypeEnumeration`, and `kTypeBoolean`
+
+`PopulateParameters(...)` should now receive `ConstReference<Bootstrap::ParameterDefinition>` entries. The second `OnProcessRt(...)` argument is the combined parameter group mask; renaming it from `parameter_change_flags` to `parameter_group_flags` is recommended for clarity but does not change the override signature.
+
+`ParamControl::Create(parameter, value)` has been removed. Audio-plugin editors should use `ParamControl::Create(instance, parameter_index)`, which binds the control directly to the plugin and handles automation internally. Custom parameter controls can derive from `Bootstrap::ParameterControl` and bind through `ParameterControl::ParameterInterface`.
+
 ## v0.3.30
 
 ### Bootstrap audio plugins now register a list of classes

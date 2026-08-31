@@ -36,7 +36,7 @@ public:
 
 	static Reflex::Array <Class> MakeClasses();
 
-	static void PopulateParameters(const Class & cls, Reflex::ArrayRegion < Reflex::Pair <Reflex::Key32, Reflex::ConstReference <Reflex::Bootstrap::ParamDesc> > > paramdefs);
+	static void PopulateParameters(const Class & cls, Reflex::ArrayRegion < Reflex::Pair <Reflex::Key32, Reflex::ConstReference <Reflex::Bootstrap::ParameterDefinition> > > paramdefs);
 
 
 

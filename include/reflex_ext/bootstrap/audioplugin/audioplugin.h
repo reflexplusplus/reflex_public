@@ -1,7 +1,6 @@
 #pragma once
 
-#include "[require].h"
-#include "paraminfo.h"
+#include "parameter.h"
 
 
 
@@ -42,7 +41,7 @@ public:
 
 	using EventBuffer = System::AudioPlugin::EventBuffer;
 
-	using ParamDesc = ParamDesc;
+	[[deprecated("use Bootstrap::ParameterDefinition")]] typedef ParameterDefinition ParamDesc;
 
 
 
@@ -56,7 +55,7 @@ public:
 
 	UInt32 GetNumParameter() const { return m_parameters.ids.GetSize(); }
 
-	ConstTRef <ParamDesc> GetParameterInfo(UInt32 idx) const { return m_parameters.info[idx]; }
+	ConstTRef <ParameterDefinition> GetParameterInfo(UInt32 idx) const { return m_parameters.info[idx].a; }
 
 
 	ArrayView <Key32> GetParameterIDs() const { return m_parameters.ids; }
@@ -90,7 +89,7 @@ protected:
 
 	virtual bool OnPrepareProcessing(UInt32 max_buffersize, Float32 samplerate, UInt num_input, UInt num_output) = 0;
 
-	virtual void OnProcessRt(UInt num_samples, UInt32 parameter_change_flags, const EventBuffer & events_in, Array <Event> & events_out, const ArrayView <const Float*> & inputs, const ArrayView <Float*> & outputs) = 0;
+	virtual void OnProcessRt(UInt num_samples, UInt parameter_group_flags, const EventBuffer & events_in, Array <Event> & events_out, const ArrayView <const Float*> & inputs, const ArrayView <Float*> & outputs) = 0;
 
 
 
@@ -136,13 +135,11 @@ private:
 		
 		const ConstTRef < Detail::ParamDefs > paramdefs;
 		
-		Array < ConstReference <ParamDesc> > info;
-
+		Array < Pair <ConstReference <ParameterDefinition>, UInt8> > info;
 		Array <Key32> ids;
-
 		Array <Value32> values;
 
-		UInt32 all_change_flags;
+		UInt32 all_group_flags;
 
 		Reference <Object> session_listener;
 	};
@@ -169,7 +166,7 @@ private:
 
 	UInt8 m_report_changes_flags;
 
-	AtomicUInt32 m_atomic_change_flags;
+	AtomicUInt32 m_atomic_group_flags;
 
 	UInt8 m_automating;
 };

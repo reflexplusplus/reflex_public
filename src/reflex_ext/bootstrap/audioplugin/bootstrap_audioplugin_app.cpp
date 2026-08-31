@@ -1,4 +1,4 @@
-#include "reflex_ext/bootstrap/audioplugin.h"
+#include "../../../../include/reflex_ext/bootstrap/audioplugin.h"
 
 
 
@@ -6,54 +6,37 @@
 //
 //AudioPlugin
 
-REFLEX_BEGIN_INTERNAL(Reflex::Bootstrap)
-
-struct NullParamDesc : ParamDesc
-{
-	NullParamDesc()
-	{
-		type = kTypeReal;
-		min.fvalue = 0.0f;
-		max.fvalue = 0.0f;
-		init_value.fvalue = 0.0f;
-		origin.fvalue = 0.0f;
-	}
-};
-
-Reflex::Detail::Module::Member <NullParamDesc> g_null_param_info(module);
-
-REFLEX_END_INTERNAL
-
-Reflex::Bootstrap::ParamDesc & Reflex::Bootstrap::ParamDesc::null = Reflex::Bootstrap::g_null_param_info;
-
 Reflex::Bootstrap::AudioPlugin::Parameters::Parameters(const Class & cls, AudioPlugin & instance)
 	: Streamable(instance.session, MakeKey32("parameters"), 1)
 	, instance(instance)
 	, paramdefs(Cast<Detail::ParamDefs>(Data::GetPropertySet(global, K32("bootstrap.paramdefs"))->QueryProperty<Reflex::Object>(MakeKey32(cls.clap.uid))))
-	, info(paramdefs->value.GetSize())
-	, ids(info.GetSize())
-	, values(info.GetSize())
-	, all_change_flags(0)
+	, ids(paramdefs->value.GetSize())
+	, values(ids.GetSize())
+	, all_group_flags(0)
 {
 	auto & defs = paramdefs->value;
 
-	REFLEX_LOOP(idx, info.GetSize())
+	info.Allocate(paramdefs->value.GetSize());
+
+	REFLEX_LOOP(idx, ids.GetSize())
 	{
 		auto & paramdef = defs[idx];
 
 		ids[idx] = paramdef.a;
 
-		info[idx] = paramdef.b;
+		auto group_flags = paramdef.b->GetGroupFlags();
 
-		all_change_flags |= paramdef.b->change_flags;
+		info.Push<kAllocateNone>({ paramdef.b, group_flags });
+
+		all_group_flags |= group_flags;
 	}
 }
 
 void Reflex::Bootstrap::AudioPlugin::Parameters::OnReset(Key32 context)
 {
-	REFLEX_LOOP(idx, values.GetSize()) values[idx] = info[idx]->init_value;
+	REFLEX_LOOP(idx, values.GetSize()) values[idx] = info[idx].a->GetDefaultValue();
 
-	REFLEX_ATOMIC_OR(instance.m_atomic_change_flags, all_change_flags);
+	REFLEX_ATOMIC_OR(instance.m_atomic_group_flags, all_group_flags);
 
 	instance.ScheduleReportChanges(System::AudioPlugin::kChangeParameterValues);
 
@@ -80,7 +63,7 @@ void Reflex::Bootstrap::AudioPlugin::Parameters::OnRestore(Data::Archive::View &
 
 			MemCopy(pdata + bytesize32, pvalues, bytesize32);
 
-			REFLEX_ATOMIC_OR(instance.m_atomic_change_flags, all_change_flags);
+			REFLEX_ATOMIC_OR(instance.m_atomic_group_flags, all_group_flags);
 
 			instance.ScheduleReportChanges(System::AudioPlugin::kChangeParameterValues);
 
@@ -102,10 +85,12 @@ void Reflex::Bootstrap::AudioPlugin::Parameters::OnRestore(Data::Archive::View &
 
 	REFLEX_LOOP_PTR(ids.GetData(), pid, ids.GetSize())
 	{
-		*pvalues++ = *values.Search(*pid, &(*pinfos++)->init_value);
+		auto default_value = (*pinfos++).a->GetDefaultValue();
+		
+		*pvalues++ = *values.Search(*pid, &default_value);
 	}
 
-	REFLEX_ATOMIC_OR(instance.m_atomic_change_flags, all_change_flags);
+	REFLEX_ATOMIC_OR(instance.m_atomic_group_flags, all_group_flags);
 
 	instance.ScheduleReportChanges(System::AudioPlugin::kChangeParameterValues);
 
@@ -135,14 +120,14 @@ Reflex::Bootstrap::AudioPlugin::AudioPlugin(const Class & cls, System::AudioPlug
 		}
 	}))
 	, m_report_changes_flags(0)
-	, m_atomic_change_flags(0)
+	, m_atomic_group_flags(0)
 	, m_automating(0)
 {
 	REFLEX_DEBUG_WARN_SCOPE(Reflex::not_on_heap, false);
 
 	System::AudioPlugin::Callbacks::Publish(*this);
 
-	REFLEX_ATOMIC_OR(m_atomic_change_flags, m_parameters.all_change_flags);
+	REFLEX_ATOMIC_OR(m_atomic_group_flags, m_parameters.all_group_flags);
 	
 	if (!IsPlugin()) Detail::RestoreStandaloneAudioApp(global, instance);
 }
@@ -172,21 +157,21 @@ void Reflex::Bootstrap::AudioPlugin::OnSetPluginChunk(const Data::Archive::View 
 
 void Reflex::Bootstrap::AudioPlugin::OnGetParameterInfo(UInt idx, CString & name) const
 {
-	name = m_parameters.info[idx]->name;
+	name = ToCString(m_parameters.info[idx].a->GetName());
 }
 
 Reflex::Float32 Reflex::Bootstrap::AudioPlugin::OnGetParameterValue(UInt idx) const
 {
-	return Normalise(m_parameters.info[idx], m_parameters.values[idx]);
+	return Normalise(m_parameters.info[idx].a, m_parameters.values[idx]);
 }
 
 void Reflex::Bootstrap::AudioPlugin::OnSetParameterValue(UInt idx, Float32 value)
 {
-	auto & desc = *m_parameters.info[idx];
+	auto & info = m_parameters.info[idx];
 
-	m_parameters.values[idx] = Expand(desc, value);
+	m_parameters.values[idx] = Expand(info.a, value);
 
-	REFLEX_ATOMIC_OR(m_atomic_change_flags, UInt32(desc.change_flags));
+	REFLEX_ATOMIC_OR(m_atomic_group_flags, UInt32(info.b));
 
 	Notify(true);
 }
@@ -233,7 +218,7 @@ Reflex::FunctionPointer <void(Reflex::System::AudioPlugin::Callbacks&,Reflex::UI
 
 			events_out_buffer.Clear();
 
-			self->OnProcessRt(samples, REFLEX_ATOMIC_POLL(self->m_atomic_change_flags), *self->m_events_in, events_out_buffer, self->m_audio_in, self->m_audio_out);
+			self->OnProcessRt(samples, REFLEX_ATOMIC_POLL(self->m_atomic_group_flags), *self->m_events_in, events_out_buffer, self->m_audio_in, self->m_audio_out);
 
 			self->m_events_out->events = events_out_buffer;
 		};

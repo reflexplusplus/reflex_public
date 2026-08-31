@@ -36,7 +36,7 @@ struct ContextRestorer
 	{
 		//workaround for legacy opengl context sharing issues, need to set current after a modal dialog
 
-		if (module.IsInitalised()) Core::g_renderer->BeginAccess();
+		if (module.IsInitialised()) Core::g_renderer->BeginAccess();
 	}
 };
 

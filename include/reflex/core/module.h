@@ -23,8 +23,7 @@ namespace Reflex
 
 template <class TYPE> Reflex::TypeID inline Reflex::GetTypeID()
 {
-	REFLEX_ASSERT(root_module.IsInitalised());
+	REFLEX_ASSERT(root_module.IsInitialised());
 
 	return Detail::TypeIndex<TYPE>::value;
 }
-

@@ -17,6 +17,8 @@ namespace ReflexCLI
 	WString GetReflexExecutablePath(WString::View reflex_path);
 
 	CString EncodeUTF8(WString::View text);
+	WString DecodeUTF8(CString::View text);
+		
 	bool RunCommand(const WString & path, ArrayView <WString> args, System::FileHandle * std_out = nullptr, bool allow_window = false);
 
 	TemplateDefinition DecodeTemplate(const Data::PropertySet & config);
@@ -58,6 +60,16 @@ struct ReflexCLI::TemplateDefinition
 
 //
 //impl
+
+inline Reflex::CString ReflexCLI::EncodeUTF8(WString::View text)
+{
+	return Data::Unpack<CString::View>(Data::EncodeUTF8(text));
+}
+
+inline Reflex::WString ReflexCLI::DecodeUTF8(CString::View text)
+{
+	return Data::DecodeUTF8(Data::Pack(text));
+}
 
 inline void ReflexCLI::Require(bool test, CString::View msg, CString::View error)
 {

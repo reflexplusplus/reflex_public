@@ -3,6 +3,47 @@
 
 REFLEX_BEGIN_INTERNAL(ReflexCLI::ProjectGen::Android)
 
+constexpr CString::View kCMakeConfiguration =
+	"if([CONDITION])\n"
+	"[PACKAGES]\tset_property(TARGET [LIBRARY] PROPERTY CXX_STANDARD [CPP_STANDARD])\n"
+	"\ttarget_sources([LIBRARY] PRIVATE\n"
+	"[SOURCES]\t)\n"
+	"[INCLUDE_DIRECTORIES][DEFINES]\ttarget_compile_options([LIBRARY] PRIVATE\n"
+	"[COMPILE_OPTIONS]\t)\n"
+	"[LIBRARY_DIRECTORIES][LIBRARIES][LINK_OPTIONS]endif()\n";
+
+constexpr CString::View kSigning =
+	"def reflex[CONFIGURATION_ID]SigningPropertiesFile = file([SIGNING_PROPERTIES])\n"
+	"if (reflex[CONFIGURATION_ID]SigningPropertiesFile.exists()) {\n"
+	"\tdef reflex[CONFIGURATION_ID]SigningProperties = new Properties()\n"
+	"\treflex[CONFIGURATION_ID]SigningPropertiesFile.withInputStream { reflex[CONFIGURATION_ID]SigningProperties.load(it) }\n"
+	"\n"
+	"\tandroid {\n"
+	"\t\tsigningConfigs {\n"
+	"\t\t\t[CONFIGURATION] {\n"
+	"\t\t\t\tdef reflexStoreFile = new File(reflex[CONFIGURATION_ID]SigningProperties['storeFile'])\n"
+	"\t\t\t\tstoreFile = reflexStoreFile.isAbsolute() ? reflexStoreFile : new File(reflex[CONFIGURATION_ID]SigningPropertiesFile.parentFile, reflexStoreFile.path)\n"
+	"\t\t\t\tstorePassword = reflex[CONFIGURATION_ID]SigningProperties['storePassword']\n"
+	"\t\t\t\tkeyAlias = reflex[CONFIGURATION_ID]SigningProperties['keyAlias']\n"
+	"\t\t\t\tkeyPassword = reflex[CONFIGURATION_ID]SigningProperties['keyPassword']\n"
+	"\t\t\t}\n"
+	"\t\t}\n"
+	"\n"
+	"\t\tbuildTypes {\n"
+	"\t\t\t[CONFIGURATION] {\n"
+	"\t\t\t\tsigningConfig = signingConfigs.[CONFIGURATION]\n"
+	"\t\t\t}\n"
+	"\t\t}\n"
+	"\t}\n"
+	"} else {\n"
+	"\tlogger.warn(\"signing_properties file not found: ${reflex[CONFIGURATION_ID]SigningPropertiesFile}\")\n"
+	"\tandroidComponents {\n"
+	"\t\tbeforeVariants(selector().withBuildType(\"[CONFIGURATION]\")) { variantBuilder ->\n"
+	"\t\t\tvariantBuilder.enable = false\n"
+	"\t\t}\n"
+	"\t}\n"
+	"}\n";
+
 CString Symbol(CString::View value)
 {
 	CString result;
@@ -182,6 +223,13 @@ void WriteArtifactCopy(Data::Archive & output, CString::View name, const TargetC
 void WriteDependencies(Data::Archive & output, bool release, const TargetConfiguration & config)
 {
 	const auto scope = release ? WString::View(L"releaseImplementation") : WString::View(L"debugImplementation");
+	Array<WString> file_dependencies;
+	const auto write_file_dependency = [&output, scope, &file_dependencies](WString value)
+	{
+		if (Search(file_dependencies, value)) return;
+		file_dependencies.Push(value);
+		WriteLine(output, 1, Join(scope, L"(files(", GradleQuote(value), L"))"));
+	};
 
 	auto dependencies = config.GetStrings(kAndroidDependencies);
 
@@ -189,13 +237,12 @@ void WriteDependencies(Data::Archive & output, bool release, const TargetConfigu
 	{
 		auto & dependency = dependencies[index];
 		Require(True(dependency), kAndroidDependencies, Join("value must not be empty: ", ToCString(index)));
-		
+
 		auto wdependency = ToWString(dependency);
 
 		if (Search(wdependency, File::kStroke) || System::IsAbsolutePath(wdependency))
 		{
-			auto value = GradlePath(DecodePath(dependency));
-			WriteLine(output, 1, Join(scope, L"(files(", GradleQuote(value), L"))"));
+			write_file_dependency(GradlePath(DecodePath(dependency)));
 		}
 		else
 		{
@@ -216,6 +263,21 @@ void WriteDependencies(Data::Archive & output, bool release, const TargetConfigu
 			WriteLine(output, 1, Join(scope, L' ', GradleQuote(GradleValue(wdependency))));
 		}
 	}
+
+	for (auto & dependency : GetLinkDependencies(*config.platform->target, kBuildPlatformAndroid))
+	{
+		if (dependency->IsLibrary())
+		{
+			auto platform = dependency->FindPlatform(kBuildPlatformAndroid);
+			auto dependency_config = platform->FindConfiguration(config.GetName());
+			auto path = dependency_config->GetPath(kPath);
+			if (File::CheckExtension(path.path, L"aar"))
+			{
+				auto value = ResolvePath(dependency->project->GetRoot(), path);
+				write_file_dependency(WString(GradleValue(value)));
+			}
+		}
+	}
 }
 
 UInt32 SdkVersion(const TargetConfiguration & config, CString::View property, UInt32 fallback)
@@ -228,11 +290,11 @@ REFLEX_INLINE WString Text(Data::Archive::View value)
 	return Data::DecodeUTF8(value);
 }
 
-void OverlayAssets(const WString & source, const WString & destination)
+void OverlaySourceSet(const WString & source, const WString & destination)
 {
 	if (source.Empty()) return;
 	auto [folders, files] = File::List(source, true);
-	for (auto & folder : folders) OverlayAssets(Join(source, folder.key), Join(destination, folder.key));
+	for (auto & folder : folders) OverlaySourceSet(Join(source, folder.key), Join(destination, folder.key));
 	for (auto & file : files)
 	{
 		auto input = Join(source, file.key);
@@ -317,6 +379,22 @@ Data::Archive SdkProperties(CString::View path)
 
 Data::Archive AppGradle(const Target & target, CString::View package_id, const TargetConfiguration & debug, const TargetConfiguration & release)
 {
+	Variable signing = { "SIGNING" };
+	auto write_signing = [&signing](CString::View configuration, CString::View configuration_id, const TargetConfiguration & target_configuration)
+	{
+		if (auto path = target_configuration.GetPath(kAndroidSigningProperties); path.path)
+		{
+			signing.value.Append(Text(ProjectGen::Template(Data::Pack(kSigning),
+			{
+				{ "CONFIGURATION", ToWString(configuration) },
+				{ "CONFIGURATION_ID", ToWString(configuration_id) },
+				{ "SIGNING_PROPERTIES", GradleQuote(GradlePath(path)) },
+			})));
+		}
+	};
+	write_signing("debug", "Debug", debug);
+	write_signing("release", "Release", release);
+
 	Data::Archive build_actions;
 	WriteBuildActions(build_actions, kDebug, debug);
 	WriteBuildActions(build_actions, kRelease, release);
@@ -326,6 +404,7 @@ Data::Archive AppGradle(const Target & target, CString::View package_id, const T
 	Data::Archive dependencies;
 	WriteDependencies(dependencies, false, debug);
 	WriteDependencies(dependencies, true, release);
+
 	return ProjectGen::Template(app_build_gradle,
 	{
 		{ "PACKAGE_ID", GradleQuote(ToWString(package_id)) },
@@ -336,6 +415,7 @@ Data::Archive AppGradle(const Target & target, CString::View package_id, const T
 		{ "DEBUG_ABIS", AbiList(debug) },
 		{ "RELEASE_RUNTIME_LIBRARY", RuntimeLibraryName(release.GetEnum<RuntimeLibrary>(kRuntimeLibrary, kRuntimeLibraryNames, kRuntimeLibrary_static)) },
 		{ "RELEASE_ABIS", AbiList(release) },
+		signing,
 		{ "BUILD_FEATURES", WString::View(L"\tbuildFeatures {\n\t\tprefab = true\n\t}\n\n") },
 		{ "BUILD_ACTIONS", Text(build_actions) },
 		{ "ARTIFACT_OUTPUTS", Text(artifact_outputs) },
@@ -478,7 +558,7 @@ Data::Archive CMakeConfiguration(const TargetConfiguration & config, CString::Vi
 	if (config.GetBool(kDebugInformation, !optimized)) WriteLine(link_options, 1, Join("target_link_options(", library, " PRIVATE -g)"));
 	if (config.GetBool(kDeadStrip, optimized)) WriteLine(link_options, 1, Join("target_link_options(", library, " PRIVATE \"-Wl,--gc-sections\")"));
 
-	return ProjectGen::Template(CMakeConfiguration_txt,
+	return ProjectGen::Template(Data::Pack(kCMakeConfiguration),
 	{
 		{ "CONDITION", ToWString(condition) },
 		{ "PACKAGES", Text(package_commands) },
@@ -578,7 +658,7 @@ void WriteHostHelpers(const WString & directory, const TargetConfiguration & con
 {
 	auto build_name = Join(L"Build ", ToWString(config.GetName()));
 	SaveText(Join(directory, build_name, L".bat"), Join("call \"%~dp0gradlew.bat\" assemble", gradle_configuration, "\r\n"), kBuildPlatformAndroid);
-	SaveCommandScript(Join(directory, build_name, L'.', ReflexCLI::kCommand), Join(L"#!/bin/sh\nexec \"$(dirname \"$0\")/gradlew\" assemble", ToWString(gradle_configuration), L"\n"), kBuildPlatformAndroid);
+	SaveCommandScript(Join(directory, build_name, L'.', ReflexCLI::kCommand), Join(L"#!/bin/sh\nexec \"$(dirname \"$0\")/gradlew\" assemble", ToWString(gradle_configuration), L" </dev/null\n"), kBuildPlatformAndroid);
 }
 
 void SetExecutable(const WString & path)
@@ -633,6 +713,14 @@ void ReflexCLI::ProjectGen::GenerateAndroidProject(Project & project, BuildPlatf
 	if (targets.Empty()) return;
 	bool application = output_type == kOutputType_app;
 	Require(!application || targets.GetSize() == 1, kTargets, "app projects support exactly one target");
+	if (!application)
+	{
+		for (auto & target : targets)
+		{
+			Require(target.debug->GetPath(kAndroidSigningProperties).path.Empty() && target.release->GetPath(kAndroidSigningProperties).path.Empty(),
+				kAndroidSigningProperties, "is only supported for app targets");
+		}
+	}
 	auto & main = targets.GetFirst();
 	auto debug = main.debug;
 	auto release = main.release;
@@ -648,8 +736,8 @@ void ReflexCLI::ProjectGen::GenerateAndroidProject(Project & project, BuildPlatf
 	auto package_id = GetConfigurationInvariant(*main.platform, kAndroidPackageId,
 		[](const TargetConfiguration & configuration) { return configuration.GetString(kAndroidPackageId); });
 	Require(Android::IsPackage(package_id), kAndroidPackageId, "must be a valid Java package name");
-	auto assets = GetConfigurationInvariant(*main.platform, kAndroidAssets,
-		[](const TargetConfiguration & configuration) { return configuration.GetPath(kAndroidAssets); },
+	auto main_source_set = GetConfigurationInvariant(*main.platform, kAndroidMainSourceSet,
+		[](const TargetConfiguration & configuration) { return configuration.GetPath(kAndroidMainSourceSet); },
 		[](const PathDesc & a, const PathDesc & b) { return ComparePath(a, b); });
 	for (auto & target : targets)
 	{
@@ -661,16 +749,16 @@ void ReflexCLI::ProjectGen::GenerateAndroidProject(Project & project, BuildPlatf
 			auto reference = references[index];
 			Require(Android::SdkVersion(*config, kAndroidSdk, 37) == Android::SdkVersion(*reference, kAndroidSdk, 37) && Android::SdkVersion(*config, kAndroidMinSdk, 28) == Android::SdkVersion(*reference, kAndroidMinSdk, 28), kAndroidSdk, "versions must be identical across targets");
 			Require(config->GetString(kAndroidPackageId) == package_id, kAndroidPackageId, "must be identical across targets");
-			Require(ComparePath(config->GetPath(kAndroidAssets), assets), kAndroidAssets, "must be identical across targets");
+			Require(ComparePath(config->GetPath(kAndroidMainSourceSet), main_source_set), kAndroidMainSourceSet, "must be identical across targets");
 			Require(Android::AbiList(*config) == Android::AbiList(*reference), kArchitectures, "must be identical across targets");
 			Require(config->GetEnum<RuntimeLibrary>(kRuntimeLibrary, kRuntimeLibraryNames, kRuntimeLibrary_static) == reference->GetEnum<RuntimeLibrary>(kRuntimeLibrary, kRuntimeLibraryNames, kRuntimeLibrary_static), kRuntimeLibrary, "must be identical across targets");
 		}
 	}
-	if (assets.path)
+	if (main_source_set.path)
 	{
-		assets.path = ResolvePath(project.GetRoot(), assets);
-		File::Detail::CorrectTrailingStroke(assets.path);
-		Require(File::IsDirectory(assets.path), kAndroidAssets, Join("folder not found: ", EncodeUTF8(assets.path)));
+		main_source_set.path = ResolvePath(project.GetRoot(), main_source_set);
+		File::Detail::CorrectTrailingStroke(main_source_set.path);
+		Require(File::IsDirectory(main_source_set.path), kAndroidMainSourceSet, Join("folder not found: ", EncodeUTF8(main_source_set.path)));
 	}
 	auto directory = MakeProjectFolder(project, kBuildPlatformAndroid);
 	{
@@ -718,12 +806,12 @@ void ReflexCLI::ProjectGen::GenerateAndroidProject(Project & project, BuildPlatf
 	Android::WriteHostHelpers(directory, *debug, kDebug);
 	Android::WriteHostHelpers(directory, *release, kRelease);
 	SaveText(Join(directory, L"Clean.bat"), "call \"%~dp0gradlew.bat\" clean\r\n", kBuildPlatformAndroid);
-	SaveCommandScript(Join(directory, L"Clean.", ReflexCLI::kCommand), L"#!/bin/sh\nexec \"$(dirname \"$0\")/gradlew\" clean\n", kBuildPlatformAndroid);
+	SaveCommandScript(Join(directory, L"Clean.", ReflexCLI::kCommand), L"#!/bin/sh\nexec \"$(dirname \"$0\")/gradlew\" clean </dev/null\n", kBuildPlatformAndroid);
 	if (application)
 	{
 		SaveFile(Join(directory, ToWString(module), L"/src/main/java/", ToWString(package_path), L"/MainActivity.kt"), Android::Activity(package_id, targets.GetFirst().library), kBuildPlatformAndroid);
 		SaveText(Join(directory, ToWString(module), L"/src/main/res/values/strings.xml"), Join("<resources>\n\t<string name=\"app_name\">", EscapeXml(Android::AssembledValue(debug->GetString(kOutputName, debug->platform->target->project->GetName()))), "</string>\n</resources>\n"), kBuildPlatformAndroid);
 	}
 
-	Android::OverlayAssets(assets.path, Join(directory, ToWString(module), L"/src/main/"));
+	Android::OverlaySourceSet(main_source_set.path, Join(directory, ToWString(module), L"/src/main/"));
 }

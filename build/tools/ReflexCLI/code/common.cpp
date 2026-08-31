@@ -69,11 +69,6 @@ Reflex::WString ReflexCLI::GetReflexExecutablePath(WString::View reflex_path)
 #endif
 }
 
-Reflex::CString ReflexCLI::EncodeUTF8(WString::View text)
-{
-	return Data::Unpack<CString::View>(Data::EncodeUTF8(text));
-}
-
 bool ReflexCLI::RunCommand(const WString & path, ArrayView <WString> args, System::FileHandle * std_out, bool allow_window)
 {
 	auto process = Make<System::Process>(path, args, System::Process::Options{ .std_out = std_out, .allow_window = allow_window });

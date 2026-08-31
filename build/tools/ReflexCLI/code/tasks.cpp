@@ -321,6 +321,70 @@ Reflex::WString ReflexCLI::PlatformPath(const WString & path, System::Platform p
 	return Replace(path, File::kStroke, platform == System::kPlatformWindows ? L'\\' : File::kStroke);
 }
 
+Reflex::WString ReflexCLI::ResolveAbsolutePathCase(WString::View path)
+{
+	REFLEX_ASSERT(!Search(path, L'\\'));	//must be pre-corrected, it expects a standard Reflex path
+
+	if (System::IsAbsolutePath(path))
+	{
+		if (auto parts = Split(path, File::kStroke))
+		{
+			WString result;
+
+			auto volumes = Make<System::DiskIterator>();
+
+			bool removable;
+			WString volume, display;
+
+			while (volumes->GetNext(removable, volume, display))
+			{
+				auto root = File::RemoveTrailingStroke(volume);
+
+				if (CaseInsensitive::eq(root, parts.GetFirst()))
+				{
+					result.Append(root);
+					result.Push(File::kStroke);
+
+					goto FoundDrive;
+				}
+			}
+
+			return path;
+
+			REFLEX_MARKER(FoundDrive);
+
+			for (auto & i : Mid(parts, 1))
+			{
+				if (i)
+				{
+					auto directory = Make<System::DirectoryIterator>(result, true);
+
+					System::DirectoryIterator::Item item;
+
+					while (directory->GetNext(item))
+					{
+						if (CaseInsensitive::eq(item.filename, i))
+						{
+							result.Append(item.filename);
+							if (item.is_directory) result.Push(File::kStroke);
+
+							goto Next;
+						}
+					}
+
+					return path;
+
+					REFLEX_MARKER(Next);
+				}
+			}
+
+			return result;
+		}
+	}
+
+	return path;
+}
+
 bool ReflexCLI::SaveGeneratedFile(const WString & path, Data::Archive::View data)
 {
 	auto handle = Make<System::FileHandle>(path, System::FileHandle::kModeOverwrite);

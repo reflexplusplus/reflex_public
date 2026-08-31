@@ -24,6 +24,6 @@ namespace Reflex
 //
 //impl
 
-#define REFLEX_TYPEID(TYPE) Reflex::Detail::TypeIndex<TYPE>::value
+#define REFLEX_TYPEID(...) Reflex::Detail::TypeIndex<__VA_ARGS__>::value
 
 #define REFLEX_INSTANTIATE_TYPEID(...) namespace Reflex::Detail { [[maybe_unused]] inline const auto REFLEX_CONCATENATE(_kTypeID,__COUNTER__) = REFLEX_TYPEID(__VA_ARGS__); }

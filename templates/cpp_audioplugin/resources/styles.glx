@@ -157,6 +157,8 @@ Control:
 		};
 	};
 
+	@Alias discrete: { source: continuous; };
+
 	@State boolean:
 	{
 		content:

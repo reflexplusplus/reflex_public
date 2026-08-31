@@ -256,6 +256,10 @@ Reflex::WString ReflexCLI::CreateProject(const TemplateDefinition & base_tmpl, A
 
 	if (!targets) Bootstrap::CLI::ThrowError("invalid --target value");
 	Array<Variable> expanded = string_inputs;
+	auto template_path = File::RemoveTrailingStroke(base_tmpl.folder);
+	auto templates_path = File::SplitFilename(template_path).a;
+	auto library_path = File::RemoveTrailingStroke(File::SplitFilename(File::RemoveTrailingStroke(templates_path)).a);
+	expanded.Push({ "TEMPLATE_LIBRARY_PATH", std::move(library_path) });
 	for (auto & path : path_inputs)
 	{
 		auto value = File::CorrectStrokes(path.value);

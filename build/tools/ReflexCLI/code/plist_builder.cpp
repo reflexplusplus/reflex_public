@@ -314,6 +314,8 @@ void ReflexCLI::BuildPlist(const Data::PropertySet & args, System::FileHandle & 
 	auto filename = Bootstrap::CLI::GetFilename(args, "output", false);
 	auto blob = GeneratePlist(args, target);
 
+	File::MakePath(File::SplitFilename(filename).a);
+
 	if (!SaveGeneratedFile(filename, blob)) ThrowError("failed to write plist", filename);
 
 	File::WriteLine(std_out, filename);

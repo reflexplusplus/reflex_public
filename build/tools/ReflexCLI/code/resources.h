@@ -45,8 +45,6 @@ namespace ReflexCLI
 
 			extern const Reflex::File::EmbeddedResource build_gradle;
 
-			extern const Reflex::File::EmbeddedResource CMakeConfiguration_txt;
-
 			extern const Reflex::File::EmbeddedResource CMakeLists_txt;
 
 			extern const Reflex::File::EmbeddedResource library_build_gradle;

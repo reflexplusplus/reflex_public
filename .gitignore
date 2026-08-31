@@ -58,3 +58,9 @@ cmake-build-*/
 
 # Specs and plans are working documents, kept locally and not committed.
 docs/superpowers/
+
+# Local build output for the command-line tools
+build/tools/*/output/
+
+# Local worktrees
+.sdd-worktrees/

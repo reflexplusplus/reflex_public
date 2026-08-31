@@ -8,31 +8,20 @@
 #   reflex_add_console_app(target SOURCES ... NAME ... VENDOR ... PACKAGE_ID_VENDOR ... PACKAGE_ID_PRODUCT ...)
 
 # =========================================================
-# Internal: apply MSVC compiler/linker settings to match the VS project template
+# Internal: add the required Reflex Windows application resource
 # =========================================================
-# Mirrors the settings in templates/CppApp/project/win/vcxproj/Common.props
-# and App.vcxproj. No-op on non-MSVC compilers.
 
-function(_reflex_apply_msvc_options target)
-
-    if(NOT MSVC)
+function(_reflex_add_windows_resource target)
+    if(NOT REFLEX_PLATFORM_WINDOWS)
         return()
     endif()
 
-    # ---- Visual Studio build throughput ----
-    target_compile_options(${target} PRIVATE
-        /MP         # Multi-processor compilation
-    )
-
-    # ---- Unicode ----
-    target_compile_definitions(${target} PRIVATE UNICODE _UNICODE)
-
-    # ---- Windows resource file (icons, version info, manifests) ----
-    set(_res "${REFLEX_ROOT}/resources/win/reflex_system.res")
-    if(EXISTS "${_res}")
-        target_sources(${target} PRIVATE "${_res}")
+    set(_resource "${REFLEX_ROOT}/resources/win/reflex_system.res")
+    if(NOT EXISTS "${_resource}")
+        message(FATAL_ERROR
+            "Reflex: required Windows application resource not found: ${_resource}")
     endif()
-
+    target_sources(${target} PRIVATE "${_resource}")
 endfunction()
 
 
@@ -73,25 +62,6 @@ endfunction()
 
 
 # =========================================================
-# Internal: create an executable target with platform-appropriate flags
-# =========================================================
-
-function(_reflex_add_executable_target target gui)
-    if("${gui}" STREQUAL "TRUE")
-        if(REFLEX_PLATFORM_WINDOWS)
-            add_executable(${target} WIN32 ${ARGN})
-        elseif(REFLEX_PLATFORM_MACOS OR REFLEX_PLATFORM_IOS)
-            add_executable(${target} MACOSX_BUNDLE ${ARGN})
-        else()
-            add_executable(${target} ${ARGN})
-        endif()
-    else()
-        add_executable(${target} ${ARGN})
-    endif()
-endfunction()
-
-
-# =========================================================
 # Internal: common target properties/options
 # =========================================================
 
@@ -118,7 +88,6 @@ function(_reflex_init_target target)
     reflex_target_set_floating_point(${target} ${ARG_FLOATING_POINT})
     reflex_target_set_debug_information(${target} ON CONFIG Debug)
     reflex_target_set_dead_strip(${target} ON CONFIG Release)
-    _reflex_apply_msvc_options(${target})
     if(REFLEX_PLATFORM_MACOS OR REFLEX_PLATFORM_IOS)
         if(NOT ARG_APPLE_DEPLOYMENT_TARGET)
             if(REFLEX_PLATFORM_IOS)
@@ -354,7 +323,7 @@ function(reflex_add_app target)
         set(A_VERSION "1.0.0")
     endif()
 
-    _reflex_add_executable_target(${target} TRUE ${A_SOURCES})
+    reflex_add_target(${target} TYPE APP SOURCES ${A_SOURCES})
 
     # Name the binary after NAME so it matches the plist's CFBundleExecutable.
     # Without this the executable takes the CMake target name; when NAME differs
@@ -365,6 +334,7 @@ function(reflex_add_app target)
 
     target_compile_definitions(${target} PRIVATE REFLEX_BOOTSTRAP_TYPE_APP)
     _reflex_init_target(${target})
+    _reflex_add_windows_resource(${target})
 
     target_link_libraries(${target} PRIVATE
         Reflex::Common
@@ -424,7 +394,7 @@ function(reflex_add_vm_app target)
         set(A_VERSION "1.0.0")
     endif()
 
-    _reflex_add_executable_target(${target} TRUE ${A_SOURCES})
+    reflex_add_target(${target} TYPE APP SOURCES ${A_SOURCES})
 
     # Name the binary after NAME so it matches the plist's CFBundleExecutable.
     # Without this the executable takes the CMake target name; when NAME differs
@@ -435,6 +405,7 @@ function(reflex_add_vm_app target)
 
     target_compile_definitions(${target} PRIVATE REFLEX_BOOTSTRAP_TYPE_VM_APP)
     _reflex_init_target(${target})
+    _reflex_add_windows_resource(${target})
 
     if(MSVC)
         target_compile_options(${target} PRIVATE /bigobj)
@@ -628,7 +599,7 @@ function(_reflex_resolve_target_lib alias basename out)
         if(NOT TARGET ${_srctgt})
             _reflex_platform_unity_source("${basename}" _unity)
             if(_unity)
-                add_library(${_srctgt} STATIC "${_unity}")
+                reflex_add_target(${_srctgt} TYPE STATIC_LIBRARY SOURCES "${_unity}")
                 target_include_directories(${_srctgt} PRIVATE
                     "${REFLEX_ROOT}/include"
                     "${REFLEX_ROOT}/src")
@@ -694,13 +665,7 @@ function(_reflex_add_plugin_format base_target format sources name vendor versio
             return()
         endif()
 
-        if(REFLEX_PLATFORM_WINDOWS)
-            add_executable(${_t} WIN32 ${sources})
-        elseif(REFLEX_PLATFORM_MACOS OR REFLEX_PLATFORM_IOS)
-            add_executable(${_t} MACOSX_BUNDLE ${sources})
-        else()
-            add_executable(${_t} ${sources})
-        endif()
+        reflex_add_target(${_t} TYPE APP SOURCES ${sources})
 
         set_target_properties(${_t} PROPERTIES
             OUTPUT_NAME "${name}"
@@ -732,7 +697,7 @@ function(_reflex_add_plugin_format base_target format sources name vendor versio
             return()
         endif()
 
-        add_library(${_t} MODULE ${sources})
+        reflex_add_target(${_t} TYPE MODULE_LIBRARY SOURCES ${sources})
         set_target_properties(${_t} PROPERTIES
             OUTPUT_NAME      "${name}"
             PREFIX           ""
@@ -772,7 +737,7 @@ function(_reflex_add_plugin_format base_target format sources name vendor versio
             return()
         endif()
 
-        add_library(${_t} MODULE ${sources})
+        reflex_add_target(${_t} TYPE MODULE_LIBRARY SOURCES ${sources})
         set_target_properties(${_t} PROPERTIES
             OUTPUT_NAME      "${name}"
             PREFIX           ""
@@ -810,7 +775,7 @@ function(_reflex_add_plugin_format base_target format sources name vendor versio
             return()
         endif()
 
-        add_library(${_t} MODULE ${sources})
+        reflex_add_target(${_t} TYPE MODULE_LIBRARY SOURCES ${sources})
         set_target_properties(${_t} PROPERTIES
             OUTPUT_NAME "${name}"
             PREFIX      ""
@@ -842,7 +807,7 @@ function(_reflex_add_plugin_format base_target format sources name vendor versio
             return()
         endif()
 
-        add_library(${_t} MODULE ${sources})
+        reflex_add_target(${_t} TYPE MODULE_LIBRARY SOURCES ${sources})
         _reflex_resolve_package_id(_package_id "${vendor}" "${name}" "${package_id_vendor}" "${package_id_product}")
         _reflex_generate_plist(_plist ${_t} "${name}" "${vendor}" "${version}" "component"
             "${package_id_vendor}" "${package_id_product}"
@@ -880,7 +845,7 @@ function(_reflex_add_plugin_format base_target format sources name vendor versio
             else()
                 set(_auv3_unity "${REFLEX_ROOT}/src/reflex/system/osx_auv3.mm")
             endif()
-            add_library(_ReflexSrc_TargetAUv3 STATIC "${_auv3_unity}")
+            reflex_add_target(_ReflexSrc_TargetAUv3 TYPE STATIC_LIBRARY SOURCES "${_auv3_unity}")
             target_include_directories(_ReflexSrc_TargetAUv3 PRIVATE
                 "${REFLEX_ROOT}/include"
                 "${REFLEX_ROOT}/src"
@@ -906,13 +871,13 @@ function(_reflex_add_plugin_format base_target format sources name vendor versio
         # same). macOS AUv3 keeps using MODULE; only iOS strictly requires
         # MH_EXECUTE because of amfi.
         if(REFLEX_PLATFORM_IOS)
-            add_executable(${_t} MACOSX_BUNDLE ${sources})
+            reflex_add_target(${_t} TYPE APP SOURCES ${sources})
             target_link_options(${_t} PRIVATE
                 "-e" "_NSExtensionMain"
                 "-fapplication-extension"
             )
         else()
-            add_library(${_t} MODULE ${sources})
+            reflex_add_target(${_t} TYPE MODULE_LIBRARY SOURCES ${sources})
         endif()
 
         _reflex_resolve_package_id(_package_id "${vendor}" "${name}" "${package_id_vendor}" "${package_id_product}")
@@ -1006,6 +971,7 @@ function(_reflex_add_plugin_format base_target format sources name vendor versio
         "AU_COMPONENTS=${au_components}"
         "AU_VENDOR_4CC=${au_vendor_4cc}")
     _reflex_init_target(${_t} FLOATING_POINT fast)
+    _reflex_add_windows_resource(${_t})
 
     # Link order matters — higher-level libraries first, dependencies last
     if(TARGET Reflex::Vm)
@@ -1213,7 +1179,7 @@ endfunction()
 function(reflex_add_console_app target)
     cmake_parse_arguments(A "" "NAME;VENDOR;PACKAGE_ID_VENDOR;PACKAGE_ID_PRODUCT" "SOURCES" ${ARGN})
 
-    _reflex_add_executable_target(${target} FALSE ${A_SOURCES})
+    reflex_add_target(${target} TYPE CONSOLE SOURCES ${A_SOURCES})
 
     target_compile_definitions(${target} PRIVATE REFLEX_BOOTSTRAP_TYPE_CONSOLE_APP)
     _reflex_init_target(${target} RELEASE_OPTIMIZATION size)

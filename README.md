@@ -7,6 +7,11 @@ This repository provides the public headers, CMake integration, and the
 `reflex_ext` source. Reflex++ also requires prebuilt static libraries, which can
 be installed via the ReflexCLI or fetched by CMake.
 
+Unless you already have a CMake-based project and its dependencies in place, we
+recommend the native ReflexCLI workflow: use `reflex install` to install the SDK
+and prebuilt dependencies, then use `reflex create` and `reflex generate` to
+create and generate projects for all supported platforms.
+
 ## Installation via ReflexCLI
 
 ### Bootstrap the CLI

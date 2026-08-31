@@ -61,7 +61,7 @@ GlobalImpl::GlobalImpl(CString::View vendor, CString::View product, WString::Vie
 		{
 			File::ResourcePool::Lock lock(self.resourcepool);
 
-			if (GLX::module.IsInitalised())
+			if (GLX::module.IsInitialised())
 			{
 				GLX::Core::Context ctx;
 

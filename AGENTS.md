@@ -28,6 +28,7 @@
 ## Project Creation
 
 - Create apps and tests with the CLI: `reflex create --template <id> --vendor <vendor> --product <product> --generate <platform[,..]> --output <folder>`.
+- `reflex create` intentionally prevents creating projects inside this repository. The repository's `/tmp/` folder is an allowed exception for temporary workspaces and test projects.
 - List templates with `reflex templates`; each template declares its supported generation platforms.
 - Generate native build projects from an existing project description with `reflex generate --path <project.cfg>`.
 

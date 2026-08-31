@@ -67,6 +67,8 @@ namespace Reflex::File
 
 	WString ResolveRelativePath(const WString::View & path);			//path can be either folder (trailing stroke) or filename
 
+	WString MakeRelativePath(const WString::View & base_dir, const WString::View & path, bool case_sensitive);
+
 	WString MakeRelativePath(const WString::View & base_dir, const WString::View & path);
 
 
@@ -169,4 +171,11 @@ inline Reflex::WString::View Reflex::File::RemoveTrailingStroke(const WString::V
 	{
 		return path;
 	}
+}
+
+inline Reflex::WString Reflex::File::MakeRelativePath(const WString::View & base_dir, const WString::View & path)
+{
+	constexpr UInt kCaseSensitive = MakeBit(System::kPlatformLinux) | MakeBit(System::kPlatformAndroid);
+
+	return MakeRelativePath(base_dir, path, BitCheck(kCaseSensitive, System::kPlatform));
 }
