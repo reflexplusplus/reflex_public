@@ -26,7 +26,7 @@ Reflex::TRef <Reflex::Object> Reflex::System::AudioPlugin::OnStart(const ArrayVi
 
 	auto args = get_agent_args(cmdline);
 
-	if (Data::GetBool(args, K32("terminate-on-assert")))
+	if (Data::GetBool(args, "terminate-on-assert"))
 	{
 		System::Detail::DebugBreak = [](const char * msg)
 		{
@@ -65,7 +65,7 @@ Reflex::TRef <Reflex::Object> Reflex::System::AudioPlugin::OnStart(const ArrayVi
 	);
 
 #if REFLEX_DEBUG
-	if (auto delay = Data::GetFloat32(args, "auto-quit"))
+	if (auto delay = Data::GetFloat32(args, "auto-quit", ToFloat32(Data::GetInt32(args, "auto-quit"))))
 	{
 		SetAbstractProperty(global, "auto-quit", Async::CreatePeriodicClock(delay, []()
 		{

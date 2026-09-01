@@ -16,6 +16,7 @@ namespace ReflexCLI::ProjectGen
 		kPropertySetTypeTemplate,
 		kPropertySetTypeTarget,
 		kPropertySetTypeLibrary,
+		kPropertySetTypePackage,
 		kPropertySetTypePlatform,
 		kPropertySetTypeConfiguration,
 	};

@@ -16,22 +16,19 @@ create and generate projects for all supported platforms.
 
 ### Bootstrap the CLI
 
-Open Terminal (macOS) or PowerShell (Windows) and cd to your preferred install location. 
-The bootstrap script creates a reflex_public/ folder in the current working directory and 
-adds it to your PATH.
+Run the script below with your preferred install location as the final argument. The
+script creates a `reflex_public/` folder in that directory and adds it to your `PATH`.
 
 macOS:
 
 ```sh
-cd ~/dev
-curl -fsSL https://reflexplusplus.dev/install/macos/bootstrap.sh | sh
+curl -fsSL https://reflexplusplus.dev/install.sh | sh -s -- ~/dev
 ```
 
 Windows (PowerShell):
 
 ```powershell
-cd C:\dev
-irm https://reflexplusplus.dev/install/win/bootstrap.ps1 | iex
+& ([scriptblock]::Create((irm https://reflexplusplus.dev/install.ps1))) C:\dev
 ```
 
 Restart Terminal or PowerShell, then install the SDK and prebuilt binaries:

@@ -1,5 +1,22 @@
 # Changelog
 
+## v0.4.4 — more flexible project generation
+
+Reflex 0.4.4 expands the project generator with reusable dependency packages and host-appropriate defaults. It also improves generated CMake apps, installation guidance, and automated agent testing.
+
+### Changes
+
+#### Reflex Build and project generation
+
+- Added `@Package` declarations for named, reusable bundles of target, library, and package dependencies.
+- `reflex generate` and `reflex create` now choose platforms compatible with the current host when none are specified; CMake generation remains opt-in.
+- Fixed the CMake source path in generated C++ app projects.
+
+#### Tooling and guidance
+
+- `--auto-quit` now accepts whole-second values, making automated application runs easier to configure.
+- Updated the public bootstrap instructions to accept a chosen installation directory directly.
+
 ## v0.4.3 — clearer CLI validation and guidance
 
 Reflex 0.4.3 improves installation guidance for developers and AI agents, and makes ReflexCLI report invalid command arguments clearly before running a command.

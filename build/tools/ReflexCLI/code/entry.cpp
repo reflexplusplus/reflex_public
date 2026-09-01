@@ -54,6 +54,7 @@ void ValidateArgs(const Data::PropertySet & args, ArrayView<ArgDef> whitelist = 
 		case K32("verbose"):
 		case K32("args"): 
 		case K32("terminate-on-assert"):
+		case K32("auto-quit"):
 			continue;
 		default:
 			Require(SearchValue<FieldCompare<&ArgDef::id>>(whitelist, address.id), "unexpected", GetArgDescription(args, address.id));
@@ -162,6 +163,17 @@ Array <CString::View> FindTargets(const CString::View & arg)
 	}
 
 	return targets;
+}
+
+Array<CString::View> GetHostDefaultGenerationPlatforms()
+{
+	switch (System::kPlatform)
+	{
+	case System::kPlatformWindows: return { "windows", "android", "linux" };
+	case System::kPlatformMacOS: return { "macos", "ios", "android" };
+	case System::kPlatformLinux: return { "linux", "android" };
+	default: return {};
+	}
 }
 
 const TemplateDefinition * SearchTemplate(const ArrayView <TemplateDefinition> & templates, const CString::View & value)
@@ -403,20 +415,7 @@ void Create(const Data::PropertySet & args, System::FileHandle & std_out)
 	}
 	else
 	{
-		switch (System::kPlatform)
-		{
-		case System::kPlatformWindows: 
-			targets = { "windows", "android", "linux" };
-			break;
-		case System::kPlatformMacOS: 
-			targets = { "macos", "ios", "android" };
-			break;
-		case System::kPlatformLinux: 
-			targets = { "linux", "android" };
-			break;
-		default:
-			break;
-		}
+		targets = GetHostDefaultGenerationPlatforms();
 	}
 
 	Optional <bool> overwrite(CLI::GetBool(args, "overwrite"), prompted_inputs.Empty());
@@ -745,7 +744,7 @@ const CLI::TaskDef kCommands[] =
 
 			case K32("generate"):
 				print_arg(true, "--path <path>", "the project.cfg description to generate, defaults to ./project.cfg");
-				print_arg(true, "[platform]...", "platforms to generate, defaults to all platforms in project.cfg");
+				print_arg(true, "[platform]...", "platforms to generate, defaults to platforms compatible with the current host");
 				return;
 
 			case K32("build"):
@@ -969,7 +968,7 @@ const CLI::TaskDef kCommands[] =
 			Require(True(Search(kBuildPlatforms, arg)), "expected platform", "<windows|macos|ios|android|linux|cmake>...");
 			platforms.Push(arg);
 		}
-		if (platforms.Empty()) platforms = Left(kBuildPlatforms, kBuildPlatformCMake);
+		if (platforms.Empty()) platforms = GetHostDefaultGenerationPlatforms();
 
 		GenerateProject(CLI::GetFilename(args, "path", true, "project.cfg"), platforms, std_out);
 	}),

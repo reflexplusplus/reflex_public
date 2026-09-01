@@ -374,6 +374,11 @@ struct PropertySheetInterface : public Data::Detail::PropertySheetInterface
 			RequireStructure(CheckParent(parent, kPropertySetTypeProject), "Library is only valid at project scope");
 			return Data::Detail::CreateObjectWithType<ValidatedPropertySet>(kPropertySetTypeLibrary, keymap, Cast<ValidatedPropertySet>(parent), id);
 
+		case K32("Package"):
+			RequireNamed();
+			RequireStructure(CheckParent(parent, kPropertySetTypeProject), "Package is only valid at project scope");
+			return Data::Detail::CreateObjectWithType<ValidatedPropertySet>(kPropertySetTypePackage, keymap, Cast<ValidatedPropertySet>(parent), id);
+
 		case K32("windows"):
 			RequireAnonymous();
 			return CreatePlatform(keymap, parent, kBuildPlatformWindows);
@@ -547,7 +552,7 @@ void HandleStructuralChild(ValidatedPropertySet & owner, const PropertyRule &, A
 	auto & values = *Cast<ValidatedPropertySet>(owner);
 	auto & child = *Cast<ValidatedPropertySet>(object);
 	bool valid = (values.type == kPropertySetTypeProject
-		&& (child.type == kPropertySetTypeTemplate || child.type == kPropertySetTypeTarget || child.type == kPropertySetTypeLibrary))
+		&& (child.type == kPropertySetTypeTemplate || child.type == kPropertySetTypeTarget || child.type == kPropertySetTypeLibrary || child.type == kPropertySetTypePackage))
 		|| ((values.type == kPropertySetTypeTemplate || values.type == kPropertySetTypeTarget || values.type == kPropertySetTypeLibrary)
 			&& child.type == kPropertySetTypePlatform)
 		|| (values.type == kPropertySetTypePlatform && child.type == kPropertySetTypeConfiguration);
@@ -556,7 +561,9 @@ void HandleStructuralChild(ValidatedPropertySet & owner, const PropertyRule &, A
 	if (auto platform = DynamicCast<PlatformPropertySet>(child)) address.id = platform->id;
 	if (auto existing = QueryLocalProperty(values, address))
 	{
-		CopyInheritedProperties(*Cast<ValidatedPropertySet>(existing), child);
+		auto existing_values = Cast<ValidatedPropertySet>(existing);
+		RequireStructure(existing_values->type == child.type, object, "structural declarations with the same name must have the same type");
+		CopyInheritedProperties(*existing_values, child);
 		auto release = AutoRelease(object);
 		return;
 	}
@@ -736,6 +743,8 @@ struct FormatHolder
 		AddKnown<Data::PropertySet>(project_rules, Data::kError);
 		AddFree<ValidatedPropertySet>(project_rules, &HandleStructuralChild);
 
+		AddAppendableKeys(package_rules, kDependencies);
+
 		AddCommon(common_rules);
 		Append(structural_rules, common_rules);
 		AddKnown<Data::Key32Property>(structural_rules, kInherit, &HandleInherit);
@@ -771,6 +780,7 @@ struct FormatHolder
 	PropertyRules files_rules;
 	PropertyRules build_step_rules;
 	PropertyRules project_rules;
+	PropertyRules package_rules;
 	PropertyRules common_rules;
 	PropertyRules structural_rules;
 	PropertyRules platform_rules[kBuildPlatformCMake];
@@ -800,6 +810,7 @@ const PropertyRules & GetPropertySetRules(ReflexCLI::ProjectGen::PropertySetType
 	case kPropertySetTypeFiles: return g_format_holder->files_rules;
 	case kPropertySetTypeBuildStep: return g_format_holder->build_step_rules;
 	case kPropertySetTypeProject: return g_format_holder->project_rules;
+	case kPropertySetTypePackage: return g_format_holder->package_rules;
 	case kPropertySetTypeTemplate:
 	case kPropertySetTypeTarget:
 	case kPropertySetTypeLibrary: return g_format_holder->structural_rules;

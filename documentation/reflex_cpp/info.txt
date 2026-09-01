@@ -9306,7 +9306,7 @@ See also Bootstrap::Detail::SetStyle.
 #p 			GLX::AttachPeriodicClock(*this, {}, 0.25f, [this, project_dir]()
 #p 			{
 #p 				auto bitmap = GLX::CaptureWindow(GetWindow());
-#p 				bitmap = GLX::Detail::HalveBitmap(bitmap.a, bitmap.b); 	//optional: reduce size before encoding
+#p 				bitmap = GLX::HalveBitmap(bitmap.a, bitmap.b); 	//optional: reduce size before encoding
 #p 				bitmap.b = GLX::Detail::EncodePNG(bitmap.a, bitmap.b);
 #p 				File::Save(Join(project_dir, L$qimage.png$q), bitmap.b);
 #p 				GLX::DetachClock(*this, {});

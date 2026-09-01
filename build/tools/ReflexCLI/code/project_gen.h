@@ -145,6 +145,7 @@ namespace ReflexCLI::ProjectGen
 	};
 
 	class Target;
+	class Package;
 	class TargetPlatform;
 	class TargetConfiguration;
 
@@ -169,6 +170,7 @@ namespace ReflexCLI::ProjectGen
 		void AddInclude(Reference<Project> project);
 		const ValidatedPropertySet * FindTemplate(Key32 id) const;
 		Reference<Target> FindTarget(CString::View name) const;
+		bool FindDependency(CString::View name, Reference<Target> & target, Reference<Package> & package) const;
 		Array<Variable> GetDocumentVariables(Key32 property) const;
 
 	private:
@@ -185,7 +187,24 @@ namespace ReflexCLI::ProjectGen
 		WString m_root;
 		Array<Reference<Project>> m_includes;
 		Array<Reference<Target>> m_targets;
+		Array<Reference<Package>> m_packages;
 		bool m_initialized = false;
+	};
+
+	class Package : public CompiledObject
+	{
+	public:
+		static Package & null;
+
+		Package() = default;
+		Package(Project & project, ValidatedPropertySet & source);
+
+		const TRef<Project> project;
+
+		ArrayView<CString> GetDependencyNames() const { return m_dependency_names; }
+
+	private:
+		Array<CString> m_dependency_names;
 	};
 
 	class Target : public CompiledObject

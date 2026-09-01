@@ -24,7 +24,7 @@ reflex_add_app(_PRODUCT-NAME-SYMBOL_
         code/app.cpp
         code/entry.cpp
         code/resources.cpp
-        code/view/view.cpp
+        code/view.cpp
     NAME               "_PRODUCT-NAME_"
     VENDOR             "_VENDOR-NAME_"
     PACKAGE_ID_VENDOR  "_PACKAGE-ID-VENDOR_"

@@ -6,6 +6,15 @@
 
 REFLEX_BEGIN_INTERNAL(ReflexCLI::ProjectGen)
 
+template <class ARRAY> void RequireUnique(const ARRAY & values, CString::View property_name)
+{
+	REFLEX_LOOP(index, values.GetSize())
+	{
+		for (UInt previous = 0; previous < index; ++previous)
+			Require(values[previous] != values[index], property_name, "duplicate value");
+	}
+}
+
 Array<PathDesc> GetPaths(const Data::PropertySet & values, CString::View name)
 {
 	Array<PathDesc> result;
@@ -120,6 +129,7 @@ REFLEX_END_INTERNAL
 
 REFLEX_BOOTSTRAP_NULL_INSTANCE(ReflexCLI::ProjectGen, PathGroup);
 REFLEX_BOOTSTRAP_NULL_INSTANCE(ReflexCLI::ProjectGen, Project);
+REFLEX_BOOTSTRAP_NULL_INSTANCE(ReflexCLI::ProjectGen, Package);
 REFLEX_BOOTSTRAP_NULL_INSTANCE(ReflexCLI::ProjectGen, Target);
 
 Reflex::Reference<ReflexCLI::ProjectGen::Project> ReflexCLI::ProjectGen::Project::Acquire(Array<Reference<Project>> & projects, WString::View cfg_path, const Data::KeyMap * shared_keymap)
@@ -175,6 +185,22 @@ Reflex::Reference<ReflexCLI::ProjectGen::Target> ReflexCLI::ProjectGen::Project:
 	for (auto & target : m_targets) if (target->GetName() == name) return target;
 	for (auto & included : m_includes) if (auto match = included->FindTarget(name)) return match;
 	return {};
+}
+
+bool ReflexCLI::ProjectGen::Project::FindDependency(CString::View name, Reference<Target> & target, Reference<Package> & package) const
+{
+	for (auto & candidate : m_targets) if (candidate->GetName() == name)
+	{
+		target = candidate;
+		return true;
+	}
+	for (auto & candidate : m_packages) if (candidate->GetName() == name)
+	{
+		package = candidate;
+		return true;
+	}
+	for (auto & included : m_includes) if (included->FindDependency(name, target, package)) return true;
+	return false;
 }
 
 Reflex::Array<ReflexCLI::Variable> ReflexCLI::ProjectGen::Project::GetDocumentVariables(Key32 property) const
@@ -259,6 +285,7 @@ void ReflexCLI::ProjectGen::Project::Initialize(WString::View source_cfg_path)
 		auto source = Cast<ValidatedPropertySet>(item.value);
 		if (source->type == kPropertySetTypeTarget) add_target(*source, false);
 		else if (source->type == kPropertySetTypeLibrary) add_target(*source, true);
+		else if (source->type == kPropertySetTypePackage) m_packages.Push(Make<Package>(*this, *source));
 	}
 	Array<CString> configuration_names;
 	for (auto & target : m_targets)
@@ -305,6 +332,21 @@ void ReflexCLI::ProjectGen::Project::Initialize(WString::View source_cfg_path)
 	ResolveTargetDependencies(*this);
 }
 
+ReflexCLI::ProjectGen::Package::Package(Project & project, ValidatedPropertySet & source)
+	: CompiledObject(GetDriverName(source))
+	, project(project)
+{
+	if (auto dependencies = source.QueryProperty<AppendableKeys>(MakeKey32(kDependencies)))
+	{
+		m_dependency_names = MakeArray(dependencies->values, [keymap = source.keymap](Key32 id) -> CString
+		{
+			return Data::GetKey(keymap, id);
+		});
+	}
+	Require(True(m_dependency_names), kDependencies, Join(GetName(), ": package has no dependencies"));
+	RequireUnique(m_dependency_names, kDependencies);
+}
+
 ReflexCLI::ProjectGen::Target::Target(Project & project, ValidatedPropertySet & source, bool library)
 	: CompiledObject(GetDriverName(source))
 	, project(project)
@@ -348,9 +390,9 @@ ReflexCLI::ProjectGen::TargetPlatform::TargetPlatform(Target & target, PlatformP
 			for (auto id : dependency_ids)
 			{
 				auto dependency_name = Data::GetKey(*values.keymap, id);
-				Require(!Search(m_dependency_names, dependency_name), kDependencies, Join(target.GetName(), ": duplicate dependency ", dependency_name));
 				m_dependency_names.Push(dependency_name);
 			}
+			RequireUnique(m_dependency_names, kDependencies);
 		}
 
 		m_configurations.Push(Make<TargetConfiguration>(*this, configuration));
@@ -360,11 +402,21 @@ ReflexCLI::ProjectGen::TargetPlatform::TargetPlatform(Target & target, PlatformP
 
 void ReflexCLI::ProjectGen::Target::ResolveDependencies()
 {
-	auto resolve_dependency_target = [this](CString::View dependency_name)
+	auto expand_dependency = [](Project & scope, CString::View dependency_name, Array<const Package *> & active_packages, Array<Reference<Target>> & result, auto && expand_dependency) -> void
 	{
-		auto match = project->FindTarget(dependency_name);
-		Require(True(match), kDependencies, Join(project->GetName(), ": target not found ", dependency_name));
-		return match;
+		Reference<Target> target;
+		Reference<Package> package;
+		Require(scope.FindDependency(dependency_name, target, package), kDependencies, Join(scope.GetName(), ": dependency not found ", dependency_name));
+		if (target)
+		{
+			for (auto & existing : result) if (existing.Adr() == target.Adr()) return;
+			result.Push(std::move(target));
+			return;
+		}
+		Require(!Search(active_packages, package.Adr()), kDependencies, Join("package dependency cycle at ", package->GetName()));
+		active_packages.Push(package.Adr());
+		for (auto & member : package->GetDependencyNames()) expand_dependency(*package->project, member, active_packages, result, expand_dependency);
+		active_packages.Pop();
 	};
 
 	auto validate_dependency_compatibility = [this](const TargetPlatform & platform, const Target & dependency)
@@ -388,13 +440,20 @@ void ReflexCLI::ProjectGen::Target::ResolveDependencies()
 	{
 		for (auto & dependency_name : platform->m_dependency_names)
 		{
-			auto dependency = resolve_dependency_target(dependency_name);
-			Require(dependency.Adr() != this, kDependencies, Join(GetName(), ": target cannot depend on itself"));
-			validate_dependency_compatibility(*platform, *dependency);
-			platform->m_dependencies.Push(dependency);
-			bool exists = false;
-			for (auto & existing : m_dependencies) if (existing.Adr() == dependency.Adr()) exists = true;
-			if (!exists) m_dependencies.Push(std::move(dependency));
+			Array<const Package *> active_packages;
+			Array<Reference<Target>> dependencies;
+			expand_dependency(*project, dependency_name, active_packages, dependencies, expand_dependency);
+			for (auto & dependency : dependencies)
+			{
+				Require(dependency.Adr() != this, kDependencies, Join(GetName(), ": target cannot depend on itself"));
+				validate_dependency_compatibility(*platform, *dependency);
+				bool platform_exists = false;
+				for (auto & existing : platform->m_dependencies) if (existing.Adr() == dependency.Adr()) platform_exists = true;
+				if (!platform_exists) platform->m_dependencies.Push(dependency);
+				bool exists = false;
+				for (auto & existing : m_dependencies) if (existing.Adr() == dependency.Adr()) exists = true;
+				if (!exists) m_dependencies.Push(dependency);
+			}
 		}
 		platform->m_dependency_names.Clear();
 	}
@@ -629,9 +688,9 @@ Reflex::Array<Reflex::CString> ReflexCLI::ProjectGen::TargetConfiguration::GetSt
 	for (auto & value : values->value)
 	{
 		auto expanded = Expand(value);
-		Require(!Search(result, expanded), property, "duplicate value");
 		result.Push(std::move(expanded));
 	}
+	RequireUnique(result, property);
 	return result;
 }
 
