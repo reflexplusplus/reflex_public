@@ -27,10 +27,10 @@ public:
 	
 	REFLEX_OBJECT(GLX::PopupBehaviour, Delegate);
 
-	[[nodiscard]] static TRef <PopupBehaviour> Create();
+	[[nodiscard]] static Unretained <PopupBehaviour> Create();
 
 
-	virtual void SetConfig(FunctionPointer <TRef<GLX::Object>()> create_content = &Detail::CreateMenuContent, Key32 forward_event = Menu::kMenuOpen, Key32 content_style = kmenu) = 0;
+	virtual void SetConfig(FunctionPointer <Unretained<GLX::Object>()> create_content = &Detail::CreateMenuContent, Key32 forward_event = Menu::kMenuOpen, Key32 content_style = kmenu) = 0;
 
 	virtual GLX::Object * Open() = 0;
 };

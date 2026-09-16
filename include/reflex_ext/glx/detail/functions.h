@@ -16,9 +16,9 @@ namespace Reflex::GLX::Detail
 	void EndMouseTracking(Object & object);
 
 
-	TRef <TextArea> BeginTextEdit_DEPRECATED(Object & object, const Style & style, const WString::View & label, const Function <void(const WString&)> & ondone, const Function <void(const WString&)> & onedit = {}, const Function <void()> & oncancel = {});
+	AlreadyRetained <TextArea> BeginTextEdit_DEPRECATED(Object & object, const Style & style, const WString::View & label, const Function <void(const WString&)> & ondone, const Function <void(const WString&)> & onedit = {}, const Function <void()> & oncancel = {});
 
-	TRef <TextEditBehaviour> BeginTextEdit(Object & object, const Function <void(TransactionStage stage, const WString & value)> & onedit, Key32 dataid = kvalue);
+	AlreadyRetained <TextEditBehaviour> BeginTextEdit(Object & object, const Function <void(TransactionStage stage, const WString & value)> & onedit, Key32 dataid = kvalue);
 
 
 	void Show(Object & object);

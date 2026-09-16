@@ -17,7 +17,7 @@ struct DebugPanelImpl : public Detail::DebugPanel
 	template <class T>
 	struct Creator
 	{
-		static TRef <Detail::ConsolePanel> Create() { return REFLEX_CREATE(T); }
+		static Unretained <Detail::ConsolePanel> Create() { return REFLEX_CREATE(T); }
 	};
 
 	DebugPanelImpl();
@@ -79,7 +79,7 @@ void DebugPanelImpl::Config(UInt8 flags)
 
 	if (flags)
 	{
-		FunctionPointer <TRef<IDE::Detail::ConsolePanel>()> ctrs[] =
+		FunctionPointer <Unretained<IDE::Detail::ConsolePanel>()> ctrs[] =
 		{
 			&Creator<LogView>::Create,
 			&Creator<ProfileView>::Create,
@@ -114,7 +114,7 @@ void DebugPanelImpl::Config(UInt8 flags)
 	}
 }
 
-Detail::ConsolePanel::Ctr gDebugCtr(L"Debug", -1, []() -> TRef <Detail::ConsolePanel>
+Detail::ConsolePanel::Ctr gDebugCtr(L"Debug", -1, []() -> Unretained <Detail::ConsolePanel>
 {
 	return REFLEX_CREATE(DebugPanelImpl);
 });

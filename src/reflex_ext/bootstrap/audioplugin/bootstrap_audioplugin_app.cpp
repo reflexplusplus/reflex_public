@@ -7,7 +7,7 @@
 //AudioPlugin
 
 Reflex::Bootstrap::AudioPlugin::Parameters::Parameters(const Class & cls, AudioPlugin & instance)
-	: Streamable(instance.session, MakeKey32("parameters"), 1)
+	: PersistentState(instance.session, MakeKey32("parameters"), 1)
 	, instance(instance)
 	, paramdefs(Cast<Detail::ParamDefs>(Data::GetPropertySet(global, K32("bootstrap.paramdefs"))->QueryProperty<Reflex::Object>(MakeKey32(cls.clap.uid))))
 	, ids(paramdefs->value.GetSize())
@@ -125,7 +125,7 @@ Reflex::Bootstrap::AudioPlugin::AudioPlugin(const Class & cls, System::AudioPlug
 {
 	REFLEX_DEBUG_WARN_SCOPE(Reflex::not_on_heap, false);
 
-	System::AudioPlugin::Callbacks::Publish(*this);
+	PublishInterface<System::AudioPlugin::Callbacks>(this);
 
 	REFLEX_ATOMIC_OR(m_atomic_group_flags, m_parameters.all_group_flags);
 	
@@ -167,11 +167,7 @@ Reflex::Float32 Reflex::Bootstrap::AudioPlugin::OnGetParameterValue(UInt idx) co
 
 void Reflex::Bootstrap::AudioPlugin::OnSetParameterValue(UInt idx, Float32 value)
 {
-	auto & info = m_parameters.info[idx];
-
-	m_parameters.values[idx] = Expand(info.a, value);
-
-	REFLEX_ATOMIC_OR(m_atomic_group_flags, UInt32(info.b));
+	SetParameterValueMt(idx, value);
 
 	Notify(true);
 }
@@ -188,7 +184,16 @@ void Reflex::Bootstrap::AudioPlugin::OnGetNoteInfo(Array <System::AudioPlugin::N
 	infos = m_note_info;
 }
 
-Reflex::FunctionPointer <void(Reflex::System::AudioPlugin::Callbacks&,Reflex::UInt)> Reflex::Bootstrap::AudioPlugin::OnPrepare(UInt32 max_buffersize, Float32 samplerate, ConstTRef <System::AudioPlugin::EventBuffer> events_in, TRef <System::AudioPlugin::EventBuffer> events_out, const ArrayView <const Float32*> & inputs, const ArrayView <Float32*> & outputs)
+REFLEX_INLINE void Reflex::Bootstrap::AudioPlugin::SetParameterValueMt(UInt idx, Float value)
+{
+	auto & info = m_parameters.info[idx];
+
+	m_parameters.values[idx] = Expand(info.a, value);
+
+	REFLEX_ATOMIC_OR(m_atomic_group_flags, UInt32(info.b));
+}
+
+Reflex::FunctionPointer <void(Reflex::System::AudioPlugin::Callbacks&,Reflex::UInt)> Reflex::Bootstrap::AudioPlugin::OnPrepare(UInt32 max_buffersize, Float32 samplerate, ConstRef <System::AudioPlugin::EventBuffer> events_in, Ref <System::AudioPlugin::EventBuffer> events_out, const ArrayView <const Float32*> & inputs, const ArrayView <Float32*> & outputs)
 {
 	m_events_in = events_in.Adr();
 
@@ -210,7 +215,9 @@ Reflex::FunctionPointer <void(Reflex::System::AudioPlugin::Callbacks&,Reflex::UI
 			{
 				if (i.type == System::AudioPlugin::Event::kTypeAutomation)
 				{
-					self->OnSetParameterValue(i.idx, i.value.f32);
+					self->SetParameterValueMt(i.idx, i.value.f32);
+					
+					self->StateMt::Notify();
 				}
 			}
 

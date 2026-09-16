@@ -42,8 +42,10 @@ function(_reflex_asset_platform _out)
         set(${_out} "macos" PARENT_SCOPE)
     elseif(CMAKE_SYSTEM_NAME STREQUAL "Linux")
         set(${_out} "linux" PARENT_SCOPE)
+    elseif(CMAKE_SYSTEM_NAME STREQUAL "Android")
+        set(${_out} "android" PARENT_SCOPE)
     else()
-        set(${_out} "" PARENT_SCOPE)  # Android (AAR via Gradle) / WebAssembly: no fetch
+        set(${_out} "" PARENT_SCOPE)  # WebAssembly: no fetch
     endif()
 endfunction()
 

@@ -81,7 +81,7 @@ struct StateAnimation : public NonAnimatedStateAnimation
 
 REFLEX_END_INTERNAL
 
-Reflex::TRef <Reflex::GLX::Animation> Reflex::GLX::CreateCallbackAnimation(const Function <void(Object&)> & callback)
+Reflex::Unretained <Reflex::GLX::Animation> Reflex::GLX::CreateCallbackAnimation(const Function <void(Object&)> & callback)
 {
 	struct Callback : public ObjectAnimation
 	{
@@ -143,7 +143,7 @@ Reflex::TRef <Reflex::GLX::Animation> Reflex::GLX::CreateCallbackAnimation(const
 	return REFLEX_CREATE(Callback, callback);
 }
 
-Reflex::TRef <Reflex::GLX::Animation> Reflex::GLX::CreateStateAnimation(Key32 state)
+Reflex::Unretained <Reflex::GLX::Animation> Reflex::GLX::CreateStateAnimation(Key32 state)
 {
 	if (AnimationScope::IsEnabled())
 	{

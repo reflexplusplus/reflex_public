@@ -23,7 +23,7 @@ REFLEX_END
 class Reflex::IDE::Detail::PropertyEditor :
 	public GLX::Split,
 	public Data::History,
-	public Data::iStreamable
+	public Data::iSerializable
 {
 public:
 
@@ -53,7 +53,7 @@ public:
 
 	//lifetime
 
-	[[nodiscard]] static TRef <PropertyEditor> Create(const Data::Detail::StandardPropertySheetInterface & propertysheet_interface, const Interface & iface);
+	[[nodiscard]] static Unretained <PropertyEditor> Create(const Data::Detail::StandardPropertySheetInterface & propertysheet_interface, const Interface & iface);
 
 
 
@@ -63,7 +63,7 @@ public:
 
 	virtual void SetRoot(Data::PropertySet & node) = 0;
 
-	virtual TRef <Data::PropertySet> GetRoot() = 0;
+	virtual AlreadyRetained <Data::PropertySet> GetRoot() = 0;
 
 
 
@@ -71,7 +71,7 @@ public:
 
 	virtual void SetFocus(Data::PropertySet & node) = 0;
 
-	virtual TRef <Data::PropertySet> GetFocus() = 0;
+	virtual AlreadyRetained <Data::PropertySet> GetFocus() = 0;
 
 
 	virtual void Open(Data::PropertySet & node) = 0;
@@ -84,9 +84,9 @@ public:
 
 	//links
 
-	const ConstTRef <Interface> interface;
+	const ConstAlreadyRetained <Interface> interface;
 	
-	const ConstTRef <GLX::Style> ide_styles;
+	const ConstAlreadyRetained <GLX::Style> ide_styles;
 
 
 
@@ -132,9 +132,9 @@ public:
 
 	//structure
 
-	virtual Pair < Reflex::Detail::DynamicTypeRef, TRef <Data::PropertySet> > GetObjectType() const = 0;	//return object_t and null instance
+	virtual Pair < Reflex::Detail::DynamicTypeRef, AlreadyRetained <Data::PropertySet> > GetObjectType() const = 0;	//return object_t and null instance
 
-	virtual TRef <Data::PropertySet> CreateNode() const { return GetObjectType().b; }
+		virtual Unretained <Data::PropertySet> CreateNode() const { return Unretained<Data::PropertySet>(*GetObjectType().b); }
 
 	virtual Array <WString> GetPropertyGroups() const { return {}; }
 
@@ -146,7 +146,7 @@ public:
 
 	//properties
 
-	virtual ConstTRef <Data::KeyMap> GetKeyMap() const { return Null<Data::KeyMap>(); }
+		virtual Unretained <const Data::KeyMap> GetKeyMap() const { return Unretained<const Data::KeyMap>(*Null<Data::KeyMap>()); }
 
 	virtual void RemoveProperty(Data::PropertySet & node, Address address) const { }
 

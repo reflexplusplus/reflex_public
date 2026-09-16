@@ -70,7 +70,7 @@ public:
 
 	using Config = Map <Key32,UInt32>;
 
-	using EngineCtr = FunctionPointer <TRef <Renderer>(const Config & config)>;
+	using EngineCtr = FunctionPointer <Unretained <Renderer>(const Config & config)>;
 
 
 
@@ -102,17 +102,17 @@ public:
 
 	//Canvas (render targets)
 
-	[[nodiscard]] virtual TRef <Canvas> CreateCanvas(void * systemwindow) = 0;
+	[[nodiscard]] virtual Unretained <Canvas> CreateCanvas(void * systemwindow) = 0;
 
-	[[nodiscard]] virtual TRef <Canvas> CreateBitmap(bool alphachannel, bool antialias) = 0;
+	[[nodiscard]] virtual Unretained <Canvas> CreateBitmap(bool alphachannel, bool antialias) = 0;
 
 
 
 	//Graphic
 
-	[[nodiscard]] virtual TRef <Graphic> CreatePrimitives(PrimitiveType primitive, ArrayView <fPoint> points) = 0;
+	[[nodiscard]] virtual Unretained <Graphic> CreatePrimitives(PrimitiveType primitive, ArrayView <fPoint> points) = 0;
 
-	[[nodiscard]] virtual TRef <Graphic> CreatePrimitives(PrimitiveType primitive, ArrayView <ColourPoint> points) = 0;
+	[[nodiscard]] virtual Unretained <Graphic> CreatePrimitives(PrimitiveType primitive, ArrayView <ColourPoint> points) = 0;
 
 
 
@@ -205,11 +205,11 @@ public:
 
 	//create texture
 
-	[[nodiscard]] virtual TRef <Graphic> CreateTextures(ArrayView < Pair <fRect> > rects) const = 0;
+	[[nodiscard]] virtual Unretained <Graphic> CreateTextures(ArrayView < Pair <fRect> > rects) const = 0;
 
-	[[nodiscard]] virtual TRef <Graphic> CreateTextures(ArrayView < Pair <fRect> > rects, TextureEffect mode, ArrayView <Float> parameters) const = 0;
+	[[nodiscard]] virtual Unretained <Graphic> CreateTextures(ArrayView < Pair <fRect> > rects, TextureEffect mode, ArrayView <Float> parameters) const = 0;
 
-	[[nodiscard]] virtual TRef <Graphic> CreateTextures(ArrayView < Pair <fRect> > rects, TextureComposite mode, ConstTRef <Canvas> bitmap_source, ArrayView <Float> parameters) const = 0;
+	[[nodiscard]] virtual Unretained <Graphic> CreateTextures(ArrayView < Pair <fRect> > rects, TextureComposite mode, ConstWillRetain <Canvas> bitmap_source, ArrayView <Float> parameters) const = 0;
 };
 
 

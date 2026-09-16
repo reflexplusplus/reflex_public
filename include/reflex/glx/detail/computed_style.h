@@ -68,15 +68,15 @@ public:
 
 	//lifetime
 
-	[[nodiscard]] static TRef <ComputedStyle> Create(const Style & root, const Data::PropertySet & properties);
+	[[nodiscard]] static Unretained <ComputedStyle> Create(const Style & root, const Data::PropertySet & properties);
 
-	[[nodiscard]] static inline TRef <ComputedStyle> Create(const Style & style) { return Create(style, style); }
+	[[nodiscard]] static inline Unretained <ComputedStyle> Create(const Style & style) { return Create(style, style); }
 
-	[[nodiscard]] static TRef <ComputedStyle> Create(Size min, Size max); 	//for SetBounds
+	[[nodiscard]] static Unretained <ComputedStyle> Create(Size min, Size max); 	//for SetBounds
 
-	[[nodiscard]] static TRef <ComputedStyle> Create(bool clipx, bool clipy); 	//for SetClip
+	[[nodiscard]] static Unretained <ComputedStyle> Create(bool clipx, bool clipy); 	//for SetClip
 
-	[[nodiscard]] static TRef <ComputedStyle> Create(Float scale, Float opacity, Render render); 	//for SetOpacity & SetMagnification
+	[[nodiscard]] static Unretained <ComputedStyle> Create(Float scale, Float opacity, Render render); 	//for SetOpacity & SetMagnification
 
 
 
@@ -120,9 +120,9 @@ public:
 
 	//
 
-	virtual TRef <ComputedStyle> Mutate(const ComputedStyle & b) const = 0;
+	virtual Unretained <ComputedStyle> Mutate(const ComputedStyle & b) const = 0;
 
-	[[nodiscard]] virtual TRef <GLX::Core::Renderer> CreateRenderer(GLX::Object & object) const = 0;
+	[[nodiscard]] virtual Unretained <GLX::Core::Renderer> CreateRenderer(GLX::Object & object) const = 0;
 
 
 
@@ -162,7 +162,7 @@ protected:
 
 	UInt8 m_layermorph = false;
 
-	mutable TRef <Core::Renderer> m_renderer;
+	mutable AlreadyRetained <Core::Renderer> m_renderer;
 
 	ArrayOfLayer m_layers[2];
 

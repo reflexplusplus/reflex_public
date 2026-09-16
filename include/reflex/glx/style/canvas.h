@@ -30,7 +30,7 @@ namespace Reflex::GLX
 
 	struct GraphicCanvasContext : CanvasProperties
 	{
-		TRef <Graphic> output;
+		Unretained <Graphic> output;
 	};
 
 

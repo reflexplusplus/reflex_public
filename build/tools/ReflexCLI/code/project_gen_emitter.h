@@ -4,7 +4,9 @@
 
 namespace ReflexCLI::ProjectGen
 {
-	WString MakeProjectFolder(const Project & project, BuildPlatform platform);
+	constexpr CString::View kGnuFloatingPointFast = "-ffast-math";
+
+	WString GetProjectFolder(const Project & project, BuildPlatform platform);
 	WString TranslateVariables(WString::View value, ArrayView <Variable> mappings, WString::View open = L"$(", WString::View close = L")");
 	Data::Archive Template(Data::Archive::View value, ArrayView <Variable> mappings);
 	Data::Archive Template(const File::EmbeddedResource & resource, ArrayView <Variable> mappings);
@@ -13,13 +15,15 @@ namespace ReflexCLI::ProjectGen
 	CString ShellQuote(CString::View value);
 	void WriteLine(Data::Archive & output, UInt indent, CString::View line = {});
 	void WriteLine(Data::Archive & output, UInt indent, WString::View line);
+	void WriteCMakeInvocation(Data::Archive & output, UInt indentation, CString::View command, WString::View head = {}, ArrayView<WString> values = {});
+	void WriteCMakeTargetValues(Data::Archive & output, UInt indentation, CString::View command, CString::View target, ArrayView<WString> values);
 	void SaveFile(const WString & path, Data::Archive::View data, BuildPlatform platform);
 	void SaveText(const WString & path, CString::View text, BuildPlatform platform);
 	void SaveText(const WString & path, WString::View text, BuildPlatform platform);
 	void SaveCommandScript(const WString & filename, Data::Archive::View text, BuildPlatform platform);
 	void SaveCommandScript(const WString & filename, WString::View text, BuildPlatform platform);
 	Array <CString::View> GnuWarningOptions(const TargetConfiguration & config);
-	Array <CString::View> GnuFloatingPointOptions(const TargetConfiguration & config);
+	Array <CString::View> ClangFloatingPointOptions(const TargetConfiguration & config);
 	Array <CString::View> GnuCompileOptions(const TargetConfiguration & config, bool include_standard);
 }
 

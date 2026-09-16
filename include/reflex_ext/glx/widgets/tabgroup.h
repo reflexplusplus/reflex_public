@@ -52,7 +52,7 @@ public:
 
 	void Clear();
 
-	TRef <Object> AddPanel(const WString::View & label, TRef <Object> content, Key32 style_id = kcontent, Key32 tab_style_id = ktab);
+	AlreadyRetained <Object> AddPanel(const WString::View & label, WillRetain <Object> content, Key32 style_id = kcontent, Key32 tab_style_id = ktab);
 
 	void RemovePanel(UInt idx);
 
@@ -60,9 +60,9 @@ public:
 
 	//access
 
-	TRef <Selector> GetSelector() { return Cast<Selector>(body); }
+	AlreadyRetained <Selector> GetSelector() { return Cast<Selector>(body); }
 
-	ConstTRef <Selector> GetSelector() const { return Cast<Selector>(body); }
+	ConstAlreadyRetained <Selector> GetSelector() const { return Cast<Selector>(body); }
 
 
 

@@ -7,11 +7,11 @@ REFLEX_BEGIN_INTERNAL(Reflex::Bootstrap)
 
 struct VmViewWrapperImpl : public VmViewWrapper
 {
-	VmViewWrapperImpl(App & app, const WString::View & path, const ArrayView < Tuple <CString::View, TRef<Reflex::Object>> > & externals, UInt8 flags, const ArrayView <ConstTRef<VM::Module>> & modules)
+	VmViewWrapperImpl(App & app, const WString::View & path, const ArrayView < Tuple <CString::View, AlreadyRetained<Reflex::Object>> > & externals, UInt8 flags, const ArrayView <ConstRef<VM::Module>> & modules)
 		: VmViewWrapper(app),
 		m_monitor(CreateScriptObject(path, flags, modules, externals, [this](VM::Context & context, GLX::Object & object)
 		{
-			auto chunk = Data::ToBinary(Cast<Data::iStreamable>(*this));
+			auto chunk = Data::ToBinary(Cast<Data::iSerializable>(*this));
 
 			Clear();
 
@@ -25,7 +25,7 @@ struct VmViewWrapperImpl : public VmViewWrapper
 
 			auto stream = ToView(chunk);
 
-			Data::iStreamable::Deserialize(stream);
+			Data::iSerializable::Deserialize(stream);
 
 			GLX::AddStretch(*this, m_object);
 
@@ -64,7 +64,7 @@ struct VmViewWrapperImpl : public VmViewWrapper
 	{
 	}
 
-	Pair < TRef <VM::Context>, TRef <GLX::Object> > GetContent() override
+	Pair < AlreadyRetained <VM::Context>, AlreadyRetained <GLX::Object> > GetContent() override
 	{
 		return { m_context, m_object };
 	}
@@ -165,11 +165,11 @@ struct VmViewWrapperImpl : public VmViewWrapper
 REFLEX_END_INTERNAL
 
 Reflex::Bootstrap::VmViewWrapper::VmViewWrapper(App & app)
-	: View(app, 1, {})
+	: View(app, 1, {}, false)
 {
 }
 
-Reflex::TRef <Reflex::Bootstrap::VmViewWrapper> Reflex::Bootstrap::VmViewWrapper::Create(App & app, const WString::View & path, const ArrayView < Tuple <CString::View, TRef<Reflex::Object>> > & externals, UInt8 context_flags, const ArrayView <ConstTRef<VM::Module>> & modules)
+Reflex::Unretained <Reflex::Bootstrap::VmViewWrapper> Reflex::Bootstrap::VmViewWrapper::Create(App & app, const WString::View & path, const ArrayView < Tuple <CString::View, AlreadyRetained<Reflex::Object>> > & externals, UInt8 context_flags, const ArrayView <ConstRef<VM::Module>> & modules)
 {
 	return REFLEX_CREATE(VmViewWrapperImpl, app, path, externals, context_flags, modules);
 }

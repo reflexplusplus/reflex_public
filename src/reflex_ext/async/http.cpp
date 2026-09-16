@@ -34,7 +34,7 @@ void Reflex::Async::Detail::StandardHttpRequestCallbacks::OnChunk(const Data::Ar
 	m_body.Append(chunk);
 }
 
-Reflex::TRef <Reflex::Object> Reflex::Async::Detail::StandardHttpRequestCallbacks::OnComplete()
+Reflex::Unretained <Reflex::Object> Reflex::Async::Detail::StandardHttpRequestCallbacks::OnComplete()
 {
 	if (m_is_lz4 && m_body) m_body = Data::Decompress(Data::kLZ4, m_body);
 

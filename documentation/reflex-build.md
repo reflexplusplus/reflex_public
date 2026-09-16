@@ -259,10 +259,17 @@ Template-creation metadata is declared separately in the template's
 | `output_name` | Product name; defaults to project name |
 | `extension` | Optional extension without a leading dot |
 | `output_directory` | Product output directory |
-| `intermediate_directory` | Intermediate-object directory |
 | `architectures` | Architecture key or array |
 | `dependencies` | Symbolic target name or array |
+| `source_project` | Optional source `project.cfg` for a buildable `@Library` |
 | `cmake_identifier` | Optional public CMake target, for example `Reflex::Common` |
+
+Intermediate build state is generator-owned and kept below
+`projects/<platform>/`. Windows, macOS, iOS, and Linux use an
+`intermediate/` subfolder; Android keeps Gradle and CMake state in its normal
+module-local folders, which are still below `projects/android/`. Final products
+may be copied to `output_directory` and are tracked separately by the generated
+platform output manifest.
 
 `@Target` objects are generated, while `@Library` objects describe externally
 provided libraries and are linked without generating a build target.
@@ -292,16 +299,32 @@ kept once in first-seen order, and package cycles or missing members are errors.
 @Library AcmeDSP:
 {
 	inherit: reflex_common;
+	source_project: "project.cfg";
 	@windows: { path: "third_party/acme/$(Configuration)/AcmeDSP.lib"; };
 	@macos: { path: "third_party/acme/$(Configuration)/libAcmeDSP.a"; };
 };
 ```
 
 `path` is the exact product path. If omitted, emitters use the symbolic name
-and native toolchain conventions. `cmake_identifier` takes precedence in CMake
-linkage and in Android Prefab consumption. Libraries never produce native
-projects. On Android, an `.aar` path is also emitted as a configuration-specific
-Gradle file dependency so its Prefab package is available to CMake.
+and native toolchain conventions. `cmake_identifier` takes precedence in
+portable CMake linkage. Android links an explicitly configured library `path`
+directly, translating `$(Architecture)` to the active Android ABI. Libraries
+never produce native projects.
+
+`source_project` makes a prebuilt library buildable when its source project is
+available. The path is resolved relative to the project that declares the
+`@Library`. `reflex generate` recursively generates reachable source projects,
+and `reflex build` builds those generated projects in dependency order before
+building the requested project. Missing source projects are ignored so the same
+package description also works in a binary-only SDK. Cycles are reported as
+errors, and a project referenced by several libraries is generated and built
+only once.
+
+A source project should include each dependency's `package.cfg`, rather than
+including its `project.cfg` directly. The package selects source targets when
+source mode is enabled and buildable prebuilt libraries otherwise. This keeps a
+dependency in one native build graph and prevents the same sources being built
+both by Reflex orchestration and by a parent native project.
 
 ### Build settings
 
@@ -421,8 +444,22 @@ Apple properties are `frameworks`, `arc`, `bundle_identifier`, `code_sign`,
 ### Android
 
 Android properties are `sdk`, `min_sdk`, `sdk_path`, `package_id`,
-`archive_name`, `native_app_glue`, `gradle_dependencies`, and `assets`.
+`native_app_glue`, `gradle_dependencies`, and `main_source_set`.
 Architectures are `x86`, `x64`, `arm32`, and `arm64`.
+
+Android `static_library` targets produce ordinary `.a` archives. Their
+`output_directory` must contain `$(Architecture)` because Gradle can build more
+than one ABI in a single invocation. Binary `@Library` declarations use the
+same token in `path`, for example
+`bin/android/$(CONFIGURATION_LOWER)/$(Architecture)/libAcmeDSP.a`.
+
+`main_source_set` accepts one path or a list of Android source-set roots. Each
+root uses the layout expected below `src/main` (for example, `java/`, `res/`,
+and `AndroidManifest.xml`). The generator overlays the roots in declaration
+order, so a later source set replaces an earlier file with the same relative
+path. The common app template always overlays Reflex's Android Kotlin sources
+and resources before the app's platform assets, in both source and prebuilt
+native-library modes.
 
 ### Linux
 
@@ -492,10 +529,10 @@ A parent may instead provide dependencies using `FetchContent`,
 targets link symbolically. An `@Library` with `path` becomes an imported static
 target; a pathless library is emitted by symbolic name for a package or native
 linker to resolve. A source target with a distinct `cmake_identifier` keeps its
-physical build-target name and publishes a CMake alias. For Android libraries,
-a namespaced identifier such as `Reflex::Common` publishes Prefab package
-`Reflex`, module `Common`, while the AAR filename remains controlled by
-`archive_name`.
+physical build-target name and publishes a CMake alias. Android source projects
+use the namespace portion of a namespaced identifier as their generated Gradle
+module name. Prebuilt Android targets link their ABI-specific `.a` paths
+directly.
 
 ## 7. Helper commands
 
@@ -511,20 +548,48 @@ reflex generate windows
 reflex generate --path path/to/project.cfg windows cmake
 ```
 
-Use `clean` to run the generated cleanup helper for one or more platforms, or
-for every generated platform when no platform is supplied:
+Generation is incremental by default, so files that are no longer emitted can
+remain in an existing native project. Pass `--fresh` to clear the contents of
+each selected generated platform directory before regenerating it:
+
+```text
+reflex generate android --fresh
+reflex generate windows android --fresh
+```
+
+For each selected platform, this deletes the final products recorded in
+`projects/<platform>/outputs.txt`, clears the generated platform directory,
+and then regenerates it. Reachable `@Library` dependencies with an available
+`source_project` are cleaned and regenerated first. Project sources, unavailable
+binary-only libraries, and other generated platforms are preserved. CMake still
+writes its `CMakeLists.txt` to the project root; its prepared `projects/cmake/`
+directory is otherwise unused.
+
+`clean` is retained as a convenience alias for generation with `--fresh`.
+The following pairs are equivalent:
 
 ```text
 reflex clean
 reflex clean windows macos
 reflex clean windows --path path/to/project
+reflex generate --fresh
+reflex generate windows macos --fresh
+reflex generate windows --fresh --path path/to/project
 ```
 
-Use `build` to run generated build helpers. Provide a platform and optionally
-one configuration; omitting the configuration runs every generated
-configuration for that platform:
+Like `generate`, omitting the platform selects the platforms compatible with
+the current host. `clean` may eventually be removed, so new scripts should use
+`generate --fresh` directly.
+
+Use `build` to run generated build helpers. The platform defaults to the
+current host. When the first positional argument is not a platform, it is used
+as the host-platform configuration. Omitting the configuration runs every
+generated configuration for the selected platform. Reachable buildable library
+projects must have been generated first and are built in dependency order:
 
 ```text
+reflex build
+reflex build Debug
 reflex build windows
 reflex build windows Debug
 reflex build macos Release --path path/to/project

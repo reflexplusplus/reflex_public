@@ -46,7 +46,7 @@ protected:
 
 	GLX::Object m_footer;
 
-	ConstTRef <GLX::Style> m_item_style;
+	ConstAlreadyRetained <GLX::Style> m_item_style;
 
 };
 

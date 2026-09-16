@@ -27,7 +27,7 @@ public:
 
 	//lifetime
 
-	static TRef <AbstractViewBar> Create(AbstractViewPort&) { return REFLEX_CREATE(Paginator); }
+	static Unretained <AbstractViewBar> Create(AbstractViewPort&) { return REFLEX_CREATE(Paginator); }
 
 	Paginator();
 

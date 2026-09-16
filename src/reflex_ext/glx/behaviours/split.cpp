@@ -48,7 +48,7 @@ bool IsLastInline(const Object & object)
 	return true;
 }
 
-TRef <Object> FindSplitTarget(Object & self, Point mousepos)
+AlreadyRetained <Object> FindSplitTarget(Object & self, Point mousepos)
 {
 	constexpr Float32 kInvert[2] = { 1.0f, -1.0f };
 
@@ -56,7 +56,7 @@ TRef <Object> FindSplitTarget(Object & self, Point mousepos)
 
 	const bool is_inverted = IsInverted(self);
 
-	TRef <Object> target;
+	AlreadyRetained <Object> target;
 
 	Float size = Detail::GetSize(y, self.GetRect().size);
 
@@ -247,7 +247,7 @@ bool SplitBehaviourImpl::OnEvent(GLX::Object & src, Event & e)
 
 REFLEX_END_INTERNAL
 
-Reflex::TRef <Reflex::GLX::SplitBehaviour> Reflex::GLX::SplitBehaviour::Create()
+Reflex::Unretained <Reflex::GLX::SplitBehaviour> Reflex::GLX::SplitBehaviour::Create()
 {
 	return New<SplitBehaviourImpl>();
 }

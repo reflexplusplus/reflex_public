@@ -39,7 +39,7 @@ public:
 
 	REFLEX_OBJECT(App, Bootstrap::App);
 
-	static TRef <App> Create();
+	static Unretained <App> Create();
 
 
 	virtual WString::View GetReflexPath() const = 0;

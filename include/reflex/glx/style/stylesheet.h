@@ -45,7 +45,7 @@ public:
 
 	//includes
 
-	ConstTRef <StyleSheet> AddInclude(const CString & path, bool import);
+	ConstAlreadyRetained <StyleSheet> AddInclude(const CString & path, bool import);
 
 	ArrayView < ConstReference <StyleSheet> > GetIncludes(bool imports) const;
 

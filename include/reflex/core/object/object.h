@@ -102,7 +102,7 @@ public:
 
 	void UnsetProperty(Address key);
 
-	void SetProperty(Address key, TRef <Object> data);
+	void SetProperty(Address key, WillRetain <Object> data);
 
 	Object * QueryProperty(Address key, Object * fallback = nullptr) const;
 
@@ -121,7 +121,7 @@ public:
 	bool IsDestructing() const;
 
 
-	TRef <Object> GetBase();												//for REFLEX_OBJECT_EX (workaround for Android studio, using BASE::SetOnHeap doesnt work)
+	AlreadyRetained <Object> GetBase();												//for REFLEX_OBJECT_EX (workaround for Android studio, using BASE::SetOnHeap doesnt work)
 
 
 	

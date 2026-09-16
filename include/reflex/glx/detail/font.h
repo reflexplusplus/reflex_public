@@ -17,9 +17,9 @@ namespace Reflex::GLX::Detail
 	class Font;
 
 
-	[[nodiscard]] TRef <Reflex::Object> DecodeFontFile(const File::ResourcePool::StreamContext & ctx, System::FileHandle & instream);
+	[[nodiscard]] Unretained <Reflex::Object> DecodeFontFile(const File::ResourcePool::StreamContext & ctx, System::FileHandle & instream);
 
-	ConstTRef <Data::ArchiveObject> RetrieveFontFile(const WString::View & path);
+	ConstAlreadyRetained <Data::ArchiveObject> RetrieveFontFile(const WString::View & path);
 
 }
 
@@ -70,7 +70,7 @@ public:
 
 	struct FaceDesc
 	{
-		ConstTRef <Data::ArchiveObject> fontfile;
+		ConstAlreadyRetained <Data::ArchiveObject> fontfile;
 
 		Size size;
 		Float yoffset = 0.0f;	//todo Point
@@ -83,9 +83,9 @@ public:
 
 	//lifetime (cached/shared)
 
-	[[nodiscard]] static TRef <Font> Create(const Data::PropertySet & parameters);
+	[[nodiscard]] static AlreadyRetained <Font> Acquire(const Data::PropertySet & parameters);
 
-	[[nodiscard]] static TRef <Font> Create(const ArrayView <FaceDesc> & faces);
+	[[nodiscard]] static AlreadyRetained <Font> Acquire(const ArrayView <FaceDesc> & faces);
 
 
 
@@ -99,7 +99,7 @@ public:
 
 	//text
 
-	virtual Pair < TRef <System::Renderer::Graphic>,Float32 > CreateText(const WString::View & text, Point position = kOrigin, Size scale = kNormal) const = 0;
+	virtual Pair < Unretained <System::Renderer::Graphic>,Float32 > CreateText(const WString::View & text, Point position = kOrigin, Size scale = kNormal) const = 0;
 
 };
 
@@ -111,7 +111,7 @@ REFLEX_SET_TRAIT(Reflex::GLX::Detail::Font, IsSingleThreadExclusive)
 //
 //impl
 
-inline Reflex::ConstTRef <Reflex::Data::ArchiveObject> Reflex::GLX::Detail::RetrieveFontFile(const WString::View & path)
+inline Reflex::ConstAlreadyRetained <Reflex::Data::ArchiveObject> Reflex::GLX::Detail::RetrieveFontFile(const WString::View & path)
 {
 	return RetrieveRelativeResource<FontFile>(path, Data::PropertySet::null, &DecodeFontFile);
 }

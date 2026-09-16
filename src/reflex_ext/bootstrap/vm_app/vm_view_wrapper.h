@@ -13,9 +13,9 @@ namespace Reflex::Bootstrap
 	{
 		REFLEX_OBJECT(VmViewWrapper, View);
 
-		static TRef <VmViewWrapper> Create(App & app, const WString::View & path, const ArrayView < Tuple <CString::View, TRef<Reflex::Object>> > & externals, UInt8 flags = VM::kContextFlagUi, const ArrayView <ConstTRef<VM::Module>> & modules = {});
+		static Unretained <VmViewWrapper> Create(App & app, const WString::View & path, const ArrayView < Tuple <CString::View, AlreadyRetained<Reflex::Object>> > & externals, UInt8 flags = VM::kContextFlagUi, const ArrayView <ConstRef<VM::Module>> & modules = {});
 
-		virtual Pair < TRef <VM::Context>, TRef <GLX::Object> > GetContent() = 0;
+		virtual Pair < AlreadyRetained <VM::Context>, AlreadyRetained <GLX::Object> > GetContent() = 0;
 
 		virtual void Rebuild() = 0;
 

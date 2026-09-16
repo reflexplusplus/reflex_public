@@ -44,12 +44,12 @@ public:
 
 	//content
 
-	template <class auto_1> CONTENT & SetContent(auto_1 && content);
+	template <class auto_1> AlreadyRetained <CONTENT> SetContent(auto_1 && content);
 
 
-	TRef <CONTENT> GetContent();
+	AlreadyRetained <CONTENT> GetContent();
 
-	ConstTRef <CONTENT> GetContent() const;
+	AlreadyRetained <const CONTENT> GetContent() const;
 
 };
 
@@ -69,7 +69,7 @@ template <class CONTENT> template <class TYPE> inline Reflex::GLX::ScrollerOfTyp
 	ScrollArea::SetContent(Deref(content));
 }
 
-template <class CONTENT> template <class auto_1> inline CONTENT & Reflex::GLX::ScrollerOfType<CONTENT>::SetContent(auto_1 && content)
+template <class CONTENT> template <class auto_1> inline Reflex::AlreadyRetained <CONTENT> Reflex::GLX::ScrollerOfType<CONTENT>::SetContent(auto_1 && content)
 {
 	auto & ref = Deref(content);
 
@@ -78,26 +78,26 @@ template <class CONTENT> template <class auto_1> inline CONTENT & Reflex::GLX::S
 	return ref;
 }
 
-template <class CONTENT> inline Reflex::TRef <CONTENT> Reflex::GLX::ScrollerOfType<CONTENT>::GetContent()
+template <class CONTENT> inline Reflex::AlreadyRetained <CONTENT> Reflex::GLX::ScrollerOfType<CONTENT>::GetContent()
 {
 	if constexpr (IsType<CONTENT,Object>::value)
 	{
-		return ScrollArea::GetContent();
+		return *ScrollArea::GetContent();
 	}
 	else
 	{
-		return Cast<CONTENT>(ScrollArea::GetContent());
+		return *Cast<CONTENT>(ScrollArea::GetContent());
 	}
 }
 
-template <class CONTENT> inline Reflex::ConstTRef <CONTENT> Reflex::GLX::ScrollerOfType<CONTENT>::GetContent() const
+template <class CONTENT> inline Reflex::AlreadyRetained <const CONTENT> Reflex::GLX::ScrollerOfType<CONTENT>::GetContent() const
 {
 	if constexpr (IsType<CONTENT,Object>::value)
 	{
-		return ScrollArea::GetContent();
+		return *ScrollArea::GetContent();
 	}
 	else
 	{
-		return Cast<CONTENT>(ScrollArea::GetContent());
+		return *Cast<CONTENT>(ScrollArea::GetContent());
 	}
 }

@@ -15,7 +15,7 @@ REFLEX_DECLARE_KEY32(IncrementalMouse);		//System::Renderer::Config option
 
 class Desktop;
 
-extern const TRef <Core::Desktop> desktop;
+extern const AlreadyRetained <Core::Desktop> desktop;
 
 REFLEX_END
 
@@ -51,9 +51,9 @@ public:
 
 	//notifications
 
-	[[nodiscard]] virtual TRef <Reflex::Object> CreateAnimationClock(const Function <void(Float32)> & listener) = 0;
+	[[nodiscard]] virtual Unretained <Reflex::Object> CreateAnimationClock(const Function <void(Float32)> & listener) = 0;
 
-	[[nodiscard]] virtual TRef <Reflex::Object> CreateListener(Notification notification, const Function <void()> & listener) = 0;
+	[[nodiscard]] virtual Unretained <Reflex::Object> CreateListener(Notification notification, const Function <void()> & listener) = 0;
 
 
 
@@ -69,7 +69,7 @@ public:
 
 	//mouseover
 
-	virtual TRef <GLX::Object> GetMouseOver() = 0;
+	virtual AlreadyRetained <GLX::Object> GetMouseOver() = 0;
 
 
 
@@ -77,22 +77,22 @@ public:
 
 	virtual void SetFocus(GLX::Object & object) = 0;
 
-	virtual TRef <GLX::Object> GetFocus() = 0;
+	virtual AlreadyRetained <GLX::Object> GetFocus() = 0;
 
 
 
 	//drag & drop
 
-	virtual void StartDragDrop(UInt8 pointer_slot, TRef <Reflex::Object> data, System::MouseCursor dragover = System::kMouseCursorInvisible, System::MouseCursor block = System::kMouseCursorInvisible) = 0;
+	virtual void StartDragDrop(UInt8 pointer_slot, WillRetain <Reflex::Object> data, System::MouseCursor dragover = System::kMouseCursorInvisible, System::MouseCursor block = System::kMouseCursorInvisible) = 0;
 
 	virtual void CompleteDragDrop() = 0;
 
 	virtual void CancelDragDrop() = 0;
 
 
-	virtual TRef <Reflex::Object> GetDragDropData() = 0;
+	virtual AlreadyRetained <Reflex::Object> GetDragDropData() = 0;
 
-	virtual TRef <GLX::Object> GetDragDropTarget() = 0;
+	virtual AlreadyRetained <GLX::Object> GetDragDropTarget() = 0;
 
 
 
@@ -106,7 +106,7 @@ public:
 
 	//root
 
-	const TRef <File::ResourcePool> resourcepool;
+	const AlreadyRetained <File::ResourcePool> resourcepool;
 
 
 

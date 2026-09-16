@@ -35,7 +35,7 @@ struct ResourceGroupImpl : public ResourceGroup
 
 	void Clear() override;
 
-	void AddItem(Address adr, ConstTRef <Object> object) override;
+	void AddItem(Address adr, ConstWillRetain <Object> object) override;
 
 	void ForceRebuild(File::ResourcePool::Lock & lock) override;
 
@@ -65,7 +65,7 @@ struct GlobalImpl : public Global
 	Reference <Data::PropertySet> m_prefs;
 
 
-	Sequence <Key32, Pair < WString, TRef <ResourceGroupImpl> > > m_clients;
+	Sequence <Key32, Pair < WString, AlreadyRetained <ResourceGroupImpl> > > m_clients;
 
 
 	State::Monitor m_monitor;

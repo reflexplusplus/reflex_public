@@ -26,7 +26,7 @@ REFLEX_NS(Reflex::Data::Detail)
 inline void RestoreImpl(Archive::View & stream, NullType &) {}
 void RestoreImpl(Archive::View & stream, bool & value);
 void RestoreImpl(Archive::View & stream, WChar & value);
-template <class TYPE> void RestoreImpl(Archive::View & stream, TRef <TYPE> ref);
+template <class TYPE> void RestoreImpl(Archive::View & stream, AlreadyRetained <TYPE> ref);
 template <class TYPE> void RestoreImpl(Archive::View & stream, ObjectOf <TYPE> & object);
 template <class ... VARGS> void RestoreImpl(Archive::View & stream, Tuple <VARGS...> & value);
 template <class TYPE, UInt SIZE> void RestoreImpl(Archive::View & stream, TYPE(&data)[SIZE]);
@@ -55,7 +55,11 @@ template <> struct ArrayDecoder <WChar>
 
 template <class TYPE> REFLEX_INLINE void ArrayDecoder<TYPE>::RestoreImpl(Archive::View & stream, TYPE * data, UInt size)
 {
-	if constexpr (IsRawCopyable<TYPE>::value)
+	if constexpr (kIsDeserializable<TYPE>)
+	{
+		REFLEX_LOOP_PTR(data, ptr, size) Detail::RestoreImpl(stream, *ptr);
+	}
+	else if constexpr (kIsRawCopyable<TYPE>)
 	{
 		UInt nbytes = size * sizeof(TYPE);
 
@@ -197,7 +201,7 @@ REFLEX_INLINE void RestoreImpl(Archive::View & stream, WChar & value)
 	value = WChar(temp);
 }
 
-template <class TYPE> REFLEX_INLINE void RestoreImpl(Archive::View & stream, TRef <TYPE> ref)
+template <class TYPE> REFLEX_INLINE void RestoreImpl(Archive::View & stream, AlreadyRetained <TYPE> ref)
 {
 	RestoreImpl(stream, *ref);
 }
@@ -211,7 +215,11 @@ template <class ... VARGS> REFLEX_INLINE void RestoreImpl(Archive::View & stream
 {
 	using Type = Tuple <VARGS...>;
 
-	if constexpr (IsRawCopyable<Type>::value)
+	if constexpr ((kIsDeserializable<VARGS> || ...))
+	{
+		RestoreTuple<0>(stream, value);
+	}
+	else if constexpr (kIsRawCopyable<Type>)
 	{
 		RawCopy<sizeof(Type)>(stream.data, &value);
 
@@ -271,17 +279,16 @@ REFLEX_END
 
 template <class TYPE> REFLEX_INLINE void Reflex::Data::Detail::RestoreImpl(Archive::View & stream, TYPE & data)
 {
-	if constexpr (kIsRawCopyable<TYPE>)
-	{
-		ReadRaw(stream, data);
-	}
-	else if constexpr (kIsStreamable<TYPE>)
+	if constexpr (kIsDeserializable<TYPE>)
 	{
 		data.Deserialize(stream);
+	}
+	else if constexpr (kIsRawCopyable<TYPE>)
+	{
+		ReadRaw(stream, data);
 	}
 	else
 	{
 		REFLEX_STATIC_ASSERT(!kSizeOf<TYPE>);	//conditional static warning
 	}
 }
-

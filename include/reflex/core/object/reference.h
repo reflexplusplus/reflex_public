@@ -132,7 +132,7 @@ REFLEX_NS(Reflex)
 
 template <class TYPE> inline void ByRef(Reference <TYPE> value);	//intentionally not implemented
 
-template <class auto_t> REFLEX_INLINE void Retain(auto_t && objectref)
+template <class auto_t> REFLEX_INLINE auto Retain(auto_t && objectref)
 {
 	auto & object = Deref(objectref);
 
@@ -146,6 +146,8 @@ template <class auto_t> REFLEX_INLINE void Retain(auto_t && objectref)
 	{
 		object.RetainMt();
 	}
+
+	return AlreadyRetained(object);
 }
 
 template <class auto_t> REFLEX_INLINE void Release(auto_t && objectref)

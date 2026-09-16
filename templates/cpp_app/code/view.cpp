@@ -38,7 +38,7 @@ public:
 
 
 
-	const TRef <App> app;
+	const AlreadyRetained <App> app;
 
 
 	//put your GLX::Object members here
@@ -48,11 +48,9 @@ public:
 };
 
 ViewImpl::ViewImpl(App & app)
-	: View(app, kChunkVersion, L":res:_PRODUCT-NAME-SYMBOL_/styles.glx")
+	: View(app, kChunkVersion, L":res:_PRODUCT-NAME-SYMBOL_/styles.glx", true)	//true for resizable
 	, app(app)
 {
-	Data::SetBool(*this, GLX::kresizable, true);
-
 	if constexpr (REFLEX_DEBUG)
 	{
 		GLX::SetText(m_ide, L"Console");
@@ -105,7 +103,7 @@ void ViewImpl::OnUpdate()
 
 } }	//end internal namespace
 
-Reflex::TRef <_PRODUCT-NAME-SYMBOL_::View> _PRODUCT-NAME-SYMBOL_::View::Create(App & app)
+Reflex::Unretained <_PRODUCT-NAME-SYMBOL_::View> _PRODUCT-NAME-SYMBOL_::View::Create(App & app)
 {
 	return New<ViewImpl>(app);
 }

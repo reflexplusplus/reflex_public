@@ -8,7 +8,6 @@ import androidx.activity.addCallback
 import androidx.appcompat.app.AppCompatActivity
 import com.google.android.material.color.DynamicColors
 import com.google.android.material.textfield.TextInputEditText
-import com.reflexplusplus.reflex.R
 
 class ReflexTextInputActivity : AppCompatActivity() {
 	companion object {
@@ -38,17 +37,23 @@ class ReflexTextInputActivity : AppCompatActivity() {
 
 	private var hasResetedCallback = false
 
+	private fun resourceId(type: String, name: String): Int {
+		val id = resources.getIdentifier(name, type, packageName)
+		check(id != 0) { "Missing Android resource: $type/$name" }
+		return id
+	}
+
 	override fun onCreate(savedInstanceState: Bundle?) {
 		DynamicColors.applyToActivityIfAvailable(this) // Enables Material You
 
 		super.onCreate(savedInstanceState)
 
-		setContentView(R.layout.reflex_input_activity)
+		setContentView(resourceId("layout", "reflex_input_activity"))
 
 		// Apply system bar padding
-		val editText = findViewById<TextInputEditText>(R.id.edit_text)
-		val okButton = findViewById<Button>(R.id.ok_button)
-		val cancelButton = findViewById<Button>(R.id.cancel_button)
+		val editText = findViewById<TextInputEditText>(resourceId("id", "edit_text"))
+		val okButton = findViewById<Button>(resourceId("id", "ok_button"))
+		val cancelButton = findViewById<Button>(resourceId("id", "cancel_button"))
 
 		cancelButton.setOnClickListener {
 			Companion.parentActivity = null

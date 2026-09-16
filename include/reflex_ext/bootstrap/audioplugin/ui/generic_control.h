@@ -1,5 +1,6 @@
 #pragma once
 
+#include "../../common/ui/[require].h"
 #include "../parameter.h"
 
 
@@ -30,14 +31,13 @@ public:
 	REFLEX_USE_ENUM(ParameterDefinition, Type);
 
 
-	GenericControl();
 
-	~GenericControl();
+	GenericControl();
 
 
 	Type GetType() const { return m_type_active.a; }
 
-	TRef <GLX::Object> GetContent() const { return m_content; }
+	AlreadyRetained <GLX::Object> GetContent() const { return m_content; }
 
 
 
@@ -49,22 +49,20 @@ protected:
 
 	void ClearWidget();
 
-	TRef <GLX::Object> AcquireWidget(Type type, bool active = true);
+	AlreadyRetained <GLX::Object> AcquireWidget(Type type, bool active = true);
 
 
 
 private:
 
-	struct CStyle;
-
 	void OnSetStyle(const GLX::Style & style) override;
 
 
-	ConstReference <CStyle> m_cstyle;
+	ConstReference <Reflex::Object> m_cstyle;
 
 	Pair <Type,bool> m_type_active;
 
-	TRef <GLX::Object> m_content;
+	AlreadyRetained <GLX::Object> m_content;
 
 	Reference <GLX::Text> m_value;
 

@@ -11,7 +11,7 @@
 namespace Reflex
 {
 
-	template <class TYPE> TRef <TYPE> Null();
+	template <class TYPE> AlreadyRetained <TYPE> Null();
 
 
 }
@@ -35,7 +35,7 @@ namespace Reflex::Detail
 //
 //impl
 
-template <class TYPE> inline Reflex::TRef <TYPE> Reflex::Null()
+template <class TYPE> inline Reflex::AlreadyRetained <TYPE> Reflex::Null()
 {
 	return Detail::GetNullInstance<NonConstT<TYPE>>();
 }

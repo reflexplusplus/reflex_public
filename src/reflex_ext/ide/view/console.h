@@ -15,7 +15,7 @@ struct ComputedStyle : public Reflex::Object
 {
 	ComputedStyle(const GLX::Style & style);
 
-	ConstTRef <GLX::Style> menu, menu_section, bar, subgroup, button, popup, list, list_item, texteditor, focus_rectangle, focus_parent_rectangle;
+	ConstAlreadyRetained <GLX::Style> menu, menu_section, bar, subgroup, button, popup, list, list_item, texteditor, focus_rectangle, focus_parent_rectangle;
 };
 
 constexpr Key32 kOverflowPath = "path";

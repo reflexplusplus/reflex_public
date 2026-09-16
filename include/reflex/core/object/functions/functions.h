@@ -33,6 +33,8 @@ namespace Reflex
 
 	template <class auto_t> auto AutoRelease(auto_t && object);
 
+	template <class auto_t> auto NoRetain(auto_t && objectref);
+
 
 	template <class TYPE> TYPE & Deref(TRef <TYPE> type) { return *type; }
 
@@ -168,9 +170,18 @@ template <class auto_t> REFLEX_INLINE auto Reflex::AutoRelease(auto_t && object)
 {
 	constexpr bool test = !IsReflexReference<NonRefT<auto_t>>::retaining;
 
-	static_assert(test, "unnecesary AutoRelease");
+	static_assert(test, "unnecessary AutoRelease");
 
 	return Reference(Deref(object));
+}
+
+template <class auto_t> REFLEX_INLINE auto Reflex::NoRetain(auto_t && objectref)
+{
+	auto & object = Deref(objectref);
+
+	using ObjectType = NonRefT <decltype(object)>;
+
+	return AlreadyRetained<ObjectType>(object);
 }
 
 template <class auto_t> REFLEX_INLINE bool Reflex::IsNull(auto_t && objectref)

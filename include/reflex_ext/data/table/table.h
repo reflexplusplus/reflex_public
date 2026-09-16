@@ -92,11 +92,11 @@ public:
 
 	//lifetime
 
-	[[nodiscard]] static TRef <Table> Create(ArrayView <ColumnInfo> columns);
+	[[nodiscard]] static Unretained <Table> Create(ArrayView <ColumnInfo> columns);
 
-	[[nodiscard]] static TRef <Table> Clone(const Table & table);
+	[[nodiscard]] static Unretained <Table> Clone(const Table & table);
 
-	[[nodiscard]] static TRef <Table> Deserialize(System::FileHandle & stream);
+	[[nodiscard]] static Unretained <Table> Deserialize(System::FileHandle & stream);
 
 
 	virtual void Allocate(UInt num_row) = 0;
@@ -208,7 +208,7 @@ struct Reflex::Data::Table::CellPtrImpl
 {
 	using Byte = ConditionalType < CONST, const UInt8, UInt8 >;
 
-	using TableRef = ConditionalType < CONST, ConstTRef <Table>, TRef <Table> >;
+	using TableRef = ConditionalType < CONST, ConstAlreadyRetained <Table>, AlreadyRetained <Table> >;
 
 	using RowType = ConditionalType < CONST, ConstRowCursor, RowCursor >;
 
@@ -274,7 +274,7 @@ struct Reflex::Data::Table::CellPtrImpl
 	UInt rowbytesize;
 
 #if REFLEX_DEBUG
-	ConstTRef<Table> m_debug_table;
+	ConstAlreadyRetained<Table> m_debug_table;
 
 	UInt32 m_debug_data_epoch;
 #endif

@@ -10,8 +10,7 @@ template <class ARRAY> void RequireUnique(const ARRAY & values, CString::View pr
 {
 	REFLEX_LOOP(index, values.GetSize())
 	{
-		for (UInt previous = 0; previous < index; ++previous)
-			Require(values[previous] != values[index], property_name, "duplicate value");
+		REFLEX_LOOP(previous, index) Require(values[previous] != values[index], property_name, "duplicate value");
 	}
 }
 
@@ -103,7 +102,7 @@ void DecodeProjectDocument(Project & project, Array<Reference<Project>> & projec
 	// Decode generically first to discover this document's ordered include graph.
 	// Each referenced document retains its own root, keymap, source path, and targets.
 	auto source = Data::DecodePropertySet(Data::kPropertySheetFormat, blob, options);
-	if (auto error = Data::GetError(source)) ThrowError(ToCString(error.value.a), error.value.c);
+	if (auto error = Data::GetError(source)) ThrowError(ToCString(error.value.a + 1), error.value.c);
 	auto variables = DecodeVariables(source, kNullKey, Data::GetKeyMap(source));
 	for (auto & variable : GetPersistentVariables()) SetVariable(variables, variable.name, variable.value);
 	auto folder = File::SplitFilename(filename).a;
@@ -122,7 +121,7 @@ void DecodeProjectDocument(Project & project, Array<Reference<Project>> & projec
 	AcquireIncludes(GetCStrings(source, kImport));
 
 	g_project_format->Decode(project, File::Open(filename), options);
-	if (auto error = Data::GetError(project)) ThrowError(ToCString(error.value.a), error.value.c);
+	if (auto error = Data::GetError(project)) ThrowError(ToCString(error.value.a + 1), error.value.c);
 }
 
 REFLEX_END_INTERNAL
@@ -485,6 +484,17 @@ Reflex::ArrayView<Reflex::Reference<ReflexCLI::ProjectGen::Target>> ReflexCLI::P
 	return {};
 }
 
+Reflex::WString ReflexCLI::ProjectGen::Target::GetSourceProject(BuildPlatform platform) const
+{
+	if (!m_library) return {};
+	auto target_platform = FindPlatform(platform);
+	if (!target_platform) return {};
+	auto value = GetConfigurationInvariant(*target_platform, kSourceProject,
+		[](const TargetConfiguration & configuration) { return configuration.GetString(kSourceProject); });
+	if (!value) return {};
+	return File::ResolveRelativePath(ResolvePath(project->GetRoot(), DecodePath(value)));
+}
+
 Reflex::Array<ReflexCLI::ProjectGen::PlatformTarget> ReflexCLI::ProjectGen::CollectTargetPlatforms(Project & root, BuildPlatform platform, Array<const TargetPlatform *> & generated_platforms)
 {
 	Array<PlatformTarget> result;
@@ -503,7 +513,7 @@ Reflex::Array<ReflexCLI::ProjectGen::PlatformTarget> ReflexCLI::ProjectGen::Coll
 	return result;
 }
 
-Reflex::TRef<ReflexCLI::ProjectGen::PathGroup> ReflexCLI::ProjectGen::AcquirePathGroup(PathGroup & parent, CString::View value)
+Reflex::AlreadyRetained<ReflexCLI::ProjectGen::PathGroup> ReflexCLI::ProjectGen::AcquirePathGroup(PathGroup & parent, CString::View value)
 {
 	if (value)
 	{
@@ -511,7 +521,7 @@ Reflex::TRef<ReflexCLI::ProjectGen::PathGroup> ReflexCLI::ProjectGen::AcquirePat
 		auto child = New<PathGroup>();
 		child->name = value;
 		child->Attach(parent);
-		return child;
+		return NoRetain(child);
 	}
 
 	return parent;
@@ -686,6 +696,21 @@ Reflex::Array<Reflex::CString> ReflexCLI::ProjectGen::TargetConfiguration::GetSt
 	auto values = m_source->QueryProperty<Data::ArrayOfCStringProperty>(id);
 	if (!values) return result;
 	for (auto & value : values->value)
+	{
+		auto expanded = Expand(value);
+		result.Push(std::move(expanded));
+	}
+	RequireUnique(result, property);
+	return result;
+}
+
+Reflex::Array<Reflex::CString> ReflexCLI::ProjectGen::TargetConfiguration::GetAppendableStrings(CString::View property) const
+{
+	Key32 id = property;
+	Array<CString> result;
+	auto values = m_source->QueryProperty<AppendableStrings>(id);
+	if (!values) return result;
+	for (auto & value : values->values)
 	{
 		auto expanded = Expand(value);
 		result.Push(std::move(expanded));
@@ -902,7 +927,7 @@ Reflex::Array<ReflexCLI::ProjectGen::BuildActionDesc> ReflexCLI::ProjectGen::Tar
 	{
 		REFLEX_LOOP(idx, refs->values.GetSize())
 		{
-			TRef value = refs->values[idx];
+			auto value = NoRetain(refs->values[idx]);
 			BuildActionDesc action;
 			auto default_name = Join(kBuildPhases[phase], '_', '#', ToCString(idx + 1));
 			action.name = Data::GetCString(value, kName, default_name);
@@ -1015,7 +1040,9 @@ Reflex::Array<Reflex::Reference<ReflexCLI::ProjectGen::Target>> ReflexCLI::Proje
 	return result;
 }
 
-void ReflexCLI::GenerateProject(const WString & path, ArrayView <CString::View> platforms_filter, System::FileHandle & out)
+REFLEX_BEGIN_INTERNAL(ReflexCLI)
+
+void GenerateProjectGraph(const WString & path, ArrayView <CString::View> platforms_filter, System::FileHandle & out, bool fresh)
 {
 	static constexpr decltype(&ProjectGen::GenerateVisualStudioProject) kGenerators[] =
 	{ 
@@ -1032,10 +1059,11 @@ void ReflexCLI::GenerateProject(const WString & path, ArrayView <CString::View> 
 	Array <Reference<ProjectGen::Project>> projects;
 	auto root_project = ProjectGen::Project::Acquire(projects, filename);
 	auto & project = *root_project;
+	Bootstrap::CLI::Print(out, Bootstrap::CLI::kColourWhite, project.GetName());
 	
 	struct PostGenerateAction
 	{
-		ConstTRef <ProjectGen::Project> project;
+		ConstAlreadyRetained <ProjectGen::Project> project;
 		ProjectGen::BuildActionDesc action;
 	};
 	Array<PostGenerateAction> post_generate;
@@ -1060,7 +1088,7 @@ void ReflexCLI::GenerateProject(const WString & path, ArrayView <CString::View> 
 		}
 	};
 
-	Array<BuildPlatform> platforms;
+	Array <BuildPlatform> platforms;
 	for (auto & target : project.GetTargets())
 	{
 		for (auto & target_platform : target->GetTargetPlatforms())
@@ -1080,14 +1108,41 @@ void ReflexCLI::GenerateProject(const WString & path, ArrayView <CString::View> 
 			auto platform_name = kBuildPlatforms[platform];
 			try
 			{
-				Array<const ProjectGen::TargetPlatform *> generated_platforms;
+				Array <const ProjectGen::TargetPlatform *> generated_platforms;
 				bool root_generated = false;
 				for (auto & generated_project : projects)
 				{
 					if (generated_project->IsLibraryOnly()) continue;
+					auto directory = GetProjectFolder(generated_project, platform);
+					if (fresh)
+					{
+						auto archive = File::Open(Join(directory, L"outputs.txt"));
+						auto input = ToView(archive);
+						WString output;
+						while (Data::ReadLine(input, output))
+						{
+							if (File::IsDirectory(output)) File::DeletePath(output);
+							else File::Delete(output);
+							if (File::Exists(output)) Bootstrap::CLI::Print(out, Bootstrap::CLI::kColourYellow, Join("warning: could not delete ", EncodeUTF8(output)));
+						}
+					}
+					if (fresh && File::IsDirectory(directory))
+					{
+						File::DeletePath(directory);
+						if (File::IsDirectory(directory)) Bootstrap::CLI::Print(out, Bootstrap::CLI::kColourYellow, Join("warning: could not clear ", EncodeUTF8(directory)));
+					}
+					File::MakePath(directory);
 					auto generated_count = generated_platforms.GetSize();
-					kGenerators[platform](*generated_project, platform, generated_platforms);
-					if (generated_project.Adr() == root_project.Adr()) root_generated = generated_platforms.GetSize() != generated_count;
+					Map<WString> generated_outputs;
+					kGenerators[platform](generated_project, platform, directory, generated_platforms, generated_outputs);
+					auto generated = generated_platforms.GetSize() != generated_count;
+					if (generated)
+					{
+						Data::Archive output_list;
+						for (auto & [output, unused] : generated_outputs) Data::WriteLine(output_list, output);
+						ProjectGen::SaveFile(Join(directory, L"outputs.txt"), std::move(output_list), platform);
+					}
+					if (generated_project.Adr() == root_project.Adr()) root_generated = generated;
 				}
 				if (root_generated)
 				{
@@ -1124,4 +1179,145 @@ void ReflexCLI::GenerateProject(const WString & path, ArrayView <CString::View> 
 	}
 
 	System::SetCurrentDirectory(previous);
+}
+
+void CollectSourceProjects(WString::View project_path, BuildPlatform platform, Array<WString> & result, Array<WString> & active, Array<WString> & completed, bool include_project)
+{
+	auto filename = ResolveAbsolutePathCase(File::ResolveRelativePath(File::CorrectStrokes(project_path)));
+	if (Search(completed, filename)) return;
+	Require(!Search(active, filename), "source_project cycle", EncodeUTF8(filename));
+	active.Push(filename);
+
+	Array<Reference<ProjectGen::Project>> projects;
+	auto project = ProjectGen::Project::Acquire(projects, filename);
+	Array<const ProjectGen::Target *> visited;
+	auto visit = [&result, &active, &completed, platform, &visited](const ProjectGen::Target & target, auto && visit) -> void
+	{
+		if (Search(visited, &target)) return;
+		visited.Push(&target);
+		for (auto & dependency : target.GetDependencies(platform))
+		{
+			if (auto source_project = dependency->GetSourceProject(platform); source_project && File::Exists(source_project))
+			{
+				CollectSourceProjects(source_project, platform, result, active, completed, true);
+				continue;
+			}
+			visit(*dependency, visit);
+		}
+	};
+	for (auto & target : project->GetTargets())
+	{
+		if (!target->IsLibrary() && target->FindPlatform(platform)) visit(*target, visit);
+	}
+
+	active.Pop();
+	completed.Push(filename);
+	if (include_project) result.Push(std::move(filename));
+}
+
+Array<WString> GetSourceProjects(WString::View project_path, BuildPlatform platform)
+{
+	Array<WString> result, active, completed;
+	CollectSourceProjects(project_path, platform, result, active, completed, false);
+
+	Array<WString> roots;
+	for (auto & candidate : result)
+	{
+		bool included = false;
+		for (auto & owner : result)
+		{
+			if (owner == candidate) continue;
+			Array<Reference<ProjectGen::Project>> projects;
+			ProjectGen::Project::Acquire(projects, owner);
+			for (auto & project : projects)
+			{
+				if (project->GetCfgPath() == candidate)
+				{
+					included = true;
+					break;
+				}
+			}
+			if (included) break;
+		}
+		if (!included) roots.Push(candidate);
+	}
+	return roots;
+}
+
+void GenerateSourceProjects(WString::View project_path, ArrayView<CString::View> platforms, System::FileHandle & std_out, bool fresh)
+{
+	for (auto platform : platforms)
+	{
+		auto platform_index = Search(kBuildPlatforms, platform);
+		REFLEX_ASSERT(platform_index);
+		for (auto & source_project : GetSourceProjects(project_path, BuildPlatform(platform_index.value)))
+		{
+			GenerateProjectGraph(source_project, { platform }, std_out, fresh);
+		}
+	}
+}
+
+void RunBuildHelpers(ArrayView<WString> scripts, System::FileHandle & std_out)
+{
+	const bool is_windows = System::kPlatform == System::kPlatformWindows;
+	WString::View tool = is_windows ? L"cmd.exe" : L"/bin/sh";
+	bool ran = false;
+
+	for (auto & script : scripts)
+	{
+		if (!File::Exists(script)) continue;
+		Array<WString> commands;
+		if (is_windows) commands.Append({ L"/d", L"/c" });
+		commands.Push(script);
+		Require(RunCommand(tool, commands, &std_out, true), "build failed", ToCString(script));
+		ran = true;
+	}
+
+	Require(ran, "build failed", "nothing to build");
+}
+
+void BuildGeneratedProject(WString::View project_path, CString::View platform, CString::View configuration, System::FileHandle & std_out)
+{
+	static constexpr WString::View kPrefix = L"Build ";
+	const auto ext = System::kPlatform == System::kPlatformWindows ? kBat : kCommand;
+	Array<Reference<ProjectGen::Project>> projects;
+	auto project = ProjectGen::Project::Acquire(projects, project_path);
+	auto directory = Join(project->GetRoot(), project->GetGeneratedDirectory(), ToWString(platform), File::kStroke);
+	auto make_config = [ext](WString::View value) { return Join(kPrefix, value, File::kDot, ext); };
+
+	Array<WString> scripts;
+	if (configuration)
+	{
+		scripts.Push(Join(directory, make_config(ToWString(configuration))));
+	}
+	else
+	{
+		auto [folders, files] = File::List(directory, false);
+		for (auto & [name, unused] : files)
+		{
+			if (CaseInsensitive::eq(Left<true>(name, kPrefix.size), kPrefix) && File::CheckExtension(name, ext)) scripts.Push(Join(directory, name));
+		}
+	}
+
+	Bootstrap::CLI::Print(std_out, Bootstrap::CLI::kColourWhite, project->GetName());
+	RunBuildHelpers(scripts, std_out);
+}
+
+REFLEX_END_INTERNAL
+
+void ReflexCLI::ProjectGen::Generate(const WString & path, ArrayView<CString::View> platforms, System::FileHandle & std_out, bool fresh)
+{
+	GenerateSourceProjects(path, platforms, std_out, fresh);
+	GenerateProjectGraph(path, platforms, std_out, fresh);
+}
+
+void ReflexCLI::ProjectGen::Build(const WString & path, CString::View platform, CString::View configuration, System::FileHandle & std_out)
+{
+	auto platform_index = Search(kBuildPlatforms, platform);
+	Require(True(platform_index), "expected platform", "<windows|macos|ios|android|linux> [configuration]");
+	for (auto & source_project : GetSourceProjects(path, BuildPlatform(platform_index.value)))
+	{
+		BuildGeneratedProject(source_project, platform, configuration, std_out);
+	}
+	BuildGeneratedProject(path, platform, configuration, std_out);
 }

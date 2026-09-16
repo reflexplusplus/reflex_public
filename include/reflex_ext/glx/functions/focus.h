@@ -11,7 +11,7 @@
 namespace Reflex::GLX
 {
 
-	TRef <Object> GetFocus();
+	AlreadyRetained <Object> GetFocus();
 
 
 	void FocusBranch(Object & branch_root);							//focus 'branch_root' if focus not already within 'branch_root'
@@ -29,7 +29,7 @@ namespace Reflex::GLX
 	void DisableFocusHighlight(Object & root);
 
 
-	void SetFocusHighlight(Object & scope, const Function <TRef<Animation>()> & ctr);	//typically set at root, is inherited
+	void SetFocusHighlight(Object & scope, const Function <Unretained<Animation>()> & ctr);	//typically set at root, is inherited
 
 	void ClearFocusHighlight(Object & scope);
 
@@ -44,7 +44,7 @@ namespace Reflex::GLX
 //
 //impl
 
-inline Reflex::TRef <Reflex::GLX::Object> Reflex::GLX::GetFocus()
+inline Reflex::AlreadyRetained <Reflex::GLX::Object> Reflex::GLX::GetFocus()
 {
 	return Core::desktop->GetFocus();
 }

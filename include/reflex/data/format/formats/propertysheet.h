@@ -13,6 +13,6 @@
 namespace Reflex::Data
 {
 
-	extern const ConstTRef <Format> kPropertySheetFormat;
+	extern const ConstAlreadyRetained <Format> kPropertySheetFormat;
 
 }

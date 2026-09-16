@@ -12,16 +12,6 @@ constexpr CString::View kIOSBuild =
 "xcodebuild -workspace [WORKSPACE] -scheme Build -configuration [CONFIGURATION] -destination 'generic/platform=iOS' build\n"
 "xcodebuild -quiet -workspace [WORKSPACE] -scheme Build -configuration [CONFIGURATION] -destination 'generic/platform=iOS Simulator' build\n";
 
-constexpr CString::View kMacOSClean =
-"#!/bin/sh\n"
-"exec xcodebuild -quiet -workspace [WORKSPACE] -scheme Build clean\n";
-
-constexpr CString::View kIOSClean =
-"#!/bin/sh\n"
-"set -e\n"
-"xcodebuild -workspace [WORKSPACE] -scheme Build -destination 'generic/platform=iOS' clean\n"
-"exec xcodebuild -quiet -workspace [WORKSPACE] -scheme Build -destination 'generic/platform=iOS Simulator' clean\n";
-
 struct Context
 {
 	const Project & project;
@@ -295,7 +285,7 @@ Array<CString> CollectFrameworks(const TargetPlatform & platform)
 	auto platform_index = PlatformIndex(platform.GetPlatform());
 	for (auto & config : platform.GetTargetConfigurations())
 	{
-		for (auto & framework : config->GetStrings(kXcodeFrameworkProperties[platform_index])) if (!Search(result, framework)) result.Push(framework);
+		for (auto & framework : config->GetAppendableStrings(kXcodeFrameworkProperties[platform_index])) if (!Search(result, framework)) result.Push(framework);
 	}
 	return result;
 }
@@ -365,6 +355,36 @@ Array<CString> Architectures(const TargetConfiguration & config)
 	Array<CString> result;
 	for (auto architecture : config.GetArchitectures()) result.Push(ArchitectureName(architecture));
 	return result;
+}
+
+void AddOutputs(Map<WString> & outputs, const Project & project, ArrayView<Context> contexts)
+{
+	for (auto & context : contexts)
+	{
+		if (context.target.project.Adr() != &project) continue;
+		const CString::View macos_variants[] = { "macosx" };
+		const CString::View ios_variants[] = { "iphoneos", "iphonesimulator" };
+		auto variants = context.platform.GetPlatform() == kBuildPlatformIOS ? ToView(ios_variants) : ToView(macos_variants);
+		for (auto & config : context.platform.GetTargetConfigurations())
+		{
+			auto output_directory = config->GetPath(kOutputDirectory);
+			if (!output_directory.path) continue;
+			auto directory = File::CorrectTrailingStroke(TranslateVariables(ResolvePath(context.project.GetRoot(), output_directory)));
+			auto bundle = IsBundle(*config);
+			auto product_is_directory = config->GetProductType() == kOutputType_app || bundle;
+			auto filename = ToWString(ProductFilename(*config, bundle));
+			for (auto variant : variants) for (auto architecture : config->GetArchitectures())
+			{
+				auto resolved_directory = Replace(directory, L"$(CURRENT_ARCH)", ToWString(ArchitectureName(architecture)));
+				resolved_directory = Replace(resolved_directory, L"$(PLATFORM_NAME)", ToWString(variant));
+				auto resolved_filename = Replace(filename, L"$(CURRENT_ARCH)", ToWString(ArchitectureName(architecture)));
+				resolved_filename = Replace(resolved_filename, L"$(PLATFORM_NAME)", ToWString(variant));
+				if (product_is_directory) outputs.Set(Join(resolved_directory, resolved_filename, File::kStroke));
+				else outputs.Set(Join(resolved_directory, resolved_filename));
+				outputs.Set(Join(resolved_directory, resolved_filename, L".dSYM", File::kStroke));
+			}
+		}
+	}
 }
 
 void ValidateTarget(const Context & context)
@@ -478,7 +498,7 @@ Array<CString> WarningFlags(const TargetConfiguration & config)
 	auto warning_level = config.GetEnum<WarningLevel>(kWarningLevel, kWarningLevelNames, kWarningLevel_standard);
 	for (auto option : GnuWarningOptions(config)) result.Push(option);
 	result.Push(warning_level == kWarningLevel_pedantic ? "-Wnullability-completeness" : "-Wno-nullability-completeness");
-	for (auto option : GnuFloatingPointOptions(config)) result.Push(option);
+	for (auto option : ClangFloatingPointOptions(config)) result.Push(option);
 	return result;
 }
 
@@ -490,7 +510,7 @@ Array <WString> LinkFlags(const Context & context, const TargetConfiguration & c
 		if (dependency->IsLibrary()) result.Push(DependencyLibraryPath(context, *dependency, config.GetName()));
 	}
 	auto platform_index = PlatformIndex(context.platform.GetPlatform());
-	for (auto & framework : config.GetStrings(kXcodeFrameworkProperties[platform_index]))
+	for (auto & framework : config.GetAppendableStrings(kXcodeFrameworkProperties[platform_index]))
 	{
 		result.Push(L"-framework");
 		result.Push(ToWString(framework));
@@ -541,7 +561,7 @@ void WriteBuildSettings(Data::Archive & output, const Context & context, const T
 	if (debug_information) WriteSetting(output, "DEBUG_INFORMATION_FORMAT", "dwarf-with-dsym");
 	WriteSetting(output, "DEAD_CODE_STRIPPING", dead_strip ? "YES" : "NO");
 	WriteSetting(output, "CONFIGURATION_BUILD_DIR", RootPath(config.GetPath(kOutputDirectory)));
-	WriteSetting(output, "CONFIGURATION_TEMP_DIR", RootPath(config.GetPath(kIntermediateDirectory)));
+	WriteSetting(output, "CONFIGURATION_TEMP_DIR", "$(PROJECT_DIR)/intermediate/$(CONFIGURATION)/$(PLATFORM_NAME)/$(TARGET_NAME)");
 	auto bundle = IsBundle(config);
 	auto extension = ProductExtension(config, bundle);
 	if (output_type == kOutputType_dynamic_library && bundle)
@@ -649,7 +669,7 @@ void WriteFileReferences(Data::Archive & output, const Context & context, const 
 	}
 	for (auto dependency : ProjectDependencies(context))
 	{
-		auto project_directory = Join(MakeProjectFolder(*dependency->project, context.platform.GetPlatform()), ToWString(dependency->GetName()), L".xcodeproj", File::kStroke);
+		auto project_directory = Join(GetProjectFolder(*dependency->project, context.platform.GetPlatform()), ToWString(dependency->GetName()), L".xcodeproj", File::kStroke);
 		auto project_path = File::MakeRelativePath(context.directory, project_directory);
 		auto project_id = MakeDependencyID(context, *dependency, "project");
 		auto reference_id = MakeDependencyID(context, *dependency, "product-reference");
@@ -1241,9 +1261,8 @@ void WriteWorkspaceBuildScheme(const WString & workspace, WString::View director
 
 REFLEX_END_INTERNAL
 
-void ReflexCLI::ProjectGen::GenerateXcodeProject(Project & project, BuildPlatform selected_platform, Array<const TargetPlatform *> & generated_platforms)
+void ReflexCLI::ProjectGen::GenerateXcodeProject(Project & project, BuildPlatform selected_platform, const WString & directory, Array<const TargetPlatform *> & generated_platforms, Map<WString> & outputs)
 {
-	auto directory = MakeProjectFolder(project, selected_platform);
 	Require(selected_platform == kBuildPlatformMacOS || selected_platform == kBuildPlatformIOS, "platform", "expected macos or ios platform");
 	auto target_platforms = CollectTargetPlatforms(project, selected_platform, generated_platforms);
 	Array<Xcode::Context> contexts;
@@ -1251,7 +1270,7 @@ void ReflexCLI::ProjectGen::GenerateXcodeProject(Project & project, BuildPlatfor
 	{
 		auto & target = *item.target;
 		if (target.IsLibrary()) continue;
-		Xcode::Context context = { *target.project, target, *item.platform, MakeProjectFolder(*target.project, selected_platform), {}, {} };
+		Xcode::Context context = { *target.project, target, *item.platform, GetProjectFolder(*target.project, selected_platform), {}, {} };
 		for (auto & dependency : target.GetDependencies(selected_platform)) if (!dependency->IsLibrary()) context.dependencies.Push(dependency.Adr());
 		if (GetOutputType(*item.platform) != kOutputType_static_library)
 			for (auto & dependency : item.link_dependencies) context.link_dependencies.Push(dependency.Adr());
@@ -1259,6 +1278,7 @@ void ReflexCLI::ProjectGen::GenerateXcodeProject(Project & project, BuildPlatfor
 		contexts.Push(std::move(context));
 	}
 	if (contexts.Empty()) return;
+	Xcode::AddOutputs(outputs, project, contexts);
 
 	for (auto & context : contexts)
 	{
@@ -1296,7 +1316,4 @@ void ReflexCLI::ProjectGen::GenerateXcodeProject(Project & project, BuildPlatfor
 			}
 		}
 	}
-	auto clean_workspace = Join(L"\"$(dirname \"$0\")/", ToWString(project.GetName()), L".xcworkspace\"");
-	auto clean = Template(Data::Pack(selected_platform == kBuildPlatformIOS ? Xcode::kIOSClean : Xcode::kMacOSClean), { { "WORKSPACE", clean_workspace } });
-	SaveCommandScript(Join(directory, L"Clean.", ReflexCLI::kCommand), clean, selected_platform);
 }

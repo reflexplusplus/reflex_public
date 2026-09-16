@@ -42,7 +42,7 @@ void Reflex::GLX::FlowDialog::Clear()
 	UpdateButtons({});
 }
 
-void Reflex::GLX::FlowDialog::RegisterPage(Key32 id, Key32 prev, Key32 next, Key32 style_id, const Labels & labels, Function <TRef<Object>(FlowDialog&)> ctr)
+void Reflex::GLX::FlowDialog::RegisterPage(Key32 id, Key32 prev, Key32 next, Key32 style_id, const Labels & labels, Function <Unretained<Object>(FlowDialog&)> ctr)
 {
 	m_pages.Set(id, { .labels = labels, .prev_id = prev, .next_id = next, .style_id = style_id, .ctr = ctr });
 }
@@ -68,7 +68,7 @@ void Reflex::GLX::FlowDialog::UpdateButtons(const Page & page)
 	{
 		const Key32 id = GetAdr(page.prev_id)[next];
 
-		TRef button = m_buttons[next];
+		auto button = NoRetain(m_buttons[next]);
 
 		if (QueryPage(id))
 		{
@@ -122,7 +122,7 @@ bool Reflex::GLX::FlowDialog::ShowPage(Key32 id, Direction fwd)
 
 		FocusBranch(content);
 
-		m_content = content;
+		m_content = NoRetain(content);
 
 		auto e = Make<Event>(kShowPage);
 

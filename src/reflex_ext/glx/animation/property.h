@@ -27,7 +27,7 @@ public:
 	struct TypeHandler
 	{
 		const TypeID & type_id;
-		FunctionPointer <TRef<Reflex::Object>()> create;
+		FunctionPointer <Unretained<Reflex::Object>()> create;
 		UInt8 offset;
 		UInt8 n;
 	};

@@ -50,7 +50,7 @@ struct Reflex::GLX::Detail::LayerDesc : public ResourceDesc
 	void OnSetProperty(Address adr, Object & object) override;
 #endif
 
-	const ConstTRef <Layer::Class> cls;
+	const ConstRef <Layer::Class> cls;
 };
 
 REFLEX_SET_TRAIT(Reflex::GLX::Detail::ResourceDesc, IsSingleThreadExclusive);

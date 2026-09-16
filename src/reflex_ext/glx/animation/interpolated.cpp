@@ -116,7 +116,7 @@ void Reflex::GLX::InterpolatedAnimationImpl::OnSkip()
 	m_interpolatefn(*this, m_target, m_easing_fn(1.0f));
 }
 
-Reflex::TRef <Reflex::GLX::InterpolatedAnimation> Reflex::GLX::CreateInterpolatedAnimation(const Function <void(Object&,Float)> & callback)
+Reflex::Unretained <Reflex::GLX::InterpolatedAnimation> Reflex::GLX::CreateInterpolatedAnimation(const Function <void(Object&,Float)> & callback)
 {
 	struct Callback : public InterpolatedAnimationImpl
 	{
@@ -153,7 +153,7 @@ Reflex::TRef <Reflex::GLX::InterpolatedAnimation> Reflex::GLX::CreateInterpolate
 	return REFLEX_CREATE(Callback, callback);
 }
 
-Reflex::TRef <Reflex::GLX::InterpolatedAnimation> Reflex::GLX::CreateWaitAnimation()
+Reflex::Unretained <Reflex::GLX::InterpolatedAnimation> Reflex::GLX::CreateWaitAnimation()
 {
 	struct Wait : public InterpolatedAnimationImpl
 	{
@@ -172,7 +172,7 @@ Reflex::TRef <Reflex::GLX::InterpolatedAnimation> Reflex::GLX::CreateWaitAnimati
 	return REFLEX_CREATE(Wait);
 }
 
-Reflex::TRef <Reflex::GLX::InterpolatedAnimation> Reflex::GLX::CreateOpacityAnimation(Key32 id, Float from, Float to, Detail::ComputedStyle::Render render)
+Reflex::Unretained <Reflex::GLX::InterpolatedAnimation> Reflex::GLX::CreateOpacityAnimation(Key32 id, Float from, Float to, Detail::ComputedStyle::Render render)
 {
 	if (from != to)
 	{
@@ -184,7 +184,7 @@ Reflex::TRef <Reflex::GLX::InterpolatedAnimation> Reflex::GLX::CreateOpacityAnim
 	}
 }
 
-Reflex::TRef <Reflex::GLX::InterpolatedAnimation> Reflex::GLX::CreatePositionAnimation(bool y, Float from, Float to)
+Reflex::Unretained <Reflex::GLX::InterpolatedAnimation> Reflex::GLX::CreatePositionAnimation(bool y, Float from, Float to)
 {
 	struct AxisMoveAnimation : public InterpolatedAnimationImpl
 	{

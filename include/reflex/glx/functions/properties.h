@@ -17,7 +17,7 @@ namespace Reflex::GLX
 
 	Point GetPoint(const Data::PropertySet & object, Key32 property_id, Point fallback = {});
 
-	ConstTRef <PointProperty> GetPointProperty(const Data::PropertySet & object, Key32 property_id);
+	ConstAlreadyRetained <PointProperty> GetPointProperty(const Data::PropertySet & object, Key32 property_id);
 
 
 	void UnsetSize(Data::PropertySet & object, Key32 property_id);
@@ -26,7 +26,7 @@ namespace Reflex::GLX
 
 	Size GetSize(const Data::PropertySet & object, Key32 property_id, Size fallback = {});
 
-	ConstTRef <SizeProperty> GetSizeProperty(const Data::PropertySet & object, Key32 property_id);
+	ConstAlreadyRetained <SizeProperty> GetSizeProperty(const Data::PropertySet & object, Key32 property_id);
 
 
 	void UnsetMargin(Data::PropertySet & object, Key32 property_id);
@@ -35,7 +35,7 @@ namespace Reflex::GLX
 
 	Margin GetMargin(const Data::PropertySet & object, Key32 property_id, const Margin & fallback = {});
 
-	ConstTRef <MarginProperty> GetMarginProperty(const Data::PropertySet & object, Key32 property_id);
+	ConstAlreadyRetained <MarginProperty> GetMarginProperty(const Data::PropertySet & object, Key32 property_id);
 
 
 	void UnsetColour(Data::PropertySet & object, Key32 property_id);
@@ -44,7 +44,7 @@ namespace Reflex::GLX
 
 	Colour GetColour(const Data::PropertySet & object, Key32 property_id, const Colour & fallback = kWhite);
 
-	ConstTRef <ColourProperty> GetColourProperty(const Data::PropertySet & object, Key32 property_id);
+	ConstAlreadyRetained <ColourProperty> GetColourProperty(const Data::PropertySet & object, Key32 property_id);
 
 
 	void UnsetColor(Data::PropertySet & object, Key32 property_id);
@@ -53,7 +53,7 @@ namespace Reflex::GLX
 
 	Colour GetColor(const Data::PropertySet & object, Key32 property_id, const Colour & fallback = kWhite);
 
-	ConstTRef <ColourProperty> GetColorProperty(const Data::PropertySet & object, Key32 property_id);
+	ConstAlreadyRetained <ColourProperty> GetColorProperty(const Data::PropertySet & object, Key32 property_id);
 
 }
 
@@ -78,7 +78,7 @@ inline Reflex::GLX::Colour Reflex::GLX::GetColor(const Data::PropertySet & objec
 	return GetColour(object, property_id, fallback);
 }
 
-inline Reflex::ConstTRef <Reflex::GLX::ColourProperty> Reflex::GLX::GetColorProperty(const Data::PropertySet & object, Key32 property_id)
+inline Reflex::ConstAlreadyRetained <Reflex::GLX::ColourProperty> Reflex::GLX::GetColorProperty(const Data::PropertySet & object, Key32 property_id)
 {
 	return GetColourProperty(object, property_id);
 }

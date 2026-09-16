@@ -16,34 +16,12 @@ constexpr Key32 kControlTypeStates[GenericControl::kNumType] =
 	K32("boolean"),
 };
 
-void ParseControlAlignment(const GLX::Style & style, Pair <GLX::Orientation> & alignment, const Pair <GLX::Orientation> & fallback)
+struct ControlCompiledStyle : public Object
 {
-	if (auto value = style.QueryProperty<Data::Key32Property>(GLX::kalign))
-	{
-		alignment = GLX::Detail::kAlignmentToOrientation[GLX::Detail::ParseAlignment(value->value, GLX::kAlignmentTop)];
-	}
-	else if (auto values = Data::GetKey32Array(style, GLX::kalign))
-	{
-		if (values.size > 1)
-		{
-			alignment = { GLX::Detail::ParseOrientation(values.GetFirst(), GLX::kOrientationFit), GLX::Detail::ParseOrientation(values.GetLast(), GLX::kOrientationFit) };
-		}
-		else
-		{
-			alignment = GLX::Detail::kAlignmentToOrientation[GLX::Detail::ParseAlignment(values.GetFirst(), GLX::kAlignmentTop)];
-		}
-	}
-	else
-	{
-		alignment = fallback;
-	}
-}
-
-REFLEX_END_INTERNAL
-
-struct Reflex::Bootstrap::GenericControl::CStyle : public Reflex::Object
-{
-	CStyle(const GLX::Style & style)
+	ControlCompiledStyle(const GLX::Style & style)
+		: content_style(style.QuerySubStyle(GLX::kcontent, &GLX::Style::null))
+		, positioning_flags(ParseControlPositioning(style))
+		, flow_flags(ParseControlFlow(style))
 	{
 		if (auto labels = style.QuerySubStyle("labels"))
 		{
@@ -60,13 +38,64 @@ struct Reflex::Bootstrap::GenericControl::CStyle : public Reflex::Object
 		}
 	}
 
+	static UInt8 ParseControlPositioning(const GLX::Style & style)
+	{
+		Pair <GLX::Orientation> alignment = { GLX::kOrientationCenter, GLX::kOrientationNear };
+
+		constexpr Key32 kAlignmentProperties[] = { K32("align_content"), GLX::kalign };
+
+		for (auto id : kAlignmentProperties)
+		{
+			if (auto value = style.QueryProperty<Data::Key32Property>(id))
+			{
+				alignment = GLX::Detail::kAlignmentToOrientation[GLX::Detail::ParseAlignment(value->value, GLX::kAlignmentTop)];
+			}
+			else if (auto values = Data::GetKey32Array(style, id))
+			{
+				if (values.size > 1)
+				{
+					alignment = { GLX::Detail::ParseOrientation(values.GetFirst(), GLX::kOrientationFit), GLX::Detail::ParseOrientation(values.GetLast(), GLX::kOrientationFit) };
+				}
+				else
+				{
+					alignment = GLX::Detail::kAlignmentToOrientation[GLX::Detail::ParseAlignment(values.GetFirst(), GLX::kAlignmentTop)];
+				}
+			}
+			else continue;
+
+			REFLEX_IF_DEBUG(if (id == GLX::kalign) Reflex::GLX::output.Warn("GenericControl style property 'align' is deprecated; use 'align_content'"));
+
+			break;
+		}
+
+		return UInt8(GLX::Detail::kPositioningFloat) | (UInt8(alignment.a) << 2) | (UInt8(alignment.b) << 4);
+	}
+
+	static UInt8 ParseControlFlow(const GLX::Style & style)
+	{
+		bool y = Data::GetKey32(style, K32("axis"), K32("y")) == K32("y");
+
+		bool invert = Data::GetBool(style, K32("invert"), y);
+
+		return UInt8((y ? GLX::kFlowY : GLX::kFlowX) | (invert ? GLX::kFlowInvert : GLX::kFlowX));
+	}
+
+
 	Array <WString> remap_store;
 
-	Map <Key32,WString::View> remap_view;
+	Map <Key32, WString::View> remap_view;
+
+	ConstAlreadyRetained <GLX::Style> content_style;
+
+	UInt8 positioning_flags;
+
+	UInt8 flow_flags;
 };
 
+REFLEX_END_INTERNAL
+
 Reflex::Bootstrap::GenericControl::GenericControl()
-	: m_cstyle(GLX::Detail::Compile<CStyle>(GLX::Style::null))
+	: m_cstyle(GLX::Detail::Compile<ControlCompiledStyle>(GLX::Style::null))
 	, m_type_active({ kNumType, false })
 	, m_value(kNewObject)
 {
@@ -75,13 +104,9 @@ Reflex::Bootstrap::GenericControl::GenericControl()
 	SetProperty(GLX::kvalue, m_value);
 }
 
-Reflex::Bootstrap::GenericControl::~GenericControl()
-{
-}
-
 void Reflex::Bootstrap::GenericControl::SetLabel(const WString::View & label)
 {
-	GLX::SetText(*this, *m_cstyle->remap_view.Search(label, &label), K32("label"));
+	GLX::SetText(*this, *Cast<ControlCompiledStyle>(m_cstyle)->remap_view.Search(label, &label), K32("label"));
 
 	Accommodate();
 }
@@ -108,7 +133,7 @@ void Reflex::Bootstrap::GenericControl::ClearWidget()
 	}
 }
 
-Reflex::TRef <Reflex::GLX::Object> Reflex::Bootstrap::GenericControl::AcquireWidget(Type type, bool active)
+Reflex::AlreadyRetained <Reflex::GLX::Object> Reflex::Bootstrap::GenericControl::AcquireWidget(Type type, bool active)
 {
 	auto previous_type = m_type_active.a;
 
@@ -131,12 +156,12 @@ Reflex::TRef <Reflex::GLX::Object> Reflex::Bootstrap::GenericControl::AcquireWid
 			m_content = REFLEX_CREATE(GLX::DragEdit);
 			break;
 
-		case kTypeBoolean:
-			m_content = REFLEX_CREATE(GLX::Button);
-			break;
-
 		case kTypeEnumeration:
 			m_content = REFLEX_CREATE(GLX::Popup);
+			break;
+
+		case kTypeBoolean:
+			m_content = REFLEX_CREATE(GLX::Button);
 			break;
 
 		default:
@@ -157,34 +182,13 @@ Reflex::TRef <Reflex::GLX::Object> Reflex::Bootstrap::GenericControl::AcquireWid
 
 void Reflex::Bootstrap::GenericControl::OnSetStyle(const GLX::Style & style)
 {
-	m_cstyle = GLX::Detail::Compile<CStyle>(style);
+	auto compiled_style = GLX::Detail::Compile<ControlCompiledStyle>(style);
 
-	//if (!m_content) return;
+	m_cstyle = compiled_style;
 
-	// Accept the old direct child schema while stylesheets migrate to
-	// @State <type> { content: ...; }.
-	//if (!content_style && m_type_active.a != kNumType)
-	//{
-	//	if (auto type_style = style.QuerySubStyle(kControlTypeStates[m_type_active.a]))
-	//	{
-	//		content_style = type_style->QuerySubStyle(GLX::kcontent, type_style);
-	//	}
-	//}
+	m_content->SetStyle(compiled_style->content_style);
 
-	if (auto content_style = style.QuerySubStyle(GLX::kcontent))
-	{
-		m_content->SetStyle(*content_style);
+	m_content->SetPositioningFlags(compiled_style->positioning_flags);
 
-		Pair <GLX::Orientation> alignment;
-
-		ParseControlAlignment(style, alignment, { GLX::kOrientationCenter, GLX::kOrientationNear });
-
-		GLX::EnableFloat(m_content, alignment.a, alignment.b);
-	}
-
-	bool y = Data::GetKey32(style, K32("axis"), K32("y")) == K32("y");
-
-	bool invert = Data::GetBool(style, K32("invert"), y);
-
-	GLX::SetFlow(m_content, GLX::FlowFlags((y ? GLX::kFlowY : GLX::kFlowX) | (invert ? GLX::kFlowInvert : GLX::kFlowX)));
+	GLX::SetFlow(m_content, compiled_style->flow_flags);
 }

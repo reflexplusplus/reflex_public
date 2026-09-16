@@ -10,18 +10,18 @@
 
 REFLEX_NS(Reflex::IDE::Detail)
 
-ConstTRef <GLX::StyleSheet> RetrieveStyleSheet();
+ConstAlreadyRetained <GLX::StyleSheet> RetrieveStyleSheet();
 
-[[nodiscard]] TRef <GLX::Object> CreateInfoItem(const WString & key, const WString::View & value, bool path);
+[[nodiscard]] Unretained <GLX::Object> CreateInfoItem(const WString & key, const WString::View & value, bool path);
 
-Array < Tuple <WString, Detail::ConsolePanel&> > CreatePanels(TRef <GLX::Object> root);
+Array < Tuple <WString, Detail::ConsolePanel&> > CreatePanels(AlreadyRetained <GLX::Object> root);
 
 
-void ResetStreamable(Key32 context, GLX::Object & object);
+void ResetSerializable(Key32 context, GLX::Object & object);
 
-void RestoreStreamable(const Data::PropertySet & propertyset, Key32 context, GLX::Object & object);
+void RestoreSerializable(const Data::PropertySet & propertyset, Key32 context, GLX::Object & object);
 
-void StoreStreamable(Data::PropertySet & propertyset, const GLX::Object & object);
+void StoreSerializable(Data::PropertySet & propertyset, const GLX::Object & object);
 
 
 extern const Key32 kItemStates[3];
@@ -34,7 +34,7 @@ REFLEX_END
 //
 //impl
 
-inline Reflex::ConstTRef <Reflex::GLX::StyleSheet> Reflex::IDE::Detail::RetrieveStyleSheet()
+inline Reflex::ConstAlreadyRetained <Reflex::GLX::StyleSheet> Reflex::IDE::Detail::RetrieveStyleSheet()
 {
 	return GLX::RetrieveStyleSheet(L":res:Reflex::IDE/styles.txt");
 }

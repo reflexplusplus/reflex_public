@@ -6815,7 +6815,7 @@ See also Bootstrap::Detail::SetStyle.
 {
 	@WString Description: "#p PersistentPropertySet brings together Data::PropertySet and Data::Format to create a PropertySet that can be stored and restored.
 
-#p It is used primarily by the Bootstrap layer for the prefs object and the app session object, and it is the underlying mechanism behind the Bootstrap::Streamable persistence system used by the app, views, and other clients.
+#p It is used primarily by the Bootstrap layer for the prefs object and the app session object, and it is the underlying mechanism behind the Bootstrap::PersistentState persistence system used by the app, views, and other clients.
 
 #p You can subscribe to changes by creating a listener using the Signal::CreateListener pattern.  The receiver must store the returned object to keep the connection alive.
 
@@ -8555,7 +8555,7 @@ See also Bootstrap::Detail::SetStyle.
 {
 	@WString Description: "#p Bootstrap::App is the standard application-state base class used by template projects.
 
-#p It derives from 'State' allowing clients such as the view to monitor state-changes.  It also implements 'Streamable' on its 'session' store, so file/session state can be streamed automatically.
+#p It derives from 'State' allowing clients such as the view to monitor state-changes.  It also implements 'PersistentState' on its 'session' store, so file/session state can be persisted automatically.
 
 #p Bootstrap::App also provides a simple file format wrapper which uses 'magic' as a unique file header and stores the 'session' PersistentPropertySet data inside that format.
 ";
@@ -8648,7 +8648,7 @@ See also Bootstrap::Detail::SetStyle.
 
 #h2 Parameter persistence
 
-#p Bootstrap stores registered parameter values automatically. Additional plugin state can be persisted through the inherited 'Streamable' callbacks.
+#p Bootstrap stores registered parameter values automatically. Additional plugin state can be persisted through the inherited 'PersistentState' callbacks.
 
 #h2 Processing callbacks
 
@@ -8706,7 +8706,7 @@ See also Bootstrap::Detail::SetStyle.
 {
 	@WString Description: "#p Bootstrap::View is the standard GLX view base class used by template projects.
 
-#p It implements 'Streamable' on application session state, so view state can be streamed automatically out of the box.
+#p It implements 'PersistentState' on application session state, so view state can be persisted automatically out of the box.
 
 #p It also monitors the application 'State' and, in its clock/update flow, schedules 'OnUpdate()' when state changes are detected.
 #p If you override the clock handling, be sure to call the base 'OnClock'.
@@ -8758,9 +8758,9 @@ See also Bootstrap::Detail::SetStyle.
 
 462:
 {
-	@WString Description: "#p Streamable helper base used by Bootstrap app/view classes to persist and restore state through a PersistentPropertySet-backed stream.";
+	@WString Description: "#p PersistentState helper base used by Bootstrap app/view classes to persist and restore a named state chunk through a PersistentPropertySet.";
 
-	Path: ["Reflex", "Bootstrap", "Streamable"];
+	Path: ["Reflex", "Bootstrap", "PersistentState"];
 };
 
 463:
@@ -11009,4 +11009,96 @@ See also Bootstrap::Detail::SetStyle.
 	Path: ["Reflex", "File", "SetExtension"];
 
 	Module: ["Reflex", "File", "Path"];
+};
+
+675:
+{
+	@WString Description: "#p Returns the number of parameters registered for this plugin class.";
+
+	Path: ["Reflex", "Bootstrap", "AudioPlugin", "GetNumParameter"];
+};
+
+676:
+{
+	@WString Description: "#p Returns the definition for the parameter at 'idx'. The index must be less than 'GetNumParameter()'.";
+
+	Path: ["Reflex", "Bootstrap", "AudioPlugin", "GetParameterInfo"];
+};
+
+677:
+{
+	@WString Description: "#p Returns the registered parameter ids in parameter-index order. The returned view is owned by the plugin and remains valid while the plugin instance exists.";
+
+	Path: ["Reflex", "Bootstrap", "AudioPlugin", "GetParameterIDs"];
+};
+
+678:
+{
+	@WString Description: "#p Returns the current normalized parameter values in parameter-index order. The returned view is owned by the plugin; use it for reading rather than modifying parameter values directly.";
+
+	Path: ["Reflex", "Bootstrap", "AudioPlugin", "GetParameterValues"];
+};
+
+679:
+{
+	@WString Description: "#p Begins a host-visible automation gesture for the parameter at 'idx'. Call 'Automate' zero or more times, then call 'EndAutomation' for the same parameter. This method must be called on the main thread.";
+
+	Path: ["Reflex", "Bootstrap", "AudioPlugin", "BeginAutomation"];
+};
+
+680:
+{
+	@WString Description: "#p Changes the normalized value of the parameter at 'idx' during an active automation gesture and notifies the host. Pair this with 'BeginAutomation' and 'EndAutomation'. This method must be called on the main thread.";
+
+	Path: ["Reflex", "Bootstrap", "AudioPlugin", "Automate"];
+};
+
+681:
+{
+	@WString Description: "#p Ends the host-visible automation gesture for the parameter at 'idx'. This method must be called on the main thread.";
+
+	Path: ["Reflex", "Bootstrap", "AudioPlugin", "EndAutomation"];
+};
+
+682:
+{
+	@WString Description: "#p Changes the normalized value of the parameter at 'idx' without creating a host automation gesture. The host is notified that parameter values changed so it can refresh its state. This method must be called on the main thread.";
+
+	Path: ["Reflex", "Bootstrap", "AudioPlugin", "UpdateParameterValue"];
+};
+
+683:
+{
+	@WString Description: "#p The host-facing 'System::AudioPlugin' instance that owns this Bootstrap plugin instance.";
+
+	Path: ["Reflex", "Bootstrap", "AudioPlugin", "instance"];
+};
+
+684:
+{
+	@WString Description: "#p The host-facing audio-plugin application interface. Bootstrap wraps this interface with 'Bootstrap::AudioPlugin' for standard plugin projects.";
+
+	Path: ["Reflex", "System", "AudioPlugin"];
+};
+
+685:
+{
+	@WString Description: "#p The shared entry point for hosted audio-plugin formats and the standalone audio app. It is called once to initialise the session and receives a mutable 'Configuration'. Hosted plugin formats pass an empty command line; the standalone audio app supplies its command line. Create and return the global object that owns state shared by the session.
+
+#p Configure the available plugin classes and the instance factory through 'config'. The host uses 'config.classes' to enumerate the plugin and later calls 'config.instance_ctr' to create the implementation for the class it selected. Do not create an 'AudioPlugin' instance directly here.
+
+#p Standard Bootstrap entries call 'Bootstrap::PublishAppView' and then 'Bootstrap::StartAudioPlugin'. The latter creates the global, fills 'config.classes' from 'INSTANCE::MakeClasses()', registers each class's parameter definitions, and installs 'config.instance_ctr'. Return that global from 'OnStart'.";
+
+	Path: ["Reflex", "System", "AudioPlugin", "OnStart"];
+};
+
+686:
+{
+	@WString Description: "#p The application entry point. The framework calls this during application startup with the command line and a mutable 'Configuration'. Create and return the global object that owns state shared by the application.
+
+#p Configure the application and view factories through 'config'. Standard Bootstrap entries call 'Bootstrap::PublishAppView' and then 'Bootstrap::StartApp', which creates the global and installs those factories before returning it.
+
+#p Return 'Object::null' to bypass the application run loop and exit immediately. This is useful for combined GUI and command-line applications when command-line arguments select a command-line-only operation.";
+
+	Path: ["Reflex", "System", "App", "OnStart"];
 };

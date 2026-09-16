@@ -50,7 +50,7 @@ public:
 
 	//access
 
-	operator TRef <TYPE>() const { return LegacyWeakReference::Adr(); }
+	operator AlreadyRetained <TYPE>() const { return LegacyWeakReference::Adr(); }
 
 
 	void Clear();

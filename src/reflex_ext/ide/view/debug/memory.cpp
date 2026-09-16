@@ -29,7 +29,7 @@ struct MemoryView : public Detail::ConsolePanel
 
 	GLX::VirtualListScroller m_list;
 
-	ConstTRef <GLX::Style> m_item_style;
+	ConstAlreadyRetained <GLX::Style> m_item_style;
 
 
 	Float32 m_remainder;

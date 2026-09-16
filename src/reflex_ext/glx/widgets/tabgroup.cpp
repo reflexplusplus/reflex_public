@@ -103,7 +103,7 @@ bool Reflex::GLX::TabGroup::OnEvent(Object & src, Event & e)
 	return Object::OnEvent(src, e);
 }
 
-Reflex::TRef <Reflex::GLX::Object> Reflex::GLX::TabGroup::AddPanel(const WString::View & label, TRef <Object> content, Key32 style_id, Key32 tab_style_id)
+Reflex::AlreadyRetained <Reflex::GLX::Object> Reflex::GLX::TabGroup::AddPanel(const WString::View & label, WillRetain <Object> content, Key32 style_id, Key32 tab_style_id)
 {
 	auto tab = REFLEX_CREATE(Button, label); 
 	
@@ -117,7 +117,7 @@ Reflex::TRef <Reflex::GLX::Object> Reflex::GLX::TabGroup::AddPanel(const WString
 
 	Cast<Selector>(body)->AddPanel(content, style_id);
 	
-	return tab;
+	return NoRetain(tab);
 }
 
 void Reflex::GLX::TabGroup::RemovePanel(UInt idx)

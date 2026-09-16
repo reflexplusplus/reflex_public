@@ -13,11 +13,6 @@ constexpr CString::View kMsBuild =
 	"\"%MSBUILD%\" \"%~dp0[PROJECT].sln\" /p:Configuration=\"[CONFIG]\" /p:Platform=[ARCHITECTURE] /t:Build /m /v:minimal /nologo\r\n"
 	"if errorlevel 1 exit /b %errorlevel%\r\n";
 
-constexpr CString::View kMsBuildClean =
-	"echo Cleaning [CONFIG] ^| [ARCHITECTURE]\r\n"
-	"\"%MSBUILD%\" \"%~dp0[PROJECT].sln\" /p:Configuration=\"[CONFIG]\" /p:Platform=[ARCHITECTURE] /t:Clean /m /v:minimal /nologo\r\n"
-	"if errorlevel 1 exit /b %errorlevel%\r\n";
-
 struct ProjectReference
 {
 	CString path;
@@ -149,6 +144,47 @@ CString::View ArchitectureName(Architecture architecture)
 	Require(True(names[architecture]) && UInt(architecture) < kArchitectureCount, kArchitectures, "unsupported architecture");
 
 	return names[architecture];
+}
+
+CString ProductFilename(const TargetConfiguration & config, Architecture architecture)
+{
+	auto architecture_name = ToWString(ArchitectureName(architecture));
+	auto output_name = Replace(ToWString(config.GetString(kOutputName, config.platform->target->project->GetName())), L"$(Architecture)", architecture_name);
+	auto extension = Replace(ToWString(config.GetString(kOutputExtension)), L"$(Architecture)", architecture_name);
+	if (!extension)
+	{
+		constexpr CString::View extensions[] = { "exe", "exe", "dll", "lib" };
+		REFLEX_STATIC_ASSERT(GetArraySize(extensions) == kOutputTypeCount);
+		extension = ToWString(extensions[config.GetProductType()]);
+	}
+	return EncodeUTF8(Join(output_name, File::kDot, extension));
+}
+
+void AddOutputs(Map<WString> & outputs, const Project & project, ArrayView<PlatformTarget> targets)
+{
+	for (auto & item : targets)
+	{
+		if (item.target->project.Adr() != &project || item.target->IsLibrary()) continue;
+		for (auto & config : item.platform->GetTargetConfigurations())
+		{
+			auto output_directory = config->GetPath(kOutputDirectory);
+			if (!output_directory.path) continue;
+			auto directory = File::CorrectTrailingStroke(ResolvePath(item.target->project->GetRoot(), output_directory));
+			for (auto architecture : config->GetArchitectures())
+			{
+				auto architecture_name = ToWString(ArchitectureName(architecture));
+				auto resolved = Replace(directory, L"$(Architecture)", architecture_name);
+				auto output_name = Replace(ToWString(config->GetString(kOutputName, item.target->project->GetName())), L"$(Architecture)", architecture_name);
+				outputs.Set(Join(resolved, ToWString(ProductFilename(*config, architecture))));
+				outputs.Set(Join(resolved, output_name, L".pdb"));
+				if (config->GetProductType() == kOutputType_dynamic_library)
+				{
+					outputs.Set(Join(resolved, output_name, L".lib"));
+					outputs.Set(Join(resolved, output_name, L".exp"));
+				}
+			}
+		}
+	}
 }
 
 void WriteProjectConfiguration(XmlWriter & xml, const TargetConfiguration & config)
@@ -403,7 +439,7 @@ void WriteProjectReferences(XmlWriter & xml, const Context & context)
 
 void WriteProject(const Context & context)
 {
-	TRef property_context = context.platform.GetTargetConfigurations()[0];
+	auto property_context = NoRetain(context.platform.GetTargetConfigurations()[0]);
 	auto windows_sdk = property_context->GetString(kWindowsSdk);
 	auto resources = property_context->GetPaths(false, kWindowsResources);
 	Require(True(windows_sdk), kWindowsSdk, "is required");
@@ -430,7 +466,7 @@ void WriteProject(const Context & context)
 			{ 
 				XmlScope group(xml, "PropertyGroup", { { "Label", "Configuration" }, { "Condition", condition } }); 
 				xml.Element("ConfigurationType", kConfigurationTypeOptions[config->GetProductType()]);
-				xml.Element("PlatformToolset", "v143"); 
+				xml.Element("PlatformToolset", "$(DefaultPlatformToolset)");
 				xml.Element("CharacterSet", "Unicode"); 
 			}
 		}
@@ -459,14 +495,13 @@ void WriteProject(const Context & context)
 				auto dead_strip = config->GetBool(kDeadStrip, optimization != kOptimization_none);
 				auto output_extension = config->GetString(kOutputExtension);
 				auto output_directory = config->GetPath(kOutputDirectory);
-				auto intermediate_directory = config->GetPath(kIntermediateDirectory);
 				auto incremental_link = optimization == kOptimization_none && !dead_strip;
 				xml.Element("TargetName", TranslateVariables(config->GetString(kOutputName, context.project.GetName())));
 				xml.Element("TargetExt", output_extension ? TranslateVariables(Join(".", output_extension)) : CString {});
+				xml.Element("IntDir", "$(SolutionDir)intermediate\\$(Configuration)\\$(Platform)\\$(ProjectName)\\");
 				if (config->GetProductType() != kOutputType_static_library) xml.WriteBoolElement("LinkIncremental", incremental_link, {});
 				if (config->GetProductType() == kOutputType_app || config->GetProductType() == kOutputType_console) xml.WriteBoolElement("IgnoreImportLibrary", true, {});
 				if (!output_directory.path.Empty()) xml.Element("OutDir", DirectoryPath(output_directory));
-				if (!intermediate_directory.path.Empty()) xml.Element("IntDir", DirectoryPath(intermediate_directory));
 			}
 
 			{
@@ -493,9 +528,8 @@ void WriteProject(const Context & context)
 
 REFLEX_END_INTERNAL
 
-void ReflexCLI::ProjectGen::GenerateVisualStudioProject(Project & project, BuildPlatform, Array<const TargetPlatform *> & generated_platforms)
+void ReflexCLI::ProjectGen::GenerateVisualStudioProject(Project & project, BuildPlatform, const WString & directory, Array<const TargetPlatform *> & generated_platforms, Map<WString> & outputs)
 {
-	auto directory = MakeProjectFolder(project, kBuildPlatformWindows);
 	auto project_directory = Join(directory, L"vcxproj", File::kStroke);
 
 	struct GeneratedTarget
@@ -512,6 +546,7 @@ void ReflexCLI::ProjectGen::GenerateVisualStudioProject(Project & project, Build
 	Array<GeneratedTarget> targets;
 	Map<Target *,UInt> target_indices;
 	auto target_platforms = CollectTargetPlatforms(project, kBuildPlatformWindows, generated_platforms);
+	VisualStudio::AddOutputs(outputs, project, target_platforms);
 
 	for (auto & item : target_platforms)
 	{
@@ -532,7 +567,7 @@ void ReflexCLI::ProjectGen::GenerateVisualStudioProject(Project & project, Build
 		CString solution_path;
 		if (!target.IsLibrary())
 		{
-			target_project_directory = Join(MakeProjectFolder(target_project, kBuildPlatformWindows), L"vcxproj", File::kStroke);
+			target_project_directory = Join(GetProjectFolder(target_project, kBuildPlatformWindows), L"vcxproj", File::kStroke);
 			target_project_path = Join(target_project_directory, ToWString(target.GetName()), L".vcxproj");
 			solution_path = EncodeUTF8(PlatformPath(VisualStudio::MakeWindowsRelativePath(directory, target_project_path), System::kPlatformWindows));
 		}
@@ -672,23 +707,6 @@ void ReflexCLI::ProjectGen::GenerateVisualStudioProject(Project & project, Build
 		}
 		SaveFile(File::SetExtension(Join(directory, L"Build ", ToWString(config)), kBat), script, kBuildPlatformWindows);
 	}
-	{
-		Data::Archive script = Data::Pack(VisualStudio::kFindMsBuild);
-		for (auto & [config, architectures] : solution_configs)
-		{
-			for (auto & architecture : architectures)
-			{
-				script.Append(Template(Data::Pack(VisualStudio::kMsBuildClean),
-				{
-					{ "PROJECT", ToWString(project.GetName()) },
-					{ "CONFIG", ToWString(config) },
-					{ "ARCHITECTURE", ToWString(architecture) },
-				}));
-			}
-		}
-		SaveFile(Join(directory, L"Clean.bat"), script, kBuildPlatformWindows);
-	}
-
 	XmlWriter defaults;
 	{
 		XmlScope root(defaults, "Project");

@@ -432,31 +432,6 @@ void Create(const Data::PropertySet & args, System::FileHandle & std_out)
 	for (auto & input : prompted_inputs) Data::SetWString(prefs, input.name, input.value);
 }
 
-void RunBuildHelpers(ArrayView<WString> scripts, System::FileHandle & std_out, CString::View action)
-{
-	const bool is_windows = System::kPlatform == System::kPlatformWindows;
-	WString::View tool = is_windows ? L"cmd.exe" : L"/bin/sh";
-	bool ran = false;
-
-	for (auto & i : scripts)
-	{
-		if (File::Exists(i))
-		{
-			Array <WString> commands;
-
-			if (is_windows) commands.Append({ L"/d", L"/c" });
-
-			commands.Push(i);
-
-			Require(RunCommand(tool, commands, &std_out, true), Join(action, " failed"), ToCString(i));
-
-			ran = true;
-		}
-	}
-
-	Require(ran, Join(action, " failed"), Join("nothing to ", action));
-}
-
 WString GetProjectFolder(const Data::PropertySet & args)
 {
 	if (Data::GetCString(args, "path")) return CLI::GetFolder(args, "path", true);
@@ -477,47 +452,30 @@ WString GetGeneratedPlatformFolder(const ProjectGen::Project & project, CString:
 
 void Build(const Data::PropertySet & args, System::FileHandle & std_out)
 {
-	static constexpr WString::View kPrefix = L"Build ";
-
-	const auto ext = System::kPlatform == System::kPlatformWindows ? kBat : kCommand;
-	auto platform = Data::GetCString(args, kFirstPositionalArg);
-	Require(True(Search(kBuildPlatforms, platform)), "expected platform", "<windows|macos|linux|ios|android> [configuration]");
-	auto directory = GetGeneratedPlatformFolder(GetProject(args), platform);
-	auto make_config = [ext](WString::View configuration) { return Join(kPrefix, configuration, File::kDot, ext); };
-
-	Array<WString> scripts;
-	if (auto configuration = Data::GetCString(args, kFirstPositionalArg + 1))
+	auto first = Data::GetCString(args, kFirstPositionalArg);
+	auto platform = kBuildPlatforms[System::kPlatform];
+	auto configuration = first;
+	if (Search(kBuildPlatforms, first))
 	{
-		scripts.Push(Join(directory, make_config(ToWString(configuration))));
-	}
-	else
-	{
-		auto [folders, files] = File::List(directory, false);
-		for (auto & [name, unused] : files)
-		{
-			if (CaseInsensitive::eq(Left<true>(name, kPrefix.size), kPrefix) && File::CheckExtension(name, ext)) scripts.Push(Join(directory, name));
-		}
+		platform = first;
+		configuration = Data::GetCString(args, kFirstPositionalArg + 1);
 	}
 
-	RunBuildHelpers(scripts, std_out, "build");
+	ProjectGen::Build(CLI::GetFilename(args, "path", true, "project.cfg"), platform, configuration, std_out);
 }
 
-void Clean(const Data::PropertySet & args, System::FileHandle & std_out)
+void Generate(const Data::PropertySet & args, System::FileHandle & std_out, bool fresh)
 {
-	const auto ext = System::kPlatform == System::kPlatformWindows ? kBat : kCommand;
-	Array<CString::View> platforms;
-	for (UInt index = 0; auto platform = Data::GetCString(args, kFirstPositionalArg + index); ++index)
+	Array <CString::View> platforms;
+	auto key = kFirstPositionalArg;
+	while (auto platform = Data::GetCString(args, key++))
 	{
-		Require(True(Search(Left(kBuildPlatforms, kBuildPlatformCMake), platform)), "expected platform", "<windows|macos|ios|android|linux>...");
+		Require(True(Search(kBuildPlatforms, platform)), "expected platform", "<windows|macos|ios|android|linux|cmake>...");
 		platforms.Push(platform);
 	}
-	if (platforms.Empty()) platforms.Append(Left(kBuildPlatforms, kBuildPlatformCMake));
+	if (platforms.Empty()) platforms = GetHostDefaultGenerationPlatforms();
 
-	auto project = GetProject(args);
-	Array<WString> scripts;
-	for (auto platform : platforms) scripts.Push(Join(project->GetRoot(), project->GetGeneratedDirectory(), ToWString(platform), File::kStroke, L"Clean.", ext));
-
-	RunBuildHelpers(scripts, std_out, "clean");
+	ProjectGen::Generate(CLI::GetFilename(args, "path", true, "project.cfg"), platforms, std_out, fresh);
 }
 
 void Run(const Data::PropertySet & args, System::FileHandle & std_out)
@@ -619,7 +577,9 @@ void ExportState(const Data::PropertySet & args, System::FileHandle & std_out)
 void ImportState(const Data::PropertySet & args)
 {
 	auto path = CLI::GetFilename(args, "path", true, "export.cfg");
-	auto imported = Data::DecodePropertySet(Data::kPropertySheetFormat, File::Open(path));
+	Data::PropertySet options;
+	Data::SetBool(options, kBuildPlatforms[System::kPlatform], true);	//shortcut, no webasm now so cmake wont be selected
+	auto imported = Data::DecodePropertySet(Data::kPropertySheetFormat, File::Open(path), options);
 	if (auto error = Data::GetError(imported)) ThrowError(error.value.c, ToCString(error.value.a));
 	auto keymap = Data::GetKeyMap(imported);
 	if (auto error = Data::GetError(imported)) ThrowError(ToCString(error.value.a), error.value.c);
@@ -704,7 +664,7 @@ const CLI::TaskDef kCommands[] =
 			PrintCommandWithDescription(std_out, "generate", "generate native projects from project.cfg");
 			PrintCommandWithDescription(std_out, "open", "open a project folder in the system file manager");
 			PrintCommandWithDescription(std_out, "edit", "open a generated IDE project");
-			PrintCommandWithDescription(std_out, "clean", "clean generated build output");
+			PrintCommandWithDescription(std_out, "clean", "regenerate native projects from scratch");
 			PrintCommandWithDescription(std_out, "build", "run generated native build helpers");
 			PrintCommandWithDescription(std_out, "set", "set a build variable");
 			PrintCommandWithDescription(std_out, "get", "view a build variable");
@@ -745,16 +705,17 @@ const CLI::TaskDef kCommands[] =
 			case K32("generate"):
 				print_arg(true, "--path <path>", "the project.cfg description to generate, defaults to ./project.cfg");
 				print_arg(true, "[platform]...", "platforms to generate, defaults to platforms compatible with the current host");
+				print_arg(true, "--fresh", "clear selected generated platform projects before regenerating");
 				return;
 
 			case K32("build"):
-				print_arg(false, "<platform>", "the generated platform folder, for example windows");
+				print_arg(true, "[platform]", "the generated platform folder, defaults to the current host platform");
 				print_arg(true, "[configuration]", "run only this configuration, for example debug");
 				print_arg(true, "--path <project.cfg>", "the project description, defaults to ./project.cfg");
 				return;
 
 			case K32("clean"):
-				print_arg(true, "[platform]...", "clean all configurations, defaults to every generated platform");
+				print_arg(true, "[platform]...", "platforms to regenerate from scratch, defaults to platforms compatible with the current host");
 				print_arg(true, "--path <project.cfg>", "the project description, defaults to ./project.cfg");
 				return;
 
@@ -764,7 +725,7 @@ const CLI::TaskDef kCommands[] =
 
 			case K32("install"):
 				print_arg(false, "[version]", "the requested SDK version to install, leave unspecified for latest");
-				print_arg(true, "--platforms <win|macos|android|ios[,..]>", "the platform packages to install");
+				print_arg(true, "--platforms <windows|macos|android|ios[,..]>", "the platform packages to install");
 				print_arg(true, "--path <folder>", "install the SDK to a specific location");
 				print_arg(true, "--test true", "download and extract packages without moving files into place");
 				return;
@@ -781,6 +742,7 @@ const CLI::TaskDef kCommands[] =
 				print_arg(false, "--target <app|audioapp|ios_app|ios_audioapp|vst2|vst3|clap|au|auv3>", "the plist target type to generate");
 				print_arg(false, "--output <path>", "the output plist file path");
 				print_arg(false, "--product <name>", "the product name to embed");
+				print_arg(true, "--executable <name>", "the bundle executable name, defaults to the product name");
 				print_arg(false, "--bundle_id <id>", "the bundle identifier");
 				print_arg(false, "--version <x.y.z>", "the product version string");
 				print_arg(true, "--app_store_category <id>", "the App Store category identifier");
@@ -953,6 +915,7 @@ const CLI::TaskDef kCommands[] =
 		ValidateArgs(args, 
 		{
 			Arg("path"),
+			Arg("fresh"),
 			Arg(kFirstPositionalArg),
 			Arg(kFirstPositionalArg + 1),
 			Arg(kFirstPositionalArg + 2),
@@ -961,20 +924,11 @@ const CLI::TaskDef kCommands[] =
 			Arg(kFirstPositionalArg + 5)
 		});
 
-		Array <CString::View> platforms;
-		auto key = kFirstPositionalArg;
-		while (auto arg = Data::GetCString(args, key++))
-		{
-			Require(True(Search(kBuildPlatforms, arg)), "expected platform", "<windows|macos|ios|android|linux|cmake>...");
-			platforms.Push(arg);
-		}
-		if (platforms.Empty()) platforms = GetHostDefaultGenerationPlatforms();
-
-		GenerateProject(CLI::GetFilename(args, "path", true, "project.cfg"), platforms, std_out);
+		Generate(args, std_out, CLI::GetBool(args, "fresh"));
 	}),
 	MakeTask("build", [](const Data::PropertySet & args, System::FileHandle & std_out)
 	{
-		ValidateArgs(args, { Arg("path"), RequiredArg(kFirstPositionalArg), Arg(kFirstPositionalArg + 1) });
+		ValidateArgs(args, { Arg("path"), Arg(kFirstPositionalArg), Arg(kFirstPositionalArg + 1) });
 		Build(args, std_out);
 	}),
 	MakeTask("clean", [](const Data::PropertySet & args, System::FileHandle & std_out)
@@ -988,7 +942,7 @@ const CLI::TaskDef kCommands[] =
 			Arg(kFirstPositionalArg + 3),
 			Arg(kFirstPositionalArg + 4)
 		});
-		Clean(args, std_out);
+		Generate(args, std_out, true);
 	}),
 	MakeTask("run", &Run),
 	MakeTask("build-resources", [](const Data::PropertySet & args, System::FileHandle & std_out)
@@ -1005,6 +959,7 @@ const CLI::TaskDef kCommands[] =
 			RequiredArg("target"),
 			RequiredArg("output"),
 			Arg("product"),
+			Arg("executable"),
 			Arg("bundle_id"),
 			Arg("version"),
 			Arg("app_store_category"),

@@ -14,19 +14,19 @@ const ParameterControl::ParameterInterface kAudioPluginAdapter =
 	{
 		auto instance = Cast<AudioPlugin>(state);
 
-		return Normalise(*instance->GetParameterInfo(index), instance->GetParameterValues()[index]);
+		return instance->GetParameterValues()[index];
 	},
-	.to_string = [](const Object & state, UInt index, Float32 value)
+	.to_string = [](const Object & state, UInt index, Value32 value)
 	{
 		auto definition = Cast<AudioPlugin>(state)->GetParameterInfo(index);
 
-		return definition->ToString(Expand(definition, value));
+		return definition->ToString(value);
 	},
-	.begin_edit = [](ParameterControl &, Object & state, UInt index) -> TRef <Object>
+	.begin_edit = [](ParameterControl &, Object & state, UInt index) -> Unretained <Object>
 	{
 		Cast<AudioPlugin>(state)->BeginAutomation(index);
 
-		return Object::null;
+		return Unretained<Object>(Object::null);
 	},
 	.perform_edit = [](ParameterControl &, Object & state, UInt index, Object &, Float32 value, bool)
 	{
@@ -40,7 +40,7 @@ const ParameterControl::ParameterInterface kAudioPluginAdapter =
 
 REFLEX_END_INTERNAL
 
-Reflex::TRef <Reflex::Bootstrap::ParameterControl> Reflex::Bootstrap::ParameterControl::Create(AudioPlugin & instance, UInt param_idx)
+Reflex::Unretained <Reflex::Bootstrap::ParameterControl> Reflex::Bootstrap::ParameterControl::Create(AudioPlugin & instance, UInt param_idx)
 {
 	auto control = REFLEX_CREATE(ParameterControl);
 

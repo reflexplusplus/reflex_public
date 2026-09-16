@@ -13,7 +13,7 @@
 namespace Reflex::Bootstrap
 {
 
-	template <class APP, class ... VARGS> [[nodiscard]] inline TRef <Global> StartApp(System::App::Configuration & config, const CString::View & vendor, const CString::View & product, Key32 resources_subdomain, const char * entry, VARGS && ... vargs);
+	template <class APP, class ... VARGS> [[nodiscard]] inline Unretained <Global> StartApp(System::App::Configuration & config, const CString::View & vendor, const CString::View & product, Key32 resources_subdomain, const char * entry, VARGS && ... vargs);
 
 	template <class APP, class VIEW> inline void PublishAppView(System::App::Configuration & config);
 
@@ -27,7 +27,7 @@ namespace Reflex::Bootstrap
 
 REFLEX_NS(Reflex::Bootstrap::Detail)
 
-inline TRef <App> Initialise(App & client)
+inline Unretained <App> Initialise(App & client)
 {
 	auto session = client.session;
 
@@ -45,7 +45,7 @@ inline TRef <App> Initialise(App & client)
 
 REFLEX_END
 
-template <class APP, class ... VARGS> inline Reflex::TRef <Reflex::Bootstrap::Global> Reflex::Bootstrap::StartApp(System::App::Configuration & config, const CString::View & vendor, const CString::View & product, Key32 resources_subdomain, const char * entry, VARGS && ... vargs)
+template <class APP, class ... VARGS> inline Reflex::Unretained <Reflex::Bootstrap::Global> Reflex::Bootstrap::StartApp(System::App::Configuration & config, const CString::View & vendor, const CString::View & product, Key32 resources_subdomain, const char * entry, VARGS && ... vargs)
 {
 	auto global = Global::Acquire(vendor, product, Detail::ExtractProjectDir(entry), resources_subdomain);
 
@@ -76,7 +76,7 @@ template <class APP, class ... VARGS> inline Reflex::TRef <Reflex::Bootstrap::Gl
 
 template <class APP, class VIEW> inline void Reflex::Bootstrap::PublishAppView(System::App::Configuration & config)
 {
-	Detail::PublishAppView(config, [](Object & instance) -> TRef <GLX::Object>
+	Detail::PublishAppView(config, [](Object & instance) -> Unretained <GLX::Object>
 	{
 		return New<VIEW>(Cast<APP>(instance));
 	});

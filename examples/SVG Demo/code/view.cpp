@@ -36,7 +36,7 @@ public:
 
 
 
-	const TRef <App> app;
+	const AlreadyRetained <App> app;
 
 
 	//put your GLX::Object members here
@@ -45,11 +45,9 @@ public:
 };
 
 ViewImpl::ViewImpl(App & app)
-	: View(app, kChunkVersion, L":res:SVGDemo/styles.glx")
+	: View(app, kChunkVersion, L":res:SVGDemo/styles.glx", true)
 	, app(app)
 {
-	Data::SetBool(*this, GLX::kresizable, true);
-
 	if constexpr (REFLEX_DEBUG)
 	{
 		GLX::SetText(m_ide, L"Console");
@@ -136,7 +134,7 @@ void ViewImpl::OnUpdate()
 
 } }	//end internal namespace
 
-Reflex::TRef <SVGDemo::View> SVGDemo::View::Create(App & app)
+Reflex::Unretained <SVGDemo::View> SVGDemo::View::Create(App & app)
 {
 	return New<ViewImpl>(app);
 }

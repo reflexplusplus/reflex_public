@@ -6,7 +6,7 @@
 //
 //impl
 
-Reflex::TRef <Reflex::Object> Reflex::Async::CreateClock(const Function <void()> & callback)
+Reflex::Unretained <Reflex::Object> Reflex::Async::CreateClock(const Function <void()> & callback)
 {
 	struct Wrapper : public Object
 	{

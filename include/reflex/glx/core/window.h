@@ -44,7 +44,7 @@ public:
 
 	void SetContent(GLX::Object & object);
 
-	TRef <GLX::Object> GetContent();
+	AlreadyRetained <GLX::Object> GetContent();
 
 
 
@@ -85,9 +85,9 @@ public:
 
 	//links
 
-	const TRef <System::Window> owner;
+	const AlreadyRetained <System::Window> owner;
 
-	const ConstTRef <Output::Profiler> profiler;
+	const ConstAlreadyRetained <Output::Profiler> profiler;
 
 
 
@@ -259,7 +259,7 @@ inline Reflex::System::MouseCursor Reflex::GLX::Core::WindowClient::GetMouseCurs
 	return m_mousecursor;
 }
 
-inline Reflex::TRef <Reflex::GLX::Object> Reflex::GLX::Core::WindowClient::GetContent()
+inline Reflex::AlreadyRetained <Reflex::GLX::Object> Reflex::GLX::Core::WindowClient::GetContent()
 {
 	return m_content;
 }

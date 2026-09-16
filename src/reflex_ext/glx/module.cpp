@@ -6,8 +6,8 @@
 
 
 REFLEX_NS(Reflex::GLX)
-extern FunctionPointer <TRef <Animation>(Float, Float, const Function <void(Object&, Float)> &, Float)> g_create_logarithmic_animation;
-extern FunctionPointer <TRef <Animation>(const Function <void(Object &, Float)> &)> g_create_interpolated_animation;
+extern FunctionPointer <Unretained <Animation>(Float, Float, const Function <void(Object&, Float)> &, Float)> g_create_logarithmic_animation;
+extern FunctionPointer <Unretained <Animation>(const Function <void(Object &, Float)> &)> g_create_interpolated_animation;
 REFLEX_END
 
 REFLEX_BEGIN_INTERNAL(Reflex::GLX)
@@ -21,7 +21,7 @@ struct Globals
 	Globals()
 	{
 		g_create_logarithmic_animation = &CreateLogarithmicAnimation;
-		g_create_interpolated_animation = [](const Function <void(Object &, Float)> & callback) -> TRef <Animation>
+		g_create_interpolated_animation = [](const Function <void(Object &, Float)> & callback) -> Unretained <Animation>
 		{
 			return CreateInterpolatedAnimation(callback);
 		};

@@ -40,7 +40,7 @@ public:
 
 	//components
 
-	const TRef <PopupBehaviour> behaviour;
+	const AlreadyRetained <PopupBehaviour> behaviour;
 
 };
 
@@ -53,7 +53,7 @@ REFLEX_SET_TRAIT(Reflex::GLX::Popup, IsSingleThreadExclusive);
 //impl
 
 inline Reflex::GLX::Popup::Popup()
-	: behaviour(PopupBehaviour::Create())
+	: behaviour(NoRetain(PopupBehaviour::Create()))
 {
 	SetDelegate(MakeKey32("Popup"), behaviour);
 }

@@ -52,8 +52,14 @@ CString TargetName(CString::View name)
 	CString result;
 	for (auto c : name)
 	{
-		if (Data::Detail::IsAlphaNumericCharacter(c) || c == '_') result.Push(c);
-		else result.Push('_');
+		if (Data::Detail::IsAlphaNumericCharacter(c))
+		{
+			result.Push(c);
+		}
+		else
+		{
+			result.Push('_');
+		}
 	}
 	if (!result || !Data::Detail::IsAlphaCharacter(result.GetFirst())) result = Join("target_", result);
 	return result;
@@ -128,47 +134,24 @@ WString ConfigItem(const TargetConfiguration & config, WString::View value)
 	return Value(Join(L"$<$<CONFIG:", ToWString(config.GetName()), L">:", PortableValue(config, value), L">"));
 }
 
-void WriteInvocation(Data::Archive & output, UInt indentation, CString::View command, WString::View head = {}, ArrayView<WString> values = {})
-{
-	auto opening = Join(ToWString(command), L"(", head);
-	switch (values.size)
-	{
-	case 0:
-		WriteLine(output, indentation, Join(opening, L")"));
-		return;
-	case 1:
-		WriteLine(output, indentation, Join(opening, head ? L" " : L"", values.GetFirst(), L")"));
-		return;
-	default:
-		WriteLine(output, indentation, opening);
-		for (auto & value : values) WriteLine(output, indentation + 1, value);
-		WriteLine(output, indentation, ")");
-	}
-}
-
-void WriteTargetValues(Data::Archive & output, UInt indentation, CString::View command, CString::View target, ArrayView<WString> values)
-{
-	if (values) WriteInvocation(output, indentation, command, ToWString(Join(target, " PRIVATE")), values);
-}
-
 void WriteSet(Data::Archive & output, UInt indentation, CString::View variable, ArrayView<WString> values)
 {
 	if (values)
 	{
-		WriteInvocation(output, indentation, "set", ToWString(variable), values);
+		WriteCMakeInvocation(output, indentation, "set", ToWString(variable), values);
 		Data::WriteLine(output);
 	}
 }
 
 void WriteTargetProperty(Data::Archive & output, UInt indentation, CString::View target, CString::View property, ArrayView<WString> values)
 {
-	if (values) WriteInvocation(output, indentation, "set_property", ToWString(Join("TARGET ", target, " PROPERTY ", property)), values);
+	if (values) WriteCMakeInvocation(output, indentation, "set_property", ToWString(Join("TARGET ", target, " PROPERTY ", property)), values);
 }
 
 void WriteReflexTargetSetting(Data::Archive & output, UInt indentation, CString::View setting, CString::View target, WString::View value, CString::View configuration = {})
 {
 	auto arguments = Join(ToWString(target), L" ", value, configuration ? Join(L" CONFIG ", ToWString(configuration)) : WString());
-	WriteInvocation(output, indentation, Join("reflex_target_set_", setting), arguments);
+	WriteCMakeInvocation(output, indentation, Join("reflex_target_set_", setting), arguments);
 }
 
 void AppendSection(Array<WString> & arguments, WString::View keyword, ArrayView<WString> values, bool include_empty = false)
@@ -185,20 +168,20 @@ void WriteHeaderFileOnly(Data::Archive & output, UInt indentation, ArrayView<WSt
 		Array<WString> values;
 		for (auto & path : paths) values.Push(path);
 		values.Push(L"PROPERTIES HEADER_FILE_ONLY TRUE");
-		WriteInvocation(output, indentation, "set_source_files_properties", {}, values);
+		WriteCMakeInvocation(output, indentation, "set_source_files_properties", {}, values);
 	}
 }
 
 void WriteResourceSourceGroup(Data::Archive & output, UInt indentation, ArrayView<WString> paths)
 {
-	if (paths) WriteInvocation(output, indentation, "source_group", L"Resources FILES", paths);
+	if (paths) WriteCMakeInvocation(output, indentation, "source_group", L"Resources FILES", paths);
 }
 
 void WriteRuntimeLibrary(Data::Archive & output, UInt indentation, CString::View target, RuntimeLibrary runtime, ArrayView<CString> debug_configurations)
 {
 	Array<WString> values;
 	AppendSection(values, L"DEBUG_CONFIGS", MakeArray(debug_configurations, [](CString::View configuration) { return ToWString(configuration); }));
-	WriteInvocation(output, indentation, "reflex_target_set_runtime_library", ToWString(Join(target, " ", kRuntimeLibraryNames[runtime])), values);
+	WriteCMakeInvocation(output, indentation, "reflex_target_set_runtime_library", ToWString(Join(target, " ", kRuntimeLibraryNames[runtime])), values);
 }
 
 Array<WString> PortableStrings(const TargetConfiguration & config, ArrayView<CString> values)
@@ -289,7 +272,7 @@ Array<WString> TargetConfigurationValues(const TargetConfiguration & config, Bui
 		Array<WString> result;
 		if (auto xcode = IsXCode(platform))
 		{
-			for (auto & framework : config.GetStrings(kXcodeFrameworkProperties[xcode.value])) result.Push(Join(L"-framework ", ToWString(framework)));
+			for (auto & framework : config.GetAppendableStrings(kXcodeFrameworkProperties[xcode.value])) result.Push(Join(L"-framework ", ToWString(framework)));
 		}
 		return result;
 	}
@@ -556,7 +539,7 @@ void WriteBuildAction(Data::Archive & output, CString::View target, const Target
 	AppendSection(values, L"COMMAND", MakeArray(action.command, [&config](WString::View argument) { return Value(PortableCommandArgument(config, argument)); }), true);
 	AppendSection(values, L"INPUTS", MakeArray(action.inputs, [&config](const PathDesc & path) { return Path(config, path); }));
 	AppendSection(values, L"OUTPUTS", MakeArray(action.outputs, [&config](const PathDesc & path) { return Path(config, path); }));
-	WriteInvocation(output, indentation, "reflex_target_add_build_action", ToWString(target), values);
+	WriteCMakeInvocation(output, indentation, "reflex_target_add_build_action", ToWString(target), values);
 }
 
 bool EquivalentBuildAction(const TargetConfiguration & a_context, const BuildActionDesc & a, const TargetConfiguration & b_context, const BuildActionDesc & b)
@@ -650,7 +633,7 @@ void WriteLibraryTarget(Data::Archive & output, const Target & target, ArrayView
 
 	Data::WriteLine(output, Join("# ", target.GetName(), " (library)"));
 	Data::WriteLine(output, Join("if((", platform_condition, ") AND NOT TARGET ", cmake_target, ")"));
-	WriteInvocation(output, 1, "add_library", ToWString(Join(cmake_target, " STATIC IMPORTED GLOBAL")));
+	WriteCMakeInvocation(output, 1, "add_library", ToWString(Join(cmake_target, " STATIC IMPORTED GLOBAL")));
 	WriteTargetProperty(output, 1, cmake_target, "IMPORTED_CONFIGURATIONS", { L"DEBUG", L"RELEASE" });
 	WriteTargetProperty(output, 1, cmake_target, "MAP_IMPORTED_CONFIG_MINSIZEREL", { L"Release" });
 	WriteTargetProperty(output, 1, cmake_target, "MAP_IMPORTED_CONFIG_RELWITHDEBINFO", { L"Release" });
@@ -707,7 +690,7 @@ void WriteProjectDependencies(Data::Archive & output, Project & project, ArrayVi
 		auto source = File::MakeRelativePath(project.GetRoot(), dependency_project->GetRoot());
 		auto binary = Join(L"${CMAKE_BINARY_DIR}/reflex_dependencies/", ToWString(TargetName(dependency_project->GetName())), L'_', ToWString(target_name));
 		Data::WriteLine(output, Join("if(NOT TARGET ", target_name, ")"));
-		WriteInvocation(output, 1, "add_subdirectory", {}, { Value(source), Value(binary) });
+		WriteCMakeInvocation(output, 1, "add_subdirectory", {}, { Value(source), Value(binary) });
 		Data::WriteLine(output, "endif()");
 	}
 	Data::WriteLine(output);
@@ -775,15 +758,15 @@ void WriteTarget(Data::Archive & output, const Project & project, const Target &
 
 	Data::WriteLine(output, Join("# ", target.GetName()));
 	Data::WriteLine(output, Join("if(", platform_condition, ")"));
-	WriteInvocation(output, 1, "reflex_add_target", ToWString(Join(cmake_target, " TYPE ", kOutputTypes[output_type])));
+	WriteCMakeInvocation(output, 1, "reflex_add_target", ToWString(Join(cmake_target, " TYPE ", kOutputTypes[output_type])));
 	if (cmake_identifier != cmake_target)
 	{
 		auto command = output_type == kOutputType_static_library || output_type == kOutputType_dynamic_library ? CString::View("add_library") : CString::View("add_executable");
-		WriteInvocation(output, 1, command, ToWString(Join(cmake_identifier, " ALIAS ", cmake_target)));
+		WriteCMakeInvocation(output, 1, command, ToWString(Join(cmake_identifier, " ALIAS ", cmake_target)));
 	}
-	if (common_build_properties_function) WriteInvocation(output, 1, common_build_properties_function, ToWString(cmake_target));
+	if (common_build_properties_function) WriteCMakeInvocation(output, 1, common_build_properties_function, ToWString(cmake_target));
 	WriteReflexTargetSetting(output, 1, "cpp_standard", cmake_target, standard == kCppStandard_cxx17 ? L"cxx17" : L"cxx20");
-	WriteInvocation(output, 1, "reflex_target_enable_string_pooling", ToWString(cmake_target));
+	WriteCMakeInvocation(output, 1, "reflex_target_enable_string_pooling", ToWString(cmake_target));
 	WriteRuntimeLibrary(output, 1, cmake_target, runtime, debug_runtime_configurations);
 
 	REFLEX_LOOP(property, kBuildPropertyCount)
@@ -795,7 +778,7 @@ void WriteTarget(Data::Archive & output, const Project & project, const Target &
 	REFLEX_STATIC_ASSERT(GetArraySize(commands) == kTargetValueKindCount);
 	REFLEX_LOOP(kind, kTargetValueKindCount) if (common_lists.target_values[kind])
 	{
-		WriteTargetValues(output, 1, commands[kind], cmake_target,
+		WriteCMakeTargetValues(output, 1, commands[kind], cmake_target,
 			{ ToWString(Join("${", CommonTargetValuesVariable(common_lists_prefix, TargetValueKind(kind)), "}")) });
 	}
 	if (common_lists.target_values[kTargetOtherFiles])
@@ -805,12 +788,12 @@ void WriteTarget(Data::Archive & output, const Project & project, const Target &
 	}
 	if (common_lists.build_dependencies)
 	{
-		WriteInvocation(output, 1, "add_dependencies", ToWString(cmake_target),
+		WriteCMakeInvocation(output, 1, "add_dependencies", ToWString(cmake_target),
 			{ ToWString(Join("${", CommonDependencyVariable(common_lists_prefix, false), "}")) });
 	}
 	if (common_lists.link_dependencies)
 	{
-		WriteTargetValues(output, 1, "target_link_libraries", cmake_target,
+		WriteCMakeTargetValues(output, 1, "target_link_libraries", cmake_target,
 			{ ToWString(Join("${", CommonDependencyVariable(common_lists_prefix, true), "}")) });
 	}
 	Array<Array<WString>> platform_values[kTargetValueKindCount];
@@ -864,18 +847,18 @@ void WriteTarget(Data::Archive & output, const Project & project, const Target &
 	{
 		write_groups(platform_values[kind], [&](UInt indentation, ArrayView<WString> values)
 		{
-			WriteTargetValues(output, indentation, commands[kind], cmake_target, values);
+			WriteCMakeTargetValues(output, indentation, commands[kind], cmake_target, values);
 			if (kind == kTargetOtherFiles) WriteHeaderFileOnly(output, indentation, values);
 		});
 	}
 	WriteResourceSourceGroup(output, 1, MakeArray(other_file_source_group, [](WString::View value) { return Value(value); }));
 	write_groups(build_dependencies, [&](UInt indentation, ArrayView<WString> values)
 	{
-		WriteInvocation(output, indentation, "add_dependencies", ToWString(cmake_target), values);
+		WriteCMakeInvocation(output, indentation, "add_dependencies", ToWString(cmake_target), values);
 	});
 	write_groups(link_dependencies, [&](UInt indentation, ArrayView<WString> values)
 	{
-		WriteTargetValues(output, indentation, "target_link_libraries", cmake_target, values);
+		WriteCMakeTargetValues(output, indentation, "target_link_libraries", cmake_target, values);
 	});
 
 	constexpr BuildPhase action_phases[] = { kBuildPhasePreBuild, kBuildPhasePostBuild };
@@ -1024,18 +1007,18 @@ bool EquivalentVariables(ArrayView<Variable> a, ArrayView<Variable> b)
 Data::Archive Preamble(const TargetConfiguration & context)
 {
 	Data::Archive output;
-	for (auto & variable : context.GetVariableMap(kCMakeVariables)) WriteInvocation(output, 0, "set", ToWString(variable.name), { Value(variable.value) });
-	for (auto & include : context.GetStrings(kCMakeIncludes)) WriteInvocation(output, 0, "include", Value(include));
+	for (auto & variable : context.GetVariableMap(kCMakeVariables)) WriteCMakeInvocation(output, 0, "set", ToWString(variable.name), { Value(variable.value) });
+	for (auto & include : context.GetStrings(kCMakeIncludes)) WriteCMakeInvocation(output, 0, "include", Value(include));
 	for (auto & package : context.GetVariableMap(kCMakeFindPackages))
 	{
-		WriteInvocation(output, 0, "find_package", Join(ToWString(package.name), package.value ? Join(L" ", package.value) : WString()));
+		WriteCMakeInvocation(output, 0, "find_package", Join(ToWString(package.name), package.value ? Join(L" ", package.value) : WString()));
 	}
 	return output;
 }
 
 REFLEX_END_INTERNAL
 
-void ReflexCLI::ProjectGen::GenerateCMakeProject(Project & project, BuildPlatform selected_platform, Array<const TargetPlatform *> & generated_platforms)
+void ReflexCLI::ProjectGen::GenerateCMakeProject(Project & project, BuildPlatform selected_platform, const WString &, Array<const TargetPlatform *> & generated_platforms, Map<WString> &)
 {
 	const TargetConfiguration * preamble_context = nullptr;
 	for (auto & target : project.GetTargets())

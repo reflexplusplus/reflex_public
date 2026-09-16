@@ -1,6 +1,6 @@
 #pragma once
 
-#include "instance.h"
+#include "app.h"
 
 
 
@@ -35,7 +35,7 @@ public:
 	{
 		struct Class;
 
-		Function <TRef<Object>(Object & global, const Class & cls, AudioPlugin & instance)> instance_ctr;
+		Function <Unretained<Object>(Object & global, const Class & cls, AudioPlugin & instance)> instance_ctr;
 
 		Array <Class> classes;
 	};
@@ -62,11 +62,13 @@ public:
 
 	//properties
 
-	static TRef <Object> OnStart(const ArrayView <CString::View> & cmdline, Configuration & config);	//return your app global
+	static Unretained <Object> OnStart(const ArrayView <CString::View> & cmdline, Configuration & config);	//return your app global
 
 
 
 	//global
+
+	static CString::View GetFormat();
 
 	static CString::View GetPluginHost();
 
@@ -105,6 +107,7 @@ public:
 	virtual void ReportProcessingDelay(UInt32 delay) = 0;
 
 	virtual void ReportStateChange(UInt8 change_flags) = 0;	//parameters, descriptions, note names or general state (for parameters, do not call for host automation!)
+															//kChangeParameterValues means "the values changed internally, re-read them" - update the values the callbacks report before calling
 
 
 
@@ -115,6 +118,12 @@ public:
 	virtual void Automate(UInt32 idx, Float32 value) = 0;
 
 	virtual void EndAutomation(UInt32 idx) = 0;
+
+
+
+	//info
+
+	virtual const Configuration::Class & GetClass() const = 0;
 
 };
 
@@ -248,7 +257,7 @@ struct Reflex::System::AudioPlugin::Configuration::Class
 //
 //AudioPlugin::Callbacks
 
-class Reflex::System::AudioPlugin::Callbacks : public InterfaceOf <Callbacks>
+class Reflex::System::AudioPlugin::Callbacks
 {
 public:
 
@@ -270,7 +279,7 @@ public:
 	virtual void OnSetParameterValue(UInt32 idx, Float32 value) = 0;	//host edits parameter in UI, usually not used
 
 
-	virtual FunctionPointer <void(Callbacks&,UInt)> OnPrepare(UInt32 max_buffersize, Float32 samplerate, ConstTRef <EventBuffer> events_in, TRef <EventBuffer> events_out, const ArrayView <const Float32*> & inputs, const ArrayView <Float32*> & outputs) = 0;
+	virtual FunctionPointer <void(Callbacks&,UInt)> OnPrepare(UInt32 max_buffersize, Float32 samplerate, ConstRef <EventBuffer> events_in, Ref <EventBuffer> events_out, const ArrayView <const Float32*> & inputs, const ArrayView <Float32*> & outputs) = 0;
 
 };
 
@@ -312,7 +321,7 @@ public:
 
 	//links
 
-	const TRef <AudioPlugin> audioplugin;
+	const AlreadyRetained <AudioPlugin> audioplugin;
 };
 
 

@@ -27,9 +27,9 @@ namespace ReflexCLI::Documentation
 
 	struct ExportFormatWriter : public Object
 	{
-		static TRef <ExportFormatWriter> CreatePlainText(TRef <Data::BinaryProperty> output);
+		static Unretained <ExportFormatWriter> CreatePlainText(WillRetain <Data::BinaryProperty> output);
 
-		ExportFormatWriter(TRef <Data::BinaryProperty> output)
+		ExportFormatWriter(WillRetain <Data::BinaryProperty> output)
 			: m_output(output)
 			, out(output->value)
 			, m_block(Block::kText)
@@ -115,19 +115,19 @@ namespace ReflexCLI::Documentation
 
 		TableIndex();
 
-		TableIndex(ConstTRef <Data::Table> table);
+		TableIndex(ConstWillRetain <Data::Table> table);
 
 
-		ConstTRef <ModuleNode> GetRootModule() const { return root_module; }
+		ConstAlreadyRetained <ModuleNode> GetRootModule() const { return root_module; }
 
 		const ModuleNode * QueryModule(Docformat::Symbol symbol, const ModuleNode * fallback = nullptr) const;
 
-		ConstTRef <ModuleNode> GetModule(Docformat::Symbol symbol) const { return QueryModule(symbol, GetRootModule().Adr()); }
+		ConstAlreadyRetained <ModuleNode> GetModule(Docformat::Symbol symbol) const { return QueryModule(symbol, GetRootModule().Adr()); }
 
 
 		const SymbolInfo * QuerySymbolInfo(Docformat::Symbol symbol, const SymbolInfo * fallback = nullptr) const;
 
-		ConstTRef <SymbolInfo> GetSymbolInfo(Docformat::Symbol symbol) const { return QuerySymbolInfo(symbol, &m_null_symbolinfo); }
+		ConstAlreadyRetained <SymbolInfo> GetSymbolInfo(Docformat::Symbol symbol) const { return QuerySymbolInfo(symbol, &m_null_symbolinfo); }
 
 		Docformat::Symbol ResolveTypedef(Docformat::Symbol symbol, UInt16 usage = 0) const;
 
@@ -190,9 +190,9 @@ namespace ReflexCLI::Documentation
 	CString::View GetCategoryLabel(CategoryEx category);
 
 	Pair < Array <CString::View>, UInt > BuildModulePath(const ModuleNode & node);
-	Array <ConstTRef <ModuleNode>> SortChildModules(const ModuleNode & parent, bool namespace_first);
+	Array <ConstAlreadyRetained <ModuleNode>> SortChildModules(const ModuleNode & parent, bool namespace_first);
 
-	TRef <Data::Table> CreateTable(const WString::View & folder, Data::KeyMap & keymap);
+	Unretained <Data::Table> CreateTable(const WString::View & folder, Data::KeyMap & keymap);
 	CString::View GetSubCategory(Docformat::Category category, Docformat::TypeFlags flags);
 	Data::Table::ConstRowCursor FindSymbol(const Data::Table & table, Docformat::Symbol symbol);
 	Data::Archive ReplaceMarkupTokens(CString::View view);

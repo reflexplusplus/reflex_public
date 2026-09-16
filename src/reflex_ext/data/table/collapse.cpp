@@ -200,7 +200,7 @@ const decltype (&MinMaxValue<false, UInt8>) kAggregateMaxFns[Table::kNumColumnTy
 	&MinMaxBinary,
 };
 
-REFLEX_NOINLINE TRef <Reflex::Data::Table> SummariseImpl(ConstTRef <Table> input, const Table::ColumnInfo * pindexcol, const Map < Data::Archive::View, Array <UInt> > & collapsed, const ArrayView <Pair<Key32,AggregateOp>> & ops)
+REFLEX_NOINLINE Unretained <Reflex::Data::Table> SummariseImpl(ConstAlreadyRetained <Table> input, const Table::ColumnInfo * pindexcol, const Map < Data::Archive::View, Array <UInt> > & collapsed, const ArrayView <Pair<Key32,AggregateOp>> & ops)
 {
 	UInt size = 0;
 
@@ -305,7 +305,7 @@ REFLEX_NOINLINE TRef <Reflex::Data::Table> SummariseImpl(ConstTRef <Table> input
 
 REFLEX_END_INTERNAL
 
-Reflex::TRef <Reflex::Data::Table> Reflex::Data::Detail::Aggregate(const Table & input, ArrayView <Pair<Key32,AggregateOp>> ops)
+Reflex::Unretained <Reflex::Data::Table> Reflex::Data::Detail::Aggregate(const Table & input, ArrayView <Pair<Key32,AggregateOp>> ops)
 {
 	Map < Data::Archive::View, Array <UInt> > collapsed;
 
@@ -314,7 +314,7 @@ Reflex::TRef <Reflex::Data::Table> Reflex::Data::Detail::Aggregate(const Table &
 	return SummariseImpl(input, 0, collapsed, ops);
 }
 
-Reflex::TRef <Reflex::Data::Table> Reflex::Data::Detail::GroupBy(const Table & input, Key32 columnid, ArrayView <Pair<Key32,AggregateOp>> ops)
+Reflex::Unretained <Reflex::Data::Table> Reflex::Data::Detail::GroupBy(const Table & input, Key32 columnid, ArrayView <Pair<Key32,AggregateOp>> ops)
 {
 	auto inputcols = input.GetColumns();
 

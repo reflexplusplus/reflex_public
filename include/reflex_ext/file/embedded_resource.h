@@ -82,7 +82,7 @@ public:
 
 	Locator();
 
-	[[nodiscard]] virtual TRef <System::FileHandle> OnRead(ArrayView <WString::View> subdomain, WString::View path, File::Attributes & attributes) const override;
+	[[nodiscard]] virtual Unretained <System::FileHandle> OnRead(ArrayView <WString::View> subdomain, WString::View path, File::Attributes & attributes) const override;
 };
 
 

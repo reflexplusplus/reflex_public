@@ -52,9 +52,9 @@ public:
 
 	//location
 
-	TRef <GLX::WindowClient> GetWindow();
+	AlreadyRetained <GLX::WindowClient> GetWindow();
 
-	ConstTRef <GLX::WindowClient> GetWindow() const;
+	ConstAlreadyRetained <GLX::WindowClient> GetWindow() const;
 
 
 	void SetParent(GLX::Object & parent);
@@ -66,9 +66,9 @@ public:
 	void Detach();
 
 
-	TRef <GLX::Object> GetParent() { return m_parent; }
+	AlreadyRetained <GLX::Object> GetParent() { return m_parent; }
 
-	ConstTRef <GLX::Object> GetParent() const { return m_parent; }
+	ConstAlreadyRetained <GLX::Object> GetParent() const { return m_parent; }
 
 
 	void SendBottom();
@@ -138,15 +138,15 @@ public:
 
 	void Draw(RenderContext & ctx);				//for draw to texture
 
-	TRef <GLX::Object> FindPointerTarget(PointerAction action, const Pointer & pointer, UInt8 flags, System::fPoint local_position);
+	AlreadyRetained <GLX::Object> FindPointerTarget(PointerAction action, const Pointer & pointer, UInt8 flags, System::fPoint local_position);
 
 
 
 	//renderer (move to GLX, core should just have draw fn)
 
-	TRef <Renderer> GetRenderer() { return m_renderer; }
+	AlreadyRetained <Renderer> GetRenderer() { return m_renderer; }
 
-	ConstTRef <Renderer> GetRenderer() const { return m_renderer; }
+	ConstAlreadyRetained <Renderer> GetRenderer() const { return m_renderer; }
 
 
 
@@ -250,9 +250,9 @@ private:
 
 
 
-	TRef <GLX::WindowClient> m_window;
+	AlreadyRetained <GLX::WindowClient> m_window;
 
-	TRef <GLX::Object> m_parent;	//parent optimisation
+	AlreadyRetained <GLX::Object> m_parent;	//parent optimisation
 
 
 	Flags8 m_attach_flags;
@@ -323,12 +323,12 @@ public:
 REFLEX_SET_TRAIT(Reflex::GLX::Core::Object, IsSingleThreadExclusive);
 REFLEX_SET_TRAIT(Reflex::GLX::Core::Renderer, IsSingleThreadExclusive);
 
-REFLEX_INLINE Reflex::TRef <Reflex::GLX::WindowClient> Reflex::GLX::Core::Object::GetWindow()
+REFLEX_INLINE Reflex::AlreadyRetained <Reflex::GLX::WindowClient> Reflex::GLX::Core::Object::GetWindow()
 {
 	return m_window;
 }
 
-REFLEX_INLINE Reflex::ConstTRef <Reflex::GLX::WindowClient> Reflex::GLX::Core::Object::GetWindow() const
+REFLEX_INLINE Reflex::ConstAlreadyRetained <Reflex::GLX::WindowClient> Reflex::GLX::Core::Object::GetWindow() const
 {
 	return m_window;
 }

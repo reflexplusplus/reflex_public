@@ -159,7 +159,7 @@ template <class AXIS> void Exchange(Object & self, Object & current, Object & ne
 	fadein->SetEasing(InterpolatedAnimation::kEaseIn3x);
 
 
-	TRef multi = REFLEX_CREATE(Multi);
+	auto multi = REFLEX_CREATE(Multi);
 	
 	multi->Add(moveout);
 	
@@ -172,7 +172,7 @@ template <class AXIS> void Exchange(Object & self, Object & current, Object & ne
 	
 	auto playlist = REFLEX_CREATE(PlayList);
 
-	playlist->Add(multi);
+	playlist->Add(*multi);
 
 	playlist->Add(CreateCallbackAnimation([out = Core::WeakReference(out), in = Core::WeakReference(in), next = Core::WeakReference(next)](Object & target)
 	{
@@ -200,7 +200,7 @@ void Reflex::GLX::Detail::EndMouseTracking(Object & object)
 	object.ClearDelegate(K32("MouseTracker"));
 }
 
-Reflex::TRef <Reflex::GLX::TextArea> Reflex::GLX::Detail::BeginTextEdit_DEPRECATED(Object & object, const Style & style, const WString::View & value, const Function <void(const WString&)> & ondone, const Function <void(const WString&)> & onedit, const Function <void()> & oncancel)
+Reflex::AlreadyRetained <Reflex::GLX::TextArea> Reflex::GLX::Detail::BeginTextEdit_DEPRECATED(Object & object, const Style & style, const WString::View & value, const Function <void(const WString&)> & ondone, const Function <void(const WString&)> & onedit, const Function <void()> & oncancel)
 {
 	auto textarea = New<TextArea>();
 
@@ -208,7 +208,7 @@ Reflex::TRef <Reflex::GLX::TextArea> Reflex::GLX::Detail::BeginTextEdit_DEPRECAT
 
 	AddStretch(object, textarea);
 
-	BindEvent(textarea, kTransaction, [textarea, onedit, ondone, oncancel](GLX::Object & src, Event & e)
+	BindEvent(textarea, kTransaction, [textarea = NoRetain(textarea), onedit, ondone, oncancel](GLX::Object & src, Event & e)
 	{
 		auto ref = AutoRelease(textarea);
 
@@ -240,10 +240,10 @@ Reflex::TRef <Reflex::GLX::TextArea> Reflex::GLX::Detail::BeginTextEdit_DEPRECAT
 
 	textedit->Focus();
 
-	return textarea;
+	return NoRetain(textarea);
 }
 
-Reflex::TRef <Reflex::GLX::TextEditBehaviour> Reflex::GLX::Detail::BeginTextEdit(Object & object, const Function <void(TransactionStage stage, const WString &)> & callback, Key32 dataid)
+Reflex::AlreadyRetained <Reflex::GLX::TextEditBehaviour> Reflex::GLX::Detail::BeginTextEdit(Object & object, const Function <void(TransactionStage stage, const WString &)> & callback, Key32 dataid)
 {
 	Object::null.Focus();
 

@@ -98,7 +98,7 @@ void SettingsPanel::OnStore(Data::Archive & stream) const
 	Data::Serialize(stream, UInt8(m_tabgroup.GetSelector()->GetCurrentIndex().value));
 }
 
-IDE::Detail::ConsolePanel::Ctr g_settings_panel_ctr(L"Settings", 1, []() -> TRef <IDE::Detail::ConsolePanel>
+IDE::Detail::ConsolePanel::Ctr g_settings_panel_ctr(L"Settings", 1, []() -> Unretained <IDE::Detail::ConsolePanel>
 {
 	return REFLEX_CREATE(SettingsPanel);
 });

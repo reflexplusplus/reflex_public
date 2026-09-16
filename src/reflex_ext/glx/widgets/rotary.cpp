@@ -342,13 +342,13 @@ void Reflex::GLX::RotarySlider::OnSetProperty(Address adr, Reflex::Object & obje
 	}
 }
 
-Reflex::TRef <Reflex::GLX::Object::Delegate> Reflex::GLX::AttachRotaryDisplayPropertiesDelegate(GLX::Object & object, Float value_origin, Key32 angle_id, Key32 sweep_id)
+Reflex::AlreadyRetained <Reflex::GLX::Object::Delegate> Reflex::GLX::AttachRotaryDisplayPropertiesDelegate(GLX::Object & object, Float value_origin, Key32 angle_id, Key32 sweep_id)
 {
 	auto d = New<RotaryDisplayPropertiesDelegate>(value_origin, angle_id, sweep_id);
 
 	object.SetDelegate(angle_id, d);
 
-	return d;
+	return NoRetain(d);
 }
 
 Reflex::Tuple <Reflex::Float, Reflex::GLX::Range> Reflex::GLX::CalcRotaryAngleAndSweep(Range value_range, Float value, Float value_origin, Range sweep_range)

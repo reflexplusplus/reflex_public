@@ -49,7 +49,7 @@ public:
 
 	//links
 
-	const TRef <TextEditBehaviour> behaviour;
+	const AlreadyRetained <TextEditBehaviour> behaviour;
 
 };
 

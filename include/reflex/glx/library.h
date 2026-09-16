@@ -23,7 +23,7 @@ namespace Reflex::GLX
 
 	Key32 RegisterKey(CString::View key);	//for debug only
 
-	ConstTRef <Data::KeyMap> GetKeyMap();	//for debug only
+	ConstAlreadyRetained <Data::KeyMap> GetKeyMap();	//for debug only
 
 	CString::View GetKey(Key32 id);	//for debug only
 
@@ -44,6 +44,6 @@ namespace Reflex::GLX
 
 #if !REFLEX_DEBUG
 inline Reflex::Key32 Reflex::GLX::RegisterKey(CString::View key) { return key; }
-inline Reflex::ConstTRef <Reflex::Data::KeyMap> Reflex::GLX::GetKeyMap() { return {}; }
+inline Reflex::ConstAlreadyRetained <Reflex::Data::KeyMap> Reflex::GLX::GetKeyMap() { return {}; }
 inline Reflex::CString::View Reflex::GLX::GetKey(Key32 id) { return {}; }
 #endif

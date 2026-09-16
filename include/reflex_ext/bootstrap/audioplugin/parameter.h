@@ -61,13 +61,13 @@ public:
 	};
 
 
-	[[nodiscard, deprecated("use Bootstrap::DefineContinuousParameter")]] static TRef <ParameterDefinition> CreateReal(CString && name, Float32 min, Float32 max, Float32 step, Float32 initial, UInt8 group_flags, decltype(kFromContinuous) to_string = kFromContinuous);
+	[[nodiscard, deprecated("use Bootstrap::DefineContinuousParameter")]] static Unretained <ParameterDefinition> CreateReal(CString && name, Float32 min, Float32 max, Float32 step, Float32 initial, UInt8 group_flags, decltype(kFromContinuous) to_string = kFromContinuous);
 
-	[[nodiscard, deprecated("use Bootstrap::DefineDiscreteParameter")]] static TRef <ParameterDefinition> CreateDiscrete(CString && name, Int32 min, Int32 max, Int32 initial, UInt8 group_flags);
+	[[nodiscard, deprecated("use Bootstrap::DefineDiscreteParameter")]] static Unretained <ParameterDefinition> CreateDiscrete(CString && name, Int32 min, Int32 max, Int32 initial, UInt8 group_flags);
 
-	[[nodiscard, deprecated("use Bootstrap::DefineBoolParameter")]] static TRef <ParameterDefinition> CreateBool(CString && name, bool initial, UInt8 group_flags);
+	[[nodiscard, deprecated("use Bootstrap::DefineBoolParameter")]] static Unretained <ParameterDefinition> CreateBool(CString && name, bool initial, UInt8 group_flags);
 
-	[[nodiscard, deprecated("use Bootstrap::DefineEnumParameter")]] static TRef <ParameterDefinition> CreateEnum(CString && name, ArrayView <WString> values, Int32 initial, UInt8 group_flags);
+	[[nodiscard, deprecated("use Bootstrap::DefineEnumParameter")]] static Unretained <ParameterDefinition> CreateEnum(CString && name, ArrayView <WString> values, Int32 initial, UInt8 group_flags);
 	
 	
 	virtual Type GetType() const = 0;

@@ -21,7 +21,7 @@ namespace Reflex::Data
 //
 //History
 
-class Reflex::Data::History : public InterfaceOf <History>
+class Reflex::Data::History
 {
 public:
 
@@ -97,7 +97,7 @@ private:
 
 	struct ItemImpl : public Reflex::Item <ItemImpl>
 	{
-		[[nodiscard]] static TRef <ItemImpl> Create(UInt size);
+		[[nodiscard]] static Unretained <ItemImpl> Create(UInt size);
 
 		using Item::Attach;
 		using Item::Detach;

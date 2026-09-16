@@ -21,7 +21,7 @@ namespace Reflex::Data
 	Archive Decompress(const DecompressionAlgorithm & algorithm, const Archive::View & data);
 
 
-	extern const ConstTRef <CompressionAlgorithm> kLZ4;
+	extern const ConstAlreadyRetained <CompressionAlgorithm> kLZ4;
 
 }
 

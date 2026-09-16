@@ -9,7 +9,7 @@
 
 REFLEX_BEGIN_INTERNAL(Reflex::GLX)
 
-TRef <Object> CreateWithLabel(const WString::View & label, const Style & style)
+Unretained <Object> CreateWithLabel(const WString::View & label, const Style & style)
 {
 	auto item = REFLEX_CREATE(Object);
 
@@ -22,7 +22,7 @@ TRef <Object> CreateWithLabel(const WString::View & label, const Style & style)
 
 struct ContextMenu : public MenuImpl
 {
-	static TRef <Menu> Create(Object & src, Key32 context, const Style & style)
+	static Unretained <Menu> Create(Object & src, Key32 context, const Style & style)
 	{
 		CloseContextMenu();
 
@@ -140,11 +140,11 @@ void Reflex::GLX::MenuImpl::Clear()
 	m_content.Clear();
 }
 
-Reflex::TRef <Reflex::GLX::Object> Reflex::GLX::MenuImpl::AddItem(TRef <Object> item)
+Reflex::AlreadyRetained <Reflex::GLX::Object> Reflex::GLX::MenuImpl::AddItem(WillRetain <Object> item)
 {
 	item->SetMouseCursor(kMouseCursorPointer);
 
-	SetEventDelegate(item, kNullKey, [item](Object & src, Event & e)
+	SetEventDelegate(item, kNullKey, [item = NoRetain(item)](Object & src, Event & e)
 	{
 		if (e.id == kMouseDown)
 		{
@@ -169,7 +169,7 @@ Reflex::TRef <Reflex::GLX::Object> Reflex::GLX::MenuImpl::AddItem(TRef <Object> 
 	return AddInline(m_content, item);
 }
 
-Reflex::TRef <Reflex::GLX::Object> Reflex::GLX::MenuImpl::AddSeparator()
+Reflex::AlreadyRetained <Reflex::GLX::Object> Reflex::GLX::MenuImpl::AddSeparator()
 {
 	auto item = New<Object>();
 
@@ -178,7 +178,7 @@ Reflex::TRef <Reflex::GLX::Object> Reflex::GLX::MenuImpl::AddSeparator()
 	return AddSeparator(item);
 }
 
-Reflex::TRef <Reflex::GLX::Menu> Reflex::GLX::MenuImpl::AddSubMenu(TRef <Object> item, TRef <Menu> base)
+Reflex::AlreadyRetained <Reflex::GLX::Menu> Reflex::GLX::MenuImpl::AddSubMenu(WillRetain <Object> item, WillRetain <Menu> base)
 {
 	auto menu = Cast<MenuImpl>(base);
 
@@ -194,7 +194,7 @@ Reflex::TRef <Reflex::GLX::Menu> Reflex::GLX::MenuImpl::AddSubMenu(TRef <Object>
 	AddInline(m_content, item);
 
 
-	BindEvent(item, kMouseDown, [item](Object & src, Event & e)
+	BindEvent(item, kMouseDown, [item = NoRetain(item)](Object & src, Event & e)
 	{
 		if (auto menu = QueryParentByType<Menu>(src))
 		{
@@ -204,15 +204,15 @@ Reflex::TRef <Reflex::GLX::Menu> Reflex::GLX::MenuImpl::AddSubMenu(TRef <Object>
 		return true;
 	});
 
-	return menu;
+	return NoRetain(menu);
 }
 
-Reflex::TRef <Reflex::GLX::Object> Reflex::GLX::MenuImpl::AddItem(const WString::View & label)
+Reflex::AlreadyRetained <Reflex::GLX::Object> Reflex::GLX::MenuImpl::AddItem(const WString::View & label)
 {
 	return AddItem(CreateWithLabel(label, m_cstyle->kItem));
 }
 
-Reflex::TRef <Reflex::GLX::Object> Reflex::GLX::MenuImpl::AddSeparator(TRef <Object> item)
+Reflex::AlreadyRetained <Reflex::GLX::Object> Reflex::GLX::MenuImpl::AddSeparator(WillRetain <Object> item)
 {
 	BindEvent(item, kMouseDown, [](Object & src, Event & e){ return true; });
 
@@ -221,7 +221,7 @@ Reflex::TRef <Reflex::GLX::Object> Reflex::GLX::MenuImpl::AddSeparator(TRef <Obj
 	return AddInline(m_content, item);
 }
 
-Reflex::TRef <Reflex::GLX::Menu> Reflex::GLX::MenuImpl::AddSubMenu(const WString::View & label)
+Reflex::AlreadyRetained <Reflex::GLX::Menu> Reflex::GLX::MenuImpl::AddSubMenu(const WString::View & label)
 {
 	auto submenu = AddSubMenu(CreateWithLabel(label, m_cstyle->kFolder), Create());
 
@@ -519,19 +519,19 @@ Reflex::GLX::MenuImpl::ComputedStyle::ComputedStyle(const Style & style)
 {
 }
 
-Reflex::TRef <Reflex::GLX::Menu> Reflex::GLX::Menu::Create()
+Reflex::Unretained <Reflex::GLX::Menu> Reflex::GLX::Menu::Create()
 {
 	return REFLEX_CREATE(MenuImpl);
 }
 
-Reflex::TRef <Reflex::GLX::Object> Reflex::GLX::AddMenuSection(Menu & menu, const WString::View & label)
+Reflex::AlreadyRetained <Reflex::GLX::Object> Reflex::GLX::AddMenuSection(Menu & menu, const WString::View & label)
 {
 	auto item = CreateWithLabel(label, menu.GetStyle()["section"]);
 
 	return menu.AddSeparator(item);
 }
 
-Reflex::TRef <Reflex::GLX::Object> Reflex::GLX::AddMenuOption(Menu & menu, const WString::View & label, bool selected)
+Reflex::AlreadyRetained <Reflex::GLX::Object> Reflex::GLX::AddMenuOption(Menu & menu, const WString::View & label, bool selected)
 {
 	auto item = menu.AddItem(CreateWithLabel(label, menu.GetStyle()["option"]));
 
@@ -560,7 +560,7 @@ void Reflex::GLX::CloseContextMenu()
 	if (ContextMenu::st_self) ContextMenu::st_self->Detach();
 }
 
-Reflex::TRef <Reflex::GLX::Menu> Reflex::GLX::Detail::GetMenuProperty(Event & e)
+Reflex::AlreadyRetained <Reflex::GLX::Menu> Reflex::GLX::Detail::GetMenuProperty(Event & e)
 {
 	return e.QueryProperty<Menu>(kmenu, &Reflex::Detail::GetNullInstance<Menu>());
 }

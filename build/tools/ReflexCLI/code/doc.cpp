@@ -69,7 +69,7 @@ CString::View RestoreCodebase()
 	return Data::GetCString(Bootstrap::global->prefs, "codebase", kDefaultCodebase);
 }
 
-TRef <Data::PropertySet> GetCodebasePrefs(CString::View codebase)
+AlreadyRetained <Data::PropertySet> GetCodebasePrefs(CString::View codebase)
 {
 	return Data::AcquirePropertySet(Bootstrap::global->prefs, codebase);
 }

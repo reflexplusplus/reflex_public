@@ -33,7 +33,7 @@ public:
 
 	//lifetime
 
-	[[nodiscard]] static TRef <DiskIterator> Create();
+	[[nodiscard]] static Unretained <DiskIterator> Create();
 
 
 

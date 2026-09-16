@@ -11,8 +11,8 @@
 namespace Reflex::Data
 {
 
-	extern const ConstTRef <SerializableFormat> kBinaryFormat;
+	extern const ConstAlreadyRetained <SerializableFormat> kBinaryFormat;
 
-	extern const ConstTRef <SerializableFormat> kPropertySetFormat;
+	extern const ConstAlreadyRetained <SerializableFormat> kPropertySetFormat;
 
 }

@@ -39,10 +39,10 @@ public:
 
 	static WString GetTargetDisplayName(CString::View target);
 
-	static TRef <GLX::Object> ParseMarkup(Data::Archive::View utf8, const GLX::Style & style);
+	static Unretained <GLX::Object> ParseMarkup(Data::Archive::View utf8, const GLX::Style & style);
 
 
-	const TRef <App> app;
+	const AlreadyRetained <App> app;
 
 	bool m_reset = false;
 
@@ -70,7 +70,7 @@ public:
 };
 
 ViewImpl::ViewImpl(App & app)
-	: View(app, 2, L":res:ReflexProjectCreator/styles.glx")
+	: View(app, 2, L":res:ReflexProjectCreator/styles.glx", true)
 	, app(app)
 	, m_build_button(L"Create")
 {
@@ -256,11 +256,11 @@ void ViewImpl::OnUpdate()
 	auto checkbox_style = GetStyle()["Checkbox"];
 	auto textedit_style = GetStyle()["TextEdit"];
 
-	GLX::Detail::Recycler targets_recycler(m_sections[kSectionTargets], checkbox_style, [this]() -> TRef <GLX::Object>
+	GLX::Detail::Recycler targets_recycler(m_sections[kSectionTargets], checkbox_style, [this]() -> Unretained <GLX::Object>
 	{
 		auto item = New<GLX::Button>();
 
-		auto toggle = [this, item]()
+		auto toggle = [this, item = NoRetain(item)]()
 		{
 			auto target = Data::GetCString(item, "target");
 
@@ -287,11 +287,11 @@ void ViewImpl::OnUpdate()
 		return item;
 	});
 
-	GLX::Detail::Recycler strings_recycler(m_sections[kSectionStrings], textedit_style, [this]() -> TRef <GLX::Object>
+	GLX::Detail::Recycler strings_recycler(m_sections[kSectionStrings], textedit_style, [this]() -> Unretained <GLX::Object>
 	{
 		auto item = New<GLX::TextArea>(false);
 
-		GLX::BindEvent(item, GLX::kTransaction, [this, item](GLX::Object &, GLX::Event & e)
+		GLX::BindEvent(item, GLX::kTransaction, [this, item = NoRetain(item)](GLX::Object &, GLX::Event & e)
 		{
 			if (GLX::GetTransactionStage(e) != GLX::kTransactionStageBegin)
 			{
@@ -419,9 +419,9 @@ WString ViewImpl::GetTargetDisplayName(CString::View target)
 	}
 }
 
-TRef <GLX::Object> ViewImpl::ParseMarkup(Data::Archive::View desc, const GLX::Style & style)
+Unretained <GLX::Object> ViewImpl::ParseMarkup(Data::Archive::View desc, const GLX::Style & style)
 {
-	REFLEX_LOCAL(TRef <GLX::Object>, Recurse)(const Data::PropertySet & node, const GLX::Style & node_style, const WString::View & text)
+	REFLEX_LOCAL(Unretained <GLX::Object>, Recurse)(const Data::PropertySet & node, const GLX::Style & node_style, const WString::View & text)
 	{
 		auto object = GLX::Init(New<GLX::Label>(text), node_style);
 
@@ -450,7 +450,7 @@ TRef <GLX::Object> ViewImpl::ParseMarkup(Data::Archive::View desc, const GLX::St
 
 } } //end internal namespace
 
-Reflex::TRef <ReflexProjectCreator::View> ReflexProjectCreator::View::Create(App & app)
+Reflex::Unretained <ReflexProjectCreator::View> ReflexProjectCreator::View::Create(App & app)
 {
 	return Reflex::New<ReflexProjectCreator::ViewImpl>(app);
 }

@@ -280,7 +280,7 @@ void ListLayout::OnAccommodate(List & list, bool & isresponsive, Size & contents
 REFLEX_END_INTERNAL
 
 Reflex::GLX::List::List()
-	: GLX::AbstractList([](GLX::Object & self) -> TRef <Detail::LayoutModel>
+	: GLX::AbstractList([](GLX::Object & self) -> Unretained <Detail::LayoutModel>
 	{
 		return New<ListLayout>();
 	})

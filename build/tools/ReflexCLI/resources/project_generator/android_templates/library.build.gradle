@@ -13,6 +13,7 @@ android {
 		targetSdk = [ANDROID_SDK]
 		externalNativeBuild {
 			cmake {
+				targets [NATIVE_TARGETS]
 			}
 		}
 	}
@@ -56,16 +57,9 @@ android {
 
 	buildFeatures {
 		prefab = true
-		prefabPublishing = true
 	}
 
-	prefab {
-[PREFAB_TARGETS]	}
-
-	packagingOptions {
-		exclude("**.so")
-	}
 }
 
-[BUILD_ACTIONS][ARTIFACT_OUTPUTS]dependencies {
+[BUILD_ACTIONS]dependencies {
 [DEPENDENCIES]}

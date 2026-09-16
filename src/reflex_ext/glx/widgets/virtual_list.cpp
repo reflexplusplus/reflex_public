@@ -17,7 +17,7 @@ struct VirtualListComputedStyle : public Reflex::Object
 	{
 	}
 
-	const ConstTRef <Style> item;
+	const ConstAlreadyRetained <Style> item;
 
 	const Size item_size;
 };
@@ -42,7 +42,7 @@ REFLEX_DECLARE_KEY32(Callback);
 REFLEX_END_INTERNAL
 
 Reflex::GLX::VirtualList::VirtualList()
-	: GLX::AbstractList([](GLX::Object & self) -> TRef <Detail::LayoutModel>
+	: GLX::AbstractList([](GLX::Object & self) -> Unretained <Detail::LayoutModel>
 	{
 		struct Layout : public Detail::LayoutModel
 		{
@@ -128,7 +128,7 @@ void Reflex::GLX::VirtualList::Rebuild()
 	SetNumItem(n);
 }
 
-Reflex::TRef <Reflex::GLX::Object> Reflex::GLX::VirtualList::GetItem(UInt idx)
+Reflex::AlreadyRetained <Reflex::GLX::Object> Reflex::GLX::VirtualList::GetItem(UInt idx)
 {
 	if (Reflex::Inside(Reinterpret<Int>(idx), m_visible.a, m_visible.b)) return m_items[idx - m_visible.a];
 

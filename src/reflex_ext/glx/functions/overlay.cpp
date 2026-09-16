@@ -65,7 +65,7 @@ struct Overlay : public Object
 
 REFLEX_END_INTERNAL
 
-Reflex::TRef <Reflex::GLX::Object> Reflex::GLX::Acquire(Object & parent, Key32 id, UInt8 enterflags, const Function<TRef<Object>()> & ctr)
+Reflex::AlreadyRetained <Reflex::GLX::Object> Reflex::GLX::Acquire(Object & parent, Key32 id, UInt8 enterflags, const Function<Unretained<Object>()> & ctr)
 {
 	if (auto pobject = QueryChildById(parent, id))
 	{
@@ -80,7 +80,7 @@ Reflex::TRef <Reflex::GLX::Object> Reflex::GLX::Acquire(Object & parent, Key32 i
 
 	Enter(object, enterflags);
 
-	return object;
+	return NoRetain(object);
 }
 
 void Reflex::GLX::Discard(Object & parent, Key32 id)
@@ -100,11 +100,11 @@ bool Reflex::GLX::Detail::DiscardOverlay(Object & overlay)
 	return overlay.ProcessEvent(overlay, e);
 }
 
-Reflex::TRef <Reflex::GLX::Object> Reflex::GLX::AcquireOverlay(Object & parent, Key32 id, bool block_input, bool block_dragdrop, Key32 style_id, const Function<void(Object&)> & oninit)
+Reflex::AlreadyRetained <Reflex::GLX::Object> Reflex::GLX::AcquireOverlay(Object & parent, Key32 id, bool block_input, bool block_dragdrop, Key32 style_id, const Function<void(Object&)> & oninit)
 {
 	auto overlay = Cast<Overlay>(Acquire(parent, id, kEnterAnimationFade, [&parent, style_id, oninit]()
 	{
-		TRef <Object> overlay = REFLEX_CREATE(Overlay);
+		Unretained <Object> overlay = *REFLEX_CREATE(Overlay);
 
 		Reflex::Detail::SilentReference <Object> retain(overlay);
 

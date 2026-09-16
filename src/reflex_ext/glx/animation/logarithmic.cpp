@@ -91,7 +91,7 @@ void AbstractLogarithmicTransition::OnSkip()
 
 REFLEX_END_INTERNAL
 
-Reflex::TRef <Reflex::GLX::Animation> Reflex::GLX::CreateMaxBoundsAnimation(Key32 id, bool yaxis, Float from, Float to)
+Reflex::Unretained <Reflex::GLX::Animation> Reflex::GLX::CreateMaxBoundsAnimation(Key32 id, bool yaxis, Float from, Float to)
 {
 	struct LogarithmicResize : public AbstractLogarithmicTransition
 	{
@@ -132,7 +132,7 @@ Reflex::TRef <Reflex::GLX::Animation> Reflex::GLX::CreateMaxBoundsAnimation(Key3
 	}
 }
 
-Reflex::TRef <Reflex::GLX::Animation> Reflex::GLX::Detail::CreateZoomAnimation(Key32 id, Float from, Float to)
+Reflex::Unretained <Reflex::GLX::Animation> Reflex::GLX::Detail::CreateZoomAnimation(Key32 id, Float from, Float to)
 {
 	static constexpr auto UnsetMagnification = [](Object & object, Key32 id)
 	{
@@ -182,7 +182,7 @@ Reflex::TRef <Reflex::GLX::Animation> Reflex::GLX::Detail::CreateZoomAnimation(K
 	}
 }
 
-Reflex::TRef <Reflex::GLX::Animation> Reflex::GLX::CreateLogarithmicAnimation(Float from, Float to, const Function <void(Object&, Float)> & callback, Float decay_factor)
+Reflex::Unretained <Reflex::GLX::Animation> Reflex::GLX::CreateLogarithmicAnimation(Float from, Float to, const Function <void(Object&, Float)> & callback, Float decay_factor)
 {
 	struct LogarithmicTransition : public AbstractLogarithmicTransition
 	{

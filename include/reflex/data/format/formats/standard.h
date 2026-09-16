@@ -11,7 +11,7 @@
 namespace Reflex::Data
 {
 
-	extern const ConstTRef <Format> kRiffFormat;	//TODO -> SerializableFormat
+	extern const ConstAlreadyRetained <Format> kRiffFormat;	//TODO -> SerializableFormat
 
 
 	enum JsonFormatOptions : UInt8
@@ -21,9 +21,9 @@ namespace Reflex::Data
 		kJsonFormatOptionWString = MakeBit(2)	//use for UTF8 json
 	};
 
-	extern const ConstTRef <Format> kJsonFormat;
+	extern const ConstAlreadyRetained <Format> kJsonFormat;
 
 
-	extern const ConstTRef <Format> kHttpQueryFormat;
+	extern const ConstAlreadyRetained <Format> kHttpQueryFormat;
 
 }

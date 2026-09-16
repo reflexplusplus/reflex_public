@@ -33,7 +33,7 @@
 #include "ide/view/texteditor.cpp"
 #include "ide/view/functions.cpp"
 
-Reflex::TRef <Reflex::Object> Reflex::IDE::AcquireConsole(TRef <GLX::Object> root, const Function <void()> & onclose)
+Reflex::Unretained <Reflex::Object> Reflex::IDE::AcquireConsole(AlreadyRetained <GLX::Object> root, const Function <void()> & onclose)
 {
 	return {};
 }

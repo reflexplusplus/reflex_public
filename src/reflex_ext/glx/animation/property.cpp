@@ -135,7 +135,7 @@ const Reflex::GLX::AbstractPropertyAnimation::TypeHandler Reflex::GLX::AbstractP
 {
 	{
 		REFLEX_TYPEID(Data::Float32Property),
-		[]() -> TRef <Reflex::Object>
+		[]() -> Unretained <Reflex::Object>
 		{
 			return REFLEX_CREATE(Data::Float32Property);
 		},
@@ -144,7 +144,7 @@ const Reflex::GLX::AbstractPropertyAnimation::TypeHandler Reflex::GLX::AbstractP
 	},
 	{
 		REFLEX_TYPEID(SizeProperty),
-		[]() -> TRef <Reflex::Object>
+		[]() -> Unretained <Reflex::Object>
 		{
 			return REFLEX_CREATE(SizeProperty);
 		},
@@ -153,7 +153,7 @@ const Reflex::GLX::AbstractPropertyAnimation::TypeHandler Reflex::GLX::AbstractP
 	},
 	{
 		REFLEX_TYPEID(PointProperty),
-		[]() -> TRef <Reflex::Object>
+		[]() -> Unretained <Reflex::Object>
 		{
 			return REFLEX_CREATE(PointProperty);
 		},
@@ -162,7 +162,7 @@ const Reflex::GLX::AbstractPropertyAnimation::TypeHandler Reflex::GLX::AbstractP
 	},
 	{
 		REFLEX_TYPEID(ColourProperty),
-		[]() -> TRef <Reflex::Object>
+		[]() -> Unretained <Reflex::Object>
 		{
 			return REFLEX_CREATE(ColourProperty);
 		},
@@ -171,7 +171,7 @@ const Reflex::GLX::AbstractPropertyAnimation::TypeHandler Reflex::GLX::AbstractP
 	},
 	{
 		REFLEX_TYPEID(MarginProperty),
-		[]() -> TRef <Reflex::Object>
+		[]() -> Unretained <Reflex::Object>
 		{
 			return REFLEX_CREATE(MarginProperty);
 		},
@@ -180,7 +180,7 @@ const Reflex::GLX::AbstractPropertyAnimation::TypeHandler Reflex::GLX::AbstractP
 	}
 };
 
-Reflex::TRef <Reflex::GLX::InterpolatedAnimation> Reflex::GLX::Detail::CreatePropertyAnimation(Address property_adr, const ArrayView <Float32> & from, const ArrayView <Float32> & to)
+Reflex::Unretained <Reflex::GLX::InterpolatedAnimation> Reflex::GLX::Detail::CreatePropertyAnimation(Address property_adr, const ArrayView <Float32> & from, const ArrayView <Float32> & to)
 {
 	struct PropertyAnimationImpl : public AbstractPropertyAnimation
 	{

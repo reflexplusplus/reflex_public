@@ -47,7 +47,7 @@ Reflex::File::PersistentPropertySet::PersistentPropertySet(PersistentPropertySet
 {
 }
 
-Reflex::TRef <Reflex::Object> Reflex::File::PersistentPropertySet::CreateListener(const Function <void(Notification, Key32)> & callback)
+Reflex::Unretained <Reflex::Object> Reflex::File::PersistentPropertySet::CreateListener(const Function <void(Notification, Key32)> & callback)
 {
 	REFLEX_STATIC_ASSERT(sizeof(UInt32) == sizeof(Notification));
 

@@ -96,7 +96,7 @@ struct StandardPropertySheetInterface : public PropertySheetInterface
 	virtual void RegisterValueTypeHandler(Key32 type_name, TokenType tokentype, const ValueType & type) = 0;
 };
 
-[[nodiscard]] TRef <Format> CreatePropertySetFormat(TRef <PropertySheetInterface> iface, ArrayView <TypeID> supported);
+[[nodiscard]] Unretained <Format> CreatePropertySetFormat(WillRetain <PropertySheetInterface> iface, ArrayView <TypeID> supported);
 
 template <class TYPE> inline PropertySheetInterface::ObjectWithType MakeObjectWithType(TYPE & object = *REFLEX_CREATE(TYPE))
 {
@@ -116,6 +116,6 @@ template <class TYPE, class ... ARGS> inline PropertySheetInterface::ObjectWithT
 //
 //typed
 
-extern const ConstTRef <StandardPropertySheetInterface> g_standard_propertysheet_interface;
+extern const ConstAlreadyRetained <StandardPropertySheetInterface> g_standard_propertysheet_interface;
 
 REFLEX_END

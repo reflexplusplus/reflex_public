@@ -108,7 +108,7 @@ struct ProgressBarImpl : public ProgressBar
 		out->Flush(false);
 	}
 
-	const TRef <System::FileHandle> out;
+	const AlreadyRetained <System::FileHandle> out;
 
 	CString m_buffer;
 
@@ -123,7 +123,7 @@ REFLEX_END_INTERNAL
 
 Reflex::Bootstrap::CLI::ProgressBar & Reflex::Bootstrap::CLI::ProgressBar::null = Reflex::Bootstrap::CLI::g_null_progressbar;
 
-Reflex::TRef <Reflex::Bootstrap::CLI::ProgressBar> Reflex::Bootstrap::CLI::ProgressBar::Create(System::FileHandle & out, CString::View title, bool show_progress)
+Reflex::Unretained <Reflex::Bootstrap::CLI::ProgressBar> Reflex::Bootstrap::CLI::ProgressBar::Create(System::FileHandle & out, CString::View title, bool show_progress)
 {
 	if (show_progress)
 	{

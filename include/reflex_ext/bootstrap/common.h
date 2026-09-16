@@ -1,6 +1,6 @@
 #pragma once
 
-#include "common/streamable.h"
+#include "common/persistent_state.h"
 #include "common/global.h"
 #include "common/app.h"
 #include "common/functions.h"

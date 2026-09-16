@@ -5,7 +5,7 @@ The Reflex API is available at `_REFLEX-PATH_/include`.
 
 ## Install
 
-- Use the `reflex` CLI to install and update the SDK and obtain required binary packages: `reflex install [version] --platforms <win|macos|android|ios[,..]>`.
+- Use the `reflex` CLI to install and update the SDK and obtain required binary packages: `reflex install [version] --platforms <windows|macos|android|ios[,..]>`.
 - Use `reflex versions` to list available SDK versions, `reflex version` to check the installed version, and `reflex where` to find its installation directory.
 - Source users can build libraries and tools with the platform scripts in `build/lib/[platform]` and `build/tools/[platform]`.
 
@@ -37,14 +37,14 @@ The Reflex API is available at `_REFLEX-PATH_/include`.
 
 - Reflex++ distinguishes reference-counted `Object`s from stack-based values. Do not use raw `new` for either: create objects with `New<T>()`, and heap-allocate a value only by promoting it to `ObjectOf<T>`.
 - `Reflex::Object` is dynamically typed and uses intrusive retain/release lifetime management. Do not call `Retain*` or `Release*` directly in normal code.
-- `TRef<T>` is a non-owning, non-null transient reference. It does not change retain count and does not extend lifetime; use it for temporary arguments and factory-style returns.
-- `Reference<T>` is the strong owning reference. Store one whenever an object must outlive the current expression or callback.
-- `New<T>(...)` returns `TRef<T>`; `Make<T>(...)` returns `Reference<T>`. If `New` cannot deduce an untyped argument such as `{}`, use `REFLEX_CREATE(TYPE, ...)`.
+- Use the semantic object-reference aliases: `Unretained<T>` for a new object which still needs an owner, `AlreadyRetained<T>` for a scoped view retained elsewhere, `WillRetain<T>` for an argument the receiver promises to retain, and `Retained<T>` for owning storage.
+- `New<T>(...)` returns `Unretained<T>`; `Make<T>(...)` returns `Retained<T>`. If `New` cannot deduce an untyped argument such as `{}`, use `REFLEX_CREATE(TYPE, ...)`.
+- Use `Ref<T>` and `ConstRef<T>` for non-owning, non-null references to values which are not `Object`s. `TRef<T>` is legacy and semantically unclassified.
 - `Reflex::Detail::WeakRef<T>` is primarily an internal lifecycle tool; application code should normally use `Reference<T>` instead.
 
 ## Common Mistakes
 
-- Match the reference type to ownership: use `Reference<T>` for retained storage. Incorrect ownership can cause leaks or premature destruction; in particular, do not return a newly created object through a `TRef<T>` signature via a temporary `Reference<T>`.
+- Match the reference type to ownership: use `Retained<T>` for retained storage, and make factory methods return `Unretained<T>`. Incorrect ownership can cause leaks or premature destruction; never store `Unretained<T>` as though it owned the object.
 - Do not include individual reflex headers in standard project templates; the framework API is already available.
 - Keep `ArrayView` and string views within the lifetime of their source data.
 - `ArrayView::size` is not `Array::GetSize`; use the appropriate API for the type in hand.

@@ -31,9 +31,9 @@ public:
 
 	FileLocator();
 
-	[[nodiscard]] TRef <System::FileHandle> OnRead(ArrayView <WString::View> subdomain, WString::View path, Attributes & attributes) const override;
+	[[nodiscard]] Unretained <System::FileHandle> OnRead(ArrayView <WString::View> subdomain, WString::View path, Attributes & attributes) const override;
 
-	[[nodiscard]] TRef <System::FileHandle> OnWrite(ArrayView <WString::View> subdomain, WString::View path, bool append) const override;
+	[[nodiscard]] Unretained <System::FileHandle> OnWrite(ArrayView <WString::View> subdomain, WString::View path, bool append) const override;
 
 	bool OnDelete(ArrayView <WString::View> subdomain, WString::View path) const override;
 };
@@ -52,7 +52,7 @@ public:
 
 	using VirtualFileSystem::Locator::Locator;
 
-	[[nodiscard]] static TRef <SearchPath> Create(WString::View path);
+	[[nodiscard]] static Unretained <SearchPath> Create(WString::View path);
 };
 
 REFLEX_SET_TRAIT(File::SearchPath, IsAbstract);
@@ -65,7 +65,7 @@ REFLEX_SET_TRAIT(File::SearchPath, IsAbstract);
 
 REFLEX_NS(Reflex::File::Detail)
 
-[[nodiscard]] REFLEX_INLINE TRef <System::FileHandle> Open(const WString & path, Key32 domain_id, Attributes & attributes)
+[[nodiscard]] REFLEX_INLINE Unretained <System::FileHandle> Open(const WString & path, Key32 domain_id, Attributes & attributes)
 {
 	if (System::GetFileAttributes(path, attributes.size_time))
 	{

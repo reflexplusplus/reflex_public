@@ -116,10 +116,10 @@ void WriteBool(XmlWriter & xml, CString::View key, bool value)
 	xml.EmptyElement(value ? "true" : "false");
 }
 
-void WriteCommonBundleKeys(XmlWriter & xml, CString::View product, CString::View bundle_id, CString::View version, CString::View package_type, bool signature)
+void WriteCommonBundleKeys(XmlWriter & xml, CString::View product, CString::View executable, CString::View bundle_id, CString::View version, CString::View package_type, bool signature)
 {
 	WriteString(xml, "CFBundleDevelopmentRegion", "English");
-	WriteString(xml, "CFBundleExecutable", "$(EXECUTABLE_NAME)");
+	WriteString(xml, "CFBundleExecutable", executable);
 	WriteString(xml, "CFBundleIdentifier", bundle_id);
 	WriteString(xml, "CFBundleInfoDictionaryVersion", "6.0");
 	WriteString(xml, "CFBundleName", product);
@@ -132,7 +132,8 @@ void WriteCommonBundleKeys(XmlWriter & xml, CString::View product, CString::View
 void WriteMacAppKeys(XmlWriter & xml, const Data::PropertySet & args, bool audio_app)
 {
 	auto product = GetString(args, "product");
-	WriteCommonBundleKeys(xml, product, GetString(args, "bundle_id"), GetString(args, "version"), "APPL", true);
+	auto executable = Data::GetCString(args, "executable", product);
+	WriteCommonBundleKeys(xml, product, executable, GetString(args, "bundle_id"), GetString(args, "version"), "APPL", true);
 
 	WriteKey(xml, "NSAppTransportSecurity");
 	{
@@ -161,7 +162,9 @@ void WriteIosSceneManifest(XmlWriter & xml)
 
 void WriteIosAppKeys(XmlWriter & xml, const Data::PropertySet & args, bool audio_app)
 {
-	WriteCommonBundleKeys(xml, GetString(args, "product"), GetString(args, "bundle_id"), GetString(args, "version"), "APPL", false);
+	auto product = GetString(args, "product");
+	auto executable = Data::GetCString(args, "executable", product);
+	WriteCommonBundleKeys(xml, product, executable, GetString(args, "bundle_id"), GetString(args, "version"), "APPL", false);
 	WriteBool(xml, "LSRequiresIPhoneOS", true);
 	WriteIosSceneManifest(xml);
 
@@ -182,7 +185,9 @@ void WriteIosAppKeys(XmlWriter & xml, const Data::PropertySet & args, bool audio
 
 void WritePluginKeys(XmlWriter & xml, const Data::PropertySet & args)
 {
-	WriteCommonBundleKeys(xml, GetString(args, "product"), GetString(args, "bundle_id"), GetString(args, "version"), "BNDL", true);
+	auto product = GetString(args, "product");
+	auto executable = Data::GetCString(args, "executable", product);
+	WriteCommonBundleKeys(xml, product, executable, GetString(args, "bundle_id"), GetString(args, "version"), "BNDL", true);
 }
 
 void WriteAudioUnitComponent(XmlWriter & xml, const Data::PropertySet & args, const AudioUnitComponent & component, bool auv3)
@@ -241,7 +246,8 @@ void WriteAudioUnitKeys(XmlWriter & xml, const Data::PropertySet & args)
 void WriteAudioUnitV3Keys(XmlWriter & xml, const Data::PropertySet & args)
 {
 	auto product = GetString(args, "product");
-	WriteCommonBundleKeys(xml, product, GetString(args, "bundle_id"), GetString(args, "version"), "XPC!", false);
+	auto executable = Data::GetCString(args, "executable", product);
+	WriteCommonBundleKeys(xml, product, executable, GetString(args, "bundle_id"), GetString(args, "version"), "XPC!", false);
 	WriteString(xml, "CFBundleDisplayName", product);
 
 	WriteKey(xml, "NSExtension");

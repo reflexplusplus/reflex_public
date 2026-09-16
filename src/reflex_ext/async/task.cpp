@@ -12,7 +12,7 @@ struct NullAsyncTask : public Task
 {
 	Status GetStatus() const override { return kStatusFailed; }
 	Float GetProgress() const override { return 0.0f; }
-	TRef <Object> GetResult() override { return {}; }
+	AlreadyRetained <Object> GetResult() override { return {}; }
 	void Cancel() override {}
 	void Wait() override {}
 };
@@ -56,7 +56,7 @@ void Reflex::Async::Worker::Wait()
 	m_thread->Wait();	//join
 }
 
-Reflex::TRef <Reflex::Async::Worker> Reflex::Async::Worker::Create(const Function <Result(Context & ctx)> & bg_task)
+Reflex::Unretained <Reflex::Async::Worker> Reflex::Async::Worker::Create(const Function <Result(Context & ctx)> & bg_task)
 {
 	return Reflex::Detail::Constructor<Worker>::New(g_default_allocator, bg_task);
 }

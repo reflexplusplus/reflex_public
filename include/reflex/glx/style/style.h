@@ -38,7 +38,7 @@ public:
 
 	//lifetime
 
-	[[nodiscard]] static TRef <Style> Create(Key32 id, UInt16 stylesheet_flags = 0);
+	[[nodiscard]] static Unretained <Style> Create(Key32 id, UInt16 stylesheet_flags = 0);
 
 
 
@@ -58,13 +58,13 @@ public:
 
 	//children
 
-	virtual TRef <Style> AddSubStyle(Key32 type, Key32 id, bool is_stub);
+	virtual AlreadyRetained <Style> AddSubStyle(Key32 type, Key32 id, bool is_stub);
 
 	virtual const Style * QuerySubStyle(Key32 id, const Style * fallback = nullptr) const;		//allows "virtualised" brnach override (use Detail::GetChildStyle to locate only real children)
 
-	ConstTRef <Style> operator[](Key32 id) const;
+	ConstAlreadyRetained <Style> operator[](Key32 id) const;
 
-	REFLEX_IF_DEBUG(ConstTRef <Style> operator[](const char * id) const);
+	REFLEX_IF_DEBUG(ConstAlreadyRetained <Style> operator[](const char * id) const);
 
 
 
@@ -111,7 +111,7 @@ REFLEX_NS(Reflex::GLX::Detail)
 constexpr Key32 kComputedStyle = "ComputedStyle";	//special key -> used by Detail::Compile, will not be 'virtualised' by Style::State
 REFLEX_END
 
-REFLEX_INLINE Reflex::ConstTRef <Reflex::GLX::Style> Reflex::GLX::Style::operator[](Key32 key) const
+REFLEX_INLINE Reflex::ConstAlreadyRetained <Reflex::GLX::Style> Reflex::GLX::Style::operator[](Key32 key) const
 {
 	auto child = QuerySubStyle(key, &Reflex::Detail::GetNullInstance<Style>());
 

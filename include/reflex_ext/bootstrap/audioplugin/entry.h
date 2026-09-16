@@ -11,7 +11,7 @@
 namespace Reflex::Bootstrap
 {
 
-	template <class INSTANCE> TRef <Global> StartAudioPlugin(System::AudioPlugin::Configuration & config, const CString::View & vendor, const CString::View & product, Key32 resources_subdomain, const char * entry);
+	template <class INSTANCE> Unretained <Global> StartAudioPlugin(System::AudioPlugin::Configuration & config, const CString::View & vendor, const CString::View & product, Key32 resources_subdomain, const char * entry);
 
 }
 
@@ -21,7 +21,7 @@ namespace Reflex::Bootstrap
 //
 //impl
 
-template <class INSTANCE> inline Reflex::TRef <Reflex::Bootstrap::Global> Reflex::Bootstrap::StartAudioPlugin(System::AudioPlugin::Configuration & config, const CString::View & vendor, const CString::View & product, Key32 resources_subdomain, const char * entry)
+template <class INSTANCE> inline Reflex::Unretained <Reflex::Bootstrap::Global> Reflex::Bootstrap::StartAudioPlugin(System::AudioPlugin::Configuration & config, const CString::View & vendor, const CString::View & product, Key32 resources_subdomain, const char * entry)
 {
 	auto global = Global::Acquire(vendor, product, Detail::ExtractProjectDir(entry), resources_subdomain);
 	

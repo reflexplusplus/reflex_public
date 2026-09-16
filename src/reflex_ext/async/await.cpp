@@ -3,7 +3,7 @@
 
 
 
-void Reflex::Async::Detail::AttachAwait(Data::PropertySet & object, Key32 id, TRef <Task> task, decltype (&CreatePeriodicClock) create_clock, const Function <void(bool ok, Reflex::Object & result)> & callback)
+void Reflex::Async::Detail::AttachAwait(Data::PropertySet & object, Key32 id, WillRetain <Task> task, decltype (&CreatePeriodicClock) create_clock, const Function <void(bool ok, Reflex::Object & result)> & callback)
 {
 	SetAbstractProperty(object, id, create_clock(0.25f, [&object, object_t = object.object_t, id, task = AutoRelease(task), callback]()
 	{

@@ -10,7 +10,7 @@
 
 REFLEX_NS(Reflex::GLX::Core)
 
-extern const TRef <System::Renderer> g_renderer;
+extern const AlreadyRetained <System::Renderer> g_renderer;
 
 constexpr Float kRoundingTolerance = 0.0000001f;	//internal use
 

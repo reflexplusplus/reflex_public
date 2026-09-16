@@ -6,17 +6,19 @@
 //
 //impl
 
-Reflex::Bootstrap::View::View(File::PersistentPropertySet & session, Key32 chunk_id, UInt16 chunk_version, WString::View stylesheet_path)
-	: Streamable(session, chunk_id, chunk_version)
+Reflex::Bootstrap::View::View(File::PersistentPropertySet & session, Key32 chunk_id, UInt16 chunk_version, WString::View stylesheet_path, bool resizable)
+	: PersistentState(session, chunk_id, chunk_version)
 	, m_prefs_listener(global->prefs->CreateListener([this](File::PersistentPropertySet::Notification n, Key32 context)
 	{
 		Update();
 	}))
 	, m_stylesheet_path(stylesheet_path)
 {
+	Data::SetBool(*this, GLX::kresizable, resizable);
+
 #if REFLEX_DEBUG
 	//make sure stylesheet is already in resourcepool here, before IDE builder view updates, so it can restore focus
-	GLX::RetrieveStyleSheet(stylesheet_path, AutoRelease(Detail::g_create_stylesheet_options()));
+	GLX::RetrieveStyleSheet(stylesheet_path, AutoRelease(Detail::g_create_stylesheet_options(*this)));
 #endif
 
 	GLX::SetFlow(*this, GLX::kFlowY);
@@ -55,12 +57,12 @@ void Reflex::Bootstrap::View::OnAttachWindow()
 {
 	Detail::SetStyle(*this, m_stylesheet_path, {}, Detail::g_create_stylesheet_options);
 
-	Streamable::RestoreState();
+	PersistentState::RestoreState();
 }
 
 void Reflex::Bootstrap::View::OnDetachWindow()
 {
-	Streamable::StoreState();
+	PersistentState::StoreState();
 }
 
 void Reflex::Bootstrap::View::OnClock(Float)

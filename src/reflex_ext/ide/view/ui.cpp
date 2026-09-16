@@ -170,9 +170,9 @@ struct UI::Objects : public Panel
 
 		Interface(Objects & view);
 
-		Pair < Reflex::Detail::DynamicTypeRef, TRef <Data::PropertySet> > GetObjectType() const override { return { GLX::Object::kDynamicTypeInfo, GLX::Object::null }; }
+		Pair < Reflex::Detail::DynamicTypeRef, AlreadyRetained <Data::PropertySet> > GetObjectType() const override { return { GLX::Object::kDynamicTypeInfo, GLX::Object::null }; }
 
-		virtual ConstTRef <Data::KeyMap> GetKeyMap() const override
+		virtual Unretained <const Data::KeyMap> GetKeyMap() const override
 		{
 			auto keymap = New<Data::KeyMap>();
 
@@ -368,7 +368,7 @@ struct UI::Events : public Panel
 		}
 	}
 
-	ConstTRef <GLX::Style> m_item_style;
+	ConstAlreadyRetained <GLX::Style> m_item_style;
 
 	Map <Key32> m_known_ids;
 
@@ -569,7 +569,7 @@ void UI::OnStore(Data::Archive & stream) const
 
 	Data::PropertySet propertyset;
 
-	Detail::StoreStreamable(propertyset, m_objectsview->propertyeditor);
+	Detail::StoreSerializable(propertyset, m_objectsview->propertyeditor);
 
 	Data::kBinaryFormat->Serialize(stream, propertyset);
 }
@@ -586,7 +586,7 @@ void UI::OnRestore(Data::Archive::View & stream, Key32 context)
 
 	auto & editor = m_objectsview->propertyeditor;
 
-	Detail::RestoreStreamable(propertyset, context, editor);
+	Detail::RestoreSerializable(propertyset, context, editor);
 }
 
 void UI::OnSetStyle(const GLX::Style & style)
@@ -735,7 +735,7 @@ void UI::OnClock(Float)
 
 	if (SetFiltered(m_focus_rect_z, m_focus->GetRect()))
 	{
-		TRef <GLX::Object> focus = m_focus;
+		AlreadyRetained <GLX::Object> focus = m_focus;
 
 		for (auto & i : m_focus_displays)
 		{
@@ -1382,7 +1382,7 @@ void UI::Animations::OnClock(Float)
 {
 }
 
-Detail::ConsolePanel::Ctr gViewInspectorCtr(L"UI", -2, []() -> TRef <Detail::ConsolePanel>
+Detail::ConsolePanel::Ctr gViewInspectorCtr(L"UI", -2, []() -> Unretained <Detail::ConsolePanel>
 {
 	return REFLEX_CREATE(UI);
 });

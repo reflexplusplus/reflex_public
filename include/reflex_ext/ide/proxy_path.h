@@ -31,7 +31,7 @@ public:
 	
 	//lifetime
 
-	[[nodiscard]] static TRef <ProxyPath> Create(Key32 domain, Key32 sub_domain, WString::View local_path);
+	[[nodiscard]] static Unretained <ProxyPath> Create(Key32 domain, Key32 sub_domain, WString::View local_path);
 
 
 	

@@ -20,9 +20,9 @@ struct GlobalImpl : public Global
 
 	~GlobalImpl();
 
-	TRef <Object> CreateDeepLinkListener(const Function<void(CString::View)> & callback) override;
+	Unretained <Object> CreateDeepLinkListener(const Function<void(CString::View)> & callback) override;
 
-	TRef <Object> EnableIde(bool enable) override;
+	AlreadyRetained <Object> EnableIde(bool enable) override;
 
 	bool IdeEnabled() const override;
 
@@ -111,7 +111,7 @@ GlobalImpl::~GlobalImpl()
 	Release(resourcepool);
 }
 
-TRef <Object> GlobalImpl::EnableIde(bool enable)
+AlreadyRetained <Object> GlobalImpl::EnableIde(bool enable)
 {
 #ifdef REFLEX_BOOTSTRAP_TYPE_CONSOLE_APP
 	return {};
@@ -191,7 +191,7 @@ void GlobalImpl::OnSetProperty(Address address, Object & object)
 }
 #endif
 
-TRef <Object> GlobalImpl::CreateDeepLinkListener(const Function<void(CString::View)> & callback) 
+Unretained <Object> GlobalImpl::CreateDeepLinkListener(const Function<void(CString::View)> & callback)
 {
 #ifdef REFLEX_BOOTSTRAP_TYPE_CONSOLE_APP
 	return {};
@@ -211,7 +211,7 @@ Reflex::WString Reflex::Bootstrap::Detail::MakeProductPath(System::Path system_p
 	return Join(System::GetPath(system_path), ToWString(vendor), File::kStroke, ToWString(name), File::kStroke, filename);
 }
 
-Reflex::TRef <Reflex::Bootstrap::Global> Reflex::Bootstrap::Global::Acquire(CString::View vendor, CString::View product, WString::View projectdir, Key32 resources_subdomain)
+Reflex::Unretained <Reflex::Bootstrap::Global> Reflex::Bootstrap::Global::Acquire(CString::View vendor, CString::View product, WString::View projectdir, Key32 resources_subdomain)
 {
 	REFLEX_ASSERT_MAINTHREAD("Bootstrap::Global::Acquire");
 
@@ -219,9 +219,9 @@ Reflex::TRef <Reflex::Bootstrap::Global> Reflex::Bootstrap::Global::Acquire(CStr
 }
 
 Reflex::Bootstrap::Global::Global(CString::View vendor, CString::View product, WString::View project_dir, Key32 resources_subdomain)
-	: filesystem(File::VirtualFileSystem::Create(File::kdisk)),
-	resourcepool(File::ResourcePool::Create(filesystem)),
-	prefs(New<File::PersistentPropertySet>(Data::kPropertySetFormat)),
+	: filesystem(NoRetain(File::VirtualFileSystem::Create(File::kdisk))),
+	resourcepool(NoRetain(File::ResourcePool::Create(filesystem))),
+	prefs(NoRetain(New<File::PersistentPropertySet>(Data::kPropertySetFormat))),
 	vendor(vendor),
 	product(product)
 {
@@ -267,4 +267,4 @@ Reflex::Bootstrap::Global::Global(CString::View vendor, CString::View product, W
 	prefs->Open(path);
 }
 
-const Reflex::TRef <Reflex::Bootstrap::Global> Reflex::Bootstrap::global = Reflex::Bootstrap::TheGlobal::Get<true>();
+const Reflex::AlreadyRetained <Reflex::Bootstrap::Global> Reflex::Bootstrap::global = Reflex::Bootstrap::TheGlobal::Get<true>();

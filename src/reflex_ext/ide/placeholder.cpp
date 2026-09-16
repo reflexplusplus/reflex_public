@@ -24,12 +24,12 @@ Reflex::Reference <Reflex::Object> Reflex::IDE::Start(File::ResourcePool & resou
 	return {};
 }
 
-Reflex::TRef <Reflex::IDE::ResourceGroup> Reflex::IDE::ResourceGroup::Create(File::ResourcePool & resourcepool, Key32 uid, WString::View desc, const Function <void(ResourceGroup&)> & onreload)
+Reflex::Unretained <Reflex::IDE::ResourceGroup> Reflex::IDE::ResourceGroup::Create(File::ResourcePool & resourcepool, Key32 uid, WString::View desc, const Function <void(ResourceGroup&)> & onreload)
 {
 	return REFLEX_CREATE(PlaceholderResourceGroup);
 }
 
-Reflex::TRef <Reflex::IDE::ProxyPath> Reflex::IDE::ProxyPath::Create(Key32 domain, Key32 subdomain, WString::View localpath)
+Reflex::Unretained <Reflex::IDE::ProxyPath> Reflex::IDE::ProxyPath::Create(Key32 domain, Key32 subdomain, WString::View localpath)
 {
 	return REFLEX_CREATE(PlaceholderProxyPath, domain, subdomain, localpath);
 }

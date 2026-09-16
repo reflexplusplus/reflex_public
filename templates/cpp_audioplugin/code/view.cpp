@@ -38,7 +38,7 @@ public:
 
 
 	
-	const TRef <Instance> instance;
+	const AlreadyRetained <Instance> instance;
 
 
 	GLX::Object m_header;
@@ -53,11 +53,9 @@ public:
 };
 
 ViewImpl::ViewImpl(Instance & instance)
-	: View(instance, kChunkVersion, L":res:_PRODUCT-NAME-SYMBOL_/styles.glx")
+	: View(instance, kChunkVersion, L":res:_PRODUCT-NAME-SYMBOL_/styles.glx", false) //change to true for resizable
 	, instance(instance)
 {
-	Data::SetBool(*this, GLX::kresizable, false);	//set to true for resizable window
-
 	GLX::AddInline(m_header, m_popup, GLX::kOrientationCenter);
 
 	GLX::SetText(m_header, L"_PRODUCT-NAME_");
@@ -179,7 +177,7 @@ void ViewImpl::OnUpdate()
 
 } }
 
-Reflex::TRef <_PRODUCT-NAME-SYMBOL_::View> _PRODUCT-NAME-SYMBOL_::View::Create(Instance & instance)
+Reflex::Unretained <_PRODUCT-NAME-SYMBOL_::View> _PRODUCT-NAME-SYMBOL_::View::Create(Instance & instance)
 {
 	return New<ViewImpl>(instance);
 }

@@ -3,6 +3,10 @@
 
 
 
+REFLEX_NS(Reflex::Bootstrap)
+using CreateOptionsFn = FunctionPointer <Unretained<Data::PropertySet>(const GLX::Object & client)>;
+REFLEX_END
+
 REFLEX_BEGIN_INTERNAL(Reflex::Bootstrap)
 
 //void RefreshChildStyles(GLX::StyleSheet & stylesheet, GLX::Object & node)
@@ -42,7 +46,7 @@ REFLEX_BEGIN_INTERNAL(Reflex::Bootstrap)
 //				style_itr = style_itr->GetParent();
 //			}
 //
-//			ConstTRef <GLX::Style> style = stylesheet;
+//			ConstAlreadyRetained <GLX::Style> style = stylesheet;
 //
 //			for (auto & id : ReverseIterate(path))
 //			{
@@ -67,11 +71,11 @@ REFLEX_BEGIN_INTERNAL(Reflex::Bootstrap)
 //	}
 //}
 
-ConstTRef <GLX::StyleSheet> ApplyStyleSheet(GLX::Object & view, const WString::View & path, ArrayView <Key32> substyle, FunctionPointer <TRef<Data::PropertySet>()> create_options)
+ConstAlreadyRetained <GLX::StyleSheet> ApplyStyleSheet(GLX::Object & view, const WString::View & path, ArrayView <Key32> substyle, CreateOptionsFn create_options)
 {
-	auto stylesheet = GLX::RetrieveStyleSheet(path, AutoRelease(create_options()));
+	auto stylesheet = GLX::RetrieveStyleSheet(path, AutoRelease(create_options(view)));
 
-	ConstTRef <GLX::Style> style = stylesheet;
+	ConstAlreadyRetained <GLX::Style> style = stylesheet;
 
 	for (auto & id : substyle) style = style[id];
 
@@ -110,7 +114,7 @@ Reflex::GLX::Rect Reflex::Bootstrap::Detail::ConstrainRectToDisplay(const GLX::R
 	return rtn;
 }
 
-void Reflex::Bootstrap::Detail::SetStyle(GLX::Object & view, const WString::View & path, const ArrayView <Key32> & substyle, FunctionPointer <TRef<Data::PropertySet>()> create_options)
+void Reflex::Bootstrap::Detail::SetStyle(GLX::Object & view, const WString::View & path, const ArrayView <Key32> & substyle, CreateOptionsFn create_options)
 {
 	auto stylesheet = ApplyStyleSheet(view, path, substyle, create_options);
 
@@ -138,26 +142,26 @@ void Reflex::Bootstrap::Detail::SetStyle(GLX::Object & view, const WString::View
 	IDE::AddStyleSheet(monitor, stylesheet);
 }
 
-Reflex::TRef <Reflex::Data::PropertySet> Reflex::Bootstrap::Detail::CreateStylesheetOptions(bool dark_theme, Float font_scale, System::iSize screen_size)
+Reflex::Unretained <Reflex::Data::PropertySet> Reflex::Bootstrap::Detail::CreateStylesheetOptions(bool dark_theme, Float font_scale, System::iSize screen_size, bool resizable)
 {
 	constexpr Key32 kmobile = K32("mobile");
 
 	constexpr Key32 kOperatingSystems[System::kNumPlatform] = { K32("windows"), K32("macos"), K32("linux"), K32("android"), K32("ios"), K32("webasm") };
-
 	const Key32 kEnvironments[System::kNumEnvironmentType] = { kNullKey, kNullKey, GLX::kIsMobile ? kmobile : K32("desktop"), kmobile, K32("plugin") };
 
 	auto options = New<Data::PropertySet>();
 
 	Data::SetKey32(options, K32("platform"), kOperatingSystems[System::kPlatform]);
-
 	Data::SetKey32(options, K32("environment"), kEnvironments[System::kEnvironmentType]);
+	Data::SetKey32(options, K32("plugin_format"), System::AudioPlugin::GetFormat());
 
-	Data::SetInt32(options, "screen_width", screen_size.w);
-	Data::SetInt32(options, "screen_height", screen_size.h);
+	Data::SetInt32(options, K32("screen_width"), screen_size.w);
+	Data::SetInt32(options, K32("screen_height"), screen_size.h);
 
 	Data::SetKey32(options, K32("theme"), dark_theme ? K32("dark") : K32("light"));
+	Data::SetFloat32(options, K32("font_scale"), font_scale);
 
-	Data::SetFloat32(options, "font_scale", font_scale);
+	Data::SetKey32(options, GLX::kresizable, Reflex::Detail::kFalseTrue[resizable]);
 
 	return options;
 }

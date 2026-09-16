@@ -47,7 +47,7 @@ public:
 
 	//clone
 
-	[[nodiscard]] virtual TRef <Event> Clone() const;
+	[[nodiscard]] virtual Unretained <Event> Clone() const;
 
 
 
@@ -86,7 +86,7 @@ inline Reflex::GLX::Event::Event(Key32 type)
 {
 }
 
-inline Reflex::TRef <Reflex::GLX::Event> Reflex::GLX::Event::Clone() const
+inline Reflex::Unretained <Reflex::GLX::Event> Reflex::GLX::Event::Clone() const
 {
 	auto clone = New<Event>(id);
 

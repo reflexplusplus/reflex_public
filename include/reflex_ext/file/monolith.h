@@ -39,9 +39,9 @@ public:
 
 	//lifetime
 
-	[[nodiscard]] static TRef <Monolith> Create(const WString::View & filename, UInt32 client_header, bool write);
+	[[nodiscard]] static Unretained <Monolith> Create(const WString::View & filename, UInt32 client_header, bool write);
 
-	[[nodiscard]] static TRef <Monolith> Create(System::FileHandle & file, UInt32 client_header);
+	[[nodiscard]] static Unretained <Monolith> Create(System::FileHandle & file, UInt32 client_header);
 
 
 
@@ -59,7 +59,7 @@ public:
 
 	virtual bool Remove(Key64 partitionid) = 0;
 
-	[[nodiscard]] virtual TRef <System::FileHandle> Write(Key64 partitionid, UInt32 size) = 0;
+	[[nodiscard]] virtual Unretained <System::FileHandle> Write(Key64 partitionid, UInt32 size) = 0;
 
 	virtual bool Commit() = 0;
 
@@ -69,6 +69,6 @@ public:
 
 	virtual void Enumerate(const Function <void(Key64,UInt32)> & callback) const = 0;
 
-	[[nodiscard]] virtual TRef <System::FileHandle> Read(Key64 partitionid) const = 0;
+	[[nodiscard]] virtual Unretained <System::FileHandle> Read(Key64 partitionid) const = 0;
 
 };

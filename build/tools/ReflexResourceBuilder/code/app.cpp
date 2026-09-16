@@ -16,7 +16,7 @@ struct AppImpl : public App
 	{
 	}
 
-	TRef <System::Task> Compile(const WString & path, ObjectOf <Float> & progress) override
+	AlreadyRetained <System::Task> Compile(const WString & path, ObjectOf <Float> & progress) override
 	{
 		AutoRelease(progress);	//no longer supported as we are calling CLI app
 
@@ -39,7 +39,7 @@ struct AppImpl : public App
 
 } } //end internal namespace
 
-Reflex::TRef <Reflex::System::Task> ResourceBuilder::Compile(const WString::View & path)
+Reflex::Unretained <Reflex::System::Task> ResourceBuilder::Compile(const WString::View & path)
 {
 	auto exe_path = ReflexCLI::GetReflexExecutablePath(ReflexCLI::GetReflexPath());
 
@@ -53,7 +53,7 @@ Reflex::TRef <Reflex::System::Task> ResourceBuilder::Compile(const WString::View
 	return process;
 }
 
-Reflex::TRef <ResourceBuilder::App> ResourceBuilder::App::Create()
+Reflex::Unretained <ResourceBuilder::App> ResourceBuilder::App::Create()
 {
 	return New<ResourceBuilder::AppImpl>();
 }

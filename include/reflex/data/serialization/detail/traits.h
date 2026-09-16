@@ -33,13 +33,19 @@ template <class TYPE> struct IsRawPackable < ArrayRegion <TYPE> > { static const
 template <class TYPE> struct IsRawPackable < TRef <TYPE> > { static constexpr bool value = false; };	//XCODE
 
 
-template <class TYPE> struct IsStreamable { static constexpr bool value = !IsPointer<TYPE>::value; };
+template <class TYPE> concept IsSerializable = requires(const TYPE & value, Archive & stream)
+{
+	value.Serialize(stream);
+};
 
-REFLEX_PUBLISH_TRAIT_VALUE(IsStreamable);
+template <class TYPE> constexpr bool kIsSerializable = IsSerializable<TYPE>;
 
-template <class TYPE> struct IsStreamable < Reference <TYPE> > { static constexpr bool value = false; };
+template <class TYPE> concept IsDeserializable = requires(TYPE & value, Archive::View & stream)
+{
+	value.Deserialize(stream);
+};
 
-template <class TYPE> struct IsStreamable < TRef <TYPE> > { static constexpr bool value = false; };
+template <class TYPE> constexpr bool kIsDeserializable = IsDeserializable<TYPE>;
 
 
 template <class TYPE> struct IndexType { typedef UInt32 Type; };

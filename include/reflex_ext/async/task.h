@@ -23,11 +23,11 @@ namespace Reflex::Async
 //
 //Async::Task
 
-class Reflex::Async::Task : public System::Thread
+class Reflex::Async::Task : public System::Task
 {
 public:
 
-	REFLEX_OBJECT(Async::Task, System::Thread);
+	REFLEX_OBJECT(Async::Task, System::Task);
 
 	static Task & null;
 
@@ -42,7 +42,7 @@ public:
 
 	virtual Float GetProgress() const = 0;
 
-	virtual TRef <Object> GetResult() = 0;
+	virtual AlreadyRetained <Object> GetResult() = 0;
 
 	virtual void Cancel() = 0;
 
@@ -81,7 +81,7 @@ public:
 
 	//lifetime
 	
-	[[nodiscard]] static TRef <Worker> Create(const Function <Result(Context & ctx)> & worker);
+	[[nodiscard]] static Unretained <Worker> Create(const Function <Result(Context & ctx)> & worker);
 
 	~Worker();
 
@@ -93,7 +93,7 @@ public:
 
 	Status GetStatus() const override;
 
-	TRef <Object> GetResult() override;
+	AlreadyRetained <Object> GetResult() override;
 
 	void Cancel() override;
 
@@ -147,7 +147,7 @@ inline Reflex::Async::Task::Status Reflex::Async::Worker::GetStatus() const
 	return Status(REFLEX_ATOMIC_READ(m_context.m_status));
 }
 
-inline Reflex::TRef <Reflex::Object> Reflex::Async::Worker::GetResult()
+inline Reflex::AlreadyRetained <Reflex::Object> Reflex::Async::Worker::GetResult()
 {
 	return Cast<Object>(REFLEX_ATOMIC_READ(m_presult));
 }

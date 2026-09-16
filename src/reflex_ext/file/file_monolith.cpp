@@ -82,7 +82,7 @@ struct FileRegion : public System::FileHandle
 
 	UInt16 & count;
 
-	TRef <System::FileHandle> m_file;
+	AlreadyRetained <System::FileHandle> m_file;
 
 	UInt m_offset, m_size, m_position;
 };
@@ -137,9 +137,9 @@ struct MonolithImpl : public Monolith
 
 	bool Remove(Key64 partitionid) override;
 
-	TRef <System::FileHandle> Write(Key64 partitionid, UInt size) override;
+	Unretained <System::FileHandle> Write(Key64 partitionid, UInt size) override;
 
-	TRef <System::FileHandle> Read(Key64 partitionid) const override;
+	Unretained <System::FileHandle> Read(Key64 partitionid) const override;
 
 	bool Commit() override;
 
@@ -149,7 +149,7 @@ struct MonolithImpl : public Monolith
 	bool Validate() const;
 
 
-	TRef <System::FileHandle> Read_ReadPartition(const PartitionInfo & partitionref) const;
+	Unretained <System::FileHandle> Read_ReadPartition(const PartitionInfo & partitionref) const;
 
 
 	PartitionRef Write_CreatePartition(UInt64 id, UInt size);
@@ -546,7 +546,7 @@ void MonolithImpl::Enumerate(const Function <void(Key64,UInt32)> & callback) con
 	for (auto & i : partitions) callback(i.a, i.b);
 }
 
-REFLEX_INLINE TRef <System::FileHandle> MonolithImpl::Read_ReadPartition(const PartitionInfo & partitioninfo) const
+REFLEX_INLINE Unretained <System::FileHandle> MonolithImpl::Read_ReadPartition(const PartitionInfo & partitioninfo) const
 {
 	if (m_nstreams)
 	{
@@ -556,7 +556,7 @@ REFLEX_INLINE TRef <System::FileHandle> MonolithImpl::Read_ReadPartition(const P
 	return REFLEX_CREATE(FileRegion, *this, m_nstreams, m_stream, partitioninfo.position, partitioninfo.size);
 }
 
-TRef <System::FileHandle> MonolithImpl::Read(Key64 partitionid) const
+Unretained <System::FileHandle> MonolithImpl::Read(Key64 partitionid) const
 {
 	if (auto partitionref = m_partitions.SearchValue(partitionid.value))
 	{
@@ -703,7 +703,7 @@ REFLEX_INLINE MonolithImpl::PartitionRef MonolithImpl::Write_RetrievePartition(U
 	return partitionref;
 }
 
-TRef <System::FileHandle> MonolithImpl::Write(Key64 partitionid, UInt size)
+Unretained <System::FileHandle> MonolithImpl::Write(Key64 partitionid, UInt size)
 {
 	REFLEX_ASSERT(!m_nstreams);
 	
@@ -780,8 +780,8 @@ struct NullMonolith : public Monolith
 	bool Remove(Key64 partitionid) override { return false; }
 	bool Commit() override { return false; }
 	void Enumerate(const Function <void(Key64,UInt32)> & callback) const override {};
-	TRef <System::FileHandle> Read(Key64 partitionid) const override { return {}; }
-	TRef <System::FileHandle> Write(Key64 partitionid, UInt size) override { return {}; }
+	Unretained <System::FileHandle> Read(Key64 partitionid) const override { return {}; }
+	Unretained <System::FileHandle> Write(Key64 partitionid, UInt size) override { return {}; }
 } 
 g_null_monolith;
 
@@ -791,19 +791,19 @@ const Reflex::UInt32 Reflex::File::Monolith::kHeader = K32("monolith");
 
 Reflex::File::Monolith & Reflex::File::Monolith::null = Reflex::File::g_null_monolith;
 
-Reflex::TRef <Reflex::File::Monolith> Reflex::File::Monolith::Create(System::FileHandle & file, UInt32 clientheader)
+Reflex::Unretained <Reflex::File::Monolith> Reflex::File::Monolith::Create(System::FileHandle & file, UInt32 clientheader)
 {
 	return REFLEX_CREATE(MonolithImpl, file, clientheader);
 }
 
-Reflex::TRef <Reflex::File::Monolith> Reflex::File::Monolith::Create(const WString::View & filename, UInt32 clientheader, bool write)
+Reflex::Unretained <Reflex::File::Monolith> Reflex::File::Monolith::Create(const WString::View & filename, UInt32 clientheader, bool write)
 {
 	auto file = System::FileHandle::Create(filename, MonolithImpl::kOpenModes[write]);
 
 	return REFLEX_CREATE(MonolithImpl, file, clientheader);
 }
 
-Reflex::TRef <Reflex::System::FileHandle> Reflex::File::CreateRegionReader(System::FileHandle & file, UInt start, UInt range)
+Reflex::Unretained <Reflex::System::FileHandle> Reflex::File::CreateRegionReader(System::FileHandle & file, UInt start, UInt range)
 {
 	return REFLEX_CREATE(FileRegion, file, g_ignore_count, file, start, range);
 }

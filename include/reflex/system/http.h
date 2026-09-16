@@ -71,7 +71,7 @@ public:
 
 	//lifetime
 
-	[[nodiscard]] static TRef <HttpConnection> Create(bool https, const CString::View & hostname, UInt16 = 0);
+	[[nodiscard]] static Unretained <HttpConnection> Create(bool https, const CString::View & hostname, UInt16 = 0);
 
 
 

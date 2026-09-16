@@ -25,7 +25,7 @@ class DragAndDrop::View : public Reflex::Bootstrap::View
 {
 public:
 
-	static Reflex::TRef <View> Create(App & app);
+	static Reflex::Unretained <View> Create(App & app);
 
 
 

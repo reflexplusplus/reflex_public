@@ -30,7 +30,7 @@ namespace Reflex::IDE::Detail
 
 class Reflex::IDE::Detail::ConsolePanel : 
 	public GLX::Object,
-	public Data::iStreamable
+	public Data::iSerializable
 {
 public:
 
@@ -38,20 +38,20 @@ public:
 
 	struct Ctr : public Reflex::Detail::StaticItem <Ctr>
 	{
-		Ctr(const WString::View & name, Int order, FunctionPointer <TRef<ConsolePanel>()> ctr) : name(name), order(order), ctr(ctr) {}
+		Ctr(const WString::View & name, Int order, FunctionPointer <Unretained<ConsolePanel>()> ctr) : name(name), order(order), ctr(ctr) {}
 
 		WString::View name;
 
 		Int order;
 
-		FunctionPointer <TRef<ConsolePanel>()> ctr;
+		FunctionPointer <Unretained<ConsolePanel>()> ctr;
 	};
 
 	void Reset();
 
 	void Deserialize(Data::Archive::View & stream);
 
-	using Data::iStreamable::Serialize;
+	using Data::iSerializable::Serialize;
 
 
 

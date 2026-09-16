@@ -99,7 +99,7 @@ struct ResourceBuilder
 		}
 	}
 
-	REFLEX_NOINLINE static TRef <Item> AddItem(Array <Item> & items, const Data::PropertySet & attributes, const WString::View & localpath)
+	REFLEX_NOINLINE static AlreadyRetained <Item> AddItem(Array <Item> & items, const Data::PropertySet & attributes, const WString::View & localpath)
 	{
 		constexpr auto get_bool = [](const Data::PropertySet & attrs, Key32 id)
 		{
@@ -434,14 +434,13 @@ void ResourceBuilder::Recurse(const WString::View & localpath, Namespace & paren
 		else
 		{
 			auto nss = Split(tag, kDoubleColon);
-			TRef <Namespace> group = parent;
+			AlreadyRetained <Namespace> group = parent;
 
 			for (auto & ns : nss)
 			{
-				auto parent_group = group;
-
-				group = New<Namespace>();
-				group->Attach(parent_group);
+				auto new_group = New<Namespace>();
+				new_group->Attach(group);
+				group = NoRetain(new_group);
 				group->id = ns;
 			}
 

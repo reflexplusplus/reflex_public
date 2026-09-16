@@ -74,7 +74,7 @@ private:
 	GLX::Object m_footer;
 
 
-	ConstTRef <GLX::Style> m_bar_style, m_button_style, m_item_style;
+	ConstAlreadyRetained <GLX::Style> m_bar_style, m_button_style, m_item_style;
 
 
 	static inline const Key32 kPrefsKey = K32("IDE/Console/LogV2");

@@ -43,7 +43,7 @@ public:
 
 	//lifetime
 
-	[[nodiscard]] static TRef <VirtualFileSystem> Create(Key32 default_domain = kdisk, bool mt = true);
+	[[nodiscard]] static Unretained <VirtualFileSystem> Create(Key32 default_domain = kdisk, bool mt = true);
 
 };
 
@@ -82,9 +82,9 @@ public:
 
 	//io
 
-	[[nodiscard]] TRef <System::FileHandle> Read(WString::View path, Attributes & attributes);
+	[[nodiscard]] Unretained <System::FileHandle> Read(WString::View path, Attributes & attributes);
 
-	[[nodiscard]] TRef <System::FileHandle> Write(WString::View path, bool append);
+	[[nodiscard]] Unretained <System::FileHandle> Write(WString::View path, bool append);
 
 	bool Delete(WString::View path);
 
@@ -92,7 +92,7 @@ public:
 
 	//links
 
-	TRef <VirtualFileSystem> filesystem;
+	AlreadyRetained <VirtualFileSystem> filesystem;
 
 
 
@@ -130,7 +130,7 @@ public:
 
 	//location
 
-	TRef <VirtualFileSystem> GetFileSystem();
+	AlreadyRetained <VirtualFileSystem> GetFileSystem();
 
 
 
@@ -144,9 +144,9 @@ protected:
 
 	//access
 
-	virtual TRef <System::FileHandle> OnRead(ArrayView <WString::View> subdomain, WString::View path, Attributes & attributes) const { return {}; }
+	virtual Unretained <System::FileHandle> OnRead(ArrayView <WString::View> subdomain, WString::View path, Attributes & attributes) const { return {}; }
 
-	virtual TRef <System::FileHandle> OnWrite(ArrayView <WString::View> subdomain, WString::View path, bool append) const { return {}; }
+	virtual Unretained <System::FileHandle> OnWrite(ArrayView <WString::View> subdomain, WString::View path, bool append) const { return {}; }
 
 	virtual bool OnDelete(ArrayView <WString::View> subdomain, WString::View path) const { return false; }
 
@@ -163,7 +163,7 @@ private:
 
 	const Pair <UInt> m_minmax_subdomains;
 
-	TRef <VirtualFileSystem> m_filesystem;
+	AlreadyRetained <VirtualFileSystem> m_filesystem;
 
 };
 
@@ -179,12 +179,12 @@ Tuple <Key32, ArrayView <WString::View>, WString::View> SplitDomain(WString::Vie
 
 REFLEX_END
 
-REFLEX_INLINE Reflex::TRef <Reflex::File::VirtualFileSystem> Reflex::File::VirtualFileSystem::Locator::GetFileSystem()
+REFLEX_INLINE Reflex::AlreadyRetained <Reflex::File::VirtualFileSystem> Reflex::File::VirtualFileSystem::Locator::GetFileSystem()
 {
 	return *m_filesystem;
 }
 
-inline Reflex::TRef <Reflex::System::FileHandle> Reflex::File::VirtualFileSystem::Lock::Write(WString::View path, bool append)
+inline Reflex::Unretained <Reflex::System::FileHandle> Reflex::File::VirtualFileSystem::Lock::Write(WString::View path, bool append)
 {
 	auto rtn = PerformWrite(true, path, append, ToUIntNative(Null<System::FileHandle>().Adr()), [](const VirtualFileSystem::Locator & i, const ArrayView <WString::View> & subdomain, WString::View path, bool append)
 	{

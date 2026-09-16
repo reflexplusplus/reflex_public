@@ -13,7 +13,7 @@ namespace Reflex::Async
 
 	using HttpHeaders = Array < Pair <CString> >;
 
-	[[nodiscard]] TRef <Task> CreateHttpRequest(const CString::View & method, const CString::View & url, const HttpHeaders & headers, const Data::Archive::View & body, Output & debug_output = File::output);
+	[[nodiscard]] Unretained <Task> CreateHttpRequest(const CString::View & method, const CString::View & url, const HttpHeaders & headers, const Data::Archive::View & body, Output & debug_output = File::output);
 
 }
 
@@ -27,7 +27,7 @@ REFLEX_NS(Reflex::Async::Detail)
 
 struct HttpRequestCallbacks : public Object
 {
-	virtual TRef <System::HttpConnection> Connect(bool https, const CString::View & domain, UInt16 port) { return System::HttpConnection::Create(https, domain, port); }
+	virtual Unretained <System::HttpConnection> Connect(bool https, const CString::View & domain, UInt16 port) { return System::HttpConnection::Create(https, domain, port); }
 
 	virtual bool OnResponse(System::HttpConnection::Response status_code) { return status_code >= 200 && status_code < 300; }
 
@@ -35,7 +35,7 @@ struct HttpRequestCallbacks : public Object
 	
 	virtual void OnChunk(const Data::Archive::View & chunk) = 0;
 	
-	virtual TRef <Object> OnComplete() = 0;
+	virtual Unretained <Object> OnComplete() = 0;
 };
 
 struct StandardHttpRequestCallbacks : public HttpRequestCallbacks	//for application/json, AsyncTask result will be Data::PropertySet, other Data::ArchiveObject
@@ -46,7 +46,7 @@ struct StandardHttpRequestCallbacks : public HttpRequestCallbacks	//for applicat
 
 	void OnChunk(const Data::Archive::View & chunk) override;
 
-	TRef <Object> OnComplete() override;
+	Unretained <Object> OnComplete() override;
 
 	
 	const UInt8 m_decode_json_flags;
@@ -78,7 +78,7 @@ enum NetworkSimulation : UInt32
 	kNetworkSimulationBroadband = 8000000,		//64Mbps
 };
 
-[[nodiscard]] TRef <Task> CreateHttpRequest(const CString::View & method, const CString::View & url, const HttpHeaders & headers, const Data::Archive::View & body, TRef <HttpRequestCallbacks> callbacks, NetworkSimulation network_simulation = kNetworkSimulationNone, Output & output = File::output);
+[[nodiscard]] Unretained <Task> CreateHttpRequest(const CString::View & method, const CString::View & url, const HttpHeaders & headers, const Data::Archive::View & body, WillRetain <HttpRequestCallbacks> callbacks, NetworkSimulation network_simulation = kNetworkSimulationNone, Output & output = File::output);
 
 Worker::Result Fetch(Worker::Context & ctx, CString::View method, CString::View url, HttpHeaders::View headers, Data::Archive::View body, HttpRequestCallbacks & callbacks, NetworkSimulation network_simulation = kNetworkSimulationNone, Output & output = File::output);	//synchronous function
 
@@ -90,7 +90,7 @@ REFLEX_END
 //
 //impl
 
-inline Reflex::TRef <Reflex::Async::Task> Reflex::Async::Detail::CreateHttpRequest(const CString::View & method, const CString::View & url, const HttpHeaders & headers, const Data::Archive::View & body, TRef <HttpRequestCallbacks> callbacks, Detail::NetworkSimulation network_simulation, Output & output)
+inline Reflex::Unretained <Reflex::Async::Task> Reflex::Async::Detail::CreateHttpRequest(const CString::View & method, const CString::View & url, const HttpHeaders & headers, const Data::Archive::View & body, WillRetain <HttpRequestCallbacks> callbacks, Detail::NetworkSimulation network_simulation, Output & output)
 {
 	REFLEX_ASSERT(method && url); //TODO assert on url validation
 
@@ -102,7 +102,7 @@ inline Reflex::TRef <Reflex::Async::Task> Reflex::Async::Detail::CreateHttpReque
 	});
 }
 
-inline Reflex::TRef <Reflex::Async::Task> Reflex::Async::CreateHttpRequest(const CString::View & method, const CString::View & url, const HttpHeaders & headers, const Data::Archive::View & body, Output & output)
+inline Reflex::Unretained <Reflex::Async::Task> Reflex::Async::CreateHttpRequest(const CString::View & method, const CString::View & url, const HttpHeaders & headers, const Data::Archive::View & body, Output & output)
 {
 	return Detail::CreateHttpRequest(method, url, headers, body, New<Detail::StandardHttpRequestCallbacks>(), Detail::kNetworkSimulationNone, output);
 }

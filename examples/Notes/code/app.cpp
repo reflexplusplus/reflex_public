@@ -71,7 +71,7 @@ struct AppImpl : public App
 
 
 
-	//Data::iStreamable callbacks
+	//Data::iSerializable callbacks
 
 	void OnReset(Key32 context) override
 	{
@@ -108,7 +108,7 @@ struct AppImpl : public App
 
 } }	//end internal namesapce
 
-Reflex::TRef <Notes::App> Notes::App::Create()
+Reflex::Unretained <Notes::App> Notes::App::Create()
 {
 	return New<Notes::AppImpl>();
 }

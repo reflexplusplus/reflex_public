@@ -46,20 +46,20 @@ struct WindowClient : public GLX::WindowClient
 
 struct PluginWindowClient : 
 	public WindowClient, 
-	public Streamable
+	public PersistentState
 {
 	PluginWindowClient(File::PersistentPropertySet & session, GLX::Object & view)
 		: WindowClient()
-		, Streamable(session, "bootstrap.plugin_window_size", 1)
+		, PersistentState(session, "bootstrap.plugin_window_size", 1)
 		, m_resizable(Data::GetBool(view, GLX::kresizable))
 	{
 		SetContent(view);
-		Streamable::RestoreState();
+		PersistentState::RestoreState();
 	}
 
 	~PluginWindowClient()
 	{
-		Streamable::StoreState();
+		PersistentState::StoreState();
 	}
 
 	void OnReset(Key32 context) override
@@ -109,6 +109,7 @@ struct PluginWindowClient :
 
 
 	bool m_resizable;
+
 	GLX::Size m_last_size;
 };
 
@@ -232,7 +233,7 @@ struct MobileWindowClient : public WindowClient
 
 			for (auto & i : IDE::Detail::CreatePanels(view))
 			{
-				IDE::Detail::RestoreStreamable(propertyset, {}, i.b);
+				IDE::Detail::RestoreSerializable(propertyset, {}, i.b);
 
 				tabgroup->AddPanel(i.a, i.b, GLX::kcontent, i.a);
 			}
@@ -266,7 +267,7 @@ struct MobileWindowClient : public WindowClient
 
 			REFLEX_LOOP(idx, selector->GetNumPanel())
 			{
-				IDE::Detail::StoreStreamable(propertyset, selector->GetPanel(idx));
+				IDE::Detail::StoreSerializable(propertyset, selector->GetPanel(idx));
 			}
 
 			Data::kBinaryFormat->Serialize(stream, propertyset);
@@ -295,7 +296,7 @@ struct MobileWindowClient : public WindowClient
 		GLX::WindowClient::OnSetRect(state, rect, interactable, dpifactor);
 	}
 
-	TRef <GLX::Object> m_view;
+	AlreadyRetained <GLX::Object> m_view;
 };
 
 struct EmulatedMobileWrapper : public GLX::Object
@@ -475,7 +476,7 @@ private:
 
 
 
-	TRef <GLX::Object> m_view;
+	AlreadyRetained <GLX::Object> m_view;
 
 	GLX::Button m_landscape, m_magnify_out, m_magnify_in;
 
@@ -509,7 +510,7 @@ private:
 
 REFLEX_END_INTERNAL
 
-Reflex::TRef <Reflex::GLX::WindowClient> Reflex::Bootstrap::Detail::CreateAppWindow(System::Window & window, GLX::Object & view)
+Reflex::Unretained <Reflex::GLX::WindowClient> Reflex::Bootstrap::Detail::CreateAppWindow(System::Window & window, GLX::Object & view)
 {
 	auto window_client = New<WindowClient>();
 	window_client->SetContent(view);
@@ -518,9 +519,9 @@ Reflex::TRef <Reflex::GLX::WindowClient> Reflex::Bootstrap::Detail::CreateAppWin
 	return window_client;
 }
 
-void Reflex::Bootstrap::Detail::PublishAppView(System::App::Configuration & config, const Function <TRef<GLX::Object>(Object & instance_delegate)> & ctr)
+void Reflex::Bootstrap::Detail::PublishAppView(System::App::Configuration & config, const Function <Unretained<GLX::Object>(Object & instance_delegate)> & ctr)
 {
-	config.view_ctr = [ctr](System::App & system, UInt8 & window_flags) -> TRef<System::Window::Client>
+	config.view_ctr = [ctr](System::App & system, UInt8 & window_flags) -> Unretained<System::Window::Client>
 	{
 		auto config = AcquireProperty<Data::MapOfKey32Property<UInt32>>(global->prefs, kViewGraphicsConfig);	//restore graphics settings
 
@@ -535,17 +536,17 @@ void Reflex::Bootstrap::Detail::PublishAppView(System::App::Configuration & conf
 		GLX::AnimationScope scope(GetConfig<bool>("view.allow_init_animations", true));
 
 
-		TRef <GLX::Object> view = kNoValue;
+		Unretained <GLX::Object> view = kNoValue;
 
 		if (System::kEnvironmentType == System::kEnvironmentTypeDesktopApp && GLX::kIsMobile)
 		{
-			Detail::g_create_stylesheet_options = []()
+			Detail::g_create_stylesheet_options = [](const GLX::Object & client)
 			{
 				auto [name,isize] = EmulatedMobileWrapper::GetEmulatedDevice();
 
 				if (EmulatedMobileWrapper::IsLandscape()) Swap(isize.w, isize.h);
 
-				return CreateStylesheetOptions(GLX::kSystemTheme.a, GLX::kSystemTheme.b, isize);
+				return CreateStylesheetOptions(GLX::kSystemTheme.a, GLX::kSystemTheme.b, isize, false);
 			};
 
 			view = New<EmulatedMobileWrapper>(ctr(app));
@@ -555,10 +556,17 @@ void Reflex::Bootstrap::Detail::PublishAppView(System::App::Configuration & conf
 			view = ctr(app);
 		}
 
-		if (Data::GetBool(view, GLX::kresizable)) window_flags |= System::kWindowStyleResizable;
+		if (Data::GetBool(view, GLX::kresizable))
+		{
+			window_flags |= System::kWindowStyleResizable;
 
+			if (System::kEnvironmentType == System::kEnvironmentTypeAudioPlugin)
+			{
+				window_flags |= System::kWindowStyleExPluginResizeHandle;
+			}
+		}
 
-		TRef <GLX::WindowClient> client = kNoValue;
+		Unretained <GLX::WindowClient> client = kNoValue;
 
 		switch (System::kEnvironmentType)
 		{

@@ -12,17 +12,17 @@ constexpr UInt32 kControlTransaction = K32("{ControlTransaction}");
 
 const ParameterControl::ParameterInterface kNullAdapter =
 {
-	.get_value = [](const Object &, UInt)
-	{
-		return 0.0f;
-	},
-	.to_string = [](const Object &, UInt, Float32) -> WString
+	.get_value = [](const Object &, UInt) -> Value32
 	{
 		return {};
 	},
-	.begin_edit = [](ParameterControl &, Object &, UInt)
+	.to_string = [](const Object &, UInt, Value32) -> WString
 	{
-		return Null<Object>();
+		return {};
+	},
+	.begin_edit = [](ParameterControl &, Object &, UInt) -> Unretained <Object>
+	{
+		return Unretained<Object>(*Null<Object>());
 	},
 	.perform_edit = [](ParameterControl &, Object &, UInt, Object &, Float32, bool)
 	{
@@ -42,8 +42,9 @@ Reflex::Bootstrap::ParameterControl::ParameterControl()
 	, m_editing(false)
 	, m_binding_enabled(false)
 	, m_sensitivity(1.0f)
-	, m_value_z(-1.0f)
 {
+	m_value_z.uvalue = kMaxUInt32;
+
 	EnableOnClock();
 
 	Update();
@@ -54,7 +55,7 @@ Reflex::Bootstrap::ParameterControl::~ParameterControl()
 	EndControlEdit(true);
 }
 
-void Reflex::Bootstrap::ParameterControl::Bind(const ParameterInterface & adapter, TRef <Reflex::Object> state, ConstTRef <ParameterDefinition> definition, UInt index, bool enabled)
+void Reflex::Bootstrap::ParameterControl::Bind(const ParameterInterface & adapter, WillRetain <Reflex::Object> state, ConstWillRetain <ParameterDefinition> definition, UInt index, bool enabled)
 {
 	EndControlEdit(true);
 
@@ -63,7 +64,6 @@ void Reflex::Bootstrap::ParameterControl::Bind(const ParameterInterface & adapte
 	m_definition = definition;
 	m_index = index;
 	m_binding_enabled = enabled;
-	m_value_z = -1.0f;
 
 	Update();
 }
@@ -76,7 +76,6 @@ void Reflex::Bootstrap::ParameterControl::Unbind()
 	m_state = REFLEX_NULL(Object);
 	m_index = 0;
 	m_definition = REFLEX_NULL(ParameterDefinition);
-	m_value_z = -1.0f;
 	m_binding_enabled = false;
 
 	Update();
@@ -112,6 +111,8 @@ void Reflex::Bootstrap::ParameterControl::EndControlEdit(bool cancel)
 
 		UnsetAbstractProperty(*this, kControlTransaction);
 	}
+
+	UnsetState(GLX::kActiveState);
 }
 
 void Reflex::Bootstrap::ParameterControl::SetValueNormalizedAtomic(Float32 value, bool fine)
@@ -125,7 +126,7 @@ void Reflex::Bootstrap::ParameterControl::SetValueNormalizedAtomic(Float32 value
 
 Reflex::Float32 Reflex::Bootstrap::ParameterControl::ValueToNormal(Float32 value) const
 {
-	TRef definition = m_definition;
+	auto definition = NoRetain(m_definition);
 	
 	Value32 native;
 
@@ -139,15 +140,6 @@ Reflex::Float32 Reflex::Bootstrap::ParameterControl::ValueToNormal(Float32 value
 	}
 
 	return Bootstrap::Normalise(definition, native);
-}
-
-Reflex::Float32 Reflex::Bootstrap::ParameterControl::NormalToValue(Float32 normal) const
-{
-	TRef definition = m_definition;
-
-	auto native = Expand(definition, normal);
-
-	return definition->GetType() == ParameterDefinition::kTypeContinuous ? native.fvalue : Float32(native.ivalue);
 }
 
 bool Reflex::Bootstrap::ParameterControl::OnEvent(GLX::Object & src, GLX::Event & e)
@@ -179,7 +171,7 @@ bool Reflex::Bootstrap::ParameterControl::OnEvent(GLX::Object & src, GLX::Event 
 	}
 	else if (e.id == GLX::kMouseDown && src == GetContent() && GetType() == kTypeBoolean && !(GLX::GetClickFlags(e) & GLX::kClickFlagRmb))
 	{
-		SetValueNormalizedAtomic(m_adapter->get_value(m_state, m_index) < 0.5f ? 1.0f : 0.0f);
+		SetValueNormalizedAtomic(m_adapter->get_value(m_state, m_index).ivalue ? 0.0f : 1.0f);
 
 		return true;
 	}
@@ -193,9 +185,12 @@ bool Reflex::Bootstrap::ParameterControl::OnEvent(GLX::Object & src, GLX::Event 
 
 		REFLEX_LOOP(idx, count)
 		{
-			auto value = count > 1 ? Float32(idx) / Float32(count - 1) : 0.0f;
+			Value32 value;
+			value.ivalue = min.ivalue + Int32(idx);
 
-			GLX::BindClick(menu->AddItem(m_adapter->to_string(m_state, m_index, value)), BindMethod(this, &ParameterControl::SetValueNormalizedAtomic, value, false));
+			auto value_normalized = count > 1 ? Float32(idx) / Float32(count - 1) : 0.0f;
+
+			GLX::BindClick(menu->AddItem(m_adapter->to_string(m_state, m_index, value)), BindMethod(this, &ParameterControl::SetValueNormalizedAtomic, value_normalized, false));
 		}
 
 		return true;
@@ -208,19 +203,22 @@ void Reflex::Bootstrap::ParameterControl::OnClock(Float32)
 {
 	auto value = m_adapter->get_value(m_state, m_index);
 
-	if (SetFiltered(m_value_z, value))
+	if (SetFiltered(m_value_z.ivalue, value.ivalue))
 	{
 		auto control = GetContent();
 
 		switch (GetType())
 		{
 		case kTypeContinuous:
+			Cast<GLX::RotarySlider>(control)->SetValue(value.fvalue);
+			break;
+
 		case kTypeDiscrete:
-			Cast<GLX::RotarySlider>(control)->SetValue(NormalToValue(value));
+			Cast<GLX::RotarySlider>(control)->SetValue(Float32(value.ivalue));
 			break;
 
 		case kTypeBoolean:
-			GLX::Select(control, value >= 0.5f);
+			GLX::Select(control, True(value.ivalue));
 			break;
 
 		case kTypeEnumeration:
@@ -235,6 +233,8 @@ void Reflex::Bootstrap::ParameterControl::OnClock(Float32)
 
 void Reflex::Bootstrap::ParameterControl::OnUpdate()
 {
+	m_value_z.uvalue = kMaxUInt32;
+
 	auto definition = m_definition.Adr();
 	auto [min, max] = definition->GetRange();
 	auto step = definition->GetStep();

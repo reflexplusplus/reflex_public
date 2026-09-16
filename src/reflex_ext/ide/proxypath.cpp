@@ -21,7 +21,7 @@ struct ProxyPathImpl : public ProxyPath
 		return {};
 	}
 
-	TRef <System::FileHandle> OnRead(ArrayView <WString::View> subdomain, WString::View path, File::Attributes & attributes) const override
+	Unretained <System::FileHandle> OnRead(ArrayView <WString::View> subdomain, WString::View path, File::Attributes & attributes) const override
 	{
 		if (subdomain)
 		{
@@ -38,7 +38,7 @@ struct ProxyPathImpl : public ProxyPath
 		return {};
 	}
 
-	TRef <System::FileHandle> OnWrite(ArrayView <WString::View> subdomain, WString::View path, bool append) const override
+	Unretained <System::FileHandle> OnWrite(ArrayView <WString::View> subdomain, WString::View path, bool append) const override
 	{
 		if (subdomain)
 		{
@@ -54,7 +54,7 @@ struct ProxyPathImpl : public ProxyPath
 
 REFLEX_END_INTERNAL
 
-Reflex::TRef <Reflex::IDE::ProxyPath> Reflex::IDE::ProxyPath::Create(Key32 domain, Key32 subdomain, WString::View local_path)
+Reflex::Unretained <Reflex::IDE::ProxyPath> Reflex::IDE::ProxyPath::Create(Key32 domain, Key32 subdomain, WString::View local_path)
 {
 	return REFLEX_CREATE(ProxyPathImpl, domain, subdomain, local_path);
 }

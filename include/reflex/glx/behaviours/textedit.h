@@ -26,7 +26,7 @@ namespace Reflex::GLX
 		REFLEX_USE_ENUM(System, VirtualKeyboardInputType);
 
 
-		[[nodiscard]] static TRef <TextEditBehaviour> Create(Key32 dataid = kvalue);
+		[[nodiscard]] static Unretained <TextEditBehaviour> Create(Key32 dataid = kvalue);
 
 
 		virtual void SetInputType(VirtualKeyboardInputType type) = 0;	//TODO currently kVirtualKeyboardInputMultiLine is ignored, that depends on Text type
@@ -60,6 +60,6 @@ namespace Reflex::GLX
 
 	};
 
-	[[nodiscard]] TRef <Reflex::Object> AcquireVirtualKeyboard();
+	[[nodiscard]] Unretained <Reflex::Object> AcquireVirtualKeyboard();
 
 }

@@ -1,3 +1,3 @@
 #pragma once
 
-#include "../common.h"
+#include "../common/[require].h"

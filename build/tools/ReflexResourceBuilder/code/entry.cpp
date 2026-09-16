@@ -1,7 +1,7 @@
 #include "app.h"
 #include "view.h"
 
-Reflex::TRef <Reflex::Object> Reflex::System::App::OnStart(const ArrayView <CString::View> & cmdline, Configuration & config)
+Reflex::Unretained <Reflex::Object> Reflex::System::App::OnStart(const ArrayView <CString::View> & cmdline, Configuration & config)
 {
 #if REFLEX_DEBUG
 	constexpr auto get_agent_args = [](ArrayView <CString::View> cmdline)

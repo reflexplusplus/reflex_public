@@ -36,7 +36,7 @@ public:
 
 	//ctr for abstract class
 
-	static TRef <App> Create();
+	static Unretained <App> Create();
 
 
 

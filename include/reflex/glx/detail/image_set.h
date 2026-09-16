@@ -13,14 +13,14 @@ REFLEX_NS(Reflex::GLX::Detail)
 class ImageSet;
 
 
-ConstTRef <ImageSet> CreateImageSet(const Data::PropertySet & desc);
+Unretained <const ImageSet> CreateImageSet(const Data::PropertySet & desc);
 
-ConstTRef <ImageSet> CreateImageSetFromSVG(const Data::PropertySet & desc);
+Unretained <const ImageSet> CreateImageSetFromSVG(const Data::PropertySet & desc);
 
 
-void SetImage(GLX::Object & object, Key32 id, ConstTRef <System::Renderer::Canvas> bitmap);
+void SetImage(GLX::Object & object, Key32 id, ConstWillRetain <System::Renderer::Canvas> bitmap);
 
-void SetImage(GLX::Object & object, Key32 id, ConstTRef <Graphic> graphic, Size content_size);
+void SetImage(GLX::Object & object, Key32 id, ConstWillRetain <Graphic> graphic, Size content_size);
 
 void UnsetImage(GLX::Object & object, Key32 id);
 
@@ -46,7 +46,7 @@ public:
 
 	//lifetime
 
-	ImageSet(ConstTRef <System::Renderer::Canvas> source_bitmap);
+	ImageSet(ConstWillRetain <System::Renderer::Canvas> source_bitmap);
 
 	~ImageSet();
 
@@ -54,7 +54,7 @@ public:
 
 	//content
 
-	void AddFrame(Key32 id, ConstTRef <Graphic> graphic, Size size);
+	void AddFrame(Key32 id, ConstWillRetain <Graphic> graphic, Size size);
 
 	void AddFrame(Key32 id, const Rect & rect);
 
@@ -64,7 +64,7 @@ public:
 
 	//info
 
-	const ConstTRef <System::Renderer::Canvas> source_bitmap;
+	const ConstAlreadyRetained <System::Renderer::Canvas> source_bitmap;
 
 
 

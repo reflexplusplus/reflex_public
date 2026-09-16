@@ -10,7 +10,7 @@ REFLEX_BEGIN_INTERNAL(Reflex::GLX::Detail)
 
 REFLEX_END_INTERNAL
 
-Reflex::GLX::Detail::Recycler::Recycler(Object & parent, const Style & style, UInt8 enter_flags, const Function <TRef<Object>()> & ctr)
+Reflex::GLX::Detail::Recycler::Recycler(Object & parent, const Style & style, UInt8 enter_flags, const Function <Unretained<Object>()> & ctr)
 	: m_parent(parent),
 	m_style(style),
 	m_enter_flags(enter_flags),
@@ -58,7 +58,7 @@ Reflex::GLX::Detail::Recycler::~Recycler()
 	}
 }
 
-Reflex::TRef <Reflex::GLX::Object> Reflex::GLX::Detail::Recycler::AcquireImpl(const Function <TRef<Object>()> & ctr, Key32 id, ItemPositioning positioning, const Style & style)
+Reflex::AlreadyRetained <Reflex::GLX::Object> Reflex::GLX::Detail::Recycler::AcquireImpl(const Function <Unretained<Object>()> & ctr, Key32 id, ItemPositioning positioning, const Style & style)
 {
 	auto pobject = QueryChildById(m_parent, id, nullptr);
 

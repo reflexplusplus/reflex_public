@@ -92,7 +92,7 @@ struct Reflex::Data::Detail::Tokeniser : public Object
 
 	static void Tokenise(Tokeniser & tokeniser, const CString::View & input, UInt & line);	 //throw Pair <UInt,CString>
 
-	virtual TRef <Tokeniser> OnPush(UInt line, const char & bracket) = 0;
+	virtual Unretained <Tokeniser> OnPush(UInt line, const char & bracket) = 0;
 
 	virtual void OnPop(UInt line, const char & bracket, Tokeniser & child) = 0;
 

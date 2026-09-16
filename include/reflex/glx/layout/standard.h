@@ -38,22 +38,22 @@ namespace Reflex::GLX
 	void EnableAutoFit(Object & object, bool x, bool y);
 
 
-	template <class TYPE> auto AddInline(Object & parent, TYPE && child, Orientation ortho = kOrientationFit);
+	template <class TYPE> AlreadyRetained <TYPE> AddInline(Object & parent, WillRetain <TYPE> child, Orientation ortho = kOrientationFit);
 
-	template <class TYPE> auto AddInlineFlex(Object & parent, TYPE && child, Orientation ortho = kOrientationFit);
-
-
-	template <class TYPE> auto AddFloat(Object & parent, TYPE && child, Orientation x, Orientation y);
-
-	template <class TYPE> auto AddFloat(Object & parent, TYPE && child, Alignment alignment);
+	template <class TYPE> AlreadyRetained <TYPE> AddInlineFlex(Object & parent, WillRetain <TYPE> child, Orientation ortho = kOrientationFit);
 
 
-	template <class TYPE> auto AddStretch(Object & parent, TYPE && child);
+	template <class TYPE> AlreadyRetained <TYPE> AddFloat(Object & parent, WillRetain <TYPE> child, Orientation x, Orientation y);
+
+	template <class TYPE> AlreadyRetained <TYPE> AddFloat(Object & parent, WillRetain <TYPE> child, Alignment alignment);
 
 
-	template <class TYPE> auto AddAbsolute(Object & parent, TYPE && child);
+	template <class TYPE> AlreadyRetained <TYPE> AddStretch(Object & parent, WillRetain <TYPE> child);
 
-	template <class TYPE> auto AddAbsolute(Object & parent, TYPE && child, const Point & position);
+
+	template <class TYPE> AlreadyRetained <TYPE> AddAbsolute(Object & parent, WillRetain <TYPE> child);
+
+	template <class TYPE> AlreadyRetained <TYPE> AddAbsolute(Object & parent, WillRetain <TYPE> child, Point position);
 
 
 	template <bool FLEX> void EnableInline(Object & object, Orientation ortho = kOrientationFit);
@@ -72,11 +72,50 @@ namespace Reflex::GLX
 //
 //impl
 
+REFLEX_NS(Reflex::GLX)
+
+template <class AUTO> REFLEX_INLINE auto AddInline(Object & parent, AUTO && child, Orientation ortho = kOrientationFit)
+{
+	return AddInline(parent, WillRetain(Deref(child)), ortho);
+}
+
+template <class AUTO> REFLEX_INLINE auto AddInlineFlex(Object & parent, AUTO && child, Orientation ortho = kOrientationFit)
+{
+	return AddInlineFlex(parent, WillRetain(Deref(child)), ortho);
+}
+
+template <class AUTO> REFLEX_INLINE auto AddFloat(Object & parent, AUTO && child, Orientation x, Orientation y)
+{
+	return AddFloat(parent, WillRetain(Deref(child)), x, y);
+}
+
+template <class AUTO> REFLEX_INLINE auto AddFloat(Object & parent, AUTO && child, Alignment alignment)
+{
+	return AddFloat(parent, WillRetain(Deref(child)), alignment);
+}
+
+template <class AUTO> REFLEX_INLINE auto AddStretch(Object & parent, AUTO && child)
+{
+	return AddStretch(parent, WillRetain(Deref(child)));
+}
+
+template <class AUTO> REFLEX_INLINE auto AddAbsolute(Object & parent, AUTO && child)
+{
+	return AddAbsolute(parent, WillRetain(Deref(child)));
+}
+
+template <class AUTO> REFLEX_INLINE auto AddAbsolute(Object & parent, AUTO && child, Point position)
+{
+	return AddAbsolute(parent, WillRetain(Deref(child)), position);
+}
+
+REFLEX_END
+
 REFLEX_NS(Reflex::GLX::Detail)
 
 extern const Pair <Orientation> kAlignmentToOrientation[kNumAlignment];
 
-void AddItem(Object & object, TRef <Object> child, Positioning positioning, Orientation axis, Orientation ortho);
+void AddItem(Object & object, WillRetain <Object> child, Positioning positioning, Orientation axis, Orientation ortho);
 
 void SetPositioning(Object & object, Positioning positioning, Orientation axis, Orientation ortho);
 
@@ -84,14 +123,14 @@ Tuple <Positioning,Orientation,Orientation> GetPositioning(const Object & object
 
 REFLEX_END
 
-inline void Reflex::GLX::Detail::AddItem(Object & object, TRef <Object> child, Positioning positioning, Orientation axis, Orientation ortho)
+inline void Reflex::GLX::Detail::AddItem(Object & object, WillRetain <Object> child, Positioning positioning, Orientation axis, Orientation ortho)
 {
 	SetPositioning(child, positioning, axis, ortho);
 
 	child->SetParent(object);
 }
 
-template <class TYPE> REFLEX_INLINE auto Reflex::GLX::AddInline(Object & parent, TYPE && child, Orientation ortho)
+template <class TYPE> REFLEX_INLINE Reflex::AlreadyRetained <TYPE> Reflex::GLX::AddInline(Object & parent, WillRetain <TYPE> child, Orientation ortho)
 {
 	auto & object = Deref(child);
 
@@ -99,10 +138,10 @@ template <class TYPE> REFLEX_INLINE auto Reflex::GLX::AddInline(Object & parent,
 
 	object.SetParent(parent);
 
-	return TRef<NonRefT<decltype(object)>>(object);
+	return AlreadyRetained<TYPE>(object);
 }
 
-template <class TYPE> REFLEX_INLINE auto Reflex::GLX::AddInlineFlex(Object & parent, TYPE && child, Orientation ortho)
+template <class TYPE> REFLEX_INLINE Reflex::AlreadyRetained <TYPE> Reflex::GLX::AddInlineFlex(Object & parent, WillRetain <TYPE> child, Orientation ortho)
 {
 	auto & object = Deref(child);
 
@@ -110,10 +149,10 @@ template <class TYPE> REFLEX_INLINE auto Reflex::GLX::AddInlineFlex(Object & par
 
 	object.SetParent(parent);
 
-	return TRef<NonRefT<decltype(object)>>(object);
+	return AlreadyRetained<TYPE>(object);
 }
 
-template <class TYPE> REFLEX_INLINE auto Reflex::GLX::AddFloat(Object & parent, TYPE && child, Orientation x, Orientation y)
+template <class TYPE> REFLEX_INLINE Reflex::AlreadyRetained <TYPE> Reflex::GLX::AddFloat(Object & parent, WillRetain <TYPE> child, Orientation x, Orientation y)
 {
 	auto & object = Deref(child);
 
@@ -121,10 +160,10 @@ template <class TYPE> REFLEX_INLINE auto Reflex::GLX::AddFloat(Object & parent, 
 
 	object.SetParent(parent);
 
-	return TRef<NonRefT<decltype(object)>>(object);
+	return AlreadyRetained<TYPE>(object);
 }
 
-template <class TYPE> REFLEX_INLINE auto Reflex::GLX::AddFloat(Object & parent, TYPE && child, Alignment alignment)
+template <class TYPE> REFLEX_INLINE Reflex::AlreadyRetained <TYPE> Reflex::GLX::AddFloat(Object & parent, WillRetain <TYPE> child, Alignment alignment)
 {
 	auto & object = Deref(child);
 
@@ -132,15 +171,15 @@ template <class TYPE> REFLEX_INLINE auto Reflex::GLX::AddFloat(Object & parent, 
 
 	object.SetParent(parent);
 
-	return TRef<NonRefT<decltype(object)>>(object);
+	return AlreadyRetained<TYPE>(object);
 }
 
-template <class TYPE> REFLEX_INLINE auto Reflex::GLX::AddStretch(Object & parent, TYPE && child)
+template <class TYPE> REFLEX_INLINE Reflex::AlreadyRetained <TYPE> Reflex::GLX::AddStretch(Object & parent, WillRetain <TYPE> child)
 {
 	return AddFloat(parent, child, kOrientationFit, kOrientationFit);
 }
 
-template <class TYPE> REFLEX_INLINE auto Reflex::GLX::AddAbsolute(Object & parent, TYPE && child)
+template <class TYPE> REFLEX_INLINE Reflex::AlreadyRetained <TYPE> Reflex::GLX::AddAbsolute(Object & parent, WillRetain <TYPE> child)
 {
 	auto & object = Deref(child);
 
@@ -148,16 +187,16 @@ template <class TYPE> REFLEX_INLINE auto Reflex::GLX::AddAbsolute(Object & paren
 
 	object.SetParent(parent);
 
-	return TRef<NonRefT<decltype(object)>>(object);
+	return AlreadyRetained<TYPE>(object);
 }
 
-template <class TYPE> REFLEX_INLINE auto Reflex::GLX::AddAbsolute(Object & parent, TYPE && child, const Point & position)
+template <class TYPE> REFLEX_INLINE Reflex::AlreadyRetained <TYPE> Reflex::GLX::AddAbsolute(Object & parent, WillRetain <TYPE> child, Point position)
 {
 	auto & object = Deref(child);
 
 	object.GLX::Object::SetPosition(position);
 
-	return AddAbsolute(parent, object);
+	return AddAbsolute(parent, child);
 }
 
 REFLEX_INLINE bool Reflex::GLX::GetAxis(const Object & object)
@@ -181,7 +220,7 @@ REFLEX_INLINE void Reflex::GLX::EnableAutoFit(Object & object, bool x, bool y)
 
 REFLEX_INLINE void Reflex::GLX::Detail::SetPositioning(Object & object, Positioning positioning, Orientation axis, Orientation ortho)
 {
-	UInt8 flags = UInt8(positioning) | (UInt8(axis) << 2) | (UInt8(ortho) << 4)/* | (object->GetPositioningFlags() & 192)*/;
+	UInt8 flags = UInt8(positioning) | (UInt8(axis) << 2) | (UInt8(ortho) << 4);
 
 	object.SetPositioningFlags(flags);
 }

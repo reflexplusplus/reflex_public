@@ -29,7 +29,7 @@ public:
 
 	struct ParameterInterface;
 
-	[[nodiscard]] static TRef <ParameterControl> Create(AudioPlugin & instance, UInt param_idx);
+	[[nodiscard]] static Unretained <ParameterControl> Create(AudioPlugin & instance, UInt param_idx);
 
 
 
@@ -40,7 +40,7 @@ protected:
 	~ParameterControl();
 
 
-	void Bind(const ParameterInterface & adapter, TRef <Reflex::Object> state, ConstTRef <ParameterDefinition> definition, UInt index = 0, bool enabled = true);
+	void Bind(const ParameterInterface & adapter, WillRetain <Reflex::Object> state, ConstWillRetain <ParameterDefinition> definition, UInt index = 0, bool enabled = true);
 
 	void Unbind();
 
@@ -49,9 +49,9 @@ protected:
 	void SetValueNormalizedAtomic(Float32 value, bool fine = false);
 
 
-	ConstTRef <ParameterDefinition> GetDefinition() const { return m_definition; }
+	ConstAlreadyRetained <ParameterDefinition> GetDefinition() const { return m_definition; }
 
-	TRef <Reflex::Object> GetBindingState() const { return m_state.Adr(); }
+	AlreadyRetained <Reflex::Object> GetBindingState() const { return m_state.Adr(); }
 
 	UInt GetBindingIndex() const { return m_index; }
 
@@ -74,8 +74,6 @@ private:
 
 	Float32 ValueToNormal(Float32 value) const;
 
-	Float32 NormalToValue(Float32 normal) const;
-
 
 	const ParameterInterface * m_adapter;
 
@@ -91,7 +89,7 @@ private:
 
 	Float32 m_sensitivity;
 
-	Float32 m_value_z;
+	Value32 m_value_z;
 
 };
 
@@ -106,9 +104,9 @@ REFLEX_SET_TRAIT(Bootstrap::ParameterControl, IsAbstract);
 struct Reflex::Bootstrap::ParameterControl::ParameterInterface
 {
 	using Object = Reflex::Object;
-	using GetValueFn = FunctionPointer <Float32(const Object & state, UInt index)>;
-	using ToStringFn = FunctionPointer <WString(const Object & state, UInt index, Float32 value)>;
-	using BeginEditFn = FunctionPointer <TRef<Object>(ParameterControl & control, Object & state, UInt index)>;
+	using GetValueFn = FunctionPointer <Value32(const Object & state, UInt index)>;
+	using ToStringFn = FunctionPointer <WString(const Object & state, UInt index, Value32 value)>;
+	using BeginEditFn = FunctionPointer <Unretained<Object>(ParameterControl & control, Object & state, UInt index)>;
 	using PerformEditFn = FunctionPointer <void(ParameterControl & control, Object & state, UInt index, Object & transaction, Float32 value, bool fine)>;
 	using EndEditFn = FunctionPointer <void(ParameterControl & control, Object & state, UInt index, Object & transaction, bool cancel)>;
 

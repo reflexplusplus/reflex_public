@@ -177,7 +177,7 @@ struct BuilderImpl : public Detail::BuilderPanel
 
 	static ConstReference <Data::PropertySet> GetError(Reflex::Object & object);
 
-	TRef <Interface> AcquireEditor(Key32 type);
+	AlreadyRetained <Interface> AcquireEditor(Key32 type);
 
 	bool Open(Address address, bool focus);
 
@@ -256,7 +256,7 @@ struct BuilderImpl::Interface : public GLX::Object
 	static constexpr Key32 kType = K32("");
 
 
-	Interface(TRef <BuilderImpl> builder)
+	Interface(AlreadyRetained <BuilderImpl> builder)
 		: builder(builder),
 		m_needs_commit(false)
 	{
@@ -359,7 +359,7 @@ struct BuilderImpl::TextEditor : public Interface
 	static constexpr UInt32 kType = K32("text");
 
 
-	TextEditor(TRef <BuilderImpl> builder);
+	TextEditor(AlreadyRetained <BuilderImpl> builder);
 
 	Key32 GetType() const override { return kType; }
 
@@ -423,7 +423,7 @@ protected:
 
 	void ShowLineNumbers(bool enable);
 
-	TRef <InfoItem> AcquireFooter(Key32 id, const WString::View & label, const Function <void(GLX::Object&)> & populate = {})
+	AlreadyRetained <InfoItem> AcquireFooter(Key32 id, const WString::View & label, const Function <void(GLX::Object&)> & populate = {})
 	{
 		return Cast<InfoItem>(GLX::Acquire(*this, id, GLX::kEnterAnimationSize, [this, &label, populate]
 		{
@@ -502,7 +502,7 @@ protected:
 
 	GLX::ScrollerOfType <TextEditorWithLineNumbers> m_scroller;
 
-	const TRef <Detail::TextEditor> m_texteditor;
+	const AlreadyRetained <Detail::TextEditor> m_texteditor;
 };
 
 struct BuilderImpl::PropertySheetEditor : public TextEditor
@@ -661,7 +661,7 @@ ConstReference <Data::PropertySet> BuilderImpl::GetError(Reflex::Object & object
 	return GetProperty<Data::PropertySet>(object, Data::kError);
 }
 
-TRef <BuilderImpl::Interface> BuilderImpl::AcquireEditor(Key32 type)
+AlreadyRetained <BuilderImpl::Interface> BuilderImpl::AcquireEditor(Key32 type)
 {
 	auto & editor = *m_editor;
 
@@ -1028,7 +1028,7 @@ void BuilderImpl::OnClock(Float32)
 	}
 }
 
-BuilderImpl::TextEditor::TextEditor(TRef <BuilderImpl> builder)
+BuilderImpl::TextEditor::TextEditor(AlreadyRetained <BuilderImpl> builder)
 	: Interface(builder),
 	m_texteditor(m_scroller.GetContent()->texteditor)
 {
@@ -1086,8 +1086,6 @@ bool BuilderImpl::TextEditor::OnEvent(GLX::Object & src, GLX::Event & e)
 {
 	static constexpr auto DoSearch = [](TextEditor & self, bool reverse)
 	{
-		TRef prefs = TheGlobal::Get()->m_prefs;
-
 		auto bits = MakeBits(reverse, GetPreference(kSearchOptionCaseSensitive), GetPreference(kSearchOptionWholeWord));
 
 		auto fn = TextSearchBinder::Bind(bits);
@@ -1203,8 +1201,6 @@ bool BuilderImpl::TextEditor::OnEvent(GLX::Object & src, GLX::Event & e)
 					auto textarea = GLX::AddInlineFlex(bar, GLX::Init(New<GLX::TextArea>(false), style["Search"]));
 
 					auto option = style["Option"];
-
-					TRef prefs = TheGlobal::Get()->m_prefs;
 
 					const Pair <WString::View, Pair<Key32,bool>> options[] = { { L"Case", kSearchOptionCaseSensitive }, { L"Word", kSearchOptionWholeWord } };
 
@@ -1548,14 +1544,14 @@ bool BuilderImpl::TextEditor::OnEvent(GLX::Object & src, GLX::Event & e)
 //	//GLX::Activate(save, saveable);
 //}
 
-Detail::ConsolePanel::Ctr gBuilderCtr(L"Builder", -3, []() -> TRef <Detail::ConsolePanel>
+Detail::ConsolePanel::Ctr gBuilderCtr(L"Builder", -3, []() -> Unretained <Detail::ConsolePanel>
 {
 	return REFLEX_CREATE(BuilderImpl);
 });
 
 REFLEX_END_INTERNAL
 
-//Reflex::IDE::Detail::ConsolePanel::Ctr Reflex::IDE::gBuilderCtr(L"Builder", -3, []() -> Reflex::TRef <Reflex::IDE::Detail::ConsolePanel>
+//Reflex::IDE::Detail::ConsolePanel::Ctr Reflex::IDE::gBuilderCtr(L"Builder", -3, []() -> Reflex::AlreadyRetained <Reflex::IDE::Detail::ConsolePanel>
 //{
 //	return REFLEX_CREATE(BuilderImpl);
 //});

@@ -27,12 +27,12 @@ public:
 
 	static ResourceGroup & null;
 
-	[[nodiscard]] static TRef <ResourceGroup> Create(File::ResourcePool & resourcepool, Key32 uid, WString::View desc, const Function <void(ResourceGroup&)> & onreload);
+	[[nodiscard]] static Unretained <ResourceGroup> Create(File::ResourcePool & resourcepool, Key32 uid, WString::View desc, const Function <void(ResourceGroup&)> & onreload);
 
 
 	virtual void Clear() = 0;
 
-	virtual void AddItem(Address adr, ConstTRef <Object> object) = 0;
+	virtual void AddItem(Address adr, ConstWillRetain <Object> object) = 0;
 
 	template <class TYPE> void AddItem(Key32 path, const TYPE & object) { AddItem(MakeAddress<TYPE>(path), object); }
 

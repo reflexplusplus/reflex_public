@@ -9,7 +9,7 @@ Reference <ModuleNode> CreateModuleTree(const Data::PropertySet & info, const Da
 
 	Index index;
 
-	TRef root = index.Set({}, New<ModuleNode>().Adr());
+	Unretained <ModuleNode> root = index.Set({}, New<ModuleNode>().Adr());
 
 	root->is_namespace = true;
 
@@ -206,7 +206,7 @@ REFLEX_END_INTERNAL
 
 ReflexCLI::Documentation::ModuleNode & ReflexCLI::Documentation::ModuleNode::null = g_null_module;
 
-Reflex::TRef <Reflex::Data::Table> ReflexCLI::Documentation::CreateTable(const WString::View & folder, Data::KeyMap & keymap)
+Reflex::Unretained <Reflex::Data::Table> ReflexCLI::Documentation::CreateTable(const WString::View & folder, Data::KeyMap & keymap)
 {
 	auto symbols_decoded = Data::DecodePropertySet(Data::kPropertySheetFormat, File::Open(Join(folder, L"symbols.txt")));
 	auto info_decoded = Data::DecodePropertySet(Data::kPropertySheetFormat, File::Open(Join(folder, L"info.txt")));
@@ -768,9 +768,9 @@ Reflex::Pair < Reflex::Array <Reflex::CString::View>, Reflex::UInt > ReflexCLI::
 	return out;
 }
 
-Reflex::Array <Reflex::ConstTRef <ReflexCLI::Documentation::ModuleNode>> ReflexCLI::Documentation::SortChildModules(const ModuleNode & parent, bool namespace_first)
+Reflex::Array <Reflex::ConstAlreadyRetained <ReflexCLI::Documentation::ModuleNode>> ReflexCLI::Documentation::SortChildModules(const ModuleNode & parent, bool namespace_first)
 {
-	Array <ConstTRef <ModuleNode>> children;
+	Array <ConstAlreadyRetained <ModuleNode>> children;
 
 	children.Allocate(parent.GetNumItem());
 
@@ -779,7 +779,7 @@ Reflex::Array <Reflex::ConstTRef <ReflexCLI::Documentation::ModuleNode>> ReflexC
 		children.Push<kAllocateNone>(&i);
 	}
 
-	Sort(children, [namespace_first](const ConstTRef <ModuleNode> & a, const ConstTRef <ModuleNode> & b)
+	Sort(children, [namespace_first](const ConstAlreadyRetained <ModuleNode> & a, const ConstAlreadyRetained <ModuleNode> & b)
 	{
 		if (a->is_namespace != b->is_namespace)
 		{
@@ -792,7 +792,7 @@ Reflex::Array <Reflex::ConstTRef <ReflexCLI::Documentation::ModuleNode>> ReflexC
 	return children;
 }
 
-Reflex::TRef <ReflexCLI::Documentation::ExportFormatWriter> ReflexCLI::Documentation::ExportFormatWriter::CreatePlainText(TRef <Data::BinaryProperty> output)
+Reflex::Unretained <ReflexCLI::Documentation::ExportFormatWriter> ReflexCLI::Documentation::ExportFormatWriter::CreatePlainText(WillRetain <Data::BinaryProperty> output)
 {
 	return New<TextFormatWriter>(output);
 }
@@ -899,7 +899,7 @@ ReflexCLI::Documentation::TableIndex::TableIndex()
 	m_null_symbolinfo.name = kUndefined;
 }
 
-ReflexCLI::Documentation::TableIndex::TableIndex(ConstTRef <Data::Table> data)
+ReflexCLI::Documentation::TableIndex::TableIndex(ConstWillRetain <Data::Table> data)
 	: table(data)
 	, root_module(New<ModuleNode>())
 {
@@ -961,7 +961,7 @@ ReflexCLI::Documentation::TableIndex::TableIndex(ConstTRef <Data::Table> data)
 		}
 	}
 
-	Data::Table::ConstRowCursor rowptr = { data };
+	Data::Table::ConstRowCursor rowptr = { table };
 
 	for (auto & i : module_rows)
 	{

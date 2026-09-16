@@ -20,7 +20,7 @@ struct NullResourceGroup : public ResourceGroup
 {
 	void Clear() override {}
 
-	void AddItem(Address adr, ConstTRef <Object> object) override { AutoRelease(object); }
+	void AddItem(Address adr, ConstWillRetain <Object> object) override { AutoRelease(object); }
 
 	void ForceRebuild(File::ResourcePool::Lock & lock) override {}
 };
@@ -29,7 +29,7 @@ struct PlaceholderResourceGroup : public NullResourceGroup
 {
 	void Clear() override { m_items.Clear(); }
 
-	void AddItem(Address adr, ConstTRef <Object> object) override { m_items.Push(object); }
+	void AddItem(Address adr, ConstWillRetain <Object> object) override { m_items.Push(object); }
 
 	Array < ConstReference <Object> > m_items;
 };

@@ -13,15 +13,15 @@
 namespace Reflex
 {
 
-	template <class TYPE, class ... VARGS> TRef <TYPE> New(Allocator & allocator, VARGS && ... vargs);
+	template <class TYPE, class ... VARGS> Unretained <TYPE> New(Allocator & allocator, VARGS && ... vargs);
 
-	template <class TYPE, class ... VARGS> TRef <TYPE> New(VARGS && ... vargs);
+	template <class TYPE, class ... VARGS> Unretained <TYPE> New(VARGS && ... vargs);
 
 
 	template <class TYPE, class ... VARGS> Reference <TYPE> Make(VARGS && ... vargs);
 
 
-	template <class TYPE> [[nodiscard]] inline TRef < ObjectOf <TYPE> > CreateObjectOf(const TYPE & value);
+	template <class TYPE> [[nodiscard]] inline Unretained < ObjectOf <TYPE> > CreateObjectOf(const TYPE & value);
 
 }
 
@@ -76,7 +76,7 @@ template <class TYPE, Reflex::ReferenceSafeFlags SAFE> REFLEX_INLINE Reflex::Ref
 	return operator=(New<NonConstT<TYPE>>());
 }
 
-template <class TYPE> template <class ... VARGS> REFLEX_INLINE Reflex::TRef <TYPE> Reflex::Detail::Constructor<TYPE>::New(Allocator & allocator, VARGS && ... vargs)
+template <class TYPE> template <class ... VARGS> REFLEX_INLINE Reflex::Unretained <TYPE> Reflex::Detail::Constructor<TYPE>::New(Allocator & allocator, VARGS && ... vargs)
 {
 	if constexpr (kIsAbstract<TYPE>)
 	{
@@ -88,14 +88,14 @@ template <class TYPE> template <class ... VARGS> REFLEX_INLINE Reflex::TRef <TYP
 	}
 }
 
-template <class TYPE, class ... VARGS> inline Reflex::TRef <TYPE> Reflex::New(VARGS && ... vargs)
+template <class TYPE, class ... VARGS> inline Reflex::Unretained <TYPE> Reflex::New(VARGS && ... vargs)
 {
 	REFLEX_STATIC_ASSERT_OBJECT_TYPE(TYPE);
 
 	return Detail::Constructor<TYPE>::New(g_default_allocator, std::forward<VARGS>(vargs)...);
 }
 
-template <class TYPE, class ... VARGS> inline Reflex::TRef <TYPE> Reflex::New(Allocator & allocator, VARGS && ... vargs)
+template <class TYPE, class ... VARGS> inline Reflex::Unretained <TYPE> Reflex::New(Allocator & allocator, VARGS && ... vargs)
 {
 	REFLEX_STATIC_ASSERT_OBJECT_TYPE(TYPE);
 
@@ -107,7 +107,7 @@ template <class TYPE, class ... VARGS> inline Reflex::Reference <TYPE> Reflex::M
 	return New<TYPE>(std::forward<VARGS>(vargs)...);
 }
 
-template <class TYPE> inline Reflex::TRef < Reflex::ObjectOf <TYPE> > Reflex::CreateObjectOf(const TYPE & value)
+template <class TYPE> inline Reflex::Unretained < Reflex::ObjectOf <TYPE> > Reflex::CreateObjectOf(const TYPE & value)
 {
 	REFLEX_STATIC_ASSERT(!kIsObject<TYPE>);
 

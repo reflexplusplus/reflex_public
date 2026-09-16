@@ -69,7 +69,7 @@ public:
 
 	//components
 
-	const TRef <Node> root;
+	const AlreadyRetained <Node> root;
 
 
 
@@ -83,7 +83,7 @@ protected:
 
 private:
 
-	ConstTRef <Style> m_node_style;
+	ConstAlreadyRetained <Style> m_node_style;
 
 	Array < Reference <Node> > m_selection;
 
@@ -109,7 +109,7 @@ public:
 
 	void Clear();
 
-	TRef <Node> AddNode();
+	AlreadyRetained <Node> AddNode();
 
 
 	Node * GetParent();

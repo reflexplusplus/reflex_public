@@ -57,7 +57,7 @@ struct EnterExitState : public Reflex::Object
 		}
 	}
 
-	static TRef <EnterExitState> Acquire(GLX::Object & object, bool entering, bool fade)
+	static AlreadyRetained <EnterExitState> Acquire(GLX::Object & object, bool entering, bool fade)
 	{
 		if (auto data = object.QueryProperty<EnterExitState>(kentering))
 		{
@@ -115,9 +115,9 @@ void Reflex::GLX::Enter(Object & object, UInt8 flags)
 
 		Stop(object, kentering);
 
-		TRef playlist = REFLEX_CREATE(PlayList);
+		auto playlist = REFLEX_CREATE(PlayList);
 
-		TRef multi = AddScene(playlist, REFLEX_CREATE(Multi));
+		auto multi = AddScene(*playlist, REFLEX_CREATE(Multi));
 
 
 		Detail::Show(object);
@@ -143,8 +143,6 @@ void Reflex::GLX::Enter(Object & object, UInt8 flags)
 
 		//size
 
-		TRef <Animation> finish;
-
 		UnsetBounds(object, kentering);
 
 		bool y = GetAxis(object.GetParent());
@@ -159,7 +157,7 @@ void Reflex::GLX::Enter(Object & object, UInt8 flags)
 
 			multi->Add(CreateMaxBoundsAnimation(kentering, y, from, to));
 
-			finish = CreateCallbackAnimation([](Object & object)
+			playlist->Add(CreateCallbackAnimation([](Object & object)
 			{
 				UnsetOpacity(object, kentering);
 
@@ -168,19 +166,17 @@ void Reflex::GLX::Enter(Object & object, UInt8 flags)
 				UnsetBounds(object, kentering);
 
 				object.UnsetState(kentering);
-			});
+			}));
 		}
 		else
 		{
-			finish = CreateCallbackAnimation([](Object & object)
+			playlist->Add(CreateCallbackAnimation([](Object & object)
 			{
 				UnsetOpacity(object, kentering);
 
 				object.UnsetState(kentering);
-			});
+			}));
 		}
-
-		playlist->Add(finish);
 
 		object.SetState(kentering);
 
@@ -196,9 +192,9 @@ void Reflex::GLX::Exit(Object & object, bool detach, UInt8 or_flags)
 	{
 		Stop(object, kentering);
 
-		TRef playlist = REFLEX_CREATE(PlayList);
+		auto playlist = REFLEX_CREATE(PlayList);
 
-		TRef multi = AddScene(playlist, REFLEX_CREATE(Multi));
+		auto multi = AddScene(*playlist, REFLEX_CREATE(Multi));
 
 
 		//object.ComputeLayout();	//cant see why needed, removed 5/5/2025
@@ -235,22 +231,20 @@ void Reflex::GLX::Exit(Object & object, bool detach, UInt8 or_flags)
 
 		//finish
 
-		TRef <Animation> finish;
-
 		if (detach)
 		{
-			finish = CreateCallbackAnimation([](Object & object)
+			playlist->Add(CreateCallbackAnimation([](Object & object)
 			{
 				UnsetClip(object, kentering);
 
 				object.UnsetState(kentering);
 
 				object.Detach();
-			});
+			}));
 		}
 		else if (data->flags & kEnterAnimationFade)
 		{
-			finish = CreateCallbackAnimation([](Object & object)
+			playlist->Add(CreateCallbackAnimation([](Object & object)
 			{
 				UnsetClip(object, kentering);
 
@@ -259,19 +253,17 @@ void Reflex::GLX::Exit(Object & object, bool detach, UInt8 or_flags)
 				Detail::Hide(object);
 
 				object.UnsetState(kentering);
-			});
+			}));
 		}
 		else
 		{
-			finish = CreateCallbackAnimation([](Object & object)
+			playlist->Add(CreateCallbackAnimation([](Object & object)
 			{
 				//EnableMouse(object, false, false);
 
 				object.UnsetState(kentering);
-			});
+			}));
 		}
-
-		playlist->Add(finish);
 
 		object.SetState(kentering);
 

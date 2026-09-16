@@ -28,7 +28,7 @@ REFLEX_NS(Reflex::Data::Detail)
 inline void StoreImpl(Archive & stream, const NullType &) {}
 void StoreImpl(Archive & stream, bool value);
 void StoreImpl(Archive & stream, WChar value);
-template <class TYPE> void StoreImpl(Archive & stream, TRef <TYPE> ref);
+template <class TYPE> void StoreImpl(Archive & stream, AlreadyRetained <TYPE> ref);
 template <class TYPE> void StoreImpl(Archive & stream, const ObjectOf <TYPE> & object);
 template <class ... VARGS> void StoreImpl(Archive & stream, const Tuple <VARGS...> & value);
 template <class TYPE, UInt SIZE> void StoreImpl(Archive & stream, const TYPE(&value)[SIZE]);
@@ -71,7 +71,11 @@ template <class TYPE> REFLEX_INLINE void WriteRaw(Archive & stream, const TYPE &
 
 template <class TYPE> REFLEX_INLINE void ArrayEncoder<TYPE>::StoreImpl(Archive & stream, const TYPE * data, UInt size)
 {
-	if constexpr (IsRawCopyable<TYPE>::value)
+	if constexpr (kIsSerializable<TYPE>)
+	{
+		REFLEX_LOOP_PTR(data, ptr, size) Detail::StoreImpl(stream, *ptr);
+	}
+	else if constexpr (kIsRawCopyable<TYPE>)
 	{
 		stream.Append(Archive::View(Reinterpret<UInt8>(data), size * sizeof(TYPE)));
 	}
@@ -98,7 +102,7 @@ REFLEX_INLINE void StoreImpl(Archive & stream, WChar value)
 	WriteRaw(stream, UInt16(value));
 }
 
-template <class TYPE> REFLEX_INLINE void StoreImpl(Archive & stream, TRef <TYPE> ref)
+template <class TYPE> REFLEX_INLINE void StoreImpl(Archive & stream, AlreadyRetained <TYPE> ref)
 {
 	Detail::StoreImpl(stream, *ref);
 }
@@ -112,7 +116,11 @@ template <class ... VARGS> REFLEX_INLINE void StoreImpl(Archive & stream, const 
 {
 	using Type = Tuple <VARGS...>;
 
-	if constexpr (IsRawCopyable<Type>::value)
+	if constexpr ((kIsSerializable<VARGS> || ...))
+	{
+		SerializeTuple<0>(stream, value);
+	}
+	else if constexpr (kIsRawCopyable<Type>)
 	{
 		stream.Append(Archive::View(Reinterpret<UInt8>(&value), sizeof(Type)));
 	}
@@ -158,17 +166,16 @@ REFLEX_END
 
 template <class TYPE> REFLEX_INLINE void Reflex::Data::Detail::StoreImpl(Archive & stream, const TYPE & data)
 {
-	if constexpr (kIsRawCopyable<TYPE>)
-	{
-		WriteRaw(stream, data);
-	}
-	else if constexpr (kIsStreamable<TYPE>)
+	if constexpr (kIsSerializable<TYPE>)
 	{
 		data.Serialize(stream);
+	}
+	else if constexpr (kIsRawCopyable<TYPE>)
+	{
+		WriteRaw(stream, data);
 	}
 	else
 	{
 		REFLEX_STATIC_ASSERT(!kSizeOf<TYPE>);	//conditional static warning
 	}
 }
-

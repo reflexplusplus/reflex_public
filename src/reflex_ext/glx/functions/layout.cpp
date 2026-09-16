@@ -8,7 +8,7 @@ void Reflex::GLX::SetOnAlign(Object & object, const Function <void(Object & obje
 {
 	SetFunctionProperty(object, "SetOnAlign", callback);
 
-	object.SetLayoutModel([](Object & object) -> TRef <Detail::LayoutModel>
+	object.SetLayoutModel([](Object & object) -> Unretained <Detail::LayoutModel>
 	{
 		struct StandardLayoutWithOnAlign : public Detail::StandardLayout
 		{

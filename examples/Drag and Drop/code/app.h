@@ -33,7 +33,7 @@ public:
 
 	//ctr for abstract class
 
-	static Reflex::TRef <App> Create();
+	static Reflex::Unretained <App> Create();
 
 
 

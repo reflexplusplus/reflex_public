@@ -34,7 +34,7 @@ public:
 	
 	//lifetime
 
-	template <class ... VARGS> [[nodiscard]] static TRef <TYPE> Acquire(VARGS &&... v);
+	template <class ... VARGS> [[nodiscard]] static Unretained <TYPE> Acquire(VARGS &&... v);
 
 
 
@@ -42,7 +42,7 @@ public:
 
 	static const bool & IsAwake();
 
-	template <bool ASSUME = false> static TRef <TYPE> Get();
+	template <bool ASSUME = false> static AlreadyRetained <TYPE> Get();
 
 
 
@@ -83,14 +83,14 @@ template <class TYPE> Reflex::UInt8 Reflex::The<TYPE>::st_bytes alignas(alignof(
 
 template <class TYPE> bool Reflex::The<TYPE>::st_initalised = false;
 
-template <class TYPE> template <class ... VARGS> REFLEX_INLINE Reflex::TRef <TYPE> Reflex::The<TYPE>::Acquire(VARGS &&... v)
+template <class TYPE> template <class ... VARGS> REFLEX_INLINE Reflex::Unretained <TYPE> Reflex::The<TYPE>::Acquire(VARGS &&... v)
 {
 	if (!st_initalised)
 	{
 		Detail::Constructor<The>::Construct(st_bytes, std::forward<VARGS>(v)...);
 	}
 
-	return *Reinterpret<The>(st_bytes);
+	return Unretained<TYPE>(*Reinterpret<The>(st_bytes));
 }
 
 template <class TYPE> REFLEX_INLINE const bool & Reflex::The<TYPE>::IsAwake()
@@ -98,7 +98,7 @@ template <class TYPE> REFLEX_INLINE const bool & Reflex::The<TYPE>::IsAwake()
 	return st_initalised;
 }
 
-template <class TYPE> template <bool ASSUME> REFLEX_INLINE Reflex::TRef <TYPE> Reflex::The<TYPE>::Get()
+template <class TYPE> template <bool ASSUME> REFLEX_INLINE Reflex::AlreadyRetained <TYPE> Reflex::The<TYPE>::Get()
 {
 	REFLEX_ASSERT(Copy(ASSUME) || st_initalised);
 

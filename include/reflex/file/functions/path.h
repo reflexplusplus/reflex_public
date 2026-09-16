@@ -34,7 +34,7 @@ namespace Reflex::File
 
 	void DeleteDirectoryContent(const WString & path);
 
-	void DeletePath(const WString & path);
+	bool DeletePath(const WString & path);
 
 
 	WString CorrectStrokes(const WString::View & path);					//converts '\' to '/'
@@ -117,11 +117,11 @@ inline Reflex::WString Reflex::File::GetSystemPath(Path path)
 	return System::GetPath(path);
 }
 
-inline void Reflex::File::DeletePath(const WString & path)
+inline bool Reflex::File::DeletePath(const WString & path)
 {
 	DeleteDirectoryContent(path);
 
-	System::Delete(path);
+	return System::Delete(path);
 }
 
 inline Reflex::WString::View Reflex::File::GetExtension(const WString::View & path)

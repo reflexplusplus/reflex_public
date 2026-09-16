@@ -18,18 +18,18 @@ namespace Reflex
 
 	void UnsetAbstractProperty(Object & owner, Key32 id);
 
-	void SetAbstractProperty(Object & owner, Key32 id, TRef <AbstractProperty> property);
+	void SetAbstractProperty(Object & owner, Key32 id, WillRetain <AbstractProperty> property);
 
 	AbstractProperty* QueryAbstractProperty(Object & owner, Key32 id, AbstractProperty * fallback = nullptr);
 
-	TRef <AbstractProperty> GetAbstractProperty(Object & owner, Key32 id);
+	AlreadyRetained <AbstractProperty> GetAbstractProperty(Object & owner, Key32 id);
 
-	ConstTRef <AbstractProperty> GetAbstractProperty(const Object & owner, Key32 id);
+	ConstAlreadyRetained <AbstractProperty> GetAbstractProperty(const Object & owner, Key32 id);
 
 
 	template <class TYPE, class ... VARGS> Reference <TYPE> AcquireProperty(Object & object, Key32 id, VARGS &&... v);
 
-	template <class TYPE, class const_auto_1> ConstTRef <TYPE> GetProperty(const_auto_1 && objectref, Key32 id, const TYPE & fallback = Null<TYPE>());	//returns property or null instance
+	template <class TYPE, class const_auto_1> ConstAlreadyRetained <TYPE> GetProperty(const_auto_1 && objectref, Key32 id, const TYPE & fallback = Null<TYPE>());	//returns property or null instance
 
 
 	template <class SIG> void UnsetFunctionProperty(Object & owner, Key32 id);
@@ -64,12 +64,12 @@ template <class SIG> using FunctionObject = ObjectOf <Function <SIG>>;
 
 REFLEX_END
 
-inline Reflex::TRef <Reflex::Object> Reflex::GetAbstractProperty(Object & owner, Key32 id)
+inline Reflex::AlreadyRetained <Reflex::Object> Reflex::GetAbstractProperty(Object & owner, Key32 id)
 {
 	return QueryAbstractProperty(owner, id, &Detail::GetNullInstance<Object>());
 }
 
-inline Reflex::ConstTRef <Reflex::Object> Reflex::GetAbstractProperty(const Object & owner, Key32 id)
+inline Reflex::ConstAlreadyRetained <Reflex::Object> Reflex::GetAbstractProperty(const Object & owner, Key32 id)
 {
 	return QueryAbstractProperty(RemoveConst(owner), id, &Detail::GetNullInstance<Object>());
 }
@@ -94,7 +94,7 @@ template <class TYPE, class ... VARGS> inline Reflex::Reference <TYPE> Reflex::A
 	}
 }
 
-template <class TYPE, class const_auto_1> inline Reflex::ConstTRef <TYPE> Reflex::GetProperty(const_auto_1 && objectref, Key32 id, const TYPE & fallback)
+template <class TYPE, class const_auto_1> inline Reflex::ConstAlreadyRetained <TYPE> Reflex::GetProperty(const_auto_1 && objectref, Key32 id, const TYPE & fallback)
 {
 	REFLEX_STATIC_ASSERT_OBJECT_TYPE(TYPE);
 

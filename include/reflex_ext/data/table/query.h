@@ -76,17 +76,17 @@ namespace Reflex::Data
 
 REFLEX_NS(Reflex::Data::Detail)
 
-[[nodiscard]] TRef <Table> Select(const Table & table, ArrayView <QueryData> ops, ArrayView<Key32> columns, bool match_all, const KeyMap * keymap);
+[[nodiscard]] Unretained <Table> Select(const Table & table, ArrayView <QueryData> ops, ArrayView<Key32> columns, bool match_all, const KeyMap * keymap);
 
 void Select(const Table & table, ArrayView <QueryData> ops, bool match_all, void * client, FunctionPointer <void(void*, const Table::ConstRowCursor&)> callback, const KeyMap * keymap);
 
-[[nodiscard]] TRef <Table> Slice(const Table & table, ArrayView <Key32> columns, ArrayView <UInt> row_indices);
+[[nodiscard]] Unretained <Table> Slice(const Table & table, ArrayView <Key32> columns, ArrayView <UInt> row_indices);
 
-[[nodiscard]] TRef <Table> Aggregate(const Table & table, ArrayView < Pair <Key32,AggregateOp> > ops);
+[[nodiscard]] Unretained <Table> Aggregate(const Table & table, ArrayView < Pair <Key32,AggregateOp> > ops);
 
-[[nodiscard]] TRef <Table> GroupBy(const Table & table, Key32 column, ArrayView < Pair <Key32,AggregateOp> > ops);
+[[nodiscard]] Unretained <Table> GroupBy(const Table & table, Key32 column, ArrayView < Pair <Key32,AggregateOp> > ops);
 
-[[nodiscard]] TRef <Table> CountBy(const Table & table, Key32 column, bool ratio = false);
+[[nodiscard]] Unretained <Table> CountBy(const Table & table, Key32 column, bool ratio = false);
 
 void Delete(Table & table, ArrayView <UInt> row_indices_ascending);
 
@@ -106,7 +106,7 @@ template <class TYPE> inline Archive::View PackRaw(const TYPE & view)
 
 REFLEX_END
 
-inline Reflex::TRef <Reflex::Data::Table> Reflex::Data::Detail::Select(const Table & table, ArrayView <QueryData> ops, ArrayView <Key32> columns, bool match_all, const KeyMap * keymap)
+inline Reflex::Unretained <Reflex::Data::Table> Reflex::Data::Detail::Select(const Table & table, ArrayView <QueryData> ops, ArrayView <Key32> columns, bool match_all, const KeyMap * keymap)
 {
 	return Detail::Slice(table, columns, SelectRows(table, ops, match_all, keymap));
 }

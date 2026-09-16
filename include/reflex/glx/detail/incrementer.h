@@ -26,7 +26,7 @@ public:
 
 	//lifetime
 
-	[[nodiscard]] static TRef <Incrementer> Create();
+	[[nodiscard]] static Unretained <Incrementer> Create();
 
 
 

@@ -52,7 +52,7 @@ protected:
 
 	//setup
 
-	[[nodiscard]] TRef <Object> CreateListener(const Function <void(Detail::ArgPassType <TYPES> ...)> & callback);
+	[[nodiscard]] Unretained <Object> CreateListener(const Function <void(Detail::ArgPassType <TYPES> ...)> & callback);
 
 
 
@@ -113,7 +113,7 @@ public:
 
 	~Mute();
 
-	const TRef <Signal> signal;
+	const Ref <Signal> signal;
 
 };
 
@@ -165,7 +165,7 @@ template <class ... TYPES> inline Reflex::Signal<TYPES...>::Signal()
 {
 }
 
-template <class ... TYPES> REFLEX_INLINE Reflex::TRef <Reflex::Object> Reflex::Signal<TYPES...>::CreateListener(const Function <void(Detail::ArgPassType <TYPES> ...)> & callback)
+template <class ... TYPES> REFLEX_INLINE Reflex::Unretained <Reflex::Object> Reflex::Signal<TYPES...>::CreateListener(const Function <void(Detail::ArgPassType <TYPES> ...)> & callback)
 {
 	return REFLEX_CREATE(Listener, *this, callback);
 }

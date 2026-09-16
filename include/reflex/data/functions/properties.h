@@ -19,23 +19,23 @@ namespace Reflex::Data
 
 	void UnsetPropertySet(Object & object, Key32 id);
 
-	void SetPropertySet(Object & object, Key32 id, TRef <PropertySet> child);
+	void SetPropertySet(Object & object, Key32 id, WillRetain <PropertySet> child);
 
-	TRef <PropertySet> AcquirePropertySet(PropertySet & propertyset, Key32 id);
+	AlreadyRetained <PropertySet> AcquirePropertySet(PropertySet & propertyset, Key32 id);
 
-	ConstTRef <PropertySet> GetPropertySet(const Object & object, Key32 id);
+	ConstAlreadyRetained <PropertySet> GetPropertySet(const Object & object, Key32 id);
 
 
-	TRef <PropertySet> AcquirePropertySet(PropertySet & propertyset, ArrayView <Key32> path);
+	AlreadyRetained <PropertySet> AcquirePropertySet(PropertySet & propertyset, ArrayView <Key32> path);
 
-	ConstTRef <PropertySet> GetPropertySet(const PropertySet & propertyset, ArrayView <Key32> path);
+	ConstAlreadyRetained <PropertySet> GetPropertySet(const PropertySet & propertyset, ArrayView <Key32> path);
 
 
 	void UnsetPropertySetArray(PropertySet & propertyset, Key32 id);
 
-	TRef <PropertySetArray> AcquirePropertySetArray(PropertySet & propertyset, Key32 id);
+	AlreadyRetained <PropertySetArray> AcquirePropertySetArray(PropertySet & propertyset, Key32 id);
 
-	TRef <PropertySet> AddPropertySet(PropertySetArray & array);
+	AlreadyRetained <PropertySet> AddPropertySet(PropertySetArray & array);
 
 	ArrayView < ConstReference <PropertySet> > GetPropertySetArray(const PropertySet & propertyset, Key32 id);
 
@@ -110,7 +110,6 @@ namespace Reflex::Data
 	Archive::View GetBinary(const Object & object, Key32 key);
 
 	Archive::View GetBinary(const Object & object, Key32 key, Archive::View fallback);
-
 
 
 	void UnsetCString(Object & object, Key32 key);
@@ -200,7 +199,7 @@ REFLEX_EXTERN_NULL(Reflex::Data::PropertySetArray);
 //
 //impl
 
-inline Reflex::TRef <Reflex::Data::PropertySet> Reflex::Data::AcquirePropertySet(PropertySet & propertyset, Key32 id)
+inline Reflex::AlreadyRetained <Reflex::Data::PropertySet> Reflex::Data::AcquirePropertySet(PropertySet & propertyset, Key32 id)
 {
 	return AcquirePropertySet(propertyset, ToView(id));
 }

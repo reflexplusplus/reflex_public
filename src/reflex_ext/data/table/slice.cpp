@@ -8,7 +8,7 @@
 
 REFLEX_BEGIN_INTERNAL(Reflex::Data)
 
-TRef <Table> SliceColumns(ConstTRef <Table> input, ArrayView <Key32> columns)
+Unretained <Table> SliceColumns(ConstAlreadyRetained <Table> input, ArrayView <Key32> columns)
 {
 	auto inputcols = input->GetColumns();
 
@@ -40,20 +40,11 @@ Reflex::Array <Reflex::UInt> Reflex::Data::MakeAllRows(const Table & table)
 	return rows;
 }
 
-Reflex::TRef <Reflex::Data::Table> Reflex::Data::Detail::Slice(const Table & input, ArrayView <Key32> columns, ArrayView <UInt32> rows)
+Reflex::Unretained <Reflex::Data::Table> Reflex::Data::Detail::Slice(const Table & input, ArrayView <Key32> columns, ArrayView <UInt32> rows)
 {
 	auto inputcols = input.GetColumns();
 
-	TRef <Table> output;
-
-	if (columns)
-	{
-		output = SliceColumns(input, columns);
-	}
-	else
-	{
-		output = Table::Create(inputcols);
-	}
+	auto output = columns ? SliceColumns(input, columns) : Table::Create(inputcols);
 
 	output->Extend(rows.size);
 

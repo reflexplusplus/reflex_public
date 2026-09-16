@@ -39,9 +39,9 @@ public:
 	
 	//lifetime
 	
-	[[nodiscard]] static TRef <Allocation> Create(UInt size = 0);
+	[[nodiscard]] static Unretained <Allocation> Create(UInt size = 0);
 
-	[[nodiscard]] static TRef <Allocation> Create(ArrayView <TYPE> data);
+	[[nodiscard]] static Unretained <Allocation> Create(ArrayView <TYPE> data);
 
 
 	
@@ -135,7 +135,7 @@ REFLEX_END
 
 template <class TYPE> struct Reflex::IsAbstract < Reflex::Allocation <TYPE> > { static constexpr bool value = true; };
 
-template <class TYPE> Reflex::TRef < Reflex::Allocation <TYPE> > inline Reflex::Allocation<TYPE>::Create(UInt size)
+template <class TYPE> Reflex::Unretained < Reflex::Allocation <TYPE> > inline Reflex::Allocation<TYPE>::Create(UInt size)
 {
 	if constexpr (kIsRawConstructible<TYPE>)
 	{
@@ -147,7 +147,7 @@ template <class TYPE> Reflex::TRef < Reflex::Allocation <TYPE> > inline Reflex::
 	}
 }
 
-template <class TYPE> Reflex::TRef < Reflex::Allocation <TYPE> > inline Reflex::Allocation<TYPE>::Create(ArrayView <TYPE> view)
+template <class TYPE> Reflex::Unretained < Reflex::Allocation <TYPE> > inline Reflex::Allocation<TYPE>::Create(ArrayView <TYPE> view)
 {
 	auto num_bytes = kSizeOf<TYPE> * view.size;
 

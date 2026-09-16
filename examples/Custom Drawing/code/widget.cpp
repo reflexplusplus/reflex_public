@@ -36,7 +36,7 @@ public:
 
 
 
-	const TRef <App> app;
+	const AlreadyRetained <App> app;
 
 
 	//put your GLX::Object members here
@@ -46,12 +46,10 @@ public:
 };
 
 ViewImpl::ViewImpl(App & app)
-	: View(app, kChunkVersion, L":res:CustomDrawing/styles.glx")
+	: View(app, kChunkVersion, L":res:CustomDrawing/styles.glx", true)
 	, app(app)
 	, m_widget(CreateWidget())
 {
-	Data::SetBool(*this, GLX::kresizable, true);
-
 	GLX::AddFloat(*this, m_widget, GLX::kAlignmentCenter);
 }
 
@@ -226,7 +224,7 @@ void WidgetImpl::OnUpdate()
 
 } }
 
-Reflex::TRef <Reflex::GLX::Object> CustomDrawing::CreateWidget()
+Reflex::Unretained <Reflex::GLX::Object> CustomDrawing::CreateWidget()
 {
 	return New<WidgetImpl>();
 }

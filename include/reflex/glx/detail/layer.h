@@ -16,12 +16,12 @@ template <class IMPL> class LayerImpl;
 
 struct LayerState : public Reflex::Object
 {
-	LayerState(TRef <GLX::Object> object)
+	LayerState(AlreadyRetained <GLX::Object> object)
 		: object(object)
 	{
 	}
 
-	const TRef <GLX::Object> object;
+	const AlreadyRetained <GLX::Object> object;
 };
 
 REFLEX_END
@@ -50,9 +50,9 @@ public:
 	using Factory = Sequence <Key32,const Class*>;
 
 
-	using InitSchema = FunctionPointer <TRef<Reflex::Object>(Key32 uid)>;
+	using InitSchema = FunctionPointer <Unretained<Reflex::Object>(Key32 uid)>;
 
-	using Ctr = FunctionPointer <TRef<Layer>(const Style &, const Reflex::Object & schema, const Data::PropertySet & properties)>;
+	using Ctr = FunctionPointer <Unretained<Layer>(const Style &, const Reflex::Object & schema, const Data::PropertySet & properties)>;
 
 
 	enum OptimisationFlags : UInt8
@@ -65,13 +65,13 @@ public:
 
 	//global
 
-	[[nodiscard]] static TRef <Layer> Create(const Class & cls, const Style & style, const Data::PropertySet & params);
+	[[nodiscard]] static Unretained <Layer> Create(const Class & cls, const Style & style, const Data::PropertySet & params);
 
 
 
 	//data
 
-	[[nodiscard]] REFLEX_INLINE TRef <Reflex::Object> CreateState(GLX::Object & object) const 
+	[[nodiscard]] REFLEX_INLINE Unretained <Reflex::Object> CreateState(GLX::Object & object) const
 	{
 		return OnCreateState(*this, object);
 	}
@@ -86,7 +86,7 @@ public:
 		OnAlign(*this, object_data, size, contenth);
 	}
 
-	REFLEX_INLINE TRef <System::Renderer::Graphic> Redraw(Object & object_data, Size pixelsize) const
+	REFLEX_INLINE Unretained <System::Renderer::Graphic> Redraw(Object & object_data, Size pixelsize) const
 	{
 		return OnRedraw(*this, object_data, pixelsize, 0);
 	}
@@ -104,13 +104,13 @@ protected:
 	Layer(UInt8 flags = 0) : flags(flags) {}
 	
 	
-	FunctionPointer <TRef<Object>(const Layer & self, GLX::Object & object)> OnCreateState = [](const Layer & self, GLX::Object & owner) { return Null<Reflex::Object>(); };
+	FunctionPointer <Unretained<Object>(const Layer & self, GLX::Object & object)> OnCreateState = [](const Layer & self, GLX::Object & owner) -> Unretained<Object> { return Null<Reflex::Object>(); };
 
 	FunctionPointer <void(const Layer & self, Object & object_data, Size & contentsize)> OnAccommodate = [](const Layer & self, Object & object_data, Size & contentsize) {};
 
 	FunctionPointer <void(const Layer & self, Object & object_data, Size size, Float & contentheight)> OnAlign = [](const Layer & self, Object & object_data, Size size, Float & contentheight) {};
 
-	FunctionPointer <TRef <System::Renderer::Graphic>(const Layer & self, Object & object_data, Size pixelsize, UInt8 flags)> OnRedraw = 0;
+	FunctionPointer <Unretained <System::Renderer::Graphic>(const Layer & self, Object & object_data, Size pixelsize, UInt8 flags)> OnRedraw = 0;
 
 };
 
@@ -128,13 +128,13 @@ protected:
 	using Layer::Layer;
 
 
-	void SetOnCreateState(FunctionPointer <TRef<Object>(const IMPL & self, GLX::Object & object)> callback);
+	void SetOnCreateState(FunctionPointer <Unretained<Object>(const IMPL & self, GLX::Object & object)> callback);
 
 	template <class STATE> void SetOnAccommodate(FunctionPointer <void(const IMPL & self, STATE & state, Size & contentsize)> callback);
 
 	template <class STATE> void SetOnAlign(FunctionPointer <void(const IMPL & self, STATE & state, Size size, Float & contenth)> callback);
 
-	template <class STATE> void SetOnRedraw(FunctionPointer <TRef<System::Renderer::Graphic>(const IMPL & self, STATE & state, Size pixelsize, UInt8 flags)> callback);
+	template <class STATE> void SetOnRedraw(FunctionPointer <Unretained<System::Renderer::Graphic>(const IMPL & self, STATE & state, Size pixelsize, UInt8 flags)> callback);
 
 };
 
@@ -167,7 +167,7 @@ public:
 
 	const Ctr ctr;
 
-	ConstTRef <Reflex::Object> schema;
+	ConstAlreadyRetained <Reflex::Object> schema;
 
 	bool enabled;
 };
@@ -178,12 +178,12 @@ public:
 //
 //impl
 
-Reflex::TRef <Reflex::GLX::Detail::Layer> inline Reflex::GLX::Detail::Layer::Create(const Class & cls, const Style & style, const Data::PropertySet & params)
+Reflex::Unretained <Reflex::GLX::Detail::Layer> inline Reflex::GLX::Detail::Layer::Create(const Class & cls, const Style & style, const Data::PropertySet & params)
 {
 	return cls.ctr(style, cls.schema, params);
 }
 
-template <class IMPL> inline void Reflex::GLX::Detail::LayerImpl<IMPL>::SetOnCreateState(FunctionPointer<TRef<Object>(const IMPL & self, GLX::Object & object)> callback)
+template <class IMPL> inline void Reflex::GLX::Detail::LayerImpl<IMPL>::SetOnCreateState(FunctionPointer<Unretained<Object>(const IMPL & self, GLX::Object & object)> callback)
 {
 	Layer::OnCreateState = Reflex::Detail::CastFunctionPointer<decltype(Layer::OnCreateState)>(callback);
 }
@@ -198,7 +198,7 @@ template <class IMPL> template <class STATE> inline void Reflex::GLX::Detail::La
 	Layer::OnAlign = Reflex::Detail::CastFunctionPointer<decltype(Layer::OnAlign)>(callback);
 }
 
-template <class IMPL> template <class STATE> inline void Reflex::GLX::Detail::LayerImpl<IMPL>::SetOnRedraw(FunctionPointer<TRef<System::Renderer::Graphic>(const IMPL & self, STATE & state, Size pixelsize, UInt8 flags)> callback)
+template <class IMPL> template <class STATE> inline void Reflex::GLX::Detail::LayerImpl<IMPL>::SetOnRedraw(FunctionPointer<Unretained<System::Renderer::Graphic>(const IMPL & self, STATE & state, Size pixelsize, UInt8 flags)> callback)
 {
 	Layer::OnRedraw = Reflex::Detail::CastFunctionPointer<decltype(Layer::OnRedraw)>(callback);
 }

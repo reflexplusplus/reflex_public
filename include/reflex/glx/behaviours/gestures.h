@@ -13,19 +13,19 @@ namespace Reflex::GLX
 
 	REFLEX_GLX_EVENT_ID(LongTapGesture);
 
-	[[nodiscard]] TRef <Object::Delegate> CreateLongTapGestureRecognizer(bool emulate_pointer_down);
+	[[nodiscard]] Unretained <Object::Delegate> CreateLongTapGestureRecognizer(bool emulate_pointer_down);
 
 
 	constexpr Float32 kDefaultTouchMoveThreshold = 4.0f;
 
 	REFLEX_GLX_EVENT_ID(PanGesture);
 
-	[[nodiscard]] TRef <Object::Delegate> CreatePanGestureRecognizer(bool emulate_pointer_down, Float32 threshold = kDefaultTouchMoveThreshold);
+	[[nodiscard]] Unretained <Object::Delegate> CreatePanGestureRecognizer(bool emulate_pointer_down, Float32 threshold = kDefaultTouchMoveThreshold);
 
 
 	REFLEX_GLX_EVENT_ID(SwipeGesture);
 
-	[[nodiscard]] TRef <Object::Delegate> CreateSwipeGestureRecognizer(bool emulate_pointer_down, Float32 threshold = kDefaultTouchMoveThreshold);
+	[[nodiscard]] Unretained <Object::Delegate> CreateSwipeGestureRecognizer(bool emulate_pointer_down, Float32 threshold = kDefaultTouchMoveThreshold);
 
 
 	void IgnoreGestures(Object & object, bool include_children = true);

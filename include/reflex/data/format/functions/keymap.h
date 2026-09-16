@@ -14,11 +14,11 @@ namespace Reflex::Data
 
 	REFLEX_DECLARE_KEY32(keymap);
 
-	TRef <KeyMap> AcquireKeyMap(PropertySet & root);
+	AlreadyRetained <KeyMap> AcquireKeyMap(PropertySet & root);
 
 	Key32 RegisterKey(KeyMap & keymap, const CString::View & string);
 
-	ConstTRef <KeyMap> GetKeyMap(const PropertySet & root);
+	ConstAlreadyRetained <KeyMap> GetKeyMap(const PropertySet & root);
 
 	CString::View GetKey(const KeyMap & keymap, Key32 key);
 

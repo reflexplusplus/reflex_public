@@ -42,9 +42,9 @@ public:
 
 	//lifetime
 
-	[[nodiscard]] static TRef <Process> Create(const WString & path, ArrayView <WString> args, const Options & options);
+	[[nodiscard]] static Unretained <Process> Create(const WString & path, ArrayView <WString> args, const Options & options);
 
-	[[nodiscard]] static TRef <Process> Create(const WString & path, ArrayView <WString> args);	//clang workaroud
+	[[nodiscard]] static Unretained <Process> Create(const WString & path, ArrayView <WString> args);	//clang workaroud
 
 
 
@@ -64,7 +64,7 @@ public:
 //
 //impl
 
-inline Reflex::TRef <Reflex::System::Process> Reflex::System::Process::Create(const WString & path, ArrayView <WString> args)
+inline Reflex::Unretained <Reflex::System::Process> Reflex::System::Process::Create(const WString & path, ArrayView <WString> args)
 {
 	return Create(path, args, {});
 }

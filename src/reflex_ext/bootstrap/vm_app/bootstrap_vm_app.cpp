@@ -16,7 +16,7 @@ struct VmAppDelegate : public App
 
 	REFLEX_OBJECT(VmAppDelegate, App);
 
-	static TRef <VmAppDelegate> Create(UInt32 magicbytes, const WString::View & path)
+	static Unretained <VmAppDelegate> Create(UInt32 magicbytes, const WString::View & path)
 	{
 		return New<VmAppDelegate>(magicbytes, path);
 	}
@@ -33,11 +33,11 @@ struct VmAppDelegate : public App
 		Compile();
 	}
 
-	void Compile(TRef <IDE::ResourceGroup> resources = {})
+	void Compile(AlreadyRetained <IDE::ResourceGroup> resources = {})
 	{
 		File::ResourcePool::Lock lock(global->resourcepool);
 
-		Array < Tuple < CString::View, TRef<Object> > > externals;
+		Array < Tuple < CString::View, AlreadyRetained<Object> > > externals;
 
 		externals.Push({ "prefs", global->prefs });
 
@@ -55,7 +55,7 @@ struct VmAppDelegate : public App
 		{
 			if (!resources)
 			{
-				resources = New<IDE::ResourceGroup>(lock.resourcepool, K32("instance"), L"instance", [this](IDE::ResourceGroup & self)
+				auto new_resources = New<IDE::ResourceGroup>(lock.resourcepool, K32("instance"), L"instance", [this](IDE::ResourceGroup & self)
 				{
 					auto data = Data::ToBinary(*this);
 
@@ -64,7 +64,8 @@ struct VmAppDelegate : public App
 					Data::FromBinary(data, *this);
 				});
 
-				m_resourcemonitor = resources;
+				m_resourcemonitor = new_resources;
+				resources = NoRetain(new_resources);
 			}
 
 			for (auto & i : program->sources) resources->AddItem(i.address, i.object);
@@ -288,19 +289,19 @@ void Reflex::Bootstrap::VmAppDelegate::BindVM(VM::Compiler::Context & cstate, UI
 
 REFLEX_END_INTERNAL
 
-Reflex::TRef <Reflex::Bootstrap::Global> Reflex::Bootstrap::StartVmApp(System::App::Configuration & config, const CString::View & vendor, const CString::View & product, Key32 resources_subdomain, const char * entry, const WString::View & main, const WString::View & view)
+Reflex::Unretained <Reflex::Bootstrap::Global> Reflex::Bootstrap::StartVmApp(System::App::Configuration & config, const CString::View & vendor, const CString::View & product, Key32 resources_subdomain, const char * entry, const WString::View & main, const WString::View & view)
 {
 	auto global = StartApp<VmAppDelegate>(config, vendor, product, resources_subdomain, entry, resources_subdomain.value, main);
 	
-	Detail::PublishAppView(config, [path = WString(view)](Object & object) -> TRef <GLX::Object>
+	Detail::PublishAppView(config, [path = WString(view)](Object & object) -> Unretained <GLX::Object>
 	{
 		auto app = Cast<VmAppDelegate>(object);
 
-		auto viewwrapper = VmViewWrapper::Create(app, path, { { "app", app } }, VM::kContextFlagUi, { Bootstrap::VmAppDelegate::g_bindings });
+		auto viewwrapper = VmViewWrapper::Create(app, path, { { "app", NoRetain(app) } }, VM::kContextFlagUi, { Bootstrap::VmAppDelegate::g_bindings });
 
 		viewwrapper->GetContent().b->Update();
 
-		viewwrapper->SetProperty(K32("monitor"), GLX::CreateAnimationClock([viewwrapper, app, count_z = app->GetCurrentCount(), buildcount_z = app->m_buildcount](Float32 delta) mutable
+		viewwrapper->SetProperty(K32("monitor"), GLX::CreateAnimationClock([viewwrapper = NoRetain(viewwrapper), app = NoRetain(app), count_z = app->GetCurrentCount(), buildcount_z = app->m_buildcount](Float32 delta) mutable
 		{
 			if (SetFiltered(buildcount_z, app->m_buildcount))
 			{
@@ -312,7 +313,7 @@ Reflex::TRef <Reflex::Bootstrap::Global> Reflex::Bootstrap::StartVmApp(System::A
 			}
 		}));
 
-		return viewwrapper;
+		return std::move(viewwrapper);
 	});
 	
 	return global;

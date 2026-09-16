@@ -1,4 +1,4 @@
-#include "../../../../include/reflex_ext/bootstrap/common/streamable.h"
+#include "../../../../include/reflex_ext/bootstrap/common/persistent_state.h"
 
 
 
@@ -6,8 +6,8 @@
 //
 //impl
 
-Reflex::Bootstrap::Streamable::Streamable(File::PersistentPropertySet & propertyset, Key32 chunkid, UInt16 chunkversion)
-	: Data::iStreamable(chunkversion),
+Reflex::Bootstrap::PersistentState::PersistentState(File::PersistentPropertySet & propertyset, Key32 chunkid, UInt16 chunkversion)
+	: Data::iSerializable(chunkversion),
 	propertyset(propertyset),
 	chunkid(chunkid),
 	m_listener(propertyset.CreateListener([this](File::PersistentPropertySet::Notification n, Key32 context)
@@ -15,7 +15,7 @@ Reflex::Bootstrap::Streamable::Streamable(File::PersistentPropertySet & property
 	switch (n)
 	{
 	case File::PersistentPropertySet::kNotificationReset:
-		Data::iStreamable::Reset(context);
+		Data::iSerializable::Reset(context);
 		break;
 
 	case File::PersistentPropertySet::kNotificationRestore:
@@ -33,30 +33,30 @@ Reflex::Bootstrap::Streamable::Streamable(File::PersistentPropertySet & property
 {
 }
 
-void Reflex::Bootstrap::Streamable::RestoreState(Key32 context)
+void Reflex::Bootstrap::PersistentState::RestoreState(Key32 context)
 {
 	if (auto chunk = Data::GetBinary(propertyset, chunkid))
 	{
-		Data::iStreamable::Deserialize(chunk, context);
+		Data::iSerializable::Deserialize(chunk, context);
 	}
 	else
 	{
-		Data::iStreamable::Reset();
+		Data::iSerializable::Reset();
 	}
 }
 
-void Reflex::Bootstrap::Streamable::StoreState()
+void Reflex::Bootstrap::PersistentState::StoreState()
 {
-	if (Data::iStreamable::version)
+	if (Data::iSerializable::version)
 	{
 		Data::Archive stream;
 
-		Data::iStreamable::Serialize(stream);
+		Data::iSerializable::Serialize(stream);
 
 		Data::SetBinary(propertyset, chunkid, stream);
 	}
 	else if constexpr (REFLEX_DEBUG)
 	{
-		File::output.Warn("Bootstrap::Streamable not stored as chunkversion is 0");
+		File::output.Warn("Bootstrap::PersistentState not stored as chunkversion is 0");
 	}
 }

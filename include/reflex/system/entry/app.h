@@ -33,9 +33,9 @@ public:
 
 	struct Configuration
 	{
-		Function <TRef<Object>(Object & global, App & instance)> instance_ctr;
+		Function <Unretained<Object>(Object & global, App & instance)> instance_ctr;
 
-		Function <TRef<Window::Client>(App & instance, UInt8 & window_flags)> view_ctr;
+		Function <Unretained<Window::Client>(App & instance, UInt8 & window_flags)> view_ctr;
 
 		Array < Tuple<WString, WChar, Function<void()>> > app_menu;	//macos
 	};
@@ -44,7 +44,7 @@ public:
 
 	//app defined entry callback
 
-	static TRef <Object> OnStart(const ArrayView <CString::View> & cmdline, Configuration & config);	//return your app global
+	static Unretained <Object> OnStart(const ArrayView <CString::View> & cmdline, Configuration & config);	//return your app global
 
 	static void Quit();
 
@@ -52,7 +52,7 @@ public:
 
 	//interface
 
-	virtual TRef <Object> GetClient() = 0;
+	virtual AlreadyRetained <Object> GetClient() = 0;
 
 
 	virtual void OpenEditor() = 0;

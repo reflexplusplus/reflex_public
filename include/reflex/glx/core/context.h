@@ -76,7 +76,7 @@ struct Reflex::GLX::Core::RenderContext
 
 struct Reflex::GLX::Core::Pointer
 {
-	TRef <GLX::WindowClient> window;
+	AlreadyRetained <GLX::WindowClient> window;
 	WeakReference target;
 	UIntNative touch_id = ~UIntNative(0);
 	UInt8 slot = 0;

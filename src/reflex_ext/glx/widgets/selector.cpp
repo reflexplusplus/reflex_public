@@ -53,7 +53,7 @@ void Reflex::GLX::Selector::Clear()
 	Accommodate();
 }
 
-void Reflex::GLX::Selector::AddPanel(TRef <Object> item, Key32 style_id)
+void Reflex::GLX::Selector::AddPanel(WillRetain <Object> item, Key32 style_id)
 {
 	REFLEX_HEAPCHECK(output, this, AddPanel, *item);
 

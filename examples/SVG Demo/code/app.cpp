@@ -36,7 +36,7 @@ struct AppImpl : public App
 
 
 
-	//Data::iStreamable callbacks
+	//Data::iSerializable callbacks
 
 	void OnReset(Key32 context) override
 	{
@@ -71,7 +71,7 @@ struct AppImpl : public App
 
 } }	//end internal namespace
 
-Reflex::TRef <SVGDemo::App> SVGDemo::App::Create()
+Reflex::Unretained <SVGDemo::App> SVGDemo::App::Create()
 {
 	return New<SVGDemo::AppImpl>();
 }

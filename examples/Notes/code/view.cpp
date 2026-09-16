@@ -42,7 +42,7 @@ private:
 
 	//links
 
-	const TRef <App> app;
+	const AlreadyRetained <App> app;
 
 
 
@@ -81,7 +81,7 @@ private:
 };
 
 ViewImpl::ViewImpl(App & app)
-	: View(app, kChunkVersion, L":res:Notes/styles.glx"),
+	: View(app, kChunkVersion, L":res:Notes/styles.glx", true),
 	app(app),
 	m_selection(0),
 	m_new(L"New"),
@@ -91,8 +91,6 @@ ViewImpl::ViewImpl(App & app)
 	m_ide(L"Console"),
 	m_textarea(true)
 {
-	Data::SetBool(*this, GLX::kresizable, true);
-
 	Data::SetBool(m_left, GLX::kresizable, true);
 
 	GLX::SetFlow(m_left, GLX::kFlowY);
@@ -338,7 +336,7 @@ void ViewImpl::OnUpdate()
 
 } }
 
-Reflex::TRef <Notes::View> Notes::View::Create(App & app)
+Reflex::Unretained <Notes::View> Notes::View::Create(App & app)
 {
 	return New<ViewImpl>(app);
 }

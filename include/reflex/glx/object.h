@@ -64,11 +64,11 @@ public:
 
 	//setup
 
-	void SetLayoutModel(TRef <Detail::LayoutModel> layout);
+	void SetLayoutModel(WillRetain <Detail::LayoutModel> layout);
 
 	void SetLayoutModel(Detail::LayoutModelCtr ctr) { SetLayoutModel(ctr(*this)); }
 
-	ConstTRef <Detail::LayoutModel> GetLayoutModel() const { return m_layout; }
+	ConstAlreadyRetained <Detail::LayoutModel> GetLayoutModel() const { return m_layout; }
 
 
 
@@ -87,7 +87,7 @@ public:
 
 	//delegates (experimental API)
 
-	void SetDelegate(Key32 id, TRef <Delegate> dlg);
+	void SetDelegate(Key32 id, WillRetain <Delegate> dlg);
 
 	void ClearDelegate(Key32 id);
 
@@ -108,7 +108,7 @@ public:
 
 	bool Emit(Event & e);
 
-	TRef <Object> EmitEx(Event & e);
+	AlreadyRetained <Object> EmitEx(Event & e);
 
 
 	void Focus();
@@ -119,7 +119,7 @@ public:
 
 	void SetStyle(const Style & style);
 
-	ConstTRef <Style> GetStyle() const;
+	ConstAlreadyRetained <Style> GetStyle() const;
 
 
 
@@ -131,7 +131,7 @@ public:
 
 	bool CheckState(Key32 state) const;
 
-	ConstTRef <Style> GetCurrentStyle() const;			//the current applied style, after states are applied
+	ConstAlreadyRetained <Style> GetCurrentStyle() const;			//the current applied style, after states are applied
 
 
 
@@ -139,11 +139,11 @@ public:
 
 	void UnsetMod(Key32 id);
 
-	void SetMod(Key32 id, TRef <Detail::ComputedStyle> cstyle);
+	void SetMod(Key32 id, WillRetain <Detail::ComputedStyle> cstyle);
 
-	ConstTRef <Detail::ComputedStyle> GetMod(Key32 id) const;
+	ConstAlreadyRetained <Detail::ComputedStyle> GetMod(Key32 id) const;
 
-	ConstTRef <Detail::ComputedStyle> GetComputedStyle() const;
+	ConstAlreadyRetained <Detail::ComputedStyle> GetComputedStyle() const;
 
 
 
@@ -243,7 +243,7 @@ protected:
 
 	//advanced
 
-	Object(TRef <Detail::LayoutModel> layout);
+	Object(WillRetain <Detail::LayoutModel> layout);
 
 
 
@@ -330,9 +330,9 @@ public:
 	using Item::Detach;
 
 
-	TRef <GLX::Object> GetObject() { return object;  }
+	AlreadyRetained <GLX::Object> GetObject() { return object;  }
 
-	ConstTRef <GLX::Object> GetObject() const { return object; }
+	ConstAlreadyRetained <GLX::Object> GetObject() const { return object; }
 
 
 
@@ -356,7 +356,7 @@ protected:
 	virtual bool OnPointerTender(Core::PointerAction action, const Core::Pointer & pointer, UInt8 flags, Core::Trap & trap) { return false; }	//!experimental
 
 
-	const TRef <GLX::Object> object;
+	const AlreadyRetained <GLX::Object> object;
 
 
 private:
@@ -490,17 +490,17 @@ inline bool Reflex::GLX::Object::Emit(Event & e)
 	return True(EmitEx(e));
 }
 
-REFLEX_INLINE Reflex::ConstTRef <Reflex::GLX::Style> Reflex::GLX::Object::GetStyle() const
+REFLEX_INLINE Reflex::ConstAlreadyRetained <Reflex::GLX::Style> Reflex::GLX::Object::GetStyle() const
 {
 	return m_style;
 }
 
-REFLEX_INLINE Reflex::ConstTRef <Reflex::GLX::Style> Reflex::GLX::Object::GetCurrentStyle() const
+REFLEX_INLINE Reflex::ConstAlreadyRetained <Reflex::GLX::Style> Reflex::GLX::Object::GetCurrentStyle() const
 {
 	return m_current_state;
 }
 
-REFLEX_INLINE Reflex::ConstTRef <Reflex::GLX::Detail::ComputedStyle> Reflex::GLX::Object::GetComputedStyle() const
+REFLEX_INLINE Reflex::ConstAlreadyRetained <Reflex::GLX::Detail::ComputedStyle> Reflex::GLX::Object::GetComputedStyle() const
 {
 	return m_cstyle;
 }

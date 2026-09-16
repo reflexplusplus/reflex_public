@@ -23,7 +23,7 @@ namespace Reflex::GLX
 	template <class TYPE> TYPE * QueryElementByType(Object & parent, TYPE * null = nullptr);
 
 
-	TRef <Object> LookupChildAtIndex(Object & parent, UInt idx);
+	AlreadyRetained <Object> LookupChildAtIndex(Object & parent, UInt idx);
 
 	Idx LookupIndex(const Object & child);
 

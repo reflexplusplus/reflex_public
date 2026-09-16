@@ -7,7 +7,7 @@
 //
 //entrypoint
 
-Reflex::TRef <Reflex::Object> Reflex::System::AudioPlugin::OnStart(const ArrayView <CString::View> & cmdline, Configuration & config)
+Reflex::Unretained <Reflex::Object> Reflex::System::AudioPlugin::OnStart(const ArrayView <CString::View> & cmdline, Configuration & config)
 {
 #if REFLEX_DEBUG
 	constexpr auto get_agent_args = [](ArrayView <CString::View> cmdline)

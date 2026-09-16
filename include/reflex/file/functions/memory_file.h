@@ -11,9 +11,9 @@
 namespace Reflex::File
 {
 
-	[[nodiscard]] TRef <System::FileHandle> CreateMemoryReader(ConstTRef <Data::ArchiveObject> data);
+	[[nodiscard]] Unretained <System::FileHandle> CreateMemoryReader(ConstWillRetain <Data::ArchiveObject> data);
 
-	[[nodiscard]] TRef <System::FileHandle> CreateMemoryWriter(TRef <Data::ArchiveObject> data);
+	[[nodiscard]] Unretained <System::FileHandle> CreateMemoryWriter(WillRetain <Data::ArchiveObject> data);
 
 }
 
@@ -25,6 +25,6 @@ namespace Reflex::File
 
 REFLEX_NS(Reflex::File::Detail)
 
-[[nodiscard]] TRef <System::FileHandle> CreateMemoryReader(const Data::Archive::View & data);	//!does not retain/copy data
+[[nodiscard]] Unretained <System::FileHandle> CreateMemoryReader(const Data::Archive::View & data);	//!does not retain/copy data
 
 REFLEX_END

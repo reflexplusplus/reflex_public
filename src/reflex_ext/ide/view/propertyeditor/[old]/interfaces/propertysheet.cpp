@@ -116,7 +116,7 @@ struct PropertySheetInterface : public PropertyEditor::Interface
 
 REFLEX_END_INTERNAL
 
-Reflex::TRef <Reflex::IDE::Detail::PropertyEditor::Interface> Reflex::IDE::Detail::PropertyEditor::CreatePropertySheetInterface(Data::PropertySet & root)
+Reflex::Unretained <Reflex::IDE::Detail::PropertyEditor::Interface> Reflex::IDE::Detail::PropertyEditor::CreatePropertySheetInterface(Data::PropertySet & root)
 {
 	return REFLEX_CREATE(PropertySheetInterface, root);
 }

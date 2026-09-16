@@ -43,7 +43,7 @@ public:
 
 	//lifetime
 
-	[[nodiscard]] static TRef <Thread> Create(const Function <void()> & fn, Priority priority = kPriorityNormal, Allocator & allocator = g_default_allocator);
+	[[nodiscard]] static Unretained <Thread> Create(const Function <void()> & fn, Priority priority = kPriorityNormal, Allocator & allocator = g_default_allocator);
 
 };
 
@@ -66,7 +66,7 @@ public:
 
 	//lifetime
 
-	[[nodiscard]] static TRef <CriticalSection> Create(bool recursive = false, Allocator & allocator = g_default_allocator);
+	[[nodiscard]] static Unretained <CriticalSection> Create(bool recursive = false, Allocator & allocator = g_default_allocator);
 
 
 
@@ -95,7 +95,7 @@ public:
 	~Lock();
 
 
-	const TRef <CriticalSection> cs;
+	const AlreadyRetained <CriticalSection> cs;
 
 };
 

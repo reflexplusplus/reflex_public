@@ -40,7 +40,7 @@ public:
 
 
 
-	//Data::iStreamable callbacks
+	//Data::iSerializable callbacks
 
 	void OnReset(Key32 context) override
 	{
@@ -65,7 +65,7 @@ public:
 
 } }	//end internal namespace
 
-Reflex::TRef <_PRODUCT-NAME-SYMBOL_::App> _PRODUCT-NAME-SYMBOL_::App::Create()
+Reflex::Unretained <_PRODUCT-NAME-SYMBOL_::App> _PRODUCT-NAME-SYMBOL_::App::Create()
 {
 	return New<_PRODUCT-NAME-SYMBOL_::AppImpl>();
 }

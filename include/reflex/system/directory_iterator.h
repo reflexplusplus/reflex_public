@@ -39,7 +39,7 @@ public:
 
 	//lifetime
 
-	[[nodiscard]] static TRef <DirectoryIterator> Create(const WString & directory, bool hidden);
+	[[nodiscard]] static Unretained <DirectoryIterator> Create(const WString & directory, bool hidden);
 
 
 

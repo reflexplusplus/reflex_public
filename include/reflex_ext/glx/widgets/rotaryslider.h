@@ -14,7 +14,7 @@ namespace Reflex::GLX
 	class RotarySlider;
 
 
-	TRef <Object::Delegate> AttachRotaryDisplayPropertiesDelegate(GLX::Object & object, Float value_origin = 0.0f, Key32 indicator_id = MakeKey32("indicator"), Key32 sweep_id = MakeKey32("sweep"));
+	AlreadyRetained <Object::Delegate> AttachRotaryDisplayPropertiesDelegate(GLX::Object & object, Float value_origin = 0.0f, Key32 indicator_id = MakeKey32("indicator"), Key32 sweep_id = MakeKey32("sweep"));
 
 	Tuple <Float,Range> CalcRotaryAngleAndSweep(Range value_range, Float value, Float value_origin, Range sweep_range = { 0.375f, 0.75f });
 

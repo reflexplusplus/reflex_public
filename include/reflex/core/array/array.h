@@ -222,7 +222,7 @@ public:
 
 
 
-	const TRef <Allocator> allocator;
+	const AlreadyRetained <Allocator> allocator;
 
 
 

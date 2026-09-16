@@ -8,7 +8,7 @@
 
 REFLEX_BEGIN_INTERNAL(Reflex::GLX)
 
-typedef ObjectOf < Function <TRef<Animation>()> > FocusHighlightCtr;
+typedef ObjectOf < Function <Unretained<Animation>()> > FocusHighlightCtr;
 
 void CollectFocusable(Object & container, Array <Object*> & list)
 {
@@ -152,7 +152,7 @@ void Reflex::GLX::DisableFocusHighlight(Object & root)
 	root.UnsetProperty<Detail::LegacyWeakReferenceObject>(kfocusable);
 }
 
-void Reflex::GLX::SetFocusHighlight(Object & scope, const Function <TRef<Animation>()> & ctr)
+void Reflex::GLX::SetFocusHighlight(Object & scope, const Function <Unretained<Animation>()> & ctr)
 {
 	scope.SetProperty(kfocusable, REFLEX_CREATE(FocusHighlightCtr, ctr));
 }

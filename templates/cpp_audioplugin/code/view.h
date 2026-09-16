@@ -25,7 +25,7 @@ class _PRODUCT-NAME-SYMBOL_::View : public Reflex::Bootstrap::View
 {
 public:
 
-	static Reflex::TRef <View> Create(Instance & instance);
+	static Reflex::Unretained <View> Create(Instance & instance);
 
 
 

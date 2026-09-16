@@ -4,7 +4,7 @@
 
 
 
-bool Reflex::Bootstrap::Detail::RegisterScriptGlobals(VM::Bindings & bindings, const ArrayView < Tuple <CString::View, TRef<Object>> > & globals)
+bool Reflex::Bootstrap::Detail::RegisterScriptGlobals(VM::Bindings & bindings, const ArrayView < Tuple <CString::View, AlreadyRetained<Object>> > & globals)
 {
 	for (auto & item : globals)
 	{
@@ -29,7 +29,7 @@ bool Reflex::Bootstrap::Detail::RegisterScriptGlobals(VM::Bindings & bindings, c
 	return true;
 }
 
-bool Reflex::Bootstrap::Detail::SetScriptGlobals(VM::Context & context, const ArrayView < Tuple <CString::View, TRef<Object>> > & globals)
+bool Reflex::Bootstrap::Detail::SetScriptGlobals(VM::Context & context, const ArrayView < Tuple <CString::View, AlreadyRetained<Object>> > & globals)
 {
 	for (auto & item : globals)
 	{
@@ -39,7 +39,7 @@ bool Reflex::Bootstrap::Detail::SetScriptGlobals(VM::Context & context, const Ar
 	return true;
 }
 
-Reflex::TRef <Reflex::IDE::ResourceGroup> Reflex::Bootstrap::CreateScriptObject(const WString::View & path, UInt8 context_flags, const ArrayView <ConstTRef<VM::Module>> & modules, const ArrayView < Tuple <CString::View, TRef<Object>> > & externals, const Function <void(VM::Context & context, GLX::Object & object)> & on_create)
+Reflex::Unretained <Reflex::IDE::ResourceGroup> Reflex::Bootstrap::CreateScriptObject(const WString::View & path, UInt8 context_flags, const ArrayView <ConstRef<VM::Module>> & modules, const ArrayView < Tuple <CString::View, AlreadyRetained<Object>> > & externals, const Function <void(VM::Context & context, GLX::Object & object)> & on_create)
 {
 	auto resourcepool = global->resourcepool;
 
@@ -62,9 +62,9 @@ Reflex::TRef <Reflex::IDE::ResourceGroup> Reflex::Bootstrap::CreateScriptObject(
 
 		UInt8 context_flags;
 
-		Array < ConstTRef <VM::Module> > modules;
+		Array < ConstRef <VM::Module> > modules;
 
-		Array < Tuple < CString::View, TRef<Object> > > externals;
+		Array < Tuple < CString::View, AlreadyRetained<Object> > > externals;
 
 		Function <void(VM::Context & context, GLX::Object & object)> on_create;
 
@@ -125,11 +125,11 @@ Reflex::TRef <Reflex::IDE::ResourceGroup> Reflex::Bootstrap::CreateScriptObject(
 
 		auto vm_context = VM::Context::Create(*vm_program, { .context_id = GLX::Core::desktop->GetContextID() });
 
-		Array < Tuple < CString::View, TRef<Object> > > externals;
+		Array < Tuple < CString::View, AlreadyRetained<Object> > > externals;
 
 		externals = state->externals;
 
-		TRef self = REFLEX_CREATE(GLXVM::Object, vm_context);
+		auto self = REFLEX_CREATE(GLXVM::Object, vm_context);
 
 		externals.Push({ "self", self });
 
@@ -143,7 +143,7 @@ Reflex::TRef <Reflex::IDE::ResourceGroup> Reflex::Bootstrap::CreateScriptObject(
 
 		state->self = self;
 
-		state->on_create(vm_context, self);
+		state->on_create(vm_context, *self);
 	};
 
 	auto monitor = IDE::ResourceGroup::Create(resourcepool, uid, path, onreload);

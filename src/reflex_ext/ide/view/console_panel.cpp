@@ -11,9 +11,9 @@ REFLEX_BEGIN_INTERNAL(Reflex::IDE)
 REFLEX_END_INTERNAL
 
 Reflex::IDE::Detail::ConsolePanel::ConsolePanel(Key32 id, UInt16 version)
-	: Data::iStreamable(version)
+	: Data::iSerializable(version)
 {
-	Data::iStreamable::Publish(*this);
+	PublishInterface<Data::iSerializable>(this);
 
 	GLX::Object::id = id;
 }
@@ -31,19 +31,19 @@ void Reflex::IDE::Detail::ConsolePanel::SetIcon(const GLX::Style & style)
 
 void Reflex::IDE::Detail::ConsolePanel::Reset()
 {
-	iStreamable::Reset();
+	iSerializable::Reset();
 
 	Update();
 }
 
 void Reflex::IDE::Detail::ConsolePanel::Deserialize(Data::Archive::View & stream)
 {
-	iStreamable::Deserialize(stream);
+	iSerializable::Deserialize(stream);
 
 	Update();
 }
 
-Reflex::Array < Reflex::Tuple <Reflex::WString, Reflex::IDE::Detail::ConsolePanel&> > Reflex::IDE::Detail::CreatePanels(TRef <GLX::Object> root)
+Reflex::Array < Reflex::Tuple <Reflex::WString, Reflex::IDE::Detail::ConsolePanel&> > Reflex::IDE::Detail::CreatePanels(AlreadyRetained <GLX::Object> root)
 {
 	Sequence < Int, Tuple <WString,ConsolePanel&> > panels;
 

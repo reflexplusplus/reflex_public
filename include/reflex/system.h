@@ -32,5 +32,5 @@
 #include "system/midi.h"
 
 #include "system/entry/console.h"		//framework: console/cmd line app
-#include "system/entry/instance.h"		//framework: ui app
+#include "system/entry/app.h"			//framework: ui app
 #include "system/entry/audioplugin.h"	//framework: vst/au plugin

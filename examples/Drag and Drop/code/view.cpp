@@ -38,7 +38,7 @@ public:
 
 
 
-	const TRef <App> app;
+	const AlreadyRetained <App> app;
 
 
 	//put your GLX::Object members here
@@ -57,11 +57,9 @@ public:
 };
 
 ViewImpl::ViewImpl(App & app)
-	: View(app, kChunkVersion, L":res:DragAndDrop/styles.glx")
+	: View(app, kChunkVersion, L":res:DragAndDrop/styles.glx", true)
 	, app(app)
 {
-	Data::SetBool(*this, GLX::kresizable, true);
-
 	if constexpr (REFLEX_DEBUG)
 	{
 		GLX::SetText(m_ide, L"Console");
@@ -86,7 +84,7 @@ ViewImpl::ViewImpl(App & app)
 	{
 		auto origin = GLX::GetFocus();
 		
-		TRef <GLX::WindowClient> window = origin->GetWindow();
+		AlreadyRetained <GLX::WindowClient> window = origin->GetWindow();
 
 		//create drag cursor
 		auto cursor = New<GLX::Object>();
@@ -97,12 +95,12 @@ ViewImpl::ViewImpl(App & app)
 		GLX::AddAbsolute(window->GetForeground(), cursor, GLX::GetPointerPosition(window));
 
 		//attach callbacks to window, so if window is destroyed they wont be called
-		SetAbstractProperty(window, "dragdrop_clock", GLX::CreateAnimationClock([window, cursor](Float)
+		SetAbstractProperty(window, "dragdrop_clock", GLX::CreateAnimationClock([window, cursor = NoRetain(cursor)](Float)
 		{
 			cursor->SetPosition(GLX::GetPointerPosition(window));
 		}));
 
-		auto run_opacity_animation = [cursor](GLX::Object & drop_target)
+		auto run_opacity_animation = [cursor = NoRetain(cursor)](GLX::Object & drop_target)
 		{
 			auto fade = GLX::CreateOpacityAnimation("opacity", 0.75f, 0.9f);
 			if (IsNull(drop_target)) fade->Flip();
@@ -120,7 +118,7 @@ ViewImpl::ViewImpl(App & app)
 			run_opacity_animation(drop_target);
 		}));
 
-		SetAbstractProperty(window, "dragdrop_end", GLX::CreateDragDropEndListener([this, window, cursor]()
+		SetAbstractProperty(window, "dragdrop_end", GLX::CreateDragDropEndListener([this, window, cursor = NoRetain(cursor)]()
 		{
 			GLX::Exit(cursor, true);	//detach cursor with fade
 		
@@ -173,9 +171,9 @@ bool ViewImpl::OnEvent(GLX::Object & src, GLX::Event & e)
 		{
 			if (GLX::ExceedsDragThreshold(GLX::GetDelta(e)))
 			{
-				TRef src_row = m_rows[row_idx.value];
+				auto src_row = NoRetain(m_rows[row_idx.value]);
 
-				TRef dst_row = m_rows[(row_idx.value + 1) & 1];
+				auto dst_row = NoRetain(m_rows[(row_idx.value + 1) & 1]);
 
 				GLX::SetEventDelegate(dst_row, "drag_drop_handler", [this, dst_row](GLX::Object & src, GLX::Event & e)
 				{
@@ -273,7 +271,7 @@ void ViewImpl::OnUpdate()
 
 } }	//end internal namespace
 
-Reflex::TRef <DragAndDrop::View> DragAndDrop::View::Create(App & app)
+Reflex::Unretained <DragAndDrop::View> DragAndDrop::View::Create(App & app)
 {
 	return New<ViewImpl>(app);
 }

@@ -16,7 +16,7 @@ namespace ResourceBuilder
 
 	class App;
 
-	TRef <System::Task> Compile(const WString::View & path);
+	Unretained <System::Task> Compile(const WString::View & path);
 
 	extern Output output;
 
@@ -37,13 +37,13 @@ public:
 
 	//reflex ctr for abstract class
 
-	static TRef <App> Create();
+	static Unretained <App> Create();
 
 
 
 	//compile .xml in bg thread
 
-	virtual TRef <System::Task> Compile(const WString & path, ObjectOf <Float> & progress) = 0;
+	virtual AlreadyRetained <System::Task> Compile(const WString & path, ObjectOf <Float> & progress) = 0;
 
 
 

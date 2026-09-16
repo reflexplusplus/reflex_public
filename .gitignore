@@ -64,3 +64,4 @@ build/tools/*/output/
 
 # Local worktrees
 .sdd-worktrees/
+**/output/logs

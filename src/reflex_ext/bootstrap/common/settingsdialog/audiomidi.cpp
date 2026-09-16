@@ -9,9 +9,9 @@ struct AudioMidiSettings : public GLX::Object
 {
 	AudioMidiSettings(System::AudioPlugin & audioplugin, const GLX::Style & styles);
 
-	virtual bool OnEvent(GLX::Object & src, GLX::Event & e) override;
+	bool OnEvent(GLX::Object & src, GLX::Event & e) override;
 
-	virtual void OnUpdate() override;
+	void OnUpdate() override;
 
 
 	void Build(decltype (&System::AudioPlugin::GetAudioChannels) GetChannels, decltype (&System::AudioPlugin::Lock::EnableAudioChannel) EnableChannel)
@@ -38,7 +38,7 @@ struct AudioMidiSettings : public GLX::Object
 
 
 
-	const TRef <System::AudioPlugin> audioplugin;
+	const AlreadyRetained <System::AudioPlugin> audioplugin;
 
 	decltype (&System::AudioPlugin::GetAudioChannels) GetChannels;
 
@@ -46,11 +46,11 @@ struct AudioMidiSettings : public GLX::Object
 
 	Reference <Reflex::Object> m_listener;
 
-	ConstTRef <GLX::Style> m_section_style;
+	ConstAlreadyRetained <GLX::Style> m_section_style;
 
-	ConstTRef <GLX::Style> m_popup_style;
+	ConstAlreadyRetained <GLX::Style> m_popup_style;
 
-	ConstTRef <GLX::Style> m_listitem_style;
+	ConstAlreadyRetained <GLX::Style> m_listitem_style;
 
 	GLX::Object m_bars[2];
 
@@ -84,7 +84,7 @@ struct AudioSettings : public AudioMidiSettings
 		Build(&System::AudioPlugin::GetAudioChannels, &System::AudioPlugin::Lock::EnableAudioChannel);
 	}
 
-	virtual bool OnEvent(GLX::Object & src, GLX::Event & e) override
+	bool OnEvent(GLX::Object & src, GLX::Event & e) override
 	{
 		if (auto menu = GLX::GetMenu(e))
 		{
@@ -145,7 +145,7 @@ struct AudioSettings : public AudioMidiSettings
 		return AudioMidiSettings::OnEvent(src, e);
 	}
 
-	virtual void OnUpdate() override
+	void OnUpdate() override
 	{
 		WString device_name = audioplugin->GetCurrentAudioDevice();
 

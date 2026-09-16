@@ -89,8 +89,11 @@ function(_reflex_init_target target)
     reflex_target_set_debug_information(${target} ON CONFIG Debug)
     reflex_target_set_dead_strip(${target} ON CONFIG Release)
     if(REFLEX_PLATFORM_MACOS OR REFLEX_PLATFORM_IOS)
+        # Explicit arg > consumer's CMAKE_OSX_DEPLOYMENT_TARGET > SDK default
         if(NOT ARG_APPLE_DEPLOYMENT_TARGET)
-            if(REFLEX_PLATFORM_IOS)
+            if(NOT "${CMAKE_OSX_DEPLOYMENT_TARGET}" STREQUAL "")
+                set(ARG_APPLE_DEPLOYMENT_TARGET "${CMAKE_OSX_DEPLOYMENT_TARGET}")
+            elseif(REFLEX_PLATFORM_IOS)
                 set(ARG_APPLE_DEPLOYMENT_TARGET 14.0)
             else()
                 set(ARG_APPLE_DEPLOYMENT_TARGET 11.0)
@@ -235,7 +238,7 @@ endfunction()
 # =========================================================
 
 function(_reflex_configure_macos_bundle target name vendor version package_id_vendor package_id_product)
-    _reflex_generate_plist(_plist ${target} "${name}" "${vendor}" "${version}" "app"
+    _reflex_generate_plist(_plist ${target} "${name}" "${name}" "${vendor}" "${version}" "app"
         "${package_id_vendor}" "${package_id_product}")
     _reflex_resolve_package_id(_package_id "${vendor}" "${name}" "${package_id_vendor}" "${package_id_product}")
     _reflex_set_bundle_identifier(${target} "${_package_id}")
@@ -249,7 +252,7 @@ function(_reflex_configure_macos_bundle target name vendor version package_id_ve
 endfunction()
 
 function(_reflex_configure_macos_audio_bundle target name vendor version package_id_vendor package_id_product)
-    _reflex_generate_plist(_plist ${target} "${name}" "${vendor}" "${version}" "audioapp"
+    _reflex_generate_plist(_plist ${target} "${name}" "${name}" "${vendor}" "${version}" "audioapp"
         "${package_id_vendor}" "${package_id_product}")
     _reflex_resolve_package_id(_package_id "${vendor}" "${name}" "${package_id_vendor}" "${package_id_product}")
     _reflex_set_bundle_identifier(${target} "${_package_id}")
@@ -268,7 +271,7 @@ endfunction()
 # =========================================================
 
 function(_reflex_configure_ios_bundle target name vendor version package_id_vendor package_id_product)
-    _reflex_generate_plist(_plist ${target} "${name}" "${vendor}" "${version}" "ios_app"
+    _reflex_generate_plist(_plist ${target} "${name}" "${name}" "${vendor}" "${version}" "ios_app"
         "${package_id_vendor}" "${package_id_product}")
     _reflex_resolve_package_id(_package_id "${vendor}" "${name}" "${package_id_vendor}" "${package_id_product}")
     _reflex_set_bundle_identifier(${target} "${_package_id}")
@@ -287,7 +290,7 @@ function(_reflex_configure_ios_bundle target name vendor version package_id_vend
 endfunction()
 
 function(_reflex_configure_ios_audio_bundle target name vendor version package_id_vendor package_id_product)
-    _reflex_generate_plist(_plist ${target} "${name}" "${vendor}" "${version}" "ios_audioapp"
+    _reflex_generate_plist(_plist ${target} "${name}" "${name}" "${vendor}" "${version}" "ios_audioapp"
         "${package_id_vendor}" "${package_id_product}")
     _reflex_resolve_package_id(_package_id "${vendor}" "${name}" "${package_id_vendor}" "${package_id_product}")
     _reflex_set_bundle_identifier(${target} "${_package_id}")
@@ -314,10 +317,11 @@ endfunction()
 #       VENDOR   "My Company"
 #       PACKAGE_ID_VENDOR  "mycompany"
 #       PACKAGE_ID_PRODUCT "myapp"
+#       APPLE_DEPLOYMENT_TARGET "10.15"   # optional; defaults to CMAKE_OSX_DEPLOYMENT_TARGET
 #   )
 
 function(reflex_add_app target)
-    cmake_parse_arguments(A "" "NAME;VENDOR;VERSION;PACKAGE_ID_VENDOR;PACKAGE_ID_PRODUCT" "SOURCES" ${ARGN})
+    cmake_parse_arguments(A "" "NAME;VENDOR;VERSION;PACKAGE_ID_VENDOR;PACKAGE_ID_PRODUCT;APPLE_DEPLOYMENT_TARGET" "SOURCES" ${ARGN})
 
     if(NOT A_VERSION)
         set(A_VERSION "1.0.0")
@@ -333,7 +337,7 @@ function(reflex_add_app target)
     endif()
 
     target_compile_definitions(${target} PRIVATE REFLEX_BOOTSTRAP_TYPE_APP)
-    _reflex_init_target(${target})
+    _reflex_init_target(${target} APPLE_DEPLOYMENT_TARGET "${A_APPLE_DEPLOYMENT_TARGET}")
     _reflex_add_windows_resource(${target})
 
     target_link_libraries(${target} PRIVATE
@@ -377,6 +381,7 @@ endfunction()
 #       VENDOR   "My Company"
 #       PACKAGE_ID_VENDOR  "mycompany"
 #       PACKAGE_ID_PRODUCT "myapp"
+#       APPLE_DEPLOYMENT_TARGET "10.15"   # optional; defaults to CMAKE_OSX_DEPLOYMENT_TARGET
 #   )
 
 function(reflex_add_vm_app target)
@@ -388,7 +393,7 @@ function(reflex_add_vm_app target)
             "present in this SDK distribution.")
     endif()
 
-    cmake_parse_arguments(A "" "NAME;VENDOR;VERSION;PACKAGE_ID_VENDOR;PACKAGE_ID_PRODUCT" "SOURCES" ${ARGN})
+    cmake_parse_arguments(A "" "NAME;VENDOR;VERSION;PACKAGE_ID_VENDOR;PACKAGE_ID_PRODUCT;APPLE_DEPLOYMENT_TARGET" "SOURCES" ${ARGN})
 
     if(NOT A_VERSION)
         set(A_VERSION "1.0.0")
@@ -404,7 +409,7 @@ function(reflex_add_vm_app target)
     endif()
 
     target_compile_definitions(${target} PRIVATE REFLEX_BOOTSTRAP_TYPE_VM_APP)
-    _reflex_init_target(${target})
+    _reflex_init_target(${target} APPLE_DEPLOYMENT_TARGET "${A_APPLE_DEPLOYMENT_TARGET}")
     _reflex_add_windows_resource(${target})
 
     if(MSVC)
@@ -469,14 +474,14 @@ endfunction()
 # Uses the 'reflex' cli tool with 'build-plist' task
 # the tool derives the AU AudioComponents integer version and AUv3 tag).
 
-function(_reflex_generate_plist output_var target name vendor version bundle_type)
+function(_reflex_generate_plist output_var target name executable vendor version bundle_type)
     # Optional package/AU parameters:
-    # pass package id vendor/product as 7th/8th args,
-    # then the AU component list and manufacturer as 9th/10th args
-    set(_package_id_vendor "${ARGV6}")
-    set(_package_id_product "${ARGV7}")
-    set(_au_components "${ARGV8}")
-    set(_au_vendor_4cc "${ARGV9}")
+    # pass package id vendor/product as 8th/9th args,
+    # then the AU component list and manufacturer as 10th/11th args
+    set(_package_id_vendor "${ARGV7}")
+    set(_package_id_product "${ARGV8}")
+    set(_au_components "${ARGV9}")
+    set(_au_vendor_4cc "${ARGV10}")
 
     set(_plist_path "${CMAKE_CURRENT_BINARY_DIR}/${target}_Info.plist")
 
@@ -513,6 +518,7 @@ function(_reflex_generate_plist output_var target name vendor version bundle_typ
         --target    "${_tool_target}"
         --output    "${_plist_path}"
         --product   "${name}"
+        --executable "${executable}"
         --bundle_id "${_bundle_id}"
         --version   "${version}"
     )
@@ -642,6 +648,8 @@ endfunction()
 
 function(_reflex_add_plugin_format base_target format sources name vendor version package_id_vendor package_id_product au_components au_vendor_4cc)
 
+    set(_apple_deployment_target "${ARGV10}")   # optional
+
     set(_t "${base_target}_${format}")
 
     # Normalize source paths to CMake form (forward slashes). Consumers on Windows
@@ -719,7 +727,7 @@ function(_reflex_add_plugin_format base_target format sources name vendor versio
 
         if(REFLEX_PLATFORM_MACOS OR REFLEX_PLATFORM_IOS)
             _reflex_resolve_package_id(_package_id "${vendor}" "${name}" "${package_id_vendor}" "${package_id_product}")
-            _reflex_generate_plist(_plist ${_t} "${name}" "${vendor}" "${version}" "vst3"
+            _reflex_generate_plist(_plist ${_t} "${name}" "${name}" "${vendor}" "${version}" "vst3"
                 "${package_id_vendor}" "${package_id_product}")
             _reflex_set_bundle_identifier(${_t} "${_package_id}.vst3")
             set_target_properties(${_t} PROPERTIES
@@ -757,7 +765,7 @@ function(_reflex_add_plugin_format base_target format sources name vendor versio
 
         if(REFLEX_PLATFORM_MACOS OR REFLEX_PLATFORM_IOS)
             _reflex_resolve_package_id(_package_id "${vendor}" "${name}" "${package_id_vendor}" "${package_id_product}")
-            _reflex_generate_plist(_plist ${_t} "${name}" "${vendor}" "${version}" "clap"
+            _reflex_generate_plist(_plist ${_t} "${name}" "${name}" "${vendor}" "${version}" "clap"
                 "${package_id_vendor}" "${package_id_product}")
             _reflex_set_bundle_identifier(${_t} "${_package_id}.clap")
             set_target_properties(${_t} PROPERTIES
@@ -788,7 +796,7 @@ function(_reflex_add_plugin_format base_target format sources name vendor versio
 
         if(REFLEX_PLATFORM_MACOS OR REFLEX_PLATFORM_IOS)
             _reflex_resolve_package_id(_package_id "${vendor}" "${name}" "${package_id_vendor}" "${package_id_product}")
-            _reflex_generate_plist(_plist ${_t} "${name}" "${vendor}" "${version}" "vst"
+            _reflex_generate_plist(_plist ${_t} "${name}" "${name}" "${vendor}" "${version}" "vst"
                 "${package_id_vendor}" "${package_id_product}")
             _reflex_set_bundle_identifier(${_t} "${_package_id}.vst")
             set_target_properties(${_t} PROPERTIES
@@ -809,7 +817,7 @@ function(_reflex_add_plugin_format base_target format sources name vendor versio
 
         reflex_add_target(${_t} TYPE MODULE_LIBRARY SOURCES ${sources})
         _reflex_resolve_package_id(_package_id "${vendor}" "${name}" "${package_id_vendor}" "${package_id_product}")
-        _reflex_generate_plist(_plist ${_t} "${name}" "${vendor}" "${version}" "component"
+        _reflex_generate_plist(_plist ${_t} "${name}" "${name}" "${vendor}" "${version}" "component"
             "${package_id_vendor}" "${package_id_product}"
             "${au_components}" "${au_vendor_4cc}")
         _reflex_set_bundle_identifier(${_t} "${_package_id}.component")
@@ -881,18 +889,9 @@ function(_reflex_add_plugin_format base_target format sources name vendor versio
         endif()
 
         _reflex_resolve_package_id(_package_id "${vendor}" "${name}" "${package_id_vendor}" "${package_id_product}")
-        _reflex_generate_plist(_plist ${_t} "${name}" "${vendor}" "${version}" "auv3"
+        _reflex_generate_plist(_plist ${_t} "${name}" "${name} AUv3" "${vendor}" "${version}" "auv3"
             "${package_id_vendor}" "${package_id_product}"
             "${au_components}" "${au_vendor_4cc}")
-
-        # The AUv3 binary is OUTPUT_NAME "${name} AUv3" (below), but build-plist
-        # derives CFBundleExecutable from --product ("${name}"). On iOS installd
-        # rejects the .appex when CFBundleExecutable doesn't name the real
-        # binary ("missing its bundle executable"). Reconcile it without
-        # touching --product, which also feeds the host-visible CFBundleName /
-        # AudioComponents name.
-        execute_process(COMMAND /usr/libexec/PlistBuddy
-            -c "Set :CFBundleExecutable ${name} AUv3" "${_plist}")
 
         _reflex_set_bundle_identifier(${_t} "${_package_id}.auv3")
 
@@ -970,7 +969,8 @@ function(_reflex_add_plugin_format base_target format sources name vendor versio
         "PRODUCT_PACKAGE_IDENTIFIER=${_product_package_identifier}"
         "AU_COMPONENTS=${au_components}"
         "AU_VENDOR_4CC=${au_vendor_4cc}")
-    _reflex_init_target(${_t} FLOATING_POINT fast)
+    _reflex_init_target(${_t} FLOATING_POINT fast
+        APPLE_DEPLOYMENT_TARGET "${_apple_deployment_target}")
     _reflex_add_windows_resource(${_t})
 
     # Link order matters — higher-level libraries first, dependencies last
@@ -1100,11 +1100,12 @@ endfunction()
 #       # AU-specific (required for AU format):
 #       AU_COMPONENTS  "ES2M:aumu:Example Synth,ES2F:aufx:Example FX"
 #       AU_VENDOR_4CC  "NdAu"      # 4-char vendor code
+#       APPLE_DEPLOYMENT_TARGET "10.15"   # optional; defaults to CMAKE_OSX_DEPLOYMENT_TARGET
 #   )
 
 function(reflex_add_audio_plugin target)
     cmake_parse_arguments(A ""
-        "NAME;VENDOR;VERSION;PACKAGE_ID_VENDOR;PACKAGE_ID_PRODUCT;AU_COMPONENTS;AU_VENDOR_4CC"
+        "NAME;VENDOR;VERSION;PACKAGE_ID_VENDOR;PACKAGE_ID_PRODUCT;AU_COMPONENTS;AU_VENDOR_4CC;APPLE_DEPLOYMENT_TARGET"
         "FORMATS;SOURCES" ${ARGN})
 
     if(NOT A_FORMATS)
@@ -1125,6 +1126,7 @@ function(reflex_add_audio_plugin target)
             "${A_NAME}" "${A_VENDOR}" "${A_VERSION}"
             "${A_PACKAGE_ID_VENDOR}" "${A_PACKAGE_ID_PRODUCT}"
             "${A_AU_COMPONENTS}" "${A_AU_VENDOR_4CC}"
+            "${A_APPLE_DEPLOYMENT_TARGET}"
         )
     endforeach()
 
@@ -1174,15 +1176,17 @@ endfunction()
 #       VENDOR   "My Company"
 #       PACKAGE_ID_VENDOR  "mycompany"
 #       PACKAGE_ID_PRODUCT "mytool"
+#       APPLE_DEPLOYMENT_TARGET "10.15"   # optional; defaults to CMAKE_OSX_DEPLOYMENT_TARGET
 #   )
 
 function(reflex_add_console_app target)
-    cmake_parse_arguments(A "" "NAME;VENDOR;PACKAGE_ID_VENDOR;PACKAGE_ID_PRODUCT" "SOURCES" ${ARGN})
+    cmake_parse_arguments(A "" "NAME;VENDOR;PACKAGE_ID_VENDOR;PACKAGE_ID_PRODUCT;APPLE_DEPLOYMENT_TARGET" "SOURCES" ${ARGN})
 
     reflex_add_target(${target} TYPE CONSOLE SOURCES ${A_SOURCES})
 
     target_compile_definitions(${target} PRIVATE REFLEX_BOOTSTRAP_TYPE_CONSOLE_APP)
-    _reflex_init_target(${target} RELEASE_OPTIMIZATION size)
+    _reflex_init_target(${target} RELEASE_OPTIMIZATION size
+        APPLE_DEPLOYMENT_TARGET "${A_APPLE_DEPLOYMENT_TARGET}")
 
     target_link_libraries(${target} PRIVATE
         Reflex::Common

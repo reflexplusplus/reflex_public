@@ -34,9 +34,9 @@ public:
 		kAccessModeReadWrite = 3
 	};
 
-	[[nodiscard]] static TRef <ExternalResourceRef> Locate(const ArrayView <UInt8> & token);
+	[[nodiscard]] static Unretained <ExternalResourceRef> Locate(const ArrayView <UInt8> & token);
 
 	virtual Array <UInt8> GetPersistentToken() = 0;
 
-	[[nodiscard]] virtual TRef <FileHandle> Open(FileHandle::Mode mode) = 0;
+	[[nodiscard]] virtual Unretained <FileHandle> Open(FileHandle::Mode mode) = 0;
 };

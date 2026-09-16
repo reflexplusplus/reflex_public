@@ -8,12 +8,10 @@ constexpr CString::View kGnuWarningExtra = "-Wextra";
 constexpr CString::View kGnuWarningUnusedParameter = "-Wno-unused-parameter";
 constexpr CString::View kGnuWarningPedantic = "-Wpedantic";
 
-constexpr CString::View kGnuFloatingPointFast = "-ffast-math";
-constexpr CString::View kGnuFloatingPointStrictRounding = "-frounding-math";
-constexpr CString::View kGnuFloatingPointStrictSignallingNaNs = "-fsignaling-nans";
-
 constexpr CString::View kGnuStandards[] = { "-std=c++17", "-std=c++20" };
 constexpr CString::View kGnuOptimizations[] = { "-O0", "-Os", "-O2", "-O3" };
+
+constexpr CString::View kClangFloatingPointStrict = "-ffp-model=strict";
 
 [[maybe_unused]] bool HasTemplateVariable(WString::View value)
 {
@@ -30,20 +28,9 @@ constexpr CString::View kGnuOptimizations[] = { "-O0", "-Os", "-O2", "-O3" };
 
 REFLEX_END_INTERNAL
 
-Reflex::WString ReflexCLI::ProjectGen::MakeProjectFolder(const Project & project, BuildPlatform platform)
+Reflex::WString ReflexCLI::ProjectGen::GetProjectFolder(const Project & project, BuildPlatform platform)
 {
-	WString directory = project.GetRoot();
-	directory.Append(project.GetGeneratedDirectory());
-	File::MakePath(directory);
-
-	if (platform != kBuildPlatformCMake)
-	{
-		directory.Append(ToWString(kBuildPlatforms[platform]));
-		directory.Push(File::kStroke);
-		System::MakeDirectory(directory);
-	}
-
-	return directory;
+	return Join(project.GetRoot(), project.GetGeneratedDirectory(), ToWString(kBuildPlatforms[platform]), File::kStroke);
 }
 
 Reflex::WString ReflexCLI::ProjectGen::TranslateVariables(WString::View value, ArrayView<Variable> mappings, WString::View open, WString::View close)
@@ -99,6 +86,29 @@ void ReflexCLI::ProjectGen::WriteLine(Data::Archive & output, UInt indent, WStri
 	Data::WriteLine(output, line);
 }
 
+void ReflexCLI::ProjectGen::WriteCMakeInvocation(Data::Archive & output, UInt indentation, CString::View command, WString::View head, ArrayView<WString> values)
+{
+	auto opening = Join(ToWString(command), L"(", head);
+	switch (values.size)
+	{
+	case 0:
+		WriteLine(output, indentation, Join(opening, L")"));
+		return;
+	case 1:
+		WriteLine(output, indentation, Join(opening, head ? L" " : L"", values.GetFirst(), L")"));
+		return;
+	default:
+		WriteLine(output, indentation, opening);
+		for (auto & value : values) WriteLine(output, indentation + 1, value);
+		WriteLine(output, indentation, ")");
+	}
+}
+
+void ReflexCLI::ProjectGen::WriteCMakeTargetValues(Data::Archive & output, UInt indentation, CString::View command, CString::View target, ArrayView<WString> values)
+{
+	if (values) WriteCMakeInvocation(output, indentation, command, ToWString(Join(target, " PRIVATE")), values);
+}
+
 void ReflexCLI::ProjectGen::SaveFile(const WString & path, Data::Archive::View data, BuildPlatform platform)
 {
 	auto existing = File::Open(path);
@@ -150,7 +160,7 @@ Reflex::Array<Reflex::CString::View> ReflexCLI::ProjectGen::GnuWarningOptions(co
 	return result;
 }
 
-Reflex::Array<Reflex::CString::View> ReflexCLI::ProjectGen::GnuFloatingPointOptions(const TargetConfiguration & config)
+Reflex::Array<Reflex::CString::View> ReflexCLI::ProjectGen::ClangFloatingPointOptions(const TargetConfiguration & config)
 {
 	REFLEX_STATIC_ASSERT(kFloatingPointCount == 4);
 
@@ -164,7 +174,7 @@ Reflex::Array<Reflex::CString::View> ReflexCLI::ProjectGen::GnuFloatingPointOpti
 		return { kGnuFloatingPointFast };
 
 	case kFloatingPoint_strict:
-		return { kGnuFloatingPointStrictRounding, kGnuFloatingPointStrictSignallingNaNs };
+		return { kClangFloatingPointStrict };
 
 	default:
 		REFLEX_ASSERT(false);
@@ -185,7 +195,6 @@ Reflex::Array <Reflex::CString::View> ReflexCLI::ProjectGen::GnuCompileOptions(c
 	if (!config.GetBool(kRtti, true)) result.Push("-fno-rtti");
 	for (auto option : GnuWarningOptions(config)) result.Push(option);
 	result.Push(kGnuOptimizations[optimization]);
-	for (auto option : GnuFloatingPointOptions(config)) result.Push(option);
 	if (config.GetBool(kDebugInformation, !optimized)) result.Push("-g");
 	if (config.GetBool(kDeadStrip, optimized))
 	{

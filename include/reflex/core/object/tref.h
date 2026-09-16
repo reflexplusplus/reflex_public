@@ -179,7 +179,7 @@ inline Reflex::TRef <Reflex::Object> Reflex::Object::GetBase()
 	return this; 
 }
 
-REFLEX_INLINE void Reflex::Object::SetProperty(Address address, TRef <Object> object)
+REFLEX_INLINE void Reflex::Object::SetProperty(Address address, WillRetain <Object> object)
 {
 	REFLEX_ASSERT(object.Adr() != this);
 

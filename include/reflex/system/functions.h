@@ -29,7 +29,7 @@ namespace Reflex::System
 
 	//notifications
 
-	[[nodiscard]] TRef <Object> CreateListener(Notification id, void * client, FunctionPointer <void(void*)> callback);
+	[[nodiscard]] Unretained <Object> CreateListener(Notification id, void * client, FunctionPointer <void(void*)> callback);
 
 
 

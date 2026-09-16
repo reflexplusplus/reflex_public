@@ -13,7 +13,7 @@ REFLEX_NS(Reflex::GLX::Detail)
 class LayoutModel;
 
 
-using LayoutModelCtr = FunctionPointer <TRef<LayoutModel>(GLX::Object&)>;
+using LayoutModelCtr = FunctionPointer <Unretained<LayoutModel>(GLX::Object&)>;
 
 
 template <class OBJECT> static Core::Object::AccommodateFn CastAccommodateFn(FunctionPointer <void(OBJECT & object, bool & isresponsive, System::fSize & contentsize)> accommodate);

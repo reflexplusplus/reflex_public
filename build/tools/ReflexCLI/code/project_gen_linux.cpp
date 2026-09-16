@@ -3,6 +3,28 @@
 
 REFLEX_BEGIN_INTERNAL(ReflexCLI::ProjectGen::Linux)
 
+Array<CString::View> GccFloatingPointOptions(const TargetConfiguration & config)
+{
+	REFLEX_STATIC_ASSERT(kFloatingPointCount == 4);
+
+	switch (config.GetEnum<FloatingPoint>(kFloatingPoint, kFloatingPointNames, kFloatingPoint_default))
+	{
+	case kFloatingPoint_default:
+	case kFloatingPoint_precise:
+		return {};
+
+	case kFloatingPoint_fast:
+		return { kGnuFloatingPointFast };
+
+	case kFloatingPoint_strict:
+		return { "-frounding-math", "-fsignaling-nans" };
+
+	default:
+		REFLEX_ASSERT(false);
+		return {};
+	}
+}
+
 WString TranslateVariables(WString::View value)
 {
 	return ProjectGen::TranslateVariables(value,
@@ -57,11 +79,9 @@ CString OutputDirectory(const Target & target, const TargetConfiguration & confi
 	return Join("$(MAKEFILE_DIR)/output/$(CONFIGURATION)/$(ARCHITECTURE)/", target.GetName());
 }
 
-CString IntermediateDirectory(const Target & target, const TargetConfiguration & config)
+CString IntermediateDirectory(const Target & target)
 {
-	auto value = config.GetPath(kIntermediateDirectory);
-	if (!value.path.Empty()) return Path(value);
-	return Join("$(MAKEFILE_DIR)/obj/$(CONFIGURATION)/$(ARCHITECTURE)/", target.GetName());
+	return Join("$(MAKEFILE_DIR)/intermediate/$(CONFIGURATION)/$(ARCHITECTURE)/", target.GetName());
 }
 
 CString ArchitectureFlags(const TargetConfiguration & config)
@@ -78,6 +98,7 @@ CString ArchitectureFlags(const TargetConfiguration & config)
 CString CompileFlags(const TargetConfiguration & config)
 {
 	CString result = Merge(GnuCompileOptions(config, true), " ");
+	for (auto option : GccFloatingPointOptions(config)) result.Append(Join(' ', option));
 	result.Append(ArchitectureFlags(config));
 	for (auto & option : config.GetStrings(kCompilerOptions)) result.Append(Join(' ', ShellQuote(EncodeUTF8(TranslateVariables(ToWString(option))))));
 
@@ -109,6 +130,21 @@ CString ProductFilename(const TargetConfiguration & config)
 		return output_name;
 	case kOutputType_static_library: return Join("lib", output_name, ".a");
 	default: return {};
+	}
+}
+
+void AddOutput(Map<WString> & outputs, const Target & target, const TargetConfiguration & config)
+{
+	auto output_directory = config.GetPath(kOutputDirectory);
+	if (!output_directory.path) return;
+	auto directory = File::CorrectTrailingStroke(ResolvePath(target.project->GetRoot(), output_directory));
+	auto filename = ToWString(ProductFilename(config));
+	for (auto architecture : config.GetArchitectures())
+	{
+		auto architecture_name = ToWString(kArchitectureNames[architecture]);
+		auto resolved_directory = Replace(directory, L"$(Architecture)", architecture_name);
+		auto resolved_filename = Replace(filename, L"$(ARCHITECTURE)", architecture_name);
+		outputs.Set(Join(resolved_directory, resolved_filename));
 	}
 }
 
@@ -224,7 +260,7 @@ bool WriteConfiguration(Data::Archive & output, const Target & target, const Tar
 	Require(architectures.GetSize() == 1, kArchitectures, "must specify exactly one architecture");
 	Data::WriteLine(output, Join("ARCHITECTURE := ", kArchitectureNames[architectures[0]]));
 	auto id = MakeIdentifier(Join(target.GetName(), '_', ToCString(target_index)));
-	auto intermediate_directory = IntermediateDirectory(target, config);
+	auto intermediate_directory = IntermediateDirectory(target);
 	auto flags_name = Join("CXXFLAGS_", id);
 	auto pre_build = WriteBuildActions(output, config.GetBuildActions(kBuildPhasePreBuild, System::kPlatformLinux), id, "pre", {}, intermediate_directory);
 	CString objects;
@@ -312,7 +348,7 @@ void WriteDependencyProjects(Data::Archive & output, Project & project, ArrayVie
 	for (auto & [project,targets] : projects)
 	{
 		auto id = DependencyProjectID(project);
-		auto directory = PathValue(EncodeUTF8(MakeProjectFolder(project, kBuildPlatformLinux)));
+		auto directory = PathValue(EncodeUTF8(GetProjectFolder(project, kBuildPlatformLinux)));
 		Data::WriteLine(output, Join(".PHONY: ", id));
 		Data::WriteLine(output, Join(id, previous ? Join(": ", previous) : CString(":")));
 		WriteLine(output, 1, Join("@$(MAKE) --no-print-directory -C ", ShellQuote(directory), " CONFIGURATION=", ShellQuote("$(CONFIGURATION)"), ' ', Merge(targets, ' ')));
@@ -323,7 +359,7 @@ void WriteDependencyProjects(Data::Archive & output, Project & project, ArrayVie
 
 REFLEX_END_INTERNAL
 
-void ReflexCLI::ProjectGen::GenerateLinuxProject(Project & project, BuildPlatform, Array<const TargetPlatform *> & generated_platforms)
+void ReflexCLI::ProjectGen::GenerateLinuxProject(Project & project, BuildPlatform, const WString & directory, Array<const TargetPlatform *> & generated_platforms, Map<WString> & outputs)
 {
 	constexpr CString::View kDebugRelease[] = { "debug", "release" };
 
@@ -358,6 +394,11 @@ void ReflexCLI::ProjectGen::GenerateLinuxProject(Project & project, BuildPlatfor
 		}
 	}
 	if (!target_count) return;
+	for (auto & item : target_platforms)
+	{
+		if (item.target->project.Adr() != &project || item.target->IsLibrary()) continue;
+		for (auto & config : item.platform->GetTargetConfigurations()) Linux::AddOutput(outputs, *item.target, *config);
+	}
 	Linux::WriteDependencyProjects(configurations, project, target_platforms);
 	Data::Archive build_helpers;
 	REFLEX_LOOP(idx, 2)
@@ -372,7 +413,6 @@ void ReflexCLI::ProjectGen::GenerateLinuxProject(Project & project, BuildPlatfor
 			WriteLine(build_helpers, 1, Join("@echo '", kDebugRelease[idx], " configuration is not defined' && false"));
 		}
 	}
-	auto directory = MakeProjectFolder(project, kBuildPlatformLinux);
 	SaveFile(Join(directory, L"Makefile"), Template(Linux::Makefile,
 	{
 		{ "DEFAULT_CONFIGURATION", ToWString(project.GetDefaultConfiguration()) },
@@ -390,7 +430,4 @@ void ReflexCLI::ProjectGen::GenerateLinuxProject(Project & project, BuildPlatfor
 			SaveText(Join(path, kBat), Join("@echo off\r\nwsl.exe --cd \"%~dp0\" --exec make ", kDebugRelease[idx], "\r\nexit /b %errorlevel%\r\n"), kBuildPlatformLinux);
 		}
 	}
-	SaveCommandScript(Join(directory, L"Clean.", ReflexCLI::kCommand), L"#!/bin/sh\nexec make -C \"$(dirname \"$0\")\" clean\n", kBuildPlatformLinux);
-	SaveText(Join(directory, L"Clean.bat"), "@echo off\r\nwsl.exe --cd \"%~dp0\" --exec make clean\r\nexit /b %errorlevel%\r\n", kBuildPlatformLinux);
-
 }

@@ -28,9 +28,9 @@ constexpr FunctionPointer <Data::Archive(const EmbeddedResource&)> kUnpackFns[2]
 
 struct ResourceDecoder : public File::Detail::MemoryReader
 {
-	template <bool COMPRESSED> static TRef <System::FileHandle> Open(const EnumerableEmbeddedResource & item);
+	template <bool COMPRESSED> static Unretained <System::FileHandle> Open(const EnumerableEmbeddedResource & item);
 
-	static const FunctionPointer <TRef<System::FileHandle>(const EnumerableEmbeddedResource&)> st_openfns[4];
+	static const FunctionPointer <Unretained<System::FileHandle>(const EnumerableEmbeddedResource&)> st_openfns[4];
 
 	ResourceDecoder(const EnumerableEmbeddedResource & item)
 		: m_data(Extract(item))
@@ -45,7 +45,7 @@ struct ResourceDecoder : public File::Detail::MemoryReader
 	Data::Archive m_data;
 };
 
-template <bool COMPRESSED> TRef <System::FileHandle> ResourceDecoder::Open(const EnumerableEmbeddedResource & item)
+template <bool COMPRESSED> Unretained <System::FileHandle> ResourceDecoder::Open(const EnumerableEmbeddedResource & item)
 {
 	if constexpr (COMPRESSED)
 	{
@@ -57,7 +57,7 @@ template <bool COMPRESSED> TRef <System::FileHandle> ResourceDecoder::Open(const
 	}
 }
 
-constexpr FunctionPointer <TRef<System::FileHandle>(const EnumerableEmbeddedResource&)> ResourceDecoder::st_openfns[4] =
+constexpr FunctionPointer <Unretained<System::FileHandle>(const EnumerableEmbeddedResource&)> ResourceDecoder::st_openfns[4] =
 {
 	&ResourceDecoder::Open<false>,
 	&ResourceDecoder::Open<true>,
@@ -101,7 +101,7 @@ Reflex::File::EnumerableEmbeddedResource::Locator::Locator()
 {
 }
 
-Reflex::TRef <Reflex::System::FileHandle> Reflex::File::EnumerableEmbeddedResource::Locator::OnRead(ArrayView <WString::View> subdomain, WString::View path, File::Attributes & attributes) const
+Reflex::Unretained <Reflex::System::FileHandle> Reflex::File::EnumerableEmbeddedResource::Locator::OnRead(ArrayView <WString::View> subdomain, WString::View path, File::Attributes & attributes) const
 {
 	REFLEX_ASSERT(subdomain);
 

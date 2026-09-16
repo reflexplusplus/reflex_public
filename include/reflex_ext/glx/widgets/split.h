@@ -49,7 +49,7 @@ public:
 
 	//components
 
-	const TRef <SplitBehaviour> behaviour;
+	const AlreadyRetained <SplitBehaviour> behaviour;
 
 };
 
@@ -62,7 +62,7 @@ REFLEX_SET_TRAIT(Reflex::GLX::Split, IsSingleThreadExclusive);
 //impl
 
 inline Reflex::GLX::Split::Split()
-	: behaviour(SplitBehaviour::Create())
+	: behaviour(NoRetain(SplitBehaviour::Create()))
 {
 	SetDelegate(MakeKey32("SplitBehaviour"), behaviour);
 }

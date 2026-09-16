@@ -172,7 +172,7 @@ void AppImpl::OnStore(Data::Archive & stream) const
 
 Reflex::Output ReflexProjectCreator::output("ProjectCreator");
 
-Reflex::TRef <ReflexProjectCreator::App> ReflexProjectCreator::App::Create()
+Reflex::Unretained <ReflexProjectCreator::App> ReflexProjectCreator::App::Create()
 {
 	return New<ReflexProjectCreator::AppImpl>();
 }

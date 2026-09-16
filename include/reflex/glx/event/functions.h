@@ -23,7 +23,7 @@ namespace Reflex::GLX
 	void UnbindEvent(Object & object, Key32 event_id);
 
 
-	TRef <Object> BindClick(Object & object, const Function <void()> & fn);
+	AlreadyRetained <Object> BindClick(Object & object, const Function <void()> & fn);
 
 
 	void BeginEventForwarding(Object & object, Key32 event_id, Object & to);
@@ -67,10 +67,10 @@ namespace Reflex::GLX
 
 	UInt GetIndex(const Event & e);			//helper for Data::GetUInt32(e, kindex), emitted by lists etc
 
-	TRef <Object> GetItem(Event & e);		//helper for e.QueryProperty<GLX::Object>(kitem), emitted by lists etc
+	AlreadyRetained <Object> GetItem(Event & e);		//helper for e.QueryProperty<GLX::Object>(kitem), emitted by lists etc
 
 
-	TRef <Reflex::Object> GetDragDropData(Event & e);
+	AlreadyRetained <Reflex::Object> GetDragDropData(Event & e);
 
 
 	const Event * QueryAntecedent(const Event & e, Key32 id, const Event * fallback = nullptr);
@@ -112,7 +112,7 @@ REFLEX_END
 //
 //impl
 
-inline Reflex::TRef <Reflex::GLX::Object> Reflex::GLX::BindClick(Object & object, const Function <void()> & fn)
+inline Reflex::AlreadyRetained <Reflex::GLX::Object> Reflex::GLX::BindClick(Object & object, const Function <void()> & fn)
 {
 	BindEventVoid(object, kMouseDown, fn); 
 	
@@ -209,7 +209,7 @@ REFLEX_INLINE Reflex::UInt Reflex::GLX::GetIndex(const Event & e)
 	return Data::GetUInt32(e, kindex);
 }
 
-inline Reflex::TRef <Reflex::Object> Reflex::GLX::GetDragDropData(Event & e)
+inline Reflex::AlreadyRetained <Reflex::Object> Reflex::GLX::GetDragDropData(Event & e)
 {
 	return GetAbstractProperty(e, kdrag_data);
 }

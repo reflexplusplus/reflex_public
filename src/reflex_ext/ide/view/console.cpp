@@ -22,7 +22,7 @@ struct Console : public Object
 
 	struct MainWindowDelegate : public WindowDelegate
 	{
-		MainWindowDelegate(Console & console, System::Window & owner, TRef <GLX::Object> root, const Function <void()> & onclose);
+		MainWindowDelegate(Console & console, System::Window & owner, AlreadyRetained <GLX::Object> root, const Function <void()> & onclose);
 
 		~MainWindowDelegate();
 
@@ -31,7 +31,7 @@ struct Console : public Object
 			m_onclose();
 		}
 
-		TRef <Console> console;
+		AlreadyRetained <Console> console;
 
 		const GLX::StyleSheet & styles;
 
@@ -57,7 +57,7 @@ struct Console : public Object
 		Reference <GLX::Object> m_button;
 	};
 
-	Console(TRef <GLX::Object> root, const Function <void()> & onclose)
+	Console(AlreadyRetained <GLX::Object> root, const Function <void()> & onclose)
 		: m_global(TheGlobal::Get()),
 		m_window(System::Window::Create(System::kWindowStyleResizable | System::kWindowStyleMinimisable, Data::GetBool(m_global->m_prefs, kOnTop))),
 		windowdlg(New<MainWindowDelegate>(*this, m_window, root, onclose))
@@ -93,7 +93,7 @@ Console::~Console()
 	}
 }
 
-Console::MainWindowDelegate::MainWindowDelegate(Console & console, System::Window & owner, TRef <GLX::Object> root, const Function <void()> & onclose)
+Console::MainWindowDelegate::MainWindowDelegate(Console & console, System::Window & owner, AlreadyRetained <GLX::Object> root, const Function <void()> & onclose)
 	: WindowDelegate(false),
 	console(console),
 	styles(Detail::RetrieveStyleSheet()),
@@ -169,7 +169,7 @@ Console::MainWindowDelegate::MainWindowDelegate(Console & console, System::Windo
 
 		Key32 panelid = panel.id;
 
-		Detail::RestoreStreamable(propertyset, {}, panel);
+		Detail::RestoreSerializable(propertyset, {}, panel);
 
 		if (panelid == m_focused) m_tabgroup.GetSelector()->SelectPanel(idx);
 
@@ -258,7 +258,7 @@ Console::MainWindowDelegate::~MainWindowDelegate()
 
 	for (auto & i : m_panels)
 	{
-		Detail::StoreStreamable(propertyset, i.b);
+		Detail::StoreSerializable(propertyset, i.b);
 	}
 
 	Data::kBinaryFormat->Serialize(archive->value, propertyset);
@@ -334,7 +334,7 @@ Console::UndockedPanel::~UndockedPanel()
 
 REFLEX_END_INTERNAL
 
-Reflex::TRef <Reflex::Object> Reflex::IDE::AcquireConsole(TRef <GLX::Object> root, const Function <void()> & onclose)
+Reflex::Unretained <Reflex::Object> Reflex::IDE::AcquireConsole(AlreadyRetained <GLX::Object> root, const Function <void()> & onclose)
 {
 	REFLEX_ASSERT(IDE::kIsAwake && GLX::module.IsInitialised());
 
@@ -342,7 +342,7 @@ Reflex::TRef <Reflex::Object> Reflex::IDE::AcquireConsole(TRef <GLX::Object> roo
 
 	GLX::AnimationScope animate(false);
 
-	return Reflex::The<Console>::Acquire(root, onclose);
+	return Unretained<Object>(*Reflex::The<Console>::Acquire(root, onclose));
 }
 
 Reflex::IDE::ComputedStyle::ComputedStyle(const GLX::Style & style)

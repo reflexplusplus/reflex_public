@@ -62,7 +62,7 @@ public:
 
 	//subscribe
 	
-	[[nodiscard]] TRef <Object> CreateListener(const Function <void(Notification notification, Key32 context)> & callback);
+	[[nodiscard]] Unretained <Object> CreateListener(const Function <void(Notification notification, Key32 context)> & callback);
 
 
 
@@ -101,7 +101,7 @@ public:
 
 	//links
 
-	const ConstTRef <Data::SerializableFormat> format;
+	const ConstAlreadyRetained <Data::SerializableFormat> format;
 
 
 

@@ -83,7 +83,7 @@ private:
 
 	//links
 	
-	const TRef <App> app;
+	const AlreadyRetained <App> app;
 
 	
 
@@ -117,7 +117,7 @@ private:
 };
 
 ViewImpl::ViewImpl(App & app)
-	: View(app, 0, L":res:ResourceBuilder/styles.txt"),
+	: View(app, 0, L":res:ResourceBuilder/styles.txt", true),
 	app(app),
 	m_recent(Data::GetWStringArray(Bootstrap::global->prefs, kRecentV2)),
 	m_button(L"Open XML"),
@@ -307,7 +307,7 @@ void ViewImpl::OnUpdate()
 
 } } //end internal namespace
 
-Reflex::TRef <ResourceBuilder::View> ResourceBuilder::View::Create(App & app)
+Reflex::Unretained <ResourceBuilder::View> ResourceBuilder::View::Create(App & app)
 {
 	return New<ViewImpl>(app);
 }

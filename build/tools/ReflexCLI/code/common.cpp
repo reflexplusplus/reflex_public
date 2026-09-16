@@ -45,13 +45,33 @@ Reflex::WString ReflexCLI::GetProjectFolderName(const TemplateDefinition & tmpl,
 
 Reflex::WString ReflexCLI::GetReflexPath()
 {
-	constexpr WString::View kRepositories[] = { L"reflex_public", L"reflex", L"reflex_master" };
-	auto executable_path = System::GetExecutablePath();
-	auto parts = Split(File::SplitFilename(executable_path).a, File::kStroke);
-	for (auto i : kRepositories)
+	constexpr auto check_include_path = [](WString::View path)
 	{
-		if (auto idx = ReverseSearch(parts, i)) return Join(Merge(Left(parts, idx.value + 1), File::kStroke), File::kStroke);
+		return System::Exists(Join(path, L"/include/reflex/reflex.h"));
+	};
+
+	auto executable_path = System::GetExecutablePath();
+
+	auto parts = Split(File::SplitFilename(executable_path).a, File::kStroke);
+
+	auto expected_repo_path = Merge(ReverseSplice<true>(parts, 4).a, File::kStroke);
+
+	if (check_include_path(expected_repo_path))
+	{
+		return Join(expected_repo_path, File::kStroke);
 	}
+	else
+	{
+		//fallback lookup, useful for debug builds in output folder
+
+		REFLEX_RLOOP(idx, parts.GetSize())
+		{
+			auto path = Merge(Left(parts, idx), File::kStroke);
+
+			if (check_include_path(path)) return Join(path, File::kStroke);
+		}
+	}
+
 	return {};
 }
 

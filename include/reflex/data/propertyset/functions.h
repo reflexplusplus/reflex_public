@@ -28,7 +28,7 @@ namespace Reflex::Data
 
 REFLEX_NS(Reflex::Data::Detail)
 
-template <class TYPE, class ... VARGS> inline TRef <TYPE> AcquireProperty(PropertySet & dynamic, Key32 id, VARGS &&... v)
+template <class TYPE, class ... VARGS> inline AlreadyRetained <TYPE> AcquireProperty(PropertySet & dynamic, Key32 id, VARGS &&... v)
 {
 	REFLEX_STATIC_ASSERT_OBJECT_TYPE(TYPE);
 
@@ -44,7 +44,7 @@ template <class TYPE, class ... VARGS> inline TRef <TYPE> AcquireProperty(Proper
 
 		dynamic.SetProperty(address, temp);
 
-		return temp;
+		return NoRetain(temp);
 	}
 }
 
@@ -74,7 +74,7 @@ template <class auto_1, class auto_2> inline auto SetPropertyEx(auto_1 && object
 
 	using ObjectOrValueType = typename Reflex::Detail::ValueTypeUnwrapper < NonConstT < NonRefT < decltype(p) > > >::Type;
 
-	using ReferenceType = TRef < ObjectType <ObjectOrValueType> >;
+	using ReferenceType = AlreadyRetained < ObjectType <ObjectOrValueType> >;
 
 	if constexpr (IsObject<ObjectOrValueType>::value)
 	{

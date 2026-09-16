@@ -35,8 +35,6 @@ public:
 
 	virtual bool Completed() const = 0;
 
-	[[deprecated]] bool Active() const { return !Completed(); }
-
 	virtual void Wait() = 0;
 
 };

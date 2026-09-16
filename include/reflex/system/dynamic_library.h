@@ -33,9 +33,9 @@ public:
 
 	//lifetime
 
-	[[nodiscard]] static TRef <DynamicLibrary> Create(const WString & path);
+	[[nodiscard]] static Unretained <DynamicLibrary> Create(const WString & path);
 
-	[[nodiscard]] static TRef <DynamicLibrary> CreateFromBundle(const WString & path, bool load_bundle);	//OSX ONLY
+	[[nodiscard]] static Unretained <DynamicLibrary> CreateFromBundle(const WString & path, bool load_bundle);	//OSX ONLY
 
 
 

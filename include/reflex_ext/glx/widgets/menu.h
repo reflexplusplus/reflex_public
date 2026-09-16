@@ -14,9 +14,9 @@ namespace Reflex::GLX
 	class Menu;
 
 
-	TRef <Object> AddMenuSection(Menu & menu, const WString::View & label);
+	AlreadyRetained <Object> AddMenuSection(Menu & menu, const WString::View & label);
 
-	TRef <Object> AddMenuOption(Menu & menu, const WString::View & label, bool selected = false);
+	AlreadyRetained <Object> AddMenuOption(Menu & menu, const WString::View & label, bool selected = false);
 
 
 	void BindMenuSelect(Menu & menu, const Function <void(UInt)> & onselect);
@@ -27,9 +27,9 @@ namespace Reflex::GLX
 	void CloseContextMenu();
 
 
-	TRef <Menu> GetMenu(Event & e);
+	AlreadyRetained <Menu> GetMenu(Event & e);
 
-	TRef <Menu> GetMenu(Event & e, Key32 context);
+	AlreadyRetained <Menu> GetMenu(Event & e, Key32 context);
 
 	Key32 GetMenuContext(const Event & e);
 
@@ -60,7 +60,7 @@ public:
 
 	//lifetime
 
-	[[nodiscard]] static TRef <Menu> Create();
+	[[nodiscard]] static Unretained <Menu> Create();
 
 
 
@@ -69,18 +69,18 @@ public:
 	virtual void Clear() = 0;
 
 
-	virtual TRef <Object> AddItem(const WString::View & label) = 0;
+	virtual AlreadyRetained <Object> AddItem(const WString::View & label) = 0;
 
-	virtual TRef <Object> AddSeparator() = 0;
+	virtual AlreadyRetained <Object> AddSeparator() = 0;
 
-	virtual TRef <Menu> AddSubMenu(const WString::View & label) = 0;
+	virtual AlreadyRetained <Menu> AddSubMenu(const WString::View & label) = 0;
 
 
-	virtual TRef <Object> AddItem(TRef <Object> item) = 0;
+	virtual AlreadyRetained <Object> AddItem(WillRetain <Object> item) = 0;
 
-	virtual TRef <Object> AddSeparator(TRef <Object> item) = 0;
+	virtual AlreadyRetained <Object> AddSeparator(WillRetain <Object> item) = 0;
 
-	virtual TRef <Menu> AddSubMenu(TRef <Object> item, TRef <Menu> menu = Menu::Create()) = 0;
+	virtual AlreadyRetained <Menu> AddSubMenu(WillRetain <Object> item, WillRetain <Menu> menu = Menu::Create()) = 0;
 
 
 
@@ -88,7 +88,7 @@ public:
 
 	virtual bool OpenSubMenu(Object & item) = 0;
 
-	virtual TRef <Object> GetParentItem() const = 0;
+	virtual AlreadyRetained <Object> GetParentItem() const = 0;
 
 
 
@@ -108,15 +108,15 @@ REFLEX_SET_TRAIT(Reflex::GLX::Menu, IsSingleThreadExclusive);
 
 REFLEX_NS(Reflex::GLX::Detail)
 
-[[nodiscard]] inline TRef <Object> CreateMenuContent() { return Menu::Create(); };
+[[nodiscard]] inline Unretained <Object> CreateMenuContent() { return Menu::Create(); };
 
 bool PopupHasFocus(Object & menu, Object & focus);	//returns true if menu, or open sub menu contains focus
 
-TRef <Menu> GetMenuProperty(Event & e);
+AlreadyRetained <Menu> GetMenuProperty(Event & e);
 
 bool EmitMenuOpenEvent(Object & src, Menu & menu, Key32 context);	//done automatically when menu attaches
 
-void PlacePopup(Object & owner, Object & fg, TRef <Object> popup, const Rect & target_rect, Alignment alignment, Orientation justify);
+void PlacePopup(Object & owner, Object & fg, WillRetain <Object> popup, const Rect & target_rect, Alignment alignment, Orientation justify);
 
 Object * QueryPopup(Object & owner);
 
@@ -127,7 +127,7 @@ inline Reflex::Key32 Reflex::GLX::GetMenuContext(const Event & e)
 	return Data::GetKey32(e, kcontext);
 }
 
-inline Reflex::TRef <Reflex::GLX::Menu> Reflex::GLX::GetMenu(Event & e)
+inline Reflex::AlreadyRetained <Reflex::GLX::Menu> Reflex::GLX::GetMenu(Event & e)
 {
 	if (e.id == Menu::kMenuOpen)
 	{
@@ -137,7 +137,7 @@ inline Reflex::TRef <Reflex::GLX::Menu> Reflex::GLX::GetMenu(Event & e)
 	return {};
 }
 
-inline Reflex::TRef <Reflex::GLX::Menu> Reflex::GLX::GetMenu(Event & e, Key32 context)
+inline Reflex::AlreadyRetained <Reflex::GLX::Menu> Reflex::GLX::GetMenu(Event & e, Key32 context)
 {
 	if (e.id == Menu::kMenuOpen && GetMenuContext(e) == context)
 	{

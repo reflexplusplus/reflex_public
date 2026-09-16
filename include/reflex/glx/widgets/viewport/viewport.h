@@ -40,7 +40,7 @@ public:
 
 	struct ViewState;
 
-	using ViewBarCtr = FunctionPointer <TRef<AbstractViewBar>(AbstractViewPort&)>;
+	using ViewBarCtr = FunctionPointer <Unretained<AbstractViewBar>(AbstractViewPort&)>;
 
 
 
@@ -66,17 +66,17 @@ public:
 
 	//content
 
-	void SetContent(TRef <Object> content, Key32 style_id = kcontent);
+	void SetContent(WillRetain <Object> content, Key32 style_id = kcontent);
 
-	TRef <Object> GetContent();
+	AlreadyRetained <Object> GetContent();
 
-	ConstTRef <Object> GetContent() const { return *RemoveConst(this)->GetContent(); }
+	ConstAlreadyRetained <Object> GetContent() const { return *RemoveConst(this)->GetContent(); }
 
 
 
 	//visible area
 
-	[[nodiscard]] TRef <Reflex::Object> CreateListener(const Function <void()> & callback);
+	[[nodiscard]] Unretained <Reflex::Object> CreateListener(const Function <void()> & callback);
 
 
 	void SetMinView(Size size);
@@ -114,9 +114,9 @@ public:
 
 	//components
 
-	ConstTRef <Object> GetBody() const;
+	ConstAlreadyRetained <Object> GetBody() const;
 
-	TRef <AbstractViewBar> GetViewBar(bool y);
+	AlreadyRetained <AbstractViewBar> GetViewBar(bool y);
 
 
 
@@ -130,7 +130,7 @@ public:
 
 	//view
 
-	const TRef <ViewState> view_state;
+	const AlreadyRetained <ViewState> view_state;
 
 
 
@@ -234,7 +234,7 @@ struct Reflex::GLX::AbstractViewPort::ViewState :
 	virtual const Size & GetPixelsPerUnit() const = 0;
 
 
-	const TRef <AbstractViewPort> owner;
+	const AlreadyRetained <AbstractViewPort> owner;
 };
 
 REFLEX_SET_TRAIT(Reflex::GLX::AbstractViewPort::ViewState, IsSingleThreadExclusive);

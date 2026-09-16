@@ -61,7 +61,7 @@ struct XmlInterface : public PropertySheetInterface
 
 REFLEX_END_INTERNAL
 
-Reflex::TRef <Reflex::IDE::Detail::PropertyEditor::Interface> Reflex::IDE::Detail::PropertyEditor::CreateXmlInterface(Data::PropertySet & root)
+Reflex::Unretained <Reflex::IDE::Detail::PropertyEditor::Interface> Reflex::IDE::Detail::PropertyEditor::CreateXmlInterface(Data::PropertySet & root)
 {
 	return REFLEX_CREATE(XmlInterface, root);
 }

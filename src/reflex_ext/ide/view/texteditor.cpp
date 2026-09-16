@@ -7,8 +7,8 @@
 //
 
 Reflex::IDE::Detail::TextEditor::TextEditor()
-	: behaviour(GLX::TextEditBehaviour::Create())
-	, m_text(New<GLX::Text>(true))
+	: behaviour(NoRetain(GLX::TextEditBehaviour::Create()))
+	, m_text(NoRetain(New<GLX::Text>(true)))
 {
 	GLX::SetColourCanvas(*this, {}, [this](GLX::ColourCanvasContext & ctx)
 	{
@@ -38,7 +38,7 @@ void Reflex::IDE::Detail::TextEditor::ClearData()
 	Realign();
 }
 
-void Reflex::IDE::Detail::TextEditor::SetData(ConstTRef <Data::ArchiveObject> archive, UInt8 tab_spaces)
+void Reflex::IDE::Detail::TextEditor::SetData(ConstWillRetain <Data::ArchiveObject> archive, UInt8 tab_spaces)
 {
 	if (m_data.Adr() != archive.Adr())
 	{

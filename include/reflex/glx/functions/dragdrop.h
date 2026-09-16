@@ -11,7 +11,7 @@
 namespace Reflex::GLX
 {
 
-	void StartDragDrop(TRef <Reflex::Object> data, MouseCursor dragover = kMouseCursorInvisible, MouseCursor block = kMouseCursorInvisible);
+	void StartDragDrop(WillRetain <Reflex::Object> data, MouseCursor dragover = kMouseCursorInvisible, MouseCursor block = kMouseCursorInvisible);
 
 	void CancelDragDrop();
 
@@ -19,11 +19,11 @@ namespace Reflex::GLX
 	template <class TYPE> inline TYPE * QueryDragDropData(GLX::Event & e);
 
 
-	[[nodiscard]] TRef <Reflex::Object> CreateDragDropBeginListener(const Function <void(Reflex::Object&)> & callback);
+	[[nodiscard]] Unretained <Reflex::Object> CreateDragDropBeginListener(const Function <void(Reflex::Object&)> & callback);
 
-	[[nodiscard]] TRef <Reflex::Object> CreateDragDropEndListener(const Function <void()> & callback);
+	[[nodiscard]] Unretained <Reflex::Object> CreateDragDropEndListener(const Function <void()> & callback);
 
-	[[nodiscard]] TRef <Reflex::Object> CreateDragDropTargetListener(const Function <void(GLX::Object&)> & callback);
+	[[nodiscard]] Unretained <Reflex::Object> CreateDragDropTargetListener(const Function <void(GLX::Object&)> & callback);
 
 }
 
@@ -33,7 +33,7 @@ namespace Reflex::GLX
 //
 //impl
 
-inline void Reflex::GLX::StartDragDrop(TRef <Reflex::Object> data, MouseCursor accept, MouseCursor deny)
+inline void Reflex::GLX::StartDragDrop(WillRetain <Reflex::Object> data, MouseCursor accept, MouseCursor deny)
 {
 	Core::desktop->StartDragDrop(Detail::GetActivePointer().slot, data, accept, deny);
 }
@@ -48,7 +48,7 @@ template <class TYPE> inline TYPE * Reflex::GLX::QueryDragDropData(GLX::Event & 
 	return DynamicCast<TYPE>(GetDragDropData(e));
 }
 
-inline Reflex::TRef <Reflex::Object> Reflex::GLX::CreateDragDropBeginListener(const Function <void(Reflex::Object&)> & callback)
+inline Reflex::Unretained <Reflex::Object> Reflex::GLX::CreateDragDropBeginListener(const Function <void(Reflex::Object&)> & callback)
 {
 	return Core::desktop->CreateListener(Core::Desktop::kNotificationDragDropBegin, [callback]()
 	{
@@ -56,12 +56,12 @@ inline Reflex::TRef <Reflex::Object> Reflex::GLX::CreateDragDropBeginListener(co
 	});
 }
 
-inline Reflex::TRef <Reflex::Object> Reflex::GLX::CreateDragDropEndListener(const Function <void()> & callback)
+inline Reflex::Unretained <Reflex::Object> Reflex::GLX::CreateDragDropEndListener(const Function <void()> & callback)
 {
 	return Core::desktop->CreateListener(Core::Desktop::kNotificationDragDropEnd, callback);
 }
 
-inline Reflex::TRef <Reflex::Object> Reflex::GLX::CreateDragDropTargetListener(const Function <void(GLX::Object&)> & callback)
+inline Reflex::Unretained <Reflex::Object> Reflex::GLX::CreateDragDropTargetListener(const Function <void(GLX::Object&)> & callback)
 {
 	return Core::desktop->CreateListener(Core::Desktop::kNotificationDragDropTarget, [callback]()
 	{

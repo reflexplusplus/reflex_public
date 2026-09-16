@@ -286,7 +286,12 @@ Map <Key32> GetRequestedPlatforms(const Array <CString::View> & platforms)
 	{
 		for (auto & raw : platforms)
 		{
-			requested.Set(MakeKey32(Lowercase(raw)));
+			auto platform = MakeKey32(Lowercase(raw));
+
+			//The release API uses the legacy "win" platform identifier.
+			if (platform == K32("windows")) platform = K32("win");
+
+			requested.Set(platform);
 		}
 	}
 	else

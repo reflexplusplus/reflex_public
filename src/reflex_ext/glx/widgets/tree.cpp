@@ -250,7 +250,7 @@ bool Reflex::GLX::Tree::OnEvent(Object & src, Event & e)
 		case GLX_KEY_CODE(kKeyCodeUp, GLX::kModifierKeyAlt):
 			if (m_selection)
 			{
-				TRef focus = m_selection.GetLast();
+				auto focus = NoRetain(m_selection.GetLast());
 
 				if (auto prev = focus->GetPrev())
 				{
@@ -266,7 +266,7 @@ bool Reflex::GLX::Tree::OnEvent(Object & src, Event & e)
 		case GLX_KEY_CODE(kKeyCodeDown, GLX::kModifierKeyAlt):
 			if (m_selection)
 			{
-				TRef focus = m_selection.GetLast();
+				auto focus = NoRetain(m_selection.GetLast());
 
 				if (auto next = focus->GetNext())
 				{
@@ -283,7 +283,7 @@ bool Reflex::GLX::Tree::OnEvent(Object & src, Event & e)
 		case GLX_KEY_CODE(kKeyCodeLeft, GLX::kModifierKeyNone):
 			if (m_selection)
 			{
-				TRef node = m_selection.GetLast();
+				auto node = NoRetain(m_selection.GetLast());
 
 				if (node != root)
 				{
@@ -315,7 +315,7 @@ bool Reflex::GLX::Tree::OnEvent(Object & src, Event & e)
 		case GLX_KEY_CODE(kKeyCodeBackspace, GLX::kModifierKeyNone):
 			REFLEX_RLOOP(idx, m_selection.GetSize())
 			{
-				TRef item = m_selection[idx];
+				auto item = NoRetain(m_selection[idx]);
 
 				if (EmitRequest(item, kNodeRemove, false))
 				{
@@ -366,7 +366,7 @@ void Reflex::GLX::Tree::Node::Clear()
 	body->Clear();
 }
 
-Reflex::TRef <Reflex::GLX::Tree::Node> Reflex::GLX::Tree::Node::AddNode()
+Reflex::AlreadyRetained <Reflex::GLX::Tree::Node> Reflex::GLX::Tree::Node::AddNode()
 {
 	return REFLEX_CREATE(Node, *this);
 }

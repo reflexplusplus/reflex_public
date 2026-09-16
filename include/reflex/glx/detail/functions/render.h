@@ -11,7 +11,7 @@
 
 REFLEX_NS(Reflex::GLX::Detail)
 
-template <class TYPE> ConstTRef <TYPE> Compile(const Style & style);
+template <class TYPE> ConstAlreadyRetained <TYPE> Compile(const Style & style);
 
 
 System::Renderer::Transform TransformMatrix(const System::Renderer::Transform & in, Point origin);
@@ -42,7 +42,7 @@ extern const SIMD::BoolV4 kClipX, kClipY;
 
 extern const SIMD::FloatV4 kRoundingToleranceV4;
 
-extern ConstTRef <Graphic> g_solid_rectangle;
+extern AlreadyRetained <const Graphic> g_solid_rectangle;
 
 template <bool SCALE> REFLEX_INLINE System::Renderer::Transform TransformMatrixImpl(const System::Renderer::Transform & in, const System::Renderer::Transform & transform)
 {
@@ -98,7 +98,7 @@ REFLEX_INLINE void SetClipImpl(Core::RenderContext & ctx, const SIMD::IntV4 & cl
 
 REFLEX_END
 
-template <class TYPE> REFLEX_INLINE Reflex::ConstTRef <TYPE> Reflex::GLX::Detail::Compile(const Style & style)
+template <class TYPE> REFLEX_INLINE Reflex::ConstAlreadyRetained <TYPE> Reflex::GLX::Detail::Compile(const Style & style)
 {
 	return Data::Detail::AcquireProperty<TYPE>(RemoveConst(style), kComputedStyle, style);
 }

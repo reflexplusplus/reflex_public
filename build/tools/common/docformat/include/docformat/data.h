@@ -76,7 +76,7 @@ namespace Docformat
 	void SetTypedefTarget(Data::PropertySet & data, Symbol value);
 
 	Data::PropertySet GetTypeConstructors(const Data::PropertySet & data);
-	void SetTypeConstructors(Data::PropertySet & data, TRef <Data::PropertySet> value);
+	void SetTypeConstructors(Data::PropertySet & data, WillRetain <Data::PropertySet> value);
 
 	ArrayView <Symbol> GetTemplateArgs(const Data::PropertySet & data);
 	void SetTemplateArgs(Data::PropertySet & data, ArrayView <Symbol> value);
@@ -215,7 +215,7 @@ inline void Docformat::SetTypedefTarget(Data::PropertySet & data, Symbol value)
 	SetSymbol(data, value, kTypeID);
 }
 
-inline void Docformat::SetTypeConstructors(Data::PropertySet & data, TRef <Data::PropertySet> value)
+inline void Docformat::SetTypeConstructors(Data::PropertySet & data, WillRetain <Data::PropertySet> value)
 {
 	Data::SetPropertySet(data, kConstructors, value);
 }

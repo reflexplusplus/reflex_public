@@ -7,9 +7,9 @@
 //
 //Form impl
 
-Reflex::GLX::Form::Form(TRef <Object> body)
-	: header(New<Label>()),
-	body(body)
+Reflex::GLX::Form::Form(WillRetain <Object> body)
+	: header(NoRetain(New<Label>())),
+	body(NoRetain(body))
 {
 	REFLEX_ASSERT(body->GetAllocator());
 
@@ -24,7 +24,7 @@ Reflex::GLX::Form::Form(TRef <Object> body)
 	AddInlineFlex(*this, body);
 }
 
-Reflex::GLX::Form::Form(const WString::View & label, TRef <Object> body)
+Reflex::GLX::Form::Form(const WString::View & label, WillRetain <Object> body)
 	: Form(body)
 {
 	SetText(header, label);
@@ -51,9 +51,9 @@ void Reflex::GLX::Form::OnSetStyle(const Style & style)
 //
 //FormEx impl
 
-Reflex::GLX::FormEx::FormEx(const WString::View & title, TRef <Object> body, TRef <Object> footer)
+Reflex::GLX::FormEx::FormEx(const WString::View & title, WillRetain <Object> body, WillRetain <Object> footer)
 	: Form(title, body),
-	footer(footer)
+	footer(NoRetain(footer))
 {
 	Retain(footer);
 

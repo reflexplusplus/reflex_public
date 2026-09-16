@@ -46,7 +46,7 @@ struct GraphicsSettings : public GLX::Object
 	GLX::Form m_renderer;
 
 
-	Array <TRef <GLX::Form>> m_options;
+	Array <AlreadyRetained <GLX::Form>> m_options;
 
 
 	static constexpr const WChar * kDpiAware = L"DPI Aware";
@@ -107,7 +107,7 @@ GraphicsSettings::GraphicsSettings(const GLX::Style & styles, bool resizeable)
 	}
 
 
-	TRef <GLX::Object> parents[] = { m_system.body, m_glx.body };
+	AlreadyRetained <GLX::Object> parents[] = { m_system.body, m_glx.body };
 
 	for (auto & i : m_optionids)
 	{

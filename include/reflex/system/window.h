@@ -37,6 +37,8 @@ enum Reflex::System::WindowStyles : Reflex::UInt8
 	kWindowStyleMinimisable = 2,
 	kWindowStyleResizable = 4,
 	kWindowStyleCloseable = 8,
+
+	kWindowStyleExPluginResizeHandle = 16
 };
 
 
@@ -126,15 +128,15 @@ public:
 
 	//lifetime
 
-	[[nodiscard]] static TRef <Window> Create(UInt32 styleflags, bool topmost = false, void * host_window = nullptr);
+	[[nodiscard]] static Unretained <Window> Create(UInt32 styleflags, bool topmost = false, void * host_window = nullptr);
 
 
 
 	//callbacks
 
-	virtual void SetClient(TRef <Client> client, WindowDisplay & initial_mode, iRect & initial_rect) = 0;
+	virtual void SetClient(WillRetain <Client> client, WindowDisplay & initial_mode, iRect & initial_rect) = 0;
 
-	virtual TRef <Client> GetClient() = 0;
+	virtual AlreadyRetained <Client> GetClient() = 0;
 
 
 
@@ -184,9 +186,9 @@ public:
 
 	//screencapture
 
-	[[nodiscard]] virtual TRef < ObjectOf <RawBitmap> > CreateExportBitmapBuffer(UInt8 flags = 0) const = 0;
+	[[nodiscard]] virtual Unretained < ObjectOf <RawBitmap> > CreateExportBitmapBuffer(UInt8 flags = 0) const = 0;
 
-	virtual void ExportBitmap(TRef < ObjectOf <RawBitmap> > buffer) const = 0;
+	virtual void ExportBitmap(AlreadyRetained < ObjectOf <RawBitmap> > buffer) const = 0;
 
 
 

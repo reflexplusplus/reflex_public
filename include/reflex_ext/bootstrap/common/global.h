@@ -16,7 +16,7 @@ namespace Reflex::Bootstrap
 	
 	extern Reflex::Detail::Module module;
 
-	extern const TRef <Global> global;
+	extern const AlreadyRetained <Global> global;
 
 }
 
@@ -33,13 +33,13 @@ public:
 	REFLEX_OBJECT(Bootstrap::Global, Data::PropertySet);
 
 
-	[[nodiscard]] static TRef <Global> Acquire(CString::View vendor, CString::View product, WString::View project_dir, Key32 resource_group = kNullKey);
+	[[nodiscard]] static Unretained <Global> Acquire(CString::View vendor, CString::View product, WString::View project_dir, Key32 resource_group = kNullKey);
 
 
-	[[nodiscard]] virtual TRef <Object> CreateDeepLinkListener(const Function<void(CString::View)> & callback) = 0;
+	[[nodiscard]] virtual Unretained <Object> CreateDeepLinkListener(const Function<void(CString::View)> & callback) = 0;
 
 
-	virtual TRef <Object> EnableIde(bool enable) = 0;
+	virtual AlreadyRetained <Object> EnableIde(bool enable) = 0;
 
 	virtual bool IdeEnabled() const = 0;
 
@@ -48,11 +48,11 @@ public:
 
 
 
-	const TRef <File::VirtualFileSystem> filesystem;		//includes resources locator for :res/
+	const AlreadyRetained <File::VirtualFileSystem> filesystem;		//includes resources locator for :res/
 
-	const TRef <File::ResourcePool> resourcepool;
+	const AlreadyRetained <File::ResourcePool> resourcepool;
 
-	const TRef <File::PersistentPropertySet> prefs;
+	const AlreadyRetained <File::PersistentPropertySet> prefs;
 
 	const CString vendor, product;
 

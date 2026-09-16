@@ -23,7 +23,7 @@ struct PopupBehaviourImpl : public PopupBehaviour
 	{
 	}
 
-	void SetConfig(FunctionPointer <TRef<GLX::Object>()> create_content, Key32 forward_event, Key32 content_style) override
+	void SetConfig(FunctionPointer <Unretained<GLX::Object>()> create_content, Key32 forward_event, Key32 content_style) override
 	{
 		m_content_ctr = create_content;
 		m_forward_event = forward_event;
@@ -196,12 +196,12 @@ REFLEX_INLINE bool PlacePopupFits(const Rect & bounds, const Rect & rect, UInt c
 
 REFLEX_END_INTERNAL
 
-Reflex::TRef <Reflex::GLX::PopupBehaviour> Reflex::GLX::PopupBehaviour::Create()
+Reflex::Unretained <Reflex::GLX::PopupBehaviour> Reflex::GLX::PopupBehaviour::Create()
 {
 	return New<PopupBehaviourImpl>();
 }
 
-void Reflex::GLX::Detail::PlacePopup(Object & owner, Object & fg, TRef <Object> popup, const Rect & target_rect, Alignment alignment, Orientation justify)
+void Reflex::GLX::Detail::PlacePopup(Object & owner, Object & fg, WillRetain <Object> popup, const Rect & target_rect, Alignment alignment, Orientation justify)
 {
 	struct DetachDelegate : public GLX::Object::Delegate
 	{

@@ -12,12 +12,12 @@
 namespace Reflex::GLX
 {
 
-	ConstTRef <StyleSheet> RetrieveStyleSheet(const WString::View & path, const Data::PropertySet & options = Data::PropertySet::null);
+	ConstAlreadyRetained <StyleSheet> RetrieveStyleSheet(const WString::View & path, const Data::PropertySet & options = Data::PropertySet::null);
 
 
-	ConstTRef <Style> FindStyle(const Style & style, Key32 id);
+	ConstAlreadyRetained <Style> FindStyle(const Style & style, Key32 id);
 
-	ConstTRef <Style> FindStyle(const Object & object, Key32 id);
+	ConstAlreadyRetained <Style> FindStyle(const Object & object, Key32 id);
 
 }
 
@@ -29,17 +29,17 @@ namespace Reflex::GLX
 
 REFLEX_NS(Reflex::GLX::Detail)
 
-[[nodiscard]] TRef <Reflex::Object> DecodeStyleSheet(const File::ResourcePool::StreamContext & ctx, System::FileHandle & instream);
+[[nodiscard]] Unretained <Reflex::Object> DecodeStyleSheet(const File::ResourcePool::StreamContext & ctx, System::FileHandle & instream);
 
-ConstTRef <Style> FindStyle(const Style & start, const ArrayView <Key32> & path);
+ConstAlreadyRetained <Style> FindStyle(const Style & start, const ArrayView <Key32> & path);
 
-template <class TYPE> ConstTRef <TYPE> FindResource(const Style & style, Key32 id);
+template <class TYPE> ConstAlreadyRetained <TYPE> FindResource(const Style & style, Key32 id);
 
 const Reflex::Object * FindResource(const Style & style, Address adr, const Reflex::Object * fallback);
 
-ConstTRef <Reflex::Object> RetrieveRelativeResource(const WString::View & filename, const Data::PropertySet & options, TypeID type_id, File::ResourcePool::Ctr ctr);
+ConstAlreadyRetained <Reflex::Object> RetrieveRelativeResource(const WString::View & filename, const Data::PropertySet & options, TypeID type_id, File::ResourcePool::Ctr ctr);
 
-template <class TYPE> REFLEX_INLINE ConstTRef <TYPE> RetrieveRelativeResource(const WString::View & filename, const Data::PropertySet & options, File::ResourcePool::Ctr ctr)
+template <class TYPE> REFLEX_INLINE ConstAlreadyRetained <TYPE> RetrieveRelativeResource(const WString::View & filename, const Data::PropertySet & options, File::ResourcePool::Ctr ctr)
 {
 	return Cast<TYPE>(RetrieveRelativeResource(filename, options, GetTypeID<TYPE>(), ctr));
 }
@@ -55,7 +55,7 @@ inline void ApplySubStyle(Object & object, const Style & style, Key32 id)
 
 REFLEX_END
 
-inline Reflex::ConstTRef <Reflex::GLX::Style> Reflex::GLX::FindStyle(const Style & style, Key32 id)
+inline Reflex::ConstAlreadyRetained <Reflex::GLX::Style> Reflex::GLX::FindStyle(const Style & style, Key32 id)
 {
 	if (auto child = style.QuerySubStyle(id))
 	{
@@ -67,14 +67,14 @@ inline Reflex::ConstTRef <Reflex::GLX::Style> Reflex::GLX::FindStyle(const Style
 	}
 }
 
-REFLEX_INLINE Reflex::ConstTRef <Reflex::GLX::StyleSheet> Reflex::GLX::RetrieveStyleSheet(const WString::View & path, const Data::PropertySet & options)
+REFLEX_INLINE Reflex::ConstAlreadyRetained <Reflex::GLX::StyleSheet> Reflex::GLX::RetrieveStyleSheet(const WString::View & path, const Data::PropertySet & options)
 {
 	File::ResourcePool::Lock lock(Core::desktop->resourcepool);
 
 	return lock.Retrieve<StyleSheet>(path, options, &Detail::DecodeStyleSheet);
 }
 
-template <class TYPE> REFLEX_INLINE Reflex::ConstTRef <TYPE> Reflex::GLX::Detail::FindResource(const Style & style, Key32 id)
+template <class TYPE> REFLEX_INLINE Reflex::ConstAlreadyRetained <TYPE> Reflex::GLX::Detail::FindResource(const Style & style, Key32 id)
 {
 	return Cast<TYPE>(Detail::FindResource(style, MakeAddress<TYPE>(id), &Reflex::Detail::GetNullInstance<TYPE>()));
 }

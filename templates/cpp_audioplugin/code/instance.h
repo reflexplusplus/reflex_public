@@ -42,7 +42,7 @@ public:
 
 	//ctr
 
-	static Reflex::TRef <Instance> Create(const Class & cls, Reflex::System::AudioPlugin & instance);
+	static Reflex::Unretained <Instance> Create(const Class & cls, Reflex::System::AudioPlugin & instance);
 
 
 

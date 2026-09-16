@@ -1,5 +1,72 @@
 # Changelog
 
+## v0.5.0 — semantic references and audio plugin parameter fixes
+
+Reflex 0.5.0 introduces semantic reference aliases that describe what a reference does with ownership, and renames several persistence and interface APIs to match. It also fixes a number of audio plugin parameter and host-compatibility problems, hardens CoreAudio and WinMM device handling, and moves Android builds to static archives.
+
+### Changes
+
+#### Object model and references
+
+- Added semantic reference aliases — `AlreadyRetained`, `WillRetain`, `Unretained` and their const forms — so a signature states its ownership contract rather than leaving it to convention. They are aliases of `TRef` and `Ref`, so existing code continues to compile.
+- Added the `ConstRetained` alias.
+- `Reflex::Detail::Initialiser` now supports deferred definition.
+- Added `Async::Threadpool`.
+- Added a `Reflex::Rotate` array helper.
+
+#### Renamed and removed APIs
+
+- Renamed `Data::iStreamable` to `Data::iSerializable`, and `Bootstrap::Streamable` to `Bootstrap::PersistentState`.
+- Deprecated `InterfaceOf` in favour of simpler free functions.
+- Removed the deprecated `System::Task::Active`.
+- Renamed `include/reflex/system/entry/instance.h` to `app.h`.
+- Serialization now prefers a type's custom implementation over a raw copy.
+- Added `System::AudioPlugin::GetClass`.
+
+#### Audio plugins
+
+- Fixed a VST3 crash in Ableton Live 12 caused by reporting a state change immediately from within Netx.
+- Fixed CLAP `value_to_text` round-tripping.
+- Fixed `Bootstrap::ParameterControl` update handling, including a missing `UnsetState`.
+- Added `Bootstrap::AudioPlugin::UpdateParameterValue` and a private `SetParameterValueMt`.
+- Optimised `Bootstrap::GenericControl` styling.
+- Plugin windows now use a universal resize handle.
+- Fixed executable names in generated Apple property lists.
+
+#### Audio and MIDI devices
+
+- Guarded the CoreAudio lifecycle when no device is available, and hardened resume re-entry.
+- Windows MIDI ports now stay alive when a WinMM open fails or a port is re-enabled, and MIDI hotplug was fixed.
+
+#### Graphics
+
+- Fixed the GLX Tile layer.
+- Fixed a missing `glActiveTexture` binding.
+- Fixed a macOS `window.mm` compile error.
+
+#### Build, CMake and the CLI
+
+- Android libraries are now generated as static archives instead of AARs.
+- Fixed Android CMake target collisions for source dependencies in generated projects.
+- `reflex_add_*` targets now honour `CMAKE_OSX_DEPLOYMENT_TARGET` and expose `APPLE_DEPLOYMENT_TARGET` (#179).
+- `reflex install --platforms` now takes `windows` rather than `win`, for consistency with other commands.
+- Added header files to the Reflex project definition.
+- Added a CMake test matrix, and stopped the International Meeting Planner example from failing it on an HTTP error.
+- Assorted Reflex CLI fixes and enhancements, including building with current Visual Studio installations.
+
+#### Scripting
+
+- The VM now converts `bool` to `int32` where it previously did not.
+
+## Unreleased
+
+### Changes
+
+#### Reflex Build and project generation
+
+- `reflex_add_*` targets now honour the consumer's `CMAKE_OSX_DEPLOYMENT_TARGET` instead of always forcing the SDK default (11.0 macOS / 14.0 iOS).
+- Added an optional `APPLE_DEPLOYMENT_TARGET` argument to `reflex_add_app`, `reflex_add_vm_app`, `reflex_add_audio_plugin`, and `reflex_add_console_app` for per-target overrides.
+
 ## v0.4.4 — more flexible project generation
 
 Reflex 0.4.4 expands the project generator with reusable dependency packages and host-appropriate defaults. It also improves generated CMake apps, installation guidance, and automated agent testing.

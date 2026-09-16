@@ -3,15 +3,6 @@
 
 REFLEX_BEGIN_INTERNAL(ReflexCLI::ProjectGen::Android)
 
-constexpr CString::View kCMakeConfiguration =
-	"if([CONDITION])\n"
-	"[PACKAGES]\tset_property(TARGET [LIBRARY] PROPERTY CXX_STANDARD [CPP_STANDARD])\n"
-	"\ttarget_sources([LIBRARY] PRIVATE\n"
-	"[SOURCES]\t)\n"
-	"[INCLUDE_DIRECTORIES][DEFINES]\ttarget_compile_options([LIBRARY] PRIVATE\n"
-	"[COMPILE_OPTIONS]\t)\n"
-	"[LIBRARY_DIRECTORIES][LIBRARIES][LINK_OPTIONS]endif()\n";
-
 constexpr CString::View kSigning =
 	"def reflex[CONFIGURATION_ID]SigningPropertiesFile = file([SIGNING_PROPERTIES])\n"
 	"if (reflex[CONFIGURATION_ID]SigningPropertiesFile.exists()) {\n"
@@ -93,6 +84,11 @@ CString CMakeIdentifier(const Target & target)
 	}
 	if (configured) return configured;
 	return Search(target.GetName(), "::") ? CString(target.GetName()) : Symbol(target.GetName());
+}
+
+CString SourceTargetIdentifier(const Target & target)
+{
+	return Symbol(Replace(CMakeIdentifier(target), "::", "_"));
 }
 
 void SplitCMakeIdentifier(CString::View identifier, CString & package, CString & module)
@@ -197,22 +193,21 @@ void WriteBuildActions(Data::Archive & output, CString::View name, const TargetC
 	}
 }
 
-void WriteArtifactCopy(Data::Archive & output, CString::View name, const TargetConfiguration & config, CString::View archive_name = {})
+void WriteArtifactCopy(Data::Archive & output, CString::View name, const TargetConfiguration & config)
 {
 	auto output_directory = config.GetPath(kOutputDirectory);
 	if (output_directory.path.Empty()) return;
 
-	auto library = True(archive_name);
 	auto task = Join("copy", name, "Artifact");
 	auto build_type = Lowercase(name);
-	auto build_task = library ? Join("bundle", name, "Aar") : Join("assemble", name);
-	auto source = library ? Join("outputs/aar/", archive_name, '-', build_type, ".aar") : Join("outputs/apk/", build_type);
-	auto filename = library ? Join(archive_name, ".aar") : Join(AssembledValue(config.GetString(kOutputName, config.platform->target->project->GetName())), ".apk");
+	auto build_task = Join("assemble", name);
+	auto source = Join("outputs/apk/", build_type);
+	auto filename = Join(AssembledValue(config.GetString(kOutputName, config.platform->target->project->GetName())), ".apk");
 	Data::WriteLine(output, Join("def ", task, " = tasks.register('", task, "', Copy) {"));
 	WriteLine(output, 1, Join("dependsOn '", build_task, "'"));
-	if (!library) WriteLine(output, 1, Join("onlyIf { tasks.named('", build_task, "').get().state.failure == null }"));
-	WriteLine(output, 1, Join("from layout.buildDirectory.", library ? "file('" : "dir('", source, "')"));
-	if (!library) WriteLine(output, 1, "include '*.apk'");
+	WriteLine(output, 1, Join("onlyIf { tasks.named('", build_task, "').get().state.failure == null }"));
+	WriteLine(output, 1, Join("from layout.buildDirectory.dir('", source, "')"));
+	WriteLine(output, 1, "include '*.apk'");
 	WriteLine(output, 1, Join(L"into file(", GradleQuote(Replace(ResolvePath(L"$projectRoot/", output_directory), L"$(Architecture)", L"universal")), L')'));
 	WriteLine(output, 1, Join("rename { _ -> ", GradleQuote(filename), " }"));
 	Data::WriteLine(output, "}");
@@ -263,21 +258,6 @@ void WriteDependencies(Data::Archive & output, bool release, const TargetConfigu
 			WriteLine(output, 1, Join(scope, L' ', GradleQuote(GradleValue(wdependency))));
 		}
 	}
-
-	for (auto & dependency : GetLinkDependencies(*config.platform->target, kBuildPlatformAndroid))
-	{
-		if (dependency->IsLibrary())
-		{
-			auto platform = dependency->FindPlatform(kBuildPlatformAndroid);
-			auto dependency_config = platform->FindConfiguration(config.GetName());
-			auto path = dependency_config->GetPath(kPath);
-			if (File::CheckExtension(path.path, L"aar"))
-			{
-				auto value = ResolvePath(dependency->project->GetRoot(), path);
-				write_file_dependency(WString(GradleValue(value)));
-			}
-		}
-	}
 }
 
 UInt32 SdkVersion(const TargetConfiguration & config, CString::View property, UInt32 fallback)
@@ -321,24 +301,55 @@ bool IsPackage(CString::View value)
 	return !first;
 }
 
-WString AbiList(const TargetConfiguration & config)
+CString::View AbiName(Architecture architecture)
 {
 	static constexpr CString::View names[] = { {}, "x86", "x86_64", "armeabi-v7a", "arm64-v8a" };
 	REFLEX_STATIC_ASSERT(GetArraySize(names) == kArchitectureCount);
+	Require(UInt(architecture) < kArchitectureCount, kArchitectures, Join("unsupported architecture: ", ToCString(UInt(architecture))));
+	auto result = names[architecture];
+	Require(True(result), kArchitectures, Join("unsupported architecture: ", kArchitectureNames[architecture]));
+	return result;
+}
 
+WString AbiList(const TargetConfiguration & config)
+{
 	WString result = L"[";
 	auto architectures = config.GetArchitectures();
 	for (UInt i = 0; i < architectures.GetSize(); ++i)
 	{
-		auto architecture = architectures[i];
-		Require(UInt(architecture) < kArchitectureCount, kArchitectures, Join("unsupported architecture: ", ToCString(UInt(architecture))));
-		auto abi = names[architecture];
-		Require(True(abi), kArchitectures, Join("unsupported architecture: ", kArchitectureNames[architecture]));
+		auto abi = AbiName(architectures[i]);
 		if (i) result.Append(L", ");
 		result.Append(Join(WChar(kSingleQuote), ToWString(abi), WChar(kSingleQuote)));
 	}
 	result.Push(L']');
 	return result;
+}
+
+WString OutputDirectory(const TargetConfiguration & config)
+{
+	auto output_directory = config.GetPath(kOutputDirectory);
+	if (!output_directory.path) return {};
+	return File::CorrectTrailingStroke(ResolvePath(config.platform->target->project->GetRoot(), output_directory));
+}
+
+void AddApplicationArtifact(Map<WString> & outputs, const TargetConfiguration & config)
+{
+	auto directory = OutputDirectory(config);
+	if (!directory) return;
+	directory = Replace(directory, L"$(Architecture)", L"universal");
+	auto filename = Join(AssembledValue(config.GetString(kOutputName, config.platform->target->project->GetName())), ".apk");
+	outputs.Set(Join(directory, ToWString(filename)));
+}
+
+void AddLibraryArtifacts(Map<WString> & outputs, const BuildTarget & target, const TargetConfiguration & config)
+{
+	auto directory = OutputDirectory(config);
+	if (!directory) return;
+	for (auto architecture : config.GetArchitectures())
+	{
+		auto resolved = Replace(directory, L"$(Architecture)", ToWString(AbiName(architecture)));
+		outputs.Set(Join(resolved, L"lib", ToWString(target.output_library), L".a"));
+	}
 }
 
 Data::Archive Settings(CString::View project_name, CString::View module)
@@ -423,32 +434,23 @@ Data::Archive AppGradle(const Target & target, CString::View package_id, const T
 	});
 }
 
-Data::Archive LibraryGradle(ArrayView<BuildTarget> targets, CString::View package_id, CString::View archive_name)
+Data::Archive LibraryGradle(ArrayView<BuildTarget> targets, CString::View package_id)
 {
 	REFLEX_ASSERT(targets.size);
 	auto & debug = *targets[0].debug;
 	auto & release = *targets[0].release;
 
 	Data::Archive build_actions;
-	Data::WriteLine(build_actions, "base {");
-	WriteLine(build_actions, 1, Join("archivesName = ", GradleQuote(archive_name)));
-	Data::WriteLine(build_actions, "}");
-	Data::WriteLine(build_actions);
 	WriteBuildActions(build_actions, kDebug, debug);
 	WriteBuildActions(build_actions, kRelease, release);
-	Data::Archive artifact_outputs;
-	WriteArtifactCopy(artifact_outputs, kDebug, debug, archive_name);
-	WriteArtifactCopy(artifact_outputs, kRelease, release, archive_name);
 	Data::Archive dependencies;
 	WriteDependencies(dependencies, false, debug);
 	WriteDependencies(dependencies, true, release);
-	Data::Archive prefab_targets;
+	WString native_targets;
 	for (auto & target : targets)
 	{
-		WriteLine(prefab_targets, 2, Join(target.cmake_module, " {"));
-		WriteLine(prefab_targets, 3, Join("name ", GradleQuote(target.cmake_module)));
-		WriteLine(prefab_targets, 3, Join("libraryName ", GradleQuote(Join("lib", target.output_library))));
-		WriteLine(prefab_targets, 2, "}");
+		if (native_targets) native_targets.Append(L", ");
+		native_targets.Append(GradleQuote(ToWString(target.cmake_module)));
 	}
 
 	return ProjectGen::Template(library_build_gradle,
@@ -460,45 +462,23 @@ Data::Archive LibraryGradle(ArrayView<BuildTarget> targets, CString::View packag
 		{ "DEBUG_ABIS", AbiList(debug) },
 		{ "RELEASE_RUNTIME_LIBRARY", RuntimeLibraryName(release.GetEnum<RuntimeLibrary>(kRuntimeLibrary, kRuntimeLibraryNames, kRuntimeLibrary_static)) },
 		{ "RELEASE_ABIS", AbiList(release) },
-		{ "PREFAB_TARGETS", Text(prefab_targets) },
+		{ "NATIVE_TARGETS", native_targets },
 		{ "BUILD_ACTIONS", Text(build_actions) },
-		{ "ARTIFACT_OUTPUTS", Text(artifact_outputs) },
 		{ "DEPENDENCIES", Text(dependencies) },
 	});
 }
 
-WString CMakeValues(ArrayView<WString> values)
+void WriteCMakeHeaderOnlyFiles(Data::Archive & output, CString::View library, ArrayView<PathDesc> headers, ArrayView<PathDesc> other)
 {
-	Data::Archive output;
-	for (auto & value : values) WriteLine(output, 2, value);
-	return Text(output);
-}
-
-WString CMakeBlock(CString::View command, CString::View library, ArrayView<WString> values)
-{
-	if (values.Empty()) return {};
-	Data::Archive output;
-	WriteLine(output, 1, Join(command, "(", library, " PRIVATE"));
-	for (auto & value : values) WriteLine(output, 2, value);
-	WriteLine(output, 1, ")");
-	return Text(output);
-}
-
-WString CMakeHeaderOnlyFiles(CString::View library, ArrayView<PathDesc> headers, ArrayView<PathDesc> other)
-{
-	if (headers.Empty() && other.Empty()) return {};
-	Data::Archive output;
-	Data::WriteLine(output, "set_source_files_properties(");
-	for (auto & path : headers) WriteLine(output, 1, CMakeQuote(Path(path)));
-	for (auto & path : other) WriteLine(output, 1, CMakeQuote(Path(path)));
-	WriteLine(output, 1, "PROPERTIES HEADER_FILE_ONLY TRUE");
-	Data::WriteLine(output, ")");
-	Data::WriteLine(output, Join("target_sources(", library, " PRIVATE"));
-	for (auto & path : headers) WriteLine(output, 1, CMakeQuote(Path(path)));
-	for (auto & path : other) WriteLine(output, 1, CMakeQuote(Path(path)));
-	Data::WriteLine(output, ")");
+	Array<WString> paths;
+	for (auto & path : headers) paths.Push(CMakeQuote(Path(path)));
+	for (auto & path : other) paths.Push(CMakeQuote(Path(path)));
+	if (paths.Empty()) return;
+	auto properties = paths;
+	properties.Push(L"PROPERTIES HEADER_FILE_ONLY TRUE");
+	WriteCMakeInvocation(output, 0, "set_source_files_properties", {}, properties);
+	WriteCMakeTargetValues(output, 0, "target_sources", library, paths);
 	Data::WriteLine(output);
-	return Text(output);
 }
 
 Data::Archive CMakeConfiguration(const TargetConfiguration & config, CString::View library, bool is_release, bool application)
@@ -515,14 +495,13 @@ Data::Archive CMakeConfiguration(const TargetConfiguration & config, CString::Vi
 	for (auto & path : FlattenPaths(*config.GetPaths(true, kIncludeDirectories))) include_directories.Push(CMakeQuote(Path(path)));
 	for (auto & define : config.GetDefinitions()) defines.Push(CMakeQuote(Variables(ToWString(define))));
 	for (auto option : GnuCompileOptions(config, false)) compile_options.Push(ToWString(option));
+	for (auto option : ClangFloatingPointOptions(config)) compile_options.Push(ToWString(option));
 	for (auto & option : config.GetStrings(kCompilerOptions)) compile_options.Push(CMakeQuote(Variables(ToWString(option))));
 	for (auto & dependency : GetLinkDependencies(*config.platform->target, kBuildPlatformAndroid))
 	{
 		if (!dependency->IsLibrary())
 		{
-			auto identifier = CMakeIdentifier(*dependency);
-			if (auto separator = Search(identifier, "::")) libraries.Push(ToWString(Mid(identifier, separator.value + 2)));
-			else libraries.Push(ToWString(Symbol(dependency->GetName())));
+			libraries.Push(ToWString(SourceTargetIdentifier(*dependency)));
 			continue;
 		}
 
@@ -532,15 +511,15 @@ Data::Archive CMakeConfiguration(const TargetConfiguration & config, CString::Vi
 		REFLEX_ASSERT(dependency_config);
 		auto path = dependency_config->GetPath(kPath);
 		auto identifier = CMakeIdentifier(*dependency);
-		if (auto separator = Search(identifier, "::"))
+		if (path.path)
+		{
+			libraries.Push(CMakeQuote(Variables(ResolvePath(dependency->project->GetRoot(), path))));
+		}
+		else if (auto separator = Search(identifier, "::"))
 		{
 			libraries.Push(ToWString(identifier));
 			auto package = CString(Left(identifier, separator.value));
 			if (!Search(packages, package)) packages.Push(std::move(package));
-		}
-		else if (path.path)
-		{
-			libraries.Push(CMakeQuote(Variables(ResolvePath(dependency->project->GetRoot(), path))));
 		}
 		else libraries.Push(ToWString(identifier));
 	}
@@ -551,27 +530,32 @@ Data::Archive CMakeConfiguration(const TargetConfiguration & config, CString::Vi
 		libraries.Push(L"EGL");
 		libraries.Push(L"GLESv3");
 	}
-	Data::Archive package_commands;
-	for (auto & package : packages) WriteLine(package_commands, 1, Join("find_package(", package, " REQUIRED CONFIG)"));
-	Data::Archive link_options;
-	auto optimized = config.GetEnum<Optimization>(kOptimization, kOptimizationNames, kOptimization_none) != kOptimization_none;
-	if (config.GetBool(kDebugInformation, !optimized)) WriteLine(link_options, 1, Join("target_link_options(", library, " PRIVATE -g)"));
-	if (config.GetBool(kDeadStrip, optimized)) WriteLine(link_options, 1, Join("target_link_options(", library, " PRIVATE \"-Wl,--gc-sections\")"));
-
-	return ProjectGen::Template(Data::Pack(kCMakeConfiguration),
+	Data::Archive output;
+	Data::WriteLine(output, Join("if(", condition, ")"));
+	for (auto & package : packages) WriteCMakeInvocation(output, 1, "find_package", ToWString(Join(package, " REQUIRED CONFIG")));
+	WriteCMakeInvocation(output, 1, "set_property", ToWString(Join("TARGET ", library, " PROPERTY CXX_STANDARD ",
+		standard_versions[config.GetEnum<CppStandard>(kCppStandard, kCppStandardNames, kCppStandard_cxx20)])));
+	WriteCMakeTargetValues(output, 1, "target_sources", library, sources);
+	WriteCMakeTargetValues(output, 1, "target_include_directories", library, include_directories);
+	WriteCMakeTargetValues(output, 1, "target_compile_definitions", library, defines);
+	WriteCMakeTargetValues(output, 1, "target_compile_options", library, compile_options);
+	WriteCMakeTargetValues(output, 1, "target_link_libraries", library, libraries);
+	if (!application)
 	{
-		{ "CONDITION", ToWString(condition) },
-		{ "PACKAGES", Text(package_commands) },
-		{ "LIBRARY", ToWString(library) },
-		{ "CPP_STANDARD", ToWString(standard_versions[config.GetEnum<CppStandard>(kCppStandard, kCppStandardNames, kCppStandard_cxx20)]) },
-		{ "SOURCES", CMakeValues(sources) },
-		{ "INCLUDE_DIRECTORIES", CMakeBlock("target_include_directories", library, include_directories) },
-		{ "DEFINES", CMakeBlock("target_compile_definitions", library, defines) },
-		{ "COMPILE_OPTIONS", CMakeValues(compile_options) },
-		{ "LIBRARY_DIRECTORIES", {} },
-		{ "LIBRARIES", CMakeBlock("target_link_libraries", library, libraries) },
-		{ "LINK_OPTIONS", Text(link_options) },
-	});
+		auto output_directory = config.GetPath(kOutputDirectory);
+		if (output_directory.path)
+		{
+			Require(True(Search(output_directory.path, L"$(Architecture)")), kOutputDirectory,
+				"must contain $(Architecture) for Android static libraries");
+			auto value = CMakeQuote(Variables(ResolvePath(config.platform->target->project->GetRoot(), output_directory)));
+			WriteCMakeInvocation(output, 1, "set_property", ToWString(Join("TARGET ", library, " PROPERTY ARCHIVE_OUTPUT_DIRECTORY")), { value });
+		}
+	}
+	auto optimized = config.GetEnum<Optimization>(kOptimization, kOptimizationNames, kOptimization_none) != kOptimization_none;
+	if (config.GetBool(kDebugInformation, !optimized)) WriteCMakeTargetValues(output, 1, "target_link_options", library, { L"-g" });
+	if (config.GetBool(kDeadStrip, optimized)) WriteCMakeTargetValues(output, 1, "target_link_options", library, { L"\"-Wl,--gc-sections\"" });
+	Data::WriteLine(output, "endif()");
+	return output;
 }
 
 void WriteSourceProjectImports(Data::Archive & output, const Target & target)
@@ -585,24 +569,36 @@ void WriteSourceProjectImports(Data::Archive & output, const Target & target)
 		if (Search(imported_projects, dependency_project)) continue;
 		imported_projects.Push(dependency_project);
 
-		auto platform = dependency->FindPlatform(kBuildPlatformAndroid);
-		REFLEX_ASSERT(platform);
-		auto [debug, release] = FindDebugAndReleaseConfigurations(*platform);
-		REFLEX_ASSERT(debug && release);
-		auto module = debug->GetString(kAndroidArchiveName, Lowercase(Symbol(dependency_project->GetName())));
-		Require(release->GetString(kAndroidArchiveName, module) == module, kAndroidArchiveName, "must be identical across configurations");
+		auto identifier = SourceTargetIdentifier(*dependency);
+		auto cmake_identifier = CMakeIdentifier(*dependency);
+		CString module;
+		if (Search(cmake_identifier, "::"))
+		{
+			CString ignored;
+			SplitCMakeIdentifier(cmake_identifier, module, ignored);
+		}
+		else module = Lowercase(Symbol(dependency_project->GetName()));
 
-		auto identifier = CMakeIdentifier(*dependency);
-		if (auto separator = Search(identifier, "::")) identifier = CString(Mid(identifier, separator.value + 2));
-		else identifier = Symbol(dependency->GetName());
-
-		auto source = Join(MakeProjectFolder(*dependency_project, kBuildPlatformAndroid), ToWString(module));
+		auto source = Join(GetProjectFolder(*dependency_project, kBuildPlatformAndroid), ToWString(module));
 		auto binary = Join(L"${CMAKE_BINARY_DIR}/reflex_dependencies/", ToWString(Symbol(dependency_project->GetName())));
 		Data::WriteLine(output, Join("if(NOT TARGET ", identifier, ")"));
 		WriteLine(output, 1, Join(L"add_subdirectory(", CMakeQuote(source), L" ", CMakeQuote(binary), L")"));
 		Data::WriteLine(output, "endif()");
 		Data::WriteLine(output, CString::View {});
 	}
+}
+
+CString WriteCMakeBuildTarget(Data::Archive & output, const BuildTarget & target, bool application)
+{
+	if (application || target.library == target.cmake_module) return target.library;
+
+	auto variable = Join(target.library, "_BUILD_TARGET");
+	Data::WriteLine(output, "if(PROJECT_IS_TOP_LEVEL)");
+	WriteCMakeInvocation(output, 1, "set", ToWString(variable), { ToWString(target.cmake_module) });
+	Data::WriteLine(output, "else()");
+	WriteCMakeInvocation(output, 1, "set", ToWString(variable), { ToWString(target.library) });
+	Data::WriteLine(output, "endif()");
+	return Join("${", variable, "}");
 }
 
 Data::Archive CMake(CString::View project_name, ArrayView<BuildTarget> targets, bool application)
@@ -617,23 +613,30 @@ Data::Archive CMake(CString::View project_name, ArrayView<BuildTarget> targets, 
 		Data::WriteLine(native_app_glue, "target_compile_definitions(ReflexAndroidNativeAppGlue PRIVATE NDEBUG=1)");
 		Data::WriteLine(native_app_glue, CString::View {});
 	}
-	if (application) WriteSourceProjectImports(target_definitions, *targets.GetFirst().target);
+	for (auto & target : targets) WriteSourceProjectImports(target_definitions, *target.target);
 
 	for (auto & target : targets)
 	{
-		Data::WriteLine(target_definitions, Join("add_library(", target.library, application ? " SHARED)" : " STATIC)"));
-		if (target.output_library != target.library) Data::WriteLine(target_definitions, Join("set_property(TARGET ", target.library, " PROPERTY OUTPUT_NAME ", target.output_library, ")"));
-		if (application) Data::WriteLine(target_definitions, Join("target_link_options(", target.library, " PRIVATE \"-Wl,-u,ANativeActivity_onCreate\")"));
+		auto build_target = WriteCMakeBuildTarget(target_definitions, target, application);
+		Data::WriteLine(target_definitions, Join("add_library(", build_target, application ? " SHARED)" : " STATIC)"));
+		if (!application && target.library != target.cmake_module)
+		{
+			Data::WriteLine(target_definitions, "if(PROJECT_IS_TOP_LEVEL)");
+			WriteCMakeInvocation(target_definitions, 1, "add_library", ToWString(Join(target.library, " ALIAS ", target.cmake_module)));
+			Data::WriteLine(target_definitions, "endif()");
+		}
+		if (target.output_library != build_target) Data::WriteLine(target_definitions, Join("set_property(TARGET ", build_target, " PROPERTY OUTPUT_NAME ", target.output_library, ")"));
+		if (application) Data::WriteLine(target_definitions, Join("target_link_options(", build_target, " PRIVATE \"-Wl,-u,ANativeActivity_onCreate\")"));
 		if (target.debug->GetBool(kAndroidNativeAppGlue))
 		{
-			Data::WriteLine(target_definitions, Join("target_sources(", target.library, " PRIVATE $<TARGET_OBJECTS:ReflexAndroidNativeAppGlue>)"));
-			Data::WriteLine(target_definitions, Join("target_include_directories(", target.library, " PRIVATE ${ANDROID_NDK}/sources/android/native_app_glue)"));
+			Data::WriteLine(target_definitions, Join("target_sources(", build_target, " PRIVATE $<TARGET_OBJECTS:ReflexAndroidNativeAppGlue>)"));
+			Data::WriteLine(target_definitions, Join("target_include_directories(", build_target, " PRIVATE ${ANDROID_NDK}/sources/android/native_app_glue)"));
 		}
 		auto files = GetFiles(*target.debug);
-		target_definitions.Append(Data::EncodeUTF8(CMakeHeaderOnlyFiles(target.library, FlattenPaths(*files.headers), FlattenPaths(*files.other))));
+		WriteCMakeHeaderOnlyFiles(target_definitions, build_target, FlattenPaths(*files.headers), FlattenPaths(*files.other));
 		Data::WriteLine(target_definitions, CString::View {});
-		configurations.Append(CMakeConfiguration(*target.debug, target.library, false, application));
-		configurations.Append(CMakeConfiguration(*target.release, target.library, true, application));
+		configurations.Append(CMakeConfiguration(*target.debug, build_target, false, application));
+		configurations.Append(CMakeConfiguration(*target.release, build_target, true, application));
 	}
 
 	return ProjectGen::Template(CMakeLists_txt,
@@ -654,11 +657,12 @@ Data::Archive Activity(CString::View package_id, CString::View library)
 	});
 }
 
-void WriteHostHelpers(const WString & directory, const TargetConfiguration & config, CString::View gradle_configuration)
+void WriteHostHelpers(const WString & directory, const TargetConfiguration & config, CString::View gradle_configuration, bool application)
 {
 	auto build_name = Join(L"Build ", ToWString(config.GetName()));
-	SaveText(Join(directory, build_name, L".bat"), Join("call \"%~dp0gradlew.bat\" assemble", gradle_configuration, "\r\n"), kBuildPlatformAndroid);
-	SaveCommandScript(Join(directory, build_name, L'.', ReflexCLI::kCommand), Join(L"#!/bin/sh\nexec \"$(dirname \"$0\")/gradlew\" assemble", ToWString(gradle_configuration), L" </dev/null\n"), kBuildPlatformAndroid);
+	auto task = application ? Join("assemble", gradle_configuration) : Join("externalNativeBuild", gradle_configuration);
+	SaveText(Join(directory, build_name, L".bat"), Join("call \"%~dp0gradlew.bat\" ", task, "\r\n"), kBuildPlatformAndroid);
+	SaveCommandScript(Join(directory, build_name, L'.', ReflexCLI::kCommand), Join(L"#!/bin/sh\nexec \"$(dirname \"$0\")/gradlew\" ", ToWString(task), L" </dev/null\n"), kBuildPlatformAndroid);
 }
 
 void SetExecutable(const WString & path)
@@ -671,7 +675,7 @@ void SetExecutable(const WString & path)
 
 REFLEX_END_INTERNAL
 
-void ReflexCLI::ProjectGen::GenerateAndroidProject(Project & project, BuildPlatform, Array<const TargetPlatform *> & generated_platforms)
+void ReflexCLI::ProjectGen::GenerateAndroidProject(Project & project, BuildPlatform, const WString & directory, Array<const TargetPlatform *> & generated_platforms, Map<WString> & outputs)
 {
 	Array<Android::BuildTarget> targets;
 	OutputType output_type = kOutputTypeCount;
@@ -736,9 +740,8 @@ void ReflexCLI::ProjectGen::GenerateAndroidProject(Project & project, BuildPlatf
 	auto package_id = GetConfigurationInvariant(*main.platform, kAndroidPackageId,
 		[](const TargetConfiguration & configuration) { return configuration.GetString(kAndroidPackageId); });
 	Require(Android::IsPackage(package_id), kAndroidPackageId, "must be a valid Java package name");
-	auto main_source_set = GetConfigurationInvariant(*main.platform, kAndroidMainSourceSet,
-		[](const TargetConfiguration & configuration) { return configuration.GetPath(kAndroidMainSourceSet); },
-		[](const PathDesc & a, const PathDesc & b) { return ComparePath(a, b); });
+	auto main_source_sets = GetConfigurationInvariant(*main.platform, kAndroidMainSourceSet,
+		[](const TargetConfiguration & configuration) { return configuration.GetAppendableStrings(kAndroidMainSourceSet); });
 	for (auto & target : targets)
 	{
 		const TargetConfiguration * configurations[] = { target.debug, target.release };
@@ -749,18 +752,19 @@ void ReflexCLI::ProjectGen::GenerateAndroidProject(Project & project, BuildPlatf
 			auto reference = references[index];
 			Require(Android::SdkVersion(*config, kAndroidSdk, 37) == Android::SdkVersion(*reference, kAndroidSdk, 37) && Android::SdkVersion(*config, kAndroidMinSdk, 28) == Android::SdkVersion(*reference, kAndroidMinSdk, 28), kAndroidSdk, "versions must be identical across targets");
 			Require(config->GetString(kAndroidPackageId) == package_id, kAndroidPackageId, "must be identical across targets");
-			Require(ComparePath(config->GetPath(kAndroidMainSourceSet), main_source_set), kAndroidMainSourceSet, "must be identical across targets");
+			Require(config->GetAppendableStrings(kAndroidMainSourceSet) == main_source_sets, kAndroidMainSourceSet, "must be identical across targets");
 			Require(Android::AbiList(*config) == Android::AbiList(*reference), kArchitectures, "must be identical across targets");
 			Require(config->GetEnum<RuntimeLibrary>(kRuntimeLibrary, kRuntimeLibraryNames, kRuntimeLibrary_static) == reference->GetEnum<RuntimeLibrary>(kRuntimeLibrary, kRuntimeLibraryNames, kRuntimeLibrary_static), kRuntimeLibrary, "must be identical across targets");
 		}
 	}
-	if (main_source_set.path)
+	Array<WString> resolved_main_source_sets;
+	for (auto & value : main_source_sets)
 	{
-		main_source_set.path = ResolvePath(project.GetRoot(), main_source_set);
-		File::Detail::CorrectTrailingStroke(main_source_set.path);
-		Require(File::IsDirectory(main_source_set.path), kAndroidMainSourceSet, Join("folder not found: ", EncodeUTF8(main_source_set.path)));
+		auto path = ResolvePath(project.GetRoot(), DecodePath(value));
+		File::Detail::CorrectTrailingStroke(path);
+		Require(File::IsDirectory(path), kAndroidMainSourceSet, Join("folder not found: ", EncodeUTF8(path)));
+		resolved_main_source_sets.Push(std::move(path));
 	}
-	auto directory = MakeProjectFolder(project, kBuildPlatformAndroid);
 	{
 		auto listing_archive = File::Extract(Android::listing_txt);
 		auto listing = Data::Unpack<CString::View>(listing_archive);
@@ -775,43 +779,47 @@ void ReflexCLI::ProjectGen::GenerateAndroidProject(Project & project, BuildPlatf
 	}
 	Android::SetExecutable(Join(directory, L"gradlew"));
 	auto package_path = Replace(package_id, ".", "/");
-	auto archive_name = debug->GetString(kAndroidArchiveName, Lowercase(Android::Symbol(project.GetName())));
 	if (!application)
 	{
-		Require(True(archive_name), kAndroidArchiveName, "must not be empty");
-		Require(Android::Symbol(archive_name) == archive_name, kAndroidArchiveName, "must be a valid Gradle module name");
-		CString prefab_package;
+		CString project_cmake_package;
 		for (auto & target : targets)
 		{
-			Require(target.debug->GetString(kAndroidArchiveName, archive_name) == archive_name && target.release->GetString(kAndroidArchiveName, archive_name) == archive_name, kAndroidArchiveName, "must be identical across targets and configurations");
 			if (Search(target.cmake_identifier, "::")) Android::SplitCMakeIdentifier(target.cmake_identifier, target.cmake_package, target.cmake_module);
 			else
 			{
-				target.cmake_package = archive_name;
+				target.cmake_package = Lowercase(Android::Symbol(project.GetName()));
 				target.cmake_module = target.library;
 			}
-			target.library = target.cmake_module;
-			if (!prefab_package) prefab_package = target.cmake_package;
-			else Require(target.cmake_package == prefab_package, kCMakeIdentifier, "all Android library targets must use the same CMake namespace");
+			target.library = Android::SourceTargetIdentifier(*target.target);
+			if (!project_cmake_package) project_cmake_package = target.cmake_package;
+			else Require(target.cmake_package == project_cmake_package, kCMakeIdentifier, "all Android library targets must use the same CMake namespace");
 		}
-		main.cmake_package = std::move(prefab_package);
+		main.cmake_package = std::move(project_cmake_package);
 	}
 	auto module = application ? CString("app") : CString(main.cmake_package);
 
 	if (auto path = debug->GetString(kAndroidSdkPath)) SaveFile(Join(directory, L"local.properties"), Android::SdkProperties(path), kBuildPlatformAndroid);
 	SaveFile(Join(directory, L"build.gradle"), Template(Android::build_gradle, { { "ANDROID_PLUGIN", application ? WString::View(L"application") : WString::View(L"library") }, { "DEFAULT_CONFIGURATION", ToWString(default_configuration) } }), kBuildPlatformAndroid);
 	SaveFile(Join(directory, L"settings.gradle"), Android::Settings(project.GetName(), module), kBuildPlatformAndroid);
-	SaveFile(Join(directory, ToWString(module), L"/build.gradle"), application ? Android::AppGradle(*targets.GetFirst().target, package_id, *debug, *release) : Android::LibraryGradle(targets, package_id, archive_name), kBuildPlatformAndroid);
+	SaveFile(Join(directory, ToWString(module), L"/build.gradle"), application ? Android::AppGradle(*targets.GetFirst().target, package_id, *debug, *release) : Android::LibraryGradle(targets, package_id), kBuildPlatformAndroid);
 	SaveFile(Join(directory, ToWString(module), L"/CMakeLists.txt"), Android::CMake(project.GetName(), targets, application), kBuildPlatformAndroid);
-	Android::WriteHostHelpers(directory, *debug, kDebug);
-	Android::WriteHostHelpers(directory, *release, kRelease);
-	SaveText(Join(directory, L"Clean.bat"), "call \"%~dp0gradlew.bat\" clean\r\n", kBuildPlatformAndroid);
-	SaveCommandScript(Join(directory, L"Clean.", ReflexCLI::kCommand), L"#!/bin/sh\nexec \"$(dirname \"$0\")/gradlew\" clean </dev/null\n", kBuildPlatformAndroid);
+	Android::WriteHostHelpers(directory, *debug, kDebug, application);
+	Android::WriteHostHelpers(directory, *release, kRelease, application);
+	if (application)
+	{
+		Android::AddApplicationArtifact(outputs, *debug);
+		Android::AddApplicationArtifact(outputs, *release);
+	}
+	else for (auto & target : targets)
+	{
+		Android::AddLibraryArtifacts(outputs, target, *target.debug);
+		Android::AddLibraryArtifacts(outputs, target, *target.release);
+	}
 	if (application)
 	{
 		SaveFile(Join(directory, ToWString(module), L"/src/main/java/", ToWString(package_path), L"/MainActivity.kt"), Android::Activity(package_id, targets.GetFirst().library), kBuildPlatformAndroid);
 		SaveText(Join(directory, ToWString(module), L"/src/main/res/values/strings.xml"), Join("<resources>\n\t<string name=\"app_name\">", EscapeXml(Android::AssembledValue(debug->GetString(kOutputName, debug->platform->target->project->GetName()))), "</string>\n</resources>\n"), kBuildPlatformAndroid);
 	}
 
-	Android::OverlaySourceSet(main_source_set.path, Join(directory, ToWString(module), L"/src/main/"));
+	for (auto & source : resolved_main_source_sets) Android::OverlaySourceSet(source, Join(directory, ToWString(module), L"/src/main/"));
 }

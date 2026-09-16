@@ -12,18 +12,18 @@
 namespace Reflex::Data
 {
 
-	TRef <PropertySetArray> AcquireXmlNodes(PropertySet & node);
+	AlreadyRetained <PropertySetArray> AcquireXmlNodes(PropertySet & node);
 
-	TRef <PropertySet> AddXmlNode(PropertySetArray & nodes, CString::View tag);
+	AlreadyRetained <PropertySet> AddXmlNode(PropertySetArray & nodes, CString::View tag);
 
 	ArrayView < ConstReference <PropertySet> > GetXmlNodes(const PropertySet & node);
 
 	CString::View GetXmlTag(const PropertySet & node);
 
 
-	extern const ConstTRef <Format> kReflexXmlFormat;
+	extern const ConstAlreadyRetained <Format> kReflexXmlFormat;
 
-	extern const ConstTRef <Format> kReflexMarkupFormat;
+	extern const ConstAlreadyRetained <Format> kReflexMarkupFormat;
 
 }
 
@@ -38,12 +38,12 @@ constexpr Key32 kid = "id";
 constexpr Key32 ktag = "tag";
 REFLEX_END
 
-inline Reflex::TRef <Reflex::Data::PropertySetArray> Reflex::Data::AcquireXmlNodes(PropertySet & node)
+inline Reflex::AlreadyRetained <Reflex::Data::PropertySetArray> Reflex::Data::AcquireXmlNodes(PropertySet & node)
 {
 	return AcquirePropertySetArray(node, kNullKey);
 }
 
-inline Reflex::TRef <Reflex::Data::PropertySet> Reflex::Data::AddXmlNode(PropertySetArray & node, CString::View tag)
+inline Reflex::AlreadyRetained <Reflex::Data::PropertySet> Reflex::Data::AddXmlNode(PropertySetArray & node, CString::View tag)
 {
 	auto child = AddPropertySet(node);
 

@@ -11,7 +11,7 @@
 namespace Reflex::Detail
 {
 
-	template <class TYPE> struct Initialiser;
+	template <class TYPE, UInt ALIGNMENT = alignof(TYPE), UInt SIZE = sizeof(TYPE)> struct Initialiser;
 
 }
 
@@ -21,11 +21,14 @@ namespace Reflex::Detail
 //
 //Detail::Initialiser
 
-template <class TYPE>
+template <class TYPE, Reflex::UInt ALIGNMENT, Reflex::UInt SIZE>
 struct Reflex::Detail::Initialiser
 {
 	template <class ...VARGS> inline void Init(VARGS &&... v)
 	{
+		REFLEX_STATIC_ASSERT((ALIGNMENT >= alignof(TYPE)) && ((ALIGNMENT % alignof(TYPE)) == 0));
+		REFLEX_STATIC_ASSERT(SIZE >= sizeof(TYPE));
+
 		Constructor<TYPE>::Construct(m_raw, std::forward<VARGS>(v)...);
 	}
 
@@ -52,5 +55,5 @@ struct Reflex::Detail::Initialiser
 	const TYPE & operator*() const { return *Adr(); }
 
 	
-	alignas(alignof(TYPE)) UInt8 m_raw[sizeof(TYPE)];
+	alignas(ALIGNMENT) UInt8 m_raw[SIZE];
 };

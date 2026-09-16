@@ -124,7 +124,7 @@ struct CompiledQuery
 	}
 
 
-	const ConstTRef <Table> table;
+	const ConstAlreadyRetained <Table> table;
 
 	const Data::KeyMap * const keymap;
 

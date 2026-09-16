@@ -1,6 +1,6 @@
 #pragma once
 
-#include "streamable.h"
+#include "persistent_state.h"
 
 
 
@@ -23,7 +23,7 @@ namespace Reflex::Bootstrap
 
 class Reflex::Bootstrap::App :
 	public Data::PropertySet,
-	public Streamable,
+	public PersistentState,
 	public StateMt
 {
 public:
@@ -46,7 +46,7 @@ public:
 
 	const UInt32 magic;		//unique id for fileformat
 
-	const TRef <File::PersistentPropertySet> session;
+	const AlreadyRetained <File::PersistentPropertySet> session;
 
 
 

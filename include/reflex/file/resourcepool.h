@@ -47,13 +47,13 @@ public:
 
 	//declarations
 
-	using Ctr = FunctionPointer <TRef<Object>(const StreamContext & ctx, System::FileHandle & stream)>;
+	using Ctr = FunctionPointer <Unretained<Object>(const StreamContext & ctx, System::FileHandle & stream)>;
 
 
 
 	//lifetime
 
-	[[nodiscard]] static TRef <ResourcePool> Create(VirtualFileSystem & filesystem);
+	[[nodiscard]] static Unretained <ResourcePool> Create(VirtualFileSystem & filesystem);
 
 
 
@@ -67,7 +67,7 @@ public:
 
 	//links
 
-	const TRef <VirtualFileSystem> filesystem;
+	const AlreadyRetained <VirtualFileSystem> filesystem;
 
 
 
@@ -97,7 +97,7 @@ public:
 
 	void Clear(TypeID type_id);
 
-	template <class TYPE> TRef <TYPE> Retrieve(const WString::View & path, const Data::PropertySet & options = Data::PropertySet::null, Ctr ctr = &TYPE::Open);
+	template <class TYPE> AlreadyRetained <TYPE> Retrieve(const WString::View & path, const Data::PropertySet & options = Data::PropertySet::null, Ctr ctr = &TYPE::Open);
 
 	TokenView Retrieve(TypeID type_id, const WString::View & path, const Data::PropertySet & options, Ctr ctr);
 
@@ -115,7 +115,7 @@ public:
 
 	//advanced access
 
-	TokenView Insert(const WString::View & path, const Attributes & attributes, TypeID type_id, TRef <Object> object);
+	TokenView Insert(const WString::View & path, const Attributes & attributes, TypeID type_id, WillRetain <Object> object);
 
 	bool Remove(Address address);
 
@@ -131,7 +131,7 @@ public:
 
 	VirtualFileSystem::Lock lock;
 
-	const TRef <ResourcePool> resourcepool;
+	const AlreadyRetained <ResourcePool> resourcepool;
 };
 
 
@@ -165,7 +165,7 @@ struct Reflex::File::ResourcePool::TokenView
 
 	Attributes attributes;
 
-	TRef <Object> object;
+	AlreadyRetained <Object> object;
 };
 
 
@@ -197,7 +197,7 @@ inline Reflex::File::ResourcePool::Lock::Lock(ResourcePool & resourcepool)
 {
 }
 
-template <class TYPE> REFLEX_INLINE Reflex::TRef <TYPE> Reflex::File::ResourcePool::Lock::Retrieve(const WString::View & path, const Data::PropertySet & options, Ctr open)
+template <class TYPE> REFLEX_INLINE Reflex::AlreadyRetained <TYPE> Reflex::File::ResourcePool::Lock::Retrieve(const WString::View & path, const Data::PropertySet & options, Ctr open)
 {
-	return Cast<TYPE>(Retrieve(GetTypeID<TYPE>(), path, options, open).object);
+	return NoRetain(*Cast<TYPE>(Retrieve(GetTypeID<TYPE>(), path, options, open).object));
 }

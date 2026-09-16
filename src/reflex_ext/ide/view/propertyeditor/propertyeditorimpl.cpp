@@ -148,7 +148,7 @@ PropertyEditorImpl::PropertyEditorImpl(const Data::Detail::StandardPropertySheet
 	styles(ide_styles["PropertyEditor"]),
 	m_mute(0)
 {
-	Data::iStreamable::Publish(*this);
+	PublishInterface<Data::iSerializable>(this);
 		
 	Retain(iface);
 	
@@ -268,7 +268,7 @@ void PropertyEditorImpl::SetRoot(Data::PropertySet & root)
 	}
 }
 
-TRef <Data::PropertySet> PropertyEditorImpl::GetRoot()
+AlreadyRetained <Data::PropertySet> PropertyEditorImpl::GetRoot()
 {
 	return m_root;
 }
@@ -296,7 +296,7 @@ void PropertyEditorImpl::SetFocus(Data::PropertySet & node)
 	}
 }
 
-TRef <Data::PropertySet> PropertyEditorImpl::GetFocus()
+AlreadyRetained <Data::PropertySet> PropertyEditorImpl::GetFocus()
 {
 	return m_focus.Load();
 }
@@ -1322,7 +1322,7 @@ void PropertyEditorImpl::PropertyEditorImpl::Attribute::OnSetStyle(const GLX::St
 
 struct PropertyEditorImpl::iNull : public PropertyEditor::Interface
 {
-	Pair < Reflex::Detail::DynamicTypeRef, TRef <Data::PropertySet> > GetObjectType() const override { return { Data::PropertySet::kDynamicTypeInfo, Data::PropertySet::null }; }
+	Pair < Reflex::Detail::DynamicTypeRef, AlreadyRetained <Data::PropertySet> > GetObjectType() const override { return { Data::PropertySet::kDynamicTypeInfo, Data::PropertySet::null }; }
 };
 
 PropertyEditorImpl::iNull gNullInterface;
@@ -1331,14 +1331,14 @@ REFLEX_END_INTERNAL
 
 Reflex::IDE::Detail::PropertyEditorImpl::Interface & Reflex::IDE::Detail::PropertyEditorImpl::Interface::null = Reflex::IDE::Detail::gNullInterface;
 
-Reflex::TRef <Reflex::IDE::Detail::PropertyEditor> Reflex::IDE::Detail::PropertyEditor::Create(const Data::Detail::StandardPropertySheetInterface & propertysheet_interface, const Interface & iface)
+Reflex::Unretained <Reflex::IDE::Detail::PropertyEditor> Reflex::IDE::Detail::PropertyEditor::Create(const Data::Detail::StandardPropertySheetInterface & propertysheet_interface, const Interface & iface)
 {
 	return REFLEX_CREATE(PropertyEditorImpl, propertysheet_interface, iface);
 }
 
 Reflex::IDE::Detail::PropertyEditor::PropertyEditor(const Interface & iface)
 	: Data::History(kMaxUInt16)
-	, Data::iStreamable(1)
+	, Data::iSerializable(1)
 	, interface(iface)
 	, ide_styles(RetrieveStyleSheet())
 {

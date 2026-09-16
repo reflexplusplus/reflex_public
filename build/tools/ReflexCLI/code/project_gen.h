@@ -21,7 +21,6 @@ namespace ReflexCLI::ProjectGen
 	constexpr CString::View kHeaders = "headers";
 	constexpr CString::View kOtherFiles = "other";
 	constexpr CString::View kWindowsResources = "resources";
-	constexpr CString::View kAndroidArchiveName = "archive_name";
 	constexpr CString::View kAndroidNativeAppGlue = "native_app_glue";
 	constexpr CString::View kAndroidSdkPath = "sdk_path";
 	constexpr CString::View kAndroidDependencies = "gradle_dependencies";
@@ -31,7 +30,6 @@ namespace ReflexCLI::ProjectGen
 	constexpr CString::View kAndroidMainSourceSet = "main_source_set";
 	constexpr CString::View kAndroidSigningProperties = "signing_properties";
 	constexpr CString::View kOutputDirectory = "output_directory";
-	constexpr CString::View kIntermediateDirectory = "intermediate_directory";
 	constexpr CString::View kCppStandard = "cpp_standard";
 	constexpr CString::View kRtti = "rtti";
 	constexpr CString::View kDefines = "defines";
@@ -63,6 +61,7 @@ namespace ReflexCLI::ProjectGen
 	constexpr CString::View kXcodeLaunchScreenProperty = "launch_screen";
 	constexpr CString::View kName = "name";
 	constexpr CString::View kPath = "path";
+	constexpr CString::View kSourceProject = "source_project";
 	constexpr CString::View kCommand = "command";
 	constexpr CString::View kImport = "import";
 	constexpr CString::View kInputs = "inputs";
@@ -199,7 +198,7 @@ namespace ReflexCLI::ProjectGen
 		Package() = default;
 		Package(Project & project, ValidatedPropertySet & source);
 
-		const TRef<Project> project;
+		const AlreadyRetained<Project> project;
 
 		ArrayView<CString> GetDependencyNames() const { return m_dependency_names; }
 
@@ -215,11 +214,12 @@ namespace ReflexCLI::ProjectGen
 		Target() {}
 		Target(Project & project, ValidatedPropertySet & source, bool library);
 
-		const TRef<Project> project;
+		const AlreadyRetained<Project> project;
 
 		bool IsLibrary() const { return m_library; }
 		ArrayView<Reference<Target>> GetDependencies() const { return m_dependencies; }
 		ArrayView<Reference<Target>> GetDependencies(BuildPlatform platform) const;
+		WString GetSourceProject(BuildPlatform platform) const;
 		ArrayView<Reference<TargetPlatform>> GetTargetPlatforms() const { return m_platforms; }
 		const TargetPlatform * FindPlatform(BuildPlatform platform) const;
 
@@ -228,7 +228,7 @@ namespace ReflexCLI::ProjectGen
 
 	private:
 		bool m_library = false;
-		const TRef<ValidatedPropertySet> m_source;
+		const AlreadyRetained<ValidatedPropertySet> m_source;
 		Array<Reference<Target>> m_dependencies;
 		Array<Reference<TargetPlatform>> m_platforms;
 	};
@@ -238,7 +238,7 @@ namespace ReflexCLI::ProjectGen
 	public:
 		TargetPlatform(Target & target, PlatformPropertySet & values);
 
-		const TRef<Target> target;
+		const AlreadyRetained<Target> target;
 
 		BuildPlatform GetPlatform() const { return m_platform; }
 		ArrayView<Reference<Target>> GetDependencies() const { return m_dependencies; }
@@ -247,7 +247,7 @@ namespace ReflexCLI::ProjectGen
 
 	private:
 		BuildPlatform m_platform = kBuildPlatformWindows;
-		const TRef<PlatformPropertySet> m_source;
+		const AlreadyRetained<PlatformPropertySet> m_source;
 		Array<CString> m_dependency_names;
 		Array<Reference<Target>> m_dependencies;
 		Array<Reference<TargetConfiguration>> m_configurations;
@@ -262,6 +262,7 @@ namespace ReflexCLI::ProjectGen
 
 		CString GetString(Key32 id, CString::View fallback = {}) const;
 		Array<CString> GetStrings(CString::View id) const;
+		Array<CString> GetAppendableStrings(CString::View id) const;
 		Array<CString> GetDefinitions() const;
 		Array<Variable> GetVariableMap(CString::View id) const;
 		PathDesc GetPath(Key32 id) const;
@@ -281,7 +282,7 @@ namespace ReflexCLI::ProjectGen
 		const PathGroup & GetPublicIncludeDirectories() const;
 		void ResolveIncludeDirectories(ArrayView<const TargetConfiguration *> dependencies);
 
-		const TRef <TargetPlatform> platform;
+		const AlreadyRetained <TargetPlatform> platform;
 
 
 	private:
@@ -290,7 +291,7 @@ namespace ReflexCLI::ProjectGen
 		CString Expand(CString::View value, System::Platform emission_platform = System::kNumPlatform, bool allow_deferred = true) const;
 		UInt GetEnumIndex(CString::View property, ArrayView<CString::View> names, UInt fallback) const;
 
-		const TRef<ValidatedPropertySet> m_source;
+		const AlreadyRetained<ValidatedPropertySet> m_source;
 		Array<Variable> m_variables;
 		Reference<PathGroup> m_include_directories;
 		Reference<PathGroup> m_public_include_directories;
@@ -328,23 +329,26 @@ namespace ReflexCLI::ProjectGen
 
 	PathDesc DecodePath(CString::View value);
 	WString ResolvePath(WString::View root, const PathDesc & path);
-	TRef <PathGroup> AcquirePathGroup(PathGroup & parent, CString::View value);
+	AlreadyRetained <PathGroup> AcquirePathGroup(PathGroup & parent, CString::View value);
 	Array <PathDesc> FlattenPaths(const PathGroup & root);
 	Reference <PathGroup> ConsolidatePathGroups(const TargetPlatform & platform);
 	FileGroups GetFiles(const TargetConfiguration & config);
 	bool ComparePath(const PathDesc & a, const PathDesc & b);
 	bool ComparePaths(ArrayView<PathDesc> a, ArrayView<PathDesc> b);
 
-	void GenerateVisualStudioProject(Project &, BuildPlatform, Array<const TargetPlatform *> &);
-	void GenerateXcodeProject(Project &, BuildPlatform, Array<const TargetPlatform *> &);
-	void GenerateAndroidProject(Project &, BuildPlatform, Array<const TargetPlatform *> &);
-	void GenerateLinuxProject(Project &, BuildPlatform, Array<const TargetPlatform *> &);
-	void GenerateCMakeProject(Project &, BuildPlatform, Array<const TargetPlatform *> &);
+	void GenerateVisualStudioProject(Project &, BuildPlatform, const WString &, Array<const TargetPlatform *> &, Map<WString> &);
+	void GenerateXcodeProject(Project &, BuildPlatform, const WString &, Array<const TargetPlatform *> &, Map<WString> &);
+	void GenerateAndroidProject(Project &, BuildPlatform, const WString &, Array<const TargetPlatform *> &, Map<WString> &);
+	void GenerateLinuxProject(Project &, BuildPlatform, const WString &, Array<const TargetPlatform *> &, Map<WString> &);
+	void GenerateCMakeProject(Project &, BuildPlatform, const WString &, Array<const TargetPlatform *> &, Map<WString> &);
 
 	WString ExpandVariables(WString::View value, ArrayView <Variable> variables, System::Platform platform = System::kNumPlatform);
 
-}
 
+	void Generate(const WString & path, ArrayView<CString::View> platforms, System::FileHandle & std_out, bool fresh = false);
+
+	void Build(const WString & path, CString::View platform, CString::View configuration, System::FileHandle & std_out);
+}
 
 
 

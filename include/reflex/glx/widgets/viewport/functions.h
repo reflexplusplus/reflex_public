@@ -12,7 +12,7 @@
 namespace Reflex::GLX
 {
 
-	TRef <AbstractViewPort> GetContainingViewPort(Object & object);
+	AlreadyRetained <AbstractViewPort> GetContainingViewPort(Object & object);
 
 
 	void SyncViewports(AbstractViewPort & source, AbstractViewPort & target, bool x, bool y);
@@ -40,7 +40,7 @@ void ToggleZoom(ZoomArea & viewport, AbstractViewBar & viewbar, bool y);
 
 REFLEX_END
 
-inline Reflex::TRef <Reflex::GLX::AbstractViewPort> Reflex::GLX::GetContainingViewPort(Object & object)
+inline Reflex::AlreadyRetained <Reflex::GLX::AbstractViewPort> Reflex::GLX::GetContainingViewPort(Object & object)
 {
 	return QueryParentByType<AbstractViewPort>(object, &AbstractViewPort::null);
 }

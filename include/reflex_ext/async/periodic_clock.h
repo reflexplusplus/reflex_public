@@ -11,7 +11,7 @@
 namespace Reflex::Async
 {
 
-	[[nodiscard]] TRef <Object> CreatePeriodicClock(Float32 interval, const Function <void()> & callback);
+	[[nodiscard]] Unretained <Object> CreatePeriodicClock(Float32 interval, const Function <void()> & callback);
 
 }
 
@@ -46,7 +46,7 @@ private:
 
 REFLEX_END
 
-inline Reflex::TRef <Reflex::Object> Reflex::Async::CreatePeriodicClock(Float32 interval, const Function <void()> & callback)
+inline Reflex::Unretained <Reflex::Object> Reflex::Async::CreatePeriodicClock(Float32 interval, const Function <void()> & callback)
 {
 	return New<Detail::PeriodicClockItem>(interval, callback);
 }

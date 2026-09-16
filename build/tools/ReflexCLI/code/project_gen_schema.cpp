@@ -644,9 +644,9 @@ struct FormatHolder
 		AddKnown<Data::Key32Property>(rules, kOutputType);
 		AddKnown<Data::CStringProperty>(rules, kOutputExtension);
 		AddKnown<Data::CStringProperty>(rules, kPath);
+		AddKnown<Data::CStringProperty>(rules, kSourceProject);
 		AddKeyList(rules, kArchitectures);
 		AddKnown<Data::CStringProperty>(rules, kOutputDirectory);
-		AddKnown<Data::CStringProperty>(rules, kIntermediateDirectory);
 		AddKnown<Data::Key32Property>(rules, kCppStandard);
 		AddKnown<Data::BoolProperty>(rules, kRtti);
 		AddVariables(rules, kDefines);
@@ -685,7 +685,7 @@ struct FormatHolder
 		case kBuildPlatformIOS:
 		{
 			auto index = platform == kBuildPlatformMacOS ? 0 : 1;
-			AddCStringList(rules, kXcodeFrameworkProperties[index]);
+			AddAppendableStrings(rules, kXcodeFrameworkProperties[index]);
 			AddKnown<Data::BoolProperty>(rules, kXcodeArcProperties[index]);
 			if (platform == kBuildPlatformMacOS) AddKnown<Data::BoolProperty>(rules, kMacOSBuildAllArchitectures);
 			AddKnown<Data::CStringProperty>(rules, kXcodeBundleIdentifierProperties[index]);
@@ -708,10 +708,9 @@ struct FormatHolder
 			AddKnown<Data::Float32Property>(rules, kAndroidMinSdk);
 			AddKnown<Data::CStringProperty>(rules, kAndroidSdkPath);
 			AddKnown<Data::CStringProperty>(rules, kAndroidPackageId);
-			AddKnown<Data::CStringProperty>(rules, kAndroidArchiveName);
 			AddKnown<Data::BoolProperty>(rules, kAndroidNativeAppGlue);
 			AddCStringList(rules, kAndroidDependencies);
-			AddKnown<Data::CStringProperty>(rules, kAndroidMainSourceSet);
+			AddAppendableStrings(rules, kAndroidMainSourceSet);
 			AddKnown<Data::CStringProperty>(rules, kAndroidSigningProperties);
 			break;
 
@@ -766,7 +765,7 @@ struct FormatHolder
 			REFLEX_TYPEID(PlatformPropertySet),
 		};
 
-		g_project_format = Data::Detail::CreatePropertySetFormat(New<PropertySheetInterface>(), kSupportedTypes);
+		g_project_format = NoRetain(Data::Detail::CreatePropertySetFormat(New<PropertySheetInterface>(), kSupportedTypes));
 		Retain(g_project_format);
 	}
 
@@ -910,4 +909,4 @@ ReflexCLI::BuildPlatform ReflexCLI::ProjectGen::PlatformPropertySet::GetPlatform
 	return m_platform;
 }
 
-Reflex::ConstTRef <Reflex::Data::Format> ReflexCLI::ProjectGen::g_project_format = kNoValue;
+Reflex::ConstAlreadyRetained <Reflex::Data::Format> ReflexCLI::ProjectGen::g_project_format = kNoValue;

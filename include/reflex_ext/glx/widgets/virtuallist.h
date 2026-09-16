@@ -61,7 +61,7 @@ public:
 	void Rebuild();
 
 
-	TRef <Object> GetItem(UInt idx);	//will return NULL if out of currently visible objects
+	AlreadyRetained <Object> GetItem(UInt idx);	//will return NULL if out of currently visible objects
 
 
 
@@ -97,7 +97,7 @@ private:
 
 
 
-	ConstTRef <Style> m_item;
+	ConstAlreadyRetained <Style> m_item;
 
 	Size m_itemsize;
 

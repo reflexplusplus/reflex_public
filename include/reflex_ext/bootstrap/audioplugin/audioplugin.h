@@ -51,17 +51,20 @@ public:
 
 
 
-	//parameters
+	//parameter access
 
 	UInt32 GetNumParameter() const { return m_parameters.ids.GetSize(); }
 
-	ConstTRef <ParameterDefinition> GetParameterInfo(UInt32 idx) const { return m_parameters.info[idx].a; }
+	ConstAlreadyRetained <ParameterDefinition> GetParameterInfo(UInt32 idx) const { return m_parameters.info[idx].a; }
 
 
 	ArrayView <Key32> GetParameterIDs() const { return m_parameters.ids; }
 
 	ArrayView <Value32> GetParameterValues() const { return m_parameters.values; }
 
+
+	
+	//parameter host automation
 
 	void BeginAutomation(UInt32 idx);
 
@@ -70,10 +73,16 @@ public:
 	void EndAutomation(UInt32 idx);
 
 
+	
+	//parameter update without automation
+
+	void UpdateParameterValue(UInt32 idx, Float32 value);
+
+
 
 	//links
 	
-	const TRef <System::AudioPlugin> instance;
+	const AlreadyRetained <System::AudioPlugin> instance;
 
 
 
@@ -117,10 +126,12 @@ private:
 	void OnGetNoteInfo(Array <NoteInfo> & infos) const final;
 
 
-	FunctionPointer <void(Callbacks&,UInt)> OnPrepare(UInt32 max_buffersize, Float32 samplerate, ConstTRef <EventBuffer> events_in, TRef <EventBuffer> events_out, const ArrayView <const Float32*> & inputs, const ArrayView <Float32*> & outputs) final;
+	FunctionPointer <void(Callbacks&,UInt)> OnPrepare(UInt32 max_buffersize, Float32 samplerate, ConstRef <EventBuffer> events_in, Ref <EventBuffer> events_out, const ArrayView <const Float32*> & inputs, const ArrayView <Float32*> & outputs) final;
+
+	void SetParameterValueMt(UInt idx, Float32 value);
 
 
-	struct Parameters : public Streamable
+	struct Parameters : public PersistentState
 	{
 		Parameters(const Class & cls, AudioPlugin & instance);
 		
@@ -133,7 +144,7 @@ private:
 
 		AudioPlugin & instance;
 		
-		const ConstTRef < Detail::ParamDefs > paramdefs;
+		const ConstAlreadyRetained < Detail::ParamDefs > paramdefs;
 		
 		Array < Pair <ConstReference <ParameterDefinition>, UInt8> > info;
 		Array <Key32> ids;
@@ -223,4 +234,14 @@ inline void Reflex::Bootstrap::AudioPlugin::EndAutomation(UInt32 idx)
 	instance->EndAutomation(idx);
 
 	m_automating--;
+}
+
+inline void Reflex::Bootstrap::AudioPlugin::UpdateParameterValue(UInt32 idx, Float32 value)
+{
+	REFLEX_ASSERT_MAINTHREAD("Bootstrap::AudioPlugin::UpdateParameterValue");
+	REFLEX_ASSERT(idx < m_parameters.values.GetSize());
+
+	OnSetParameterValue(idx, value);
+
+	ScheduleReportChanges(System::AudioPlugin::kChangeParameterValues);
 }

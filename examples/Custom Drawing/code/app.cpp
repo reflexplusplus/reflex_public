@@ -36,7 +36,7 @@ struct AppImpl : public App
 
 
 
-	//Data::iStreamable callbacks
+	//Data::iSerializable callbacks
 
 	void OnReset(Key32 context) override
 	{
@@ -61,7 +61,7 @@ struct AppImpl : public App
 
 } }
 
-Reflex::TRef <CustomDrawing::App> CustomDrawing::App::Create()
+Reflex::Unretained <CustomDrawing::App> CustomDrawing::App::Create()
 {
 	return New<CustomDrawing::AppImpl>();
 }

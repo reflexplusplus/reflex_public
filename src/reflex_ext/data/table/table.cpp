@@ -604,7 +604,7 @@ REFLEX_INLINE Reflex::UInt Reflex::Data::MemoryTable::AllocateHeapData(UInt16 si
 
 REFLEX_DATA_SET_STREAM_INDEX_TYPE(Reflex::Data::Table::ColumnInfo, UInt16);
 
-Reflex::TRef <Reflex::Data::Table> Reflex::Data::Table::Create(ArrayView <ColumnInfo> columns)
+Reflex::Unretained <Reflex::Data::Table> Reflex::Data::Table::Create(ArrayView <ColumnInfo> columns)
 {
 	if (columns.size && columns.size <= kMaxUInt8)
 	{
@@ -616,7 +616,7 @@ Reflex::TRef <Reflex::Data::Table> Reflex::Data::Table::Create(ArrayView <Column
 	}
 }
 
-Reflex::TRef <Reflex::Data::Table> Reflex::Data::Table::Clone(const Table & table)
+Reflex::Unretained <Reflex::Data::Table> Reflex::Data::Table::Clone(const Table & table)
 {
 	if (table.object_t == MemoryTable::kDynamicTypeInfo)
 	{
@@ -628,7 +628,7 @@ Reflex::TRef <Reflex::Data::Table> Reflex::Data::Table::Clone(const Table & tabl
 	}
 }
 
-Reflex::TRef <Reflex::Data::Table> Reflex::Data::Table::Deserialize(System::FileHandle & stream)
+Reflex::Unretained <Reflex::Data::Table> Reflex::Data::Table::Deserialize(System::FileHandle & stream)
 {
 	MemoryTable::FileHeader header;
 
@@ -778,7 +778,7 @@ const Reflex::UInt8 Reflex::Data::kColumnTypeToHeapAlignment[] =
 //
 //
 //
-//	TRef <Reader> Read()
+//	AlreadyRetained <Reader> Read()
 //	{
 //		UInt32 expected = 0;
 //
@@ -790,7 +790,7 @@ const Reflex::UInt8 Reflex::Data::kColumnTypeToHeapAlignment[] =
 //		return kNoValue; //null
 //	}
 //
-//	TRef <Writer> Write()
+//	AlreadyRetained <Writer> Write()
 //	{
 //		auto state = m_flags.load();
 //

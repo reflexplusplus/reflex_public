@@ -13,9 +13,11 @@
 namespace Reflex
 {
 
-	struct Interface;
+	template <class TYPE> void PublishInterface(Object & owner, TYPE * address);
 
-	template <class TYPE> struct InterfaceOf;
+	template <class TYPE, class SELF> void PublishInterface(SELF && object);
+
+	template <class TYPE> void RetractInterface(Object & owner, TYPE * address);
 
 
 	template <class TYPE> TYPE * QueryInterface(Object & owner);
@@ -23,9 +25,9 @@ namespace Reflex
 	template <class TYPE> const TYPE * QueryInterface(const Object & owner);
 
 
-	template <class TYPE> TRef <TYPE> GetInterface(Object & owner);					//requires TYPE::null
+	template <class TYPE> AlreadyRetained <TYPE> GetInterface(Object & owner);					//requires TYPE::null
 
-	template <class TYPE> ConstTRef <TYPE> GetInterface(const Object & owner);		//requires TYPE::null
+	template <class TYPE> ConstAlreadyRetained <TYPE> GetInterface(const Object & owner);		//requires TYPE::null
 
 }
 
@@ -33,9 +35,30 @@ namespace Reflex
 
 
 //
-//Interface
+//InterfaceRef
 
-struct Reflex::Interface
+REFLEX_NS(Reflex::Detail)
+
+struct InterfaceRef : public Object
+{
+	REFLEX_OBJECT(InterfaceRef, Object);
+
+	InterfaceRef(void * address);
+
+	void * const address;
+};
+
+REFLEX_END
+
+
+
+
+//
+//impl
+
+REFLEX_NS(Reflex)
+
+struct AbstractInterface
 {
 public:
 
@@ -45,9 +68,9 @@ public:
 
 protected:
 
-	Interface(const TypeID & type_id);
+	AbstractInterface(const TypeID & type_id);
 
-	~Interface();
+	~AbstractInterface();
 
 
 	void Publish(Object & owner);	//typical usage: call in owner constructor
@@ -58,50 +81,69 @@ protected:
 
 private:
 
-	Interface(const Interface&) = delete;
+	AbstractInterface(const AbstractInterface&) = delete;
 
-	Interface & operator=(const Interface&) = delete;
+	AbstractInterface & operator=(const AbstractInterface&) = delete;
 
 
 	Object * m_owner;
 
-	ObjectOf <Interface*> m_property;
+	Detail::InterfaceRef m_property;
 };
 
-
-
-
-//
-//InterfaceOf 
+[[deprecated("use PublishInterface and RetractInterface")]] typedef AbstractInterface Interface;
 
 template <class TYPE>
-struct Reflex::InterfaceOf : public Interface
+struct InterfaceOf : public AbstractInterface
 {
 protected:
 
-	InterfaceOf()
-		: Interface(Detail::TypeIndex<TYPE>::value)
+	[[deprecated("use PublishInterface and RetractInterface")]] InterfaceOf()
+		: AbstractInterface(Detail::TypeIndex<TYPE>::value)
 	{
 	}
 };
 
-
-
-
-//
-//impl
+REFLEX_END
 
 REFLEX_NS(Reflex::Detail)
 
-using InterfaceRef = ObjectOf <Interface*>;
+void PublishInterface(Object & owner, TypeID type_id, void * address);
 
-Interface * QueryInterface(Object & owner, TypeID type_id, Interface * fallback);
+void RetractInterface(Object & owner, TypeID type_id, void * address);
+
+void UnsetInterface(Object & owner, TypeID type_id);
+
+void * QueryInterface(Object & owner, TypeID type_id, void * fallback);
 
 REFLEX_END
 
+inline Reflex::Detail::InterfaceRef::InterfaceRef(void * address)
+	: address(address)
+{
+	REFLEX_ASSERT(address);
+}
+
+template <class TYPE> inline void Reflex::PublishInterface(Object & owner, TYPE * address)
+{
+	Detail::PublishInterface(owner, GetTypeID<TYPE>(), address);
+}
+
+template <class TYPE, class SELF> inline void Reflex::PublishInterface(SELF && objectref)
+{
+	auto & obj = Deref(objectref);
+
+	PublishInterface<TYPE>(obj, Cast<TYPE>(&obj));
+}
+
+template <class TYPE> inline void Reflex::RetractInterface(Object & owner, TYPE * address)
+{
+	Detail::RetractInterface(owner, GetTypeID<TYPE>(), address);
+}
+
 template <class TYPE> inline TYPE * Reflex::QueryInterface(Object & owner)
 {
-	return Cast<TYPE>(Detail::QueryInterface(owner, GetTypeID<TYPE>(), nullptr));
+	return static_cast<TYPE*>(Detail::QueryInterface(owner, GetTypeID<TYPE>(), nullptr));
 }
 
 template <class TYPE> REFLEX_INLINE const TYPE * Reflex::QueryInterface(const Object & owner)
@@ -109,12 +151,12 @@ template <class TYPE> REFLEX_INLINE const TYPE * Reflex::QueryInterface(const Ob
 	return QueryInterface<TYPE>(RemoveConst(owner));
 }
 
-template <class TYPE> inline Reflex::TRef <TYPE> Reflex::GetInterface(Object & owner)
+template <class TYPE> inline Reflex::AlreadyRetained <TYPE> Reflex::GetInterface(Object & owner)
 {
-	return Cast<TYPE>(Detail::QueryInterface(owner, GetTypeID<TYPE>(), &TYPE::null));
+	return static_cast<TYPE*>(Detail::QueryInterface(owner, GetTypeID<TYPE>(), &TYPE::null));
 }
 
-template <class TYPE> REFLEX_INLINE Reflex::ConstTRef <TYPE> Reflex::GetInterface(const Object & owner)
+template <class TYPE> REFLEX_INLINE Reflex::ConstAlreadyRetained <TYPE> Reflex::GetInterface(const Object & owner)
 {
 	return GetInterface<TYPE>(RemoveConst(owner));
 }

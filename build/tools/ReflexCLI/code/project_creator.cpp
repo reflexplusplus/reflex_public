@@ -1,4 +1,4 @@
-#include "tasks.h"
+#include "project_gen.h"
 
 REFLEX_BEGIN_INTERNAL(ReflexCLI)
 
@@ -275,7 +275,7 @@ Reflex::WString ReflexCLI::CreateProject(const TemplateDefinition & base_tmpl, A
 	bool wrote_files = false;
 	auto folder = InstallFolder(tmpl, expanded, tmpl.folder, destination, {}, wrote_files, std_in, out, overwrite);
 
-	GenerateProject(Join(folder, L"project.cfg"), targets, out);
+	ProjectGen::Generate(Join(folder, L"project.cfg"), targets, out);
 
 	return folder;
 }

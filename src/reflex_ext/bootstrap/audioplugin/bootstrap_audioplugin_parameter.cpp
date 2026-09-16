@@ -146,17 +146,17 @@ REFLEX_END_INTERNAL
 
 Reflex::Bootstrap::ParameterDefinition & Reflex::Bootstrap::ParameterDefinition::null = Reflex::Bootstrap::g_null_parameter_definition;
 
-Reflex::TRef <Reflex::Bootstrap::ParameterDefinition> Reflex::Bootstrap::DefineContinuousParameter(WString && name, Float32 min, Float32 max, Float32 step, Float32 initial, UInt8 group_flags, FunctionPointer<WString(Value32)> to_string)
+Reflex::Unretained <Reflex::Bootstrap::ParameterDefinition> Reflex::Bootstrap::DefineContinuousParameter(WString && name, Float32 min, Float32 max, Float32 step, Float32 initial, UInt8 group_flags, FunctionPointer<WString(Value32)> to_string)
 {
 	return New<ContinuousParameterDefinition>(std::move(name), min, max, step, initial, group_flags, to_string);
 }
 
-Reflex::TRef <Reflex::Bootstrap::ParameterDefinition> Reflex::Bootstrap::DefineDiscreteParameter(WString && name, Int32 min, Int32 max, Int32 initial, UInt8 group_flags)
+Reflex::Unretained <Reflex::Bootstrap::ParameterDefinition> Reflex::Bootstrap::DefineDiscreteParameter(WString && name, Int32 min, Int32 max, Int32 initial, UInt8 group_flags)
 {
 	return New<DiscreteParameterDefinition>(std::move(name), min, max, initial, group_flags);
 }
 
-Reflex::TRef <Reflex::Bootstrap::ParameterDefinition> Reflex::Bootstrap::DefineEnumParameter(WString && name, ArrayView <WString> values, Int32 initial, UInt8 group_flags)
+Reflex::Unretained <Reflex::Bootstrap::ParameterDefinition> Reflex::Bootstrap::DefineEnumParameter(WString && name, ArrayView <WString> values, Int32 initial, UInt8 group_flags)
 {
 	REFLEX_ASSERT(values);
 
@@ -170,27 +170,27 @@ Reflex::TRef <Reflex::Bootstrap::ParameterDefinition> Reflex::Bootstrap::DefineE
 	}
 }
 
-Reflex::TRef <Reflex::Bootstrap::ParameterDefinition> Reflex::Bootstrap::DefineBoolParameter(WString && name, bool initial, UInt8 group_flags)
+Reflex::Unretained <Reflex::Bootstrap::ParameterDefinition> Reflex::Bootstrap::DefineBoolParameter(WString && name, bool initial, UInt8 group_flags)
 {
 	return New<BoolParameterDefinition>(std::move(name), initial, group_flags);
 }
 
-Reflex::TRef <Reflex::Bootstrap::ParameterDefinition> Reflex::Bootstrap::ParameterDefinition::CreateReal(CString && name, Float32 min, Float32 max, Float32 step, Float32 initial, UInt8 group_flags, FunctionPointer<WString(Value32)> to_string)
+Reflex::Unretained <Reflex::Bootstrap::ParameterDefinition> Reflex::Bootstrap::ParameterDefinition::CreateReal(CString && name, Float32 min, Float32 max, Float32 step, Float32 initial, UInt8 group_flags, FunctionPointer<WString(Value32)> to_string)
 {
 	return DefineContinuousParameter(ToWString(name), min, max, step, initial, group_flags, to_string);
 }
 
-Reflex::TRef <Reflex::Bootstrap::ParameterDefinition> Reflex::Bootstrap::ParameterDefinition::CreateDiscrete(CString && name, Int32 min, Int32 max, Int32 initial, UInt8 group_flags)
+Reflex::Unretained <Reflex::Bootstrap::ParameterDefinition> Reflex::Bootstrap::ParameterDefinition::CreateDiscrete(CString && name, Int32 min, Int32 max, Int32 initial, UInt8 group_flags)
 {
 	return DefineDiscreteParameter(ToWString(name), min, max, initial, group_flags);
 }
 
-Reflex::TRef <Reflex::Bootstrap::ParameterDefinition> Reflex::Bootstrap::ParameterDefinition::CreateBool(CString && name, bool initial, UInt8 group_flags)
+Reflex::Unretained <Reflex::Bootstrap::ParameterDefinition> Reflex::Bootstrap::ParameterDefinition::CreateBool(CString && name, bool initial, UInt8 group_flags)
 {
 	return DefineBoolParameter(ToWString(name), initial, group_flags);
 }
 
-Reflex::TRef <Reflex::Bootstrap::ParameterDefinition> Reflex::Bootstrap::ParameterDefinition::CreateEnum(CString && name, ArrayView <WString> values, Int32 initial, UInt8 group_flags)
+Reflex::Unretained <Reflex::Bootstrap::ParameterDefinition> Reflex::Bootstrap::ParameterDefinition::CreateEnum(CString && name, ArrayView <WString> values, Int32 initial, UInt8 group_flags)
 {
 	return DefineEnumParameter(ToWString(name), values, initial, group_flags);
 }

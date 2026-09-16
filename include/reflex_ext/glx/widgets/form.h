@@ -40,9 +40,9 @@ public:
 
 	//lifetime
 
-	Form(TRef <Object> body = New<Object>());
+	Form(WillRetain <Object> body = New<Object>());
 
-	Form(const WString::View & label, TRef <Object> body = New<Object>());
+	Form(const WString::View & label, WillRetain <Object> body = New<Object>());
 
 	~Form();
 
@@ -50,9 +50,9 @@ public:
 
 	//elements
 
-	const TRef <Label> header;
+	const AlreadyRetained <Label> header;
 
-	const TRef <Object> body;
+	const AlreadyRetained <Object> body;
 
 
 
@@ -80,7 +80,7 @@ public:
 
 	//lifetime
 	
-	FormEx(const WString::View & title, TRef <Object> body = New<Object>(), TRef <Object> footer = New<Object>());
+	FormEx(const WString::View & title, WillRetain <Object> body = New<Object>(), WillRetain <Object> footer = New<Object>());
 
 	~FormEx();
 
@@ -88,7 +88,7 @@ public:
 
 	//elements
 
-	const TRef <Object> footer;
+	const AlreadyRetained <Object> footer;
 
 
 

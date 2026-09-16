@@ -53,14 +53,14 @@ public:
 
 	void Clear();
 
-	void AddPanel(TRef <Object> item, Key32 style_id = kcontent);
+	void AddPanel(WillRetain <Object> item, Key32 style_id = kcontent);
 
 	void RemovePanel(UInt idx);
 
 
 	UInt GetNumPanel() const;
 
-	TRef <Object> GetPanel(UInt idx) const;
+	AlreadyRetained <Object> GetPanel(UInt idx) const;
 
 
 
@@ -108,7 +108,7 @@ inline Reflex::UInt Reflex::GLX::Selector::GetNumPanel() const
 	return m_content.GetSize();
 }
 
-inline Reflex::TRef <Reflex::GLX::Object> Reflex::GLX::Selector::GetPanel(UInt idx) const
+inline Reflex::AlreadyRetained <Reflex::GLX::Object> Reflex::GLX::Selector::GetPanel(UInt idx) const
 {
 	if (idx < m_content.GetSize())
 	{

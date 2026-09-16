@@ -49,11 +49,11 @@ public:
 
 	//content
 
-	void SetContent(TRef <GLX::Object> object);
+	void SetContent(WillRetain <GLX::Object> object);
 
-	TRef <GLX::Object> GetContent();
+	AlreadyRetained <GLX::Object> GetContent();
 
-	TRef <GLX::Object> GetForeground();			//used for overlaying objects, for example context menu
+	AlreadyRetained <GLX::Object> GetForeground();			//used for overlaying objects, for example context menu
 
 
 
@@ -90,6 +90,6 @@ private:
 
 	struct Container;
 
-	TRef <Container> m_container;
+	AlreadyRetained <Container> m_container;
 
 };

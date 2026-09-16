@@ -25,7 +25,7 @@ class SVGDemo::View : public Bootstrap::View
 {
 public:
 
-	static TRef <View> Create(App & app);
+	static Unretained <View> Create(App & app);
 
 
 

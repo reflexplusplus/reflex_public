@@ -18,7 +18,7 @@ struct PropertyEditorImpl : public PropertyEditor
 
 		using AbstractWeakRef::Store;
 
-		TRef <Data::PropertySet> Load() const
+		AlreadyRetained <Data::PropertySet> Load() const
 		{
 			return Cast<Data::PropertySet>(AbstractWeakRef::Load());
 		}
@@ -58,7 +58,7 @@ struct PropertyEditorImpl : public PropertyEditor
 
 	void SetRoot(Data::PropertySet & node) override;
 
-	TRef <Data::PropertySet> GetRoot() override;
+	AlreadyRetained <Data::PropertySet> GetRoot() override;
 
 
 
@@ -66,7 +66,7 @@ struct PropertyEditorImpl : public PropertyEditor
 
 	void SetFocus(Data::PropertySet & node) override;
 
-	TRef <Data::PropertySet> GetFocus() override;
+	AlreadyRetained <Data::PropertySet> GetFocus() override;
 
 
 	void Open(Data::PropertySet & node) override;
@@ -287,7 +287,7 @@ struct PropertyEditorImpl : public PropertyEditor
 
 	const GLX::Style & styles;
 
-	struct Styles { ConstTRef <GLX::Style> nodes, properties, attribute, values_add, button; } m_styles;
+	struct Styles { ConstAlreadyRetained <GLX::Style> nodes, properties, attribute, values_add, button; } m_styles;
 
 
 	GLX::Object m_property_groups;

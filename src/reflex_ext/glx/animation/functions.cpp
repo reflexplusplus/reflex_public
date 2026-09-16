@@ -6,7 +6,7 @@
 //
 //global
 
-void Reflex::GLX::Run(Object & object, Key32 id, TRef <Animation> animation)
+void Reflex::GLX::Run(Object & object, Key32 id, WillRetain <Animation> animation)
 {
 	object.SetProperty(id, animation);
 
@@ -15,7 +15,7 @@ void Reflex::GLX::Run(Object & object, Key32 id, TRef <Animation> animation)
 	animation->Play();
 }
 
-void Reflex::GLX::Run(Object & object, Key32 id, Float32 time, TRef <Animation> animation)
+void Reflex::GLX::Run(Object & object, Key32 id, Float32 time, WillRetain <Animation> animation)
 {
 	object.SetProperty(id, animation);
 
@@ -26,7 +26,7 @@ void Reflex::GLX::Run(Object & object, Key32 id, Float32 time, TRef <Animation> 
 	animation->Play();
 }
 
-void Reflex::GLX::Run(Object & object, Key32 id, Float32 time, InterpolatedAnimation::Easing easing, TRef <InterpolatedAnimation> animation)
+void Reflex::GLX::Run(Object & object, Key32 id, Float32 time, InterpolatedAnimation::Easing easing, WillRetain <InterpolatedAnimation> animation)
 {
 	object.SetProperty(id, animation);
 

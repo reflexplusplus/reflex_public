@@ -366,7 +366,7 @@ private:
 
 REFLEX_NS(Reflex::Detail)
 
-template <bool REVERSE, class TYPE> inline TRef <TYPE> Traverse(TYPE * & itr)
+template <bool REVERSE, class TYPE> inline AlreadyRetained <TYPE> Traverse(TYPE * & itr)
 {
 	auto & current = *itr;
 

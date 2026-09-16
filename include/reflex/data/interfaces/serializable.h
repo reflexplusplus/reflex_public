@@ -11,7 +11,7 @@
 namespace Reflex::Data
 {
 
-	struct iStreamable;
+	struct iSerializable;
 
 }
 
@@ -19,17 +19,17 @@ namespace Reflex::Data
 
 
 //
-//iStreamable
+//iSerializable
 
-struct Reflex::Data::iStreamable : public InterfaceOf <iStreamable>
+struct Reflex::Data::iSerializable
 {
 public:
 
-	static iStreamable & null;
+	static iSerializable & null;
 
 	//lifetime
 	
-	iStreamable(UInt16 version) : version(version) {}
+	iSerializable(UInt16 version) : version(version) {}
 
 
 	
@@ -69,7 +69,17 @@ protected:
 //
 //impl
 
-REFLEX_INLINE void Reflex::Data::iStreamable::Reset(Key32 context)
+REFLEX_NS(Reflex::Data)
+typedef iSerializable iStreamable [[deprecated("use iSerializable")]];
+REFLEX_END
+
+
+
+
+//
+//impl
+
+REFLEX_INLINE void Reflex::Data::iSerializable::Reset(Key32 context)
 {
 	OnReset(context);
 }

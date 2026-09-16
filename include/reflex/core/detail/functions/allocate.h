@@ -47,7 +47,7 @@ public:
 
 	//object
 
-	template <class ... VARGS> [[nodiscard]] static TRef <TYPE> New(Allocator & allocator, VARGS && ... vargs);
+	template <class ... VARGS> [[nodiscard]] static Unretained <TYPE> New(Allocator & allocator, VARGS && ... vargs);
 
 
 	template <class ...VARGS> [[nodiscard]] static TYPE * CreateVariableSize(Allocator & allocator, UInt extra_size, VARGS &&... args);

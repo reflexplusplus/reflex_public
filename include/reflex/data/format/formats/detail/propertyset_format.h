@@ -24,16 +24,16 @@ struct PropertySetFormat : public SerializableFormat
 
 		FunctionPointer <void(const SerializableFormat & format, Archive &, const Object &)> store;
 
-		FunctionPointer <TRef<Object>(const SerializableFormat & format, Archive::View &)> restore;
+		FunctionPointer <Unretained<Object>(const SerializableFormat & format, Archive::View &)> restore;
 
 		FunctionPointer <bool(const PropertySetFormat & format, const Object & a, const Object & b)> compare;
 
-		FunctionPointer <TRef<Object>()> null;
+		FunctionPointer <AlreadyRetained<Object>()> null;
 	};
 
-	[[nodiscard]] static TRef <PropertySetFormat> Create(UInt32 magic);
+	[[nodiscard]] static Unretained <PropertySetFormat> Create(UInt32 magic);
 
-	[[nodiscard]] virtual TRef <PropertySetFormat> Clone(UInt32 magic) const = 0;
+	[[nodiscard]] virtual Unretained <PropertySetFormat> Clone(UInt32 magic) const = 0;
 
 	virtual void SetTypeHandler(const TypeHandler & type) = 0;
 

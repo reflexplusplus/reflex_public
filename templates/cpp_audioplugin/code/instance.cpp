@@ -28,7 +28,7 @@ public:
 		output.Log("_PRODUCT-NAME_ Instance constructed");
 	}
 
-	//Bootstrap::Streamable callbacks
+	//Bootstrap::PersistentState callbacks
 	//parameters are stored automatically in the base class, but additional/custom data can be stored here
 	//to enable these callbacks, set kChunkVersion to 1
 
@@ -247,7 +247,7 @@ void _PRODUCT-NAME-SYMBOL_::Instance::PopulateParameters(const Class & cls, Arra
 {
 	UInt idx = 0;
 
-	auto add_param = [&paramdefs, &idx](Key32 id, TRef <Bootstrap::ParameterDefinition> desc)
+	auto add_param = [&paramdefs, &idx](Key32 id, WillRetain <Bootstrap::ParameterDefinition> desc)
 	{
 		paramdefs[idx++] = { id, desc };
 	};
@@ -278,7 +278,7 @@ void _PRODUCT-NAME-SYMBOL_::Instance::PopulateParameters(const Class & cls, Arra
 	REFLEX_ASSERT(idx == paramdefs.size);
 }
 
-Reflex::TRef <_PRODUCT-NAME-SYMBOL_::Instance> _PRODUCT-NAME-SYMBOL_::Instance::Create(const Class & cls, System::AudioPlugin & instance)
+Reflex::Unretained <_PRODUCT-NAME-SYMBOL_::Instance> _PRODUCT-NAME-SYMBOL_::Instance::Create(const Class & cls, System::AudioPlugin & instance)
 {
 	return New<InstanceImpl>(cls, instance);
 }

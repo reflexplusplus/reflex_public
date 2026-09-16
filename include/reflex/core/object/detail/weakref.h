@@ -48,7 +48,7 @@ public:
 
 	bool Store(Object & target);
 
-	TRef <Object> Load() const;
+	AlreadyRetained <Object> Load() const;
 
 
 	bool Compare(const Object * adr) const { return m_target == adr; }	//fast compare on cached adr, object may have died
@@ -98,7 +98,7 @@ public:
 
 	bool Store(TYPE & ref) { return Base::Store(RemoveConst(ref)); }
 
-	TRef <TYPE> Load() const { return Cast<TYPE>(Base::Load()); }
+	AlreadyRetained <TYPE> Load() const { return Cast<TYPE>(Base::Load()); }
 
 
 	WeakRef & operator=(const WeakRef & weakref) = delete;

@@ -407,7 +407,7 @@ const ReflexCLI::Variable * ReflexCLI::FindVariable(ArrayView<Variable> variable
 
 bool ReflexCLI::IsVariableName(CString::View name)
 {
-	if (name && Data::Detail::IsAlphaCharacter(name.GetFirst()))
+	if (name && (Data::Detail::CharToType(name.GetFirst()) == Data::Detail::kCharTypeWord))
 	{
 		for (auto c : Mid(name, 1))
 		{

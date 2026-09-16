@@ -8,7 +8,7 @@
 
 REFLEX_BEGIN_INTERNAL(Reflex::GLX)
 
-TRef <TextEditBehaviour> InitialiseTextArea(TextArea & textedit, bool multi_line, Key32 textid)
+AlreadyRetained <TextEditBehaviour> InitialiseTextArea(TextArea & textedit, bool multi_line, Key32 textid)
 {
 	auto content = New<Object>();
 
@@ -22,7 +22,7 @@ TRef <TextEditBehaviour> InitialiseTextArea(TextArea & textedit, bool multi_line
 
 	SetFlow(content, FlowFlags(multi_line));
 
-	return behaviour;
+	return NoRetain(behaviour);
 }
 
 REFLEX_END_INTERNAL

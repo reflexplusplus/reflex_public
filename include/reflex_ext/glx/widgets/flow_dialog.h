@@ -63,9 +63,9 @@ public:
 
 	void Clear();
 
-	void RegisterPage(Key32 id, Key32 prev_id, Key32 next_id, Key32 style_id, const Labels & labels, Function <TRef<Object>(FlowDialog&)> ctr);
+	void RegisterPage(Key32 id, Key32 prev_id, Key32 next_id, Key32 style_id, const Labels & labels, Function <Unretained<Object>(FlowDialog&)> ctr);
 	
-	void RegisterPage(Key32 id, Key32 prev_id, Key32 next_id, const Labels & labels, Function <TRef<Object>(FlowDialog&)> ctr) { RegisterPage(id, prev_id, next_id, id, labels, ctr); }
+	void RegisterPage(Key32 id, Key32 prev_id, Key32 next_id, const Labels & labels, Function <Unretained<Object>(FlowDialog&)> ctr) { RegisterPage(id, prev_id, next_id, id, labels, ctr); }
 
 	void UpdateButton(Key32 page_id, Direction button, Key32 button_page_id);
 
@@ -75,7 +75,7 @@ public:
 
 	bool ShowPage(Key32 id, Direction direction = kDirectionForward);
 
-	TRef <Object> GetCurrentPage();
+	AlreadyRetained <Object> GetCurrentPage();
 
 
 
@@ -103,7 +103,7 @@ private:
 
 		Key32 style_id;
 
-		Function <TRef<Object>(FlowDialog&)> ctr;
+		Function <Unretained<Object>(FlowDialog&)> ctr;
 	};
 
 	Page * QueryPage(Key32 page_id);
@@ -112,7 +112,7 @@ private:
 
 
 
-	ConstTRef <Style> m_body_style;
+	ConstAlreadyRetained <Style> m_body_style;
 
 	Button m_buttons[2];
 
@@ -121,7 +121,7 @@ private:
 
 	Key32 m_current_page, m_current_style;
 
-	TRef <Object> m_content;
+	AlreadyRetained <Object> m_content;
 
 };
 
@@ -131,7 +131,7 @@ private:
 //
 //impl
 
-inline Reflex::TRef <Reflex::GLX::Object> Reflex::GLX::FlowDialog::GetCurrentPage()
+inline Reflex::AlreadyRetained <Reflex::GLX::Object> Reflex::GLX::FlowDialog::GetCurrentPage()
 {
 	return m_content;
 }

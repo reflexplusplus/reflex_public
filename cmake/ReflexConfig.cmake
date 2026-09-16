@@ -132,12 +132,11 @@ elseif(EMSCRIPTEN)
 
 elseif(CMAKE_SYSTEM_NAME STREQUAL "Android")
 
-    # Android ships a prebuilt AAR consumed via Gradle prefab, not loose static
-    # libs imported by find_package. Point the consumer at the AAR rather than
-    # importing libraries that aren't laid out for CMake.
-    message(FATAL_ERROR
-        "Reflex: on Android, consume the prebuilt AAR via Gradle (prefab), not "
-        "find_package(Reflex). See bin/lib/android/{debug,release}/reflex.aar.")
+    set(_REFLEX_PLATFORM    "android")
+    set(_REFLEX_LIB_PREFIX  "lib")
+    set(_REFLEX_LIB_SUFFIX  ".a")
+    set(_REFLEX_LIB_DIR_DBG "${REFLEX_ROOT}/bin/lib/android/debug/${ANDROID_ABI}")
+    set(_REFLEX_LIB_DIR_REL "${REFLEX_ROOT}/bin/lib/android/release/${ANDROID_ABI}")
 
 else()
     message(FATAL_ERROR "Reflex: unsupported platform '${CMAKE_SYSTEM_NAME}'")
@@ -218,6 +217,17 @@ _reflex_import_lib(TargetAudioApp         ReflexTargetAudioApp)
 _reflex_import_lib(TargetConsole          ReflexTargetConsole)
 _reflex_import_lib(TargetLibrary          ReflexTargetLibrary)
 _reflex_import_lib(TargetDynamicLibrary   ReflexTargetDynamicLibrary)
+
+if(CMAKE_SYSTEM_NAME STREQUAL "Android")
+    find_package(oboe REQUIRED CONFIG)
+    foreach(_reflex_android_target TargetApp TargetAudioApp)
+        if(TARGET Reflex::${_reflex_android_target})
+            set_property(TARGET Reflex::${_reflex_android_target} APPEND PROPERTY
+                INTERFACE_LINK_LIBRARIES "oboe::oboe"
+            )
+        endif()
+    endforeach()
+endif()
 
 if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
     foreach(_linux_target TargetConsole TargetApp TargetAudioApp TargetLibrary TargetDynamicLibrary)

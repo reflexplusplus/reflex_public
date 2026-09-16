@@ -137,7 +137,7 @@ void ResourceGroupImpl::Clear()
 	TheGlobal::Get<true>()->Notify();
 }
 
-void ResourceGroupImpl::AddItem(Address adr, ConstTRef <Object> object)
+void ResourceGroupImpl::AddItem(Address adr, ConstWillRetain <Object> object)
 {
 	File::ResourcePool::Lock lock(m_resourcepool);
 
@@ -181,7 +181,7 @@ Reflex::Reference <Reflex::Object> Reflex::IDE::Start(File::ResourcePool & resou
 	return TheGlobal::Acquire(resourcepool, prefs);
 }
 
-Reflex::TRef <Reflex::IDE::ResourceGroup> Reflex::IDE::ResourceGroup::Create(File::ResourcePool & resourcepool, Key32 uid, WString::View desc, const Function <void(ResourceGroup&)> & onreload)
+Reflex::Unretained <Reflex::IDE::ResourceGroup> Reflex::IDE::ResourceGroup::Create(File::ResourcePool & resourcepool, Key32 uid, WString::View desc, const Function <void(ResourceGroup&)> & onreload)
 {
 	if (kIsAwake)
 	{

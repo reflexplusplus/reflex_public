@@ -15,7 +15,7 @@ namespace ResourceBuilder
 	{
 	public:
 
-		static TRef <View> Create(App & app);
+		static Unretained <View> Create(App & app);
 
 
 

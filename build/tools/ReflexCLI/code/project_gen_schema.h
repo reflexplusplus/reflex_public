@@ -35,8 +35,8 @@ namespace ReflexCLI::ProjectGen
 		bool IsRoot() const;
 		bool IsEnabled() const { return Data::GetBool(*this, kEnabled, true); }
 
-		const ConstTRef<Data::KeyMap> keymap;
-		const TRef<ValidatedPropertySet> parent;
+		const ConstAlreadyRetained<Data::KeyMap> keymap;
+		const AlreadyRetained<ValidatedPropertySet> parent;
 		const Key32 id;
 
 	protected:
@@ -88,5 +88,5 @@ namespace ReflexCLI::ProjectGen
 	};
 
 
-	extern ConstTRef<Data::Format> g_project_format;
+	extern ConstAlreadyRetained<Data::Format> g_project_format;
 }

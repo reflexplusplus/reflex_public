@@ -20,7 +20,7 @@ namespace Reflex
 	class StandardAllocator;
 
 
-	[[nodiscard]] TRef <Allocator> CreateAllocator(Key32 type, const Object & params);
+	[[nodiscard]] Unretained <Allocator> CreateAllocator(Key32 type, const Object & params);
 
 	extern const Key32 kRecycleAllocID;
 
@@ -99,7 +99,7 @@ struct Reflex::StandardAllocator::Lock
 
 	void Enumerate(UInt start, UInt n, const Function <void(const AllocInfo & info)> & callback) const;
 
-	const TRef <StandardAllocator> allocator;
+	const AlreadyRetained <StandardAllocator> allocator;
 };
 
 
@@ -130,9 +130,9 @@ REFLEX_END
 
 REFLEX_NS(Reflex)
 
-TRef <StandardAllocator> GetDefaultAllocator();
+AlreadyRetained <StandardAllocator> GetDefaultAllocator();
 
-inline TRef <StandardAllocator> g_default_allocator = GetDefaultAllocator();
+inline AlreadyRetained <StandardAllocator> g_default_allocator = GetDefaultAllocator();
 
 REFLEX_END
 

@@ -112,7 +112,7 @@ const decltype (&CountBinaries) kCountFunctions[Table::kNumColumnType] =
 
 REFLEX_END_INTERNAL
 
-Reflex::TRef <Reflex::Data::Table> Reflex::Data::Detail::CountBy(const Table & input, Key32 columnid, bool ratio)
+Reflex::Unretained <Reflex::Data::Table> Reflex::Data::Detail::CountBy(const Table & input, Key32 columnid, bool ratio)
 {
 	if (auto indexcolumn = QueryColumn(input, columnid))
 	{

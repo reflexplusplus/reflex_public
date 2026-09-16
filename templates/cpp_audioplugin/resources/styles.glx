@@ -210,3 +210,20 @@ Control:
 
 	@Alias enumeration: { source: boolean; };
 };
+
+#if (environment == plugin) and (resizable == true)
+{
+	@Bitmap resize_grip:
+	{
+		path: "img/resize_grip.png";
+		antialias: true;
+		density: 2;
+	};
+
+	fg:
+	Align
+	(
+		position: bottom_right;
+		content: Image(source: resize_grip; autofit: true; color: 0,40);
+	);
+}

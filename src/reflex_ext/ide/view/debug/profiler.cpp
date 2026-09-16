@@ -60,7 +60,7 @@ private:
 	Output::Profiler * m_current_item;
 
 
-	ConstTRef <GLX::Style> m_button_style, m_item_style;
+	ConstAlreadyRetained <GLX::Style> m_button_style, m_item_style;
 
 	GLX::Split m_split;	//TODO BEHAVIOUR
 

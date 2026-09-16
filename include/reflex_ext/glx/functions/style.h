@@ -65,7 +65,14 @@ template <class TYPE> REFLEX_INLINE auto Reflex::GLX::Init(TYPE && objectref, co
 
 	object.SetStyle(style);
 
-	return TRef<NonRefT<decltype(object)>>(object);
+	if constexpr (IsReflexReference<NonRefT<TYPE>>::value)
+	{
+		return std::forward<TYPE>(objectref);
+	}
+	else
+	{
+		return AlreadyRetained<NonRefT<decltype(object)>>(object);
+	}
 }
 
 template <class TYPE> REFLEX_INLINE auto Reflex::GLX::Init(TYPE && objectref, const Style & style, WString && label)
@@ -76,10 +83,17 @@ template <class TYPE> REFLEX_INLINE auto Reflex::GLX::Init(TYPE && objectref, co
 
 	SetText(object, std::move(label));
 
-	return TRef<NonRefT<decltype(object)>>(object);
+	if constexpr (IsReflexReference<NonRefT<TYPE>>::value)
+	{
+		return std::forward<TYPE>(objectref);
+	}
+	else
+	{
+		return AlreadyRetained<NonRefT<decltype(object)>>(object);
+	}
 }
 
 template <class TYPE> inline auto Reflex::GLX::Init(TYPE && objectref, const Style & style, const WString & label)
 {
-	return Init(objectref, style, Copy(label));
+	return Init(std::forward<TYPE>(objectref), style, Copy(label));
 }

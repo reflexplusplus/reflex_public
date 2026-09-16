@@ -24,21 +24,25 @@ namespace Reflex::Bootstrap
 
 class Reflex::Bootstrap::View : 
 	public GLX::Object,
-	public Streamable
+	public PersistentState
 {
 public:
 
 	REFLEX_OBJECT(Bootstrap::View, GLX::Object);
 
-	View(App & app, UInt16 chunk_version, WString::View stylesheet_path) : View(app, app.session, MakeKey32("bootstrap.view"), chunk_version, stylesheet_path) {}
 
-	template <bool MT> View(ChangeCount <MT> & state, File::PersistentPropertySet & session, Key32 chunk_id, UInt16 chunk_version, WString::View stylesheet_path);
+
+	//lifetime
+
+	View(App & app, UInt16 chunk_version, WString::View stylesheet_path, bool resizable) : View(app, app.session, MakeKey32("bootstrap.view"), chunk_version, stylesheet_path, resizable) {}
+
+	template <bool MT> View(ChangeCount <MT> & state, File::PersistentPropertySet & session, Key32 chunk_id, UInt16 chunk_version, WString::View stylesheet_path, bool resizable);
 
 
 
 protected:
 
-	//Streamable callbacks
+	//PersistentState callbacks
 
 	virtual void OnResetState(Key32 context) = 0;
 
@@ -61,7 +65,7 @@ protected:
 
 private:
 
-	View(File::PersistentPropertySet & session, Key32 chunk_id, UInt16 chunk_version, WString::View stylesheet_path);
+	View(File::PersistentPropertySet & session, Key32 chunk_id, UInt16 chunk_version, WString::View stylesheet_path, bool resizable);
 
 	void OnReset(Key32 context) final;
 
@@ -83,8 +87,8 @@ private:
 //
 //impl
 
-template <bool MT> inline Reflex::Bootstrap::View::View(ChangeCount <MT> & state, File::PersistentPropertySet & session, Key32 chunk_id, UInt16 chunk_version, WString::View stylesheet_path)
-	: View(session, chunk_id, chunk_version, stylesheet_path)
+template <bool MT> inline Reflex::Bootstrap::View::View(ChangeCount <MT> & state, File::PersistentPropertySet & session, Key32 chunk_id, UInt16 chunk_version, WString::View stylesheet_path, bool resizable)
+	: View(session, chunk_id, chunk_version, stylesheet_path, resizable)
 {
 	m_monitor.Connect(state);
 }

@@ -52,9 +52,9 @@ public:
 
 	void ClearData();
 
-	void SetData(ConstTRef <Data::ArchiveObject> archive, UInt8 tab_spaces);
+	void SetData(ConstWillRetain <Data::ArchiveObject> archive, UInt8 tab_spaces);
 
-	ConstTRef <Data::ArchiveObject> GetData() const { return m_data; }
+	ConstAlreadyRetained <Data::ArchiveObject> GetData() const { return m_data; }
 
 
 	//REFLEX_EXPOSE_MEMBER_METHOD(m_textedit, SetCaret);
@@ -78,7 +78,7 @@ public:
 
 
 
-	const TRef <GLX::TextEditBehaviour> behaviour;
+	const AlreadyRetained <GLX::TextEditBehaviour> behaviour;
 
 
 private:
@@ -88,7 +88,7 @@ private:
 	GLX::Rect GetLineCoordinates(UInt idx) const;
 
 
-	const TRef <GLX::Text> m_text;
+	const AlreadyRetained <GLX::Text> m_text;
 
 	ConstReference <Data::ArchiveObject> m_data;
 

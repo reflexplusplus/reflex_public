@@ -7,7 +7,7 @@
 //impl
 
 Reflex::Bootstrap::App::App(UInt32 magic, UInt16 chunkversion)
-	: Streamable(New<File::PersistentPropertySet>(Data::kPropertySetFormat), MakeKey32("app"), chunkversion)
+	: PersistentState(New<File::PersistentPropertySet>(Data::kPropertySetFormat), MakeKey32("app"), chunkversion)
 	, magic(magic)
 	, session(propertyset)
 {

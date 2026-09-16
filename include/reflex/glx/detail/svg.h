@@ -20,7 +20,7 @@ namespace Reflex::GLX::Detail
 		FitMode fit = kFitModeContain;
 		Rect viewport = { {}, kNormal };
 		Pair <Orientation> orientation = { kOrientationCenter, kOrientationCenter };
-		ConstTRef <Data::PropertySet> node;	//only valid for lifetime of xml
+		ConstAlreadyRetained <Data::PropertySet> node;	//only valid for lifetime of xml
 	};
 
 	Array <SVG> InspectSVG(const Data::PropertySet & xml);

@@ -105,9 +105,6 @@ namespace ReflexCLI
 
 	WString CreateProject(const TemplateDefinition & tmpl, ArrayView <Variable> string_inputs, ArrayView <Variable> path_inputs, ArrayView <CString::View> targets, const WString & destination, System::FileHandle & std_in, System::FileHandle & std_out, const Function <bool(const WString&)> & overwrite);
 
-	void GenerateProject(const WString & path, ArrayView <CString::View> platforms_filter, System::FileHandle & std_out);
-
-
 	void BuildResources(const WString::View & filename, Float & progress);
 	
 	void BuildPlist(const Data::PropertySet & args, System::FileHandle & std_out);

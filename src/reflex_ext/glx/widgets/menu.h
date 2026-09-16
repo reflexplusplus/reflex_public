@@ -23,19 +23,19 @@ struct MenuImpl : public Menu
 
 	void Clear() override;
 
-	TRef <Object> AddItem(TRef <Object> item) override;
+	AlreadyRetained <Object> AddItem(WillRetain <Object> item) override;
 
-	TRef <Object> AddSeparator(TRef <Object> item) override;
+	AlreadyRetained <Object> AddSeparator(WillRetain <Object> item) override;
 
-	TRef <Menu> AddSubMenu(TRef <Object> item, TRef <Menu> menu) override;
+	AlreadyRetained <Menu> AddSubMenu(WillRetain <Object> item, WillRetain <Menu> menu) override;
 
-	TRef <Object> AddItem(const WString::View & label) override;
+	AlreadyRetained <Object> AddItem(const WString::View & label) override;
 
-	TRef <Object> AddSeparator() override;
+	AlreadyRetained <Object> AddSeparator() override;
 
-	TRef <Menu> AddSubMenu(const WString::View & label) override;
+	AlreadyRetained <Menu> AddSubMenu(const WString::View & label) override;
 
-	TRef <Object> GetParentItem() const override { return m_parent_item; }
+	AlreadyRetained <Object> GetParentItem() const override { return m_parent_item; }
 
 	bool OpenSubMenu(Object & item) override;
 
@@ -69,5 +69,5 @@ struct Reflex::GLX::MenuImpl::ComputedStyle : public Reflex::Object
 
 	ComputedStyle(const Style & style);
 
-	const ConstTRef <Style> kFolder, kItem, kSeparator;
+	const ConstAlreadyRetained <Style> kFolder, kItem, kSeparator;
 };

@@ -27,7 +27,7 @@ struct CloseTransition
 
 		SetBounds(object, kCloseTransition, m_from);
 
-		TRef multi = REFLEX_CREATE(PlayList);
+		auto multi = REFLEX_CREATE(PlayList);
 
 		AddScene(multi, CreateResize(object, kCloseTransition, Detail::GetSize(m_yaxis, m_from), to));
 		
