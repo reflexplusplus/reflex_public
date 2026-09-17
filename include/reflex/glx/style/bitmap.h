@@ -12,9 +12,9 @@ REFLEX_NS(Reflex::GLX::Detail)
 
 ConstAlreadyRetained <System::Renderer::Canvas> RetrieveBitmap(const WString::View & path, UInt pixel_density, bool antialias);
 
-Unretained <const System::Renderer::Canvas> OpenBitmap(const System::BitmapInfo & info, const Data::Archive::View & data, bool antialias);
+Unretained <System::Renderer::Canvas> CreateBitmap(const System::BitmapInfo & info, Data::Archive::View data, bool antialias);
 
-Unretained <const System::Renderer::Canvas> OpenBitmap(const Data::Archive::View & data, UInt pixel_density, bool antialias);
+Unretained <System::Renderer::Canvas> CreateBitmap(Data::Archive::View data, UInt pixel_density, bool antialias);
 
 
 extern const File::ResourcePool::Ctr kDecodeBitmap;
@@ -27,13 +27,19 @@ REFLEX_END
 //
 //impl
 
-inline Reflex::Unretained <const Reflex::System::Renderer::Canvas> Reflex::GLX::Detail::OpenBitmap(const Data::Archive::View & archive, UInt pixel_density, bool antialias)
+inline Reflex::Unretained <Reflex::System::Renderer::Canvas> Reflex::GLX::Detail::CreateBitmap(Data::Archive::View archive, UInt pixel_density, bool antialias)
 {
-	auto [info,bytes] = DecodeBitmap(archive, pixel_density);
+	auto [info,bytes] = DecodeBitmap(archive);
 
-	RemapToSupportedFormat(info.format, bytes);
+	if (ConvertToSupportedFormat(info.format, bytes, g_supported_image_formats))
+	{
+		if (ConvertPixelDensity(info, pixel_density))
+		{
+			PreMultAlpha(info, bytes);
 
-	PreMultAlpha(info, bytes);
+			return CreateBitmap(info, bytes, antialias);
+		}
+	}
 
-	return OpenBitmap(info, bytes, antialias);
+	return System::Renderer::Canvas::null;
 }

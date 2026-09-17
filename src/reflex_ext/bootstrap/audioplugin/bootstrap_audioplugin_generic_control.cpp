@@ -8,12 +8,12 @@
 
 REFLEX_BEGIN_INTERNAL(Reflex::Bootstrap)
 
-constexpr Key32 kControlTypeStates[GenericControl::kNumType] =
+constexpr Pair <Key32> kControlTypeStates[GenericControl::kNumType] =
 {
-	K32("continuous"),
-	K32("discrete"),
-	K32("enumeration"),
-	K32("boolean"),
+	{ K32("continuous"), K32("rotary") },
+	{ K32("discrete"), K32("dragedit") },
+	{ K32("enumeration"), K32("popup") },
+	{ K32("boolean"), K32("button") },
 };
 
 struct ControlCompiledStyle : public Object
@@ -23,6 +23,13 @@ struct ControlCompiledStyle : public Object
 		, positioning_flags(ParseControlPositioning(style))
 		, flow_flags(ParseControlFlow(style))
 	{
+		REFLEX_LOOP(idx, GenericControl::kNumType)
+		{
+			auto [state,alias] = kControlTypeStates[idx];
+
+			type_states[idx] = style.QuerySubStyle(alias) ? alias : state;
+		}
+
 		if (auto labels = style.QuerySubStyle("labels"))
 		{
 			auto labels_itr = labels->Iterate<Data::CStringProperty>();
@@ -36,6 +43,15 @@ struct ControlCompiledStyle : public Object
 				remap_view.Set(item.key.id, label);
 			}
 		}
+	}
+
+	void Apply(GLX::Object & control) const
+	{
+		control.SetStyle(content_style);
+
+		control.SetPositioningFlags(positioning_flags);
+
+		GLX::SetFlow(control, flow_flags);
 	}
 
 	static UInt8 ParseControlPositioning(const GLX::Style & style)
@@ -85,6 +101,8 @@ struct ControlCompiledStyle : public Object
 
 	Map <Key32, WString::View> remap_view;
 
+	Key32 type_states[GenericControl::kNumType];
+
 	ConstAlreadyRetained <GLX::Style> content_style;
 
 	UInt8 positioning_flags;
@@ -120,7 +138,9 @@ void Reflex::Bootstrap::GenericControl::ClearWidget()
 {
 	if (m_type_active.a != kNumType)
 	{
-		UnsetState(kControlTypeStates[m_type_active.a]);
+		UnsetState(m_type_state);
+		
+		m_type_state = {};
 	}
 
 	m_type_active = { kNumType, false };
@@ -135,15 +155,11 @@ void Reflex::Bootstrap::GenericControl::ClearWidget()
 
 Reflex::AlreadyRetained <Reflex::GLX::Object> Reflex::Bootstrap::GenericControl::AcquireWidget(Type type, bool active)
 {
-	auto previous_type = m_type_active.a;
-
 	if (SetFiltered(m_type_active, MakeTuple(type, active)))
 	{
 		m_content->Detach();
 
 		m_content = {};
-
-		if (previous_type != kNumType) UnsetState(kControlTypeStates[previous_type]);
 
 		switch (type)
 		{
@@ -168,13 +184,24 @@ Reflex::AlreadyRetained <Reflex::GLX::Object> Reflex::Bootstrap::GenericControl:
 			return {};
 		}
 
-		SetState(kControlTypeStates[type]);
+		auto type_state = Cast<ControlCompiledStyle>(m_cstyle)->type_states[type];
+
+		if (type_state != m_type_state)
+		{
+			UnsetState(m_type_state);
+
+			m_type_state = type_state;
+
+			SetState(m_type_state);
+		}
 
 		m_content->SetProperty(GLX::kvalue, m_value);
 
 		m_content->SetParent(*this);
 
 		GLX::Activate(m_content, active);
+
+		Cast<ControlCompiledStyle>(m_cstyle)->Apply(m_content);
 	}
 
 	return m_content;
@@ -186,9 +213,6 @@ void Reflex::Bootstrap::GenericControl::OnSetStyle(const GLX::Style & style)
 
 	m_cstyle = compiled_style;
 
-	m_content->SetStyle(compiled_style->content_style);
-
-	m_content->SetPositioningFlags(compiled_style->positioning_flags);
-
-	GLX::SetFlow(m_content, compiled_style->flow_flags);
+	if (m_content->GetParent()) compiled_style->Apply(m_content);	//guard prevents applying also on UnsetState and SetState in AcquireWidget
 }
+

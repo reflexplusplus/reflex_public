@@ -70,6 +70,12 @@ namespace Reflex::Bootstrap::CLI
 
 
 
+	//tasks
+
+	consteval CLI::TaskDef MakeTask(Key32 id, CLI::TaskFn fn) { return { id, fn }; }
+
+
+
 	//input
 
 	CString::View GetString(const Data::PropertySet & args, Key32 id, CString::View fallback = {});

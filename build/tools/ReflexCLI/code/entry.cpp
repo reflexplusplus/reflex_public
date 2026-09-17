@@ -533,8 +533,6 @@ void Edit(const Data::PropertySet & args)
 	}
 }
 
-consteval CLI::TaskDef MakeTask(Key32 id, CLI::TaskFn fn) { return { id, fn }; }
-
 void UnsetPersistentVariable(Data::PropertySet & variables, Key32 id)
 {
 	Data::UnsetBool(variables, id);
@@ -638,7 +636,7 @@ void ImportState(const Data::PropertySet & args)
 
 const CLI::TaskDef kCommands[] =
 {
-	MakeTask("help", [](const Data::PropertySet & args, System::FileHandle & std_out)
+	CLI::MakeTask("help", [](const Data::PropertySet & args, System::FileHandle & std_out)
 	{
 		const auto print_arg = [&std_out](bool optional, CString::View name, CString::View description)
 		{
@@ -819,42 +817,42 @@ const CLI::TaskDef kCommands[] =
 			show_overview();
 		}
 	}),
-	MakeTask("where", [](const Data::PropertySet & args, System::FileHandle & std_out)
+	CLI::MakeTask("where", [](const Data::PropertySet & args, System::FileHandle & std_out)
 	{
 		ValidateArgs(args);
 		File::WriteLine(std_out, GetReflexPath());
 	}),
-	MakeTask("open", [](const Data::PropertySet & args, System::FileHandle & std_out)
+	CLI::MakeTask("open", [](const Data::PropertySet & args, System::FileHandle & std_out)
 	{
 		ValidateArgs(args, { Arg("path") });
 		Require(System::Open(GetProjectFolder(args)), "open failed", "could not open the project folder");
 	}),
-	MakeTask("edit", [](const Data::PropertySet & args, System::FileHandle & std_out)
+	CLI::MakeTask("edit", [](const Data::PropertySet & args, System::FileHandle & std_out)
 	{
 		ValidateArgs(args, { Arg("path"), Arg(kFirstPositionalArg) });
 		Edit(args);
 	}),
-	MakeTask("set-path", [](const Data::PropertySet & args, System::FileHandle & std_out)
+	CLI::MakeTask("set-path", [](const Data::PropertySet & args, System::FileHandle & std_out)
 	{
 		ValidateArgs(args, { RequiredArg(kFirstPositionalArg) });
 		SetPath(ResolveAbsolutePathCase(CLI::GetFolder(args, "value", true)), std_out);
 	}),
-	MakeTask("template-libraries", [](const Data::PropertySet & args, System::FileHandle & std_out)
+	CLI::MakeTask("template-libraries", [](const Data::PropertySet & args, System::FileHandle & std_out)
 	{
 		ValidateArgs(args);
 		for (auto & i : GetTemplateLibraryPaths()) File::WriteLine(std_out, i);
 	}),
-	MakeTask("add-template-library", [](const Data::PropertySet & args, System::FileHandle & std_out)
+	CLI::MakeTask("add-template-library", [](const Data::PropertySet & args, System::FileHandle & std_out)
 	{
 		ValidateArgs(args, { RequiredArg(kFirstPositionalArg) });
 		RegisterTemplateLibraryPath(args, true);
 	}),
-	MakeTask("remove-template-library", [](const Data::PropertySet & args, System::FileHandle &)
+	CLI::MakeTask("remove-template-library", [](const Data::PropertySet & args, System::FileHandle &)
 	{
 		ValidateArgs(args, { RequiredArg(kFirstPositionalArg) });
 		RegisterTemplateLibraryPath(args, false);
 	}),
-	MakeTask("templates", [](const Data::PropertySet & args, System::FileHandle & std_out)
+	CLI::MakeTask("templates", [](const Data::PropertySet & args, System::FileHandle & std_out)
 	{
 		ValidateArgs(args, { Arg("detail") });
 		auto templates = GetTemplates();
@@ -889,28 +887,28 @@ const CLI::TaskDef kCommands[] =
 			for (auto & tmpl : templates) File::WriteLine(std_out, GetTemplateID(tmpl));
 		}
 	}),
-	MakeTask("install", [](const Data::PropertySet & args, System::FileHandle & std_out)
+	CLI::MakeTask("install", [](const Data::PropertySet & args, System::FileHandle & std_out)
 	{
 		ValidateArgs(args, { Arg(kFirstPositionalArg), Arg("platforms"), Arg("path"), Arg("test") });
 		Install(Data::GetCString(args, kFirstPositionalArg), CLI::GetStringArray(args, "platforms"), CLI::GetFolder(args, "path", false), CLI::GetBool(args, "test"), std_out);
 	}),
-	MakeTask("version", [](const Data::PropertySet & args, System::FileHandle & std_out)
+	CLI::MakeTask("version", [](const Data::PropertySet & args, System::FileHandle & std_out)
 	{
 		ValidateArgs(args);
 		GetVersion(std_out);
 	}),
-	MakeTask("versions", [](const Data::PropertySet & args, System::FileHandle & std_out)
+	CLI::MakeTask("versions", [](const Data::PropertySet & args, System::FileHandle & std_out)
 	{
 		ValidateArgs(args);
 		ListVersions(std_out);
 	}),
-	MakeTask("doc", [](const Data::PropertySet & args, System::FileHandle & std_out)
+	CLI::MakeTask("doc", [](const Data::PropertySet & args, System::FileHandle & std_out)
 	{
 		ValidateArgs(args, { Arg("root"), Arg("parent"), Arg(kFirstPositionalArg), Arg(kFirstPositionalArg + 1) });
 		Doc(args, std_out);
 	}),
-	MakeTask("create", &Create),
-	MakeTask("generate", [](const Data::PropertySet & args, System::FileHandle & std_out)
+	CLI::MakeTask("create", &Create),
+	CLI::MakeTask("generate", [](const Data::PropertySet & args, System::FileHandle & std_out)
 	{
 		ValidateArgs(args, 
 		{
@@ -926,12 +924,12 @@ const CLI::TaskDef kCommands[] =
 
 		Generate(args, std_out, CLI::GetBool(args, "fresh"));
 	}),
-	MakeTask("build", [](const Data::PropertySet & args, System::FileHandle & std_out)
+	CLI::MakeTask("build", [](const Data::PropertySet & args, System::FileHandle & std_out)
 	{
 		ValidateArgs(args, { Arg("path"), Arg(kFirstPositionalArg), Arg(kFirstPositionalArg + 1) });
 		Build(args, std_out);
 	}),
-	MakeTask("clean", [](const Data::PropertySet & args, System::FileHandle & std_out)
+	CLI::MakeTask("clean", [](const Data::PropertySet & args, System::FileHandle & std_out)
 	{
 		ValidateArgs(args, 
 		{
@@ -944,15 +942,15 @@ const CLI::TaskDef kCommands[] =
 		});
 		Generate(args, std_out, true);
 	}),
-	MakeTask("run", &Run),
-	MakeTask("build-resources", [](const Data::PropertySet & args, System::FileHandle & std_out)
+	CLI::MakeTask("run", &Run),
+	CLI::MakeTask("build-resources", [](const Data::PropertySet & args, System::FileHandle & std_out)
 	{
 		ValidateArgs(args, { Arg("path") });
 		Float progress = 0.0f;
 
 		BuildResources(CLI::GetFilename(args, "path", true, "resources.xml"), progress);
 	}),
-	MakeTask("build-plist", [](const Data::PropertySet & args, System::FileHandle & std_out)
+	CLI::MakeTask("build-plist", [](const Data::PropertySet & args, System::FileHandle & std_out)
 	{
 		ValidateArgs(args, 
 		{
@@ -969,7 +967,7 @@ const CLI::TaskDef kCommands[] =
 		});
 		BuildPlist(args, std_out);
 	}),
-	MakeTask("set", [](const Data::PropertySet & args, System::FileHandle & std_out)
+	CLI::MakeTask("set", [](const Data::PropertySet & args, System::FileHandle & std_out)
 	{
 		ValidateArgs(args, { RequiredArg(kFirstPositionalArg), RequiredArg(kFirstPositionalArg + 1) });
 		CString name = Data::GetCString(args, kFirstPositionalArg);
@@ -996,20 +994,20 @@ const CLI::TaskDef kCommands[] =
 			Data::SetKey32(variables, id, Data::RegisterKey(keymap, value));
 		}
 	}),
-	MakeTask("get", [](const Data::PropertySet & args, System::FileHandle & std_out)
+	CLI::MakeTask("get", [](const Data::PropertySet & args, System::FileHandle & std_out)
 	{
 		ValidateArgs(args, { RequiredArg(kFirstPositionalArg) });
 		auto name = Data::GetCString(args, kFirstPositionalArg);
 		auto variables = GetPersistentVariables();
 		if (auto variable = FindVariable(variables, name)) File::WriteLine(std_out, variable->value);
 	}),
-	MakeTask("unset", [](const Data::PropertySet & args, System::FileHandle & std_out)
+	CLI::MakeTask("unset", [](const Data::PropertySet & args, System::FileHandle & std_out)
 	{
 		ValidateArgs(args, { RequiredArg(kFirstPositionalArg) });
 		auto name = Data::GetCString(args, kFirstPositionalArg);
 		UnsetPersistentVariable(Data::AcquirePropertySet(Bootstrap::global->prefs, kPersistentVariables), name);
 	}),
-	MakeTask("variables", [](const Data::PropertySet & args, System::FileHandle & std_out)
+	CLI::MakeTask("variables", [](const Data::PropertySet & args, System::FileHandle & std_out)
 	{
 		ValidateArgs(args);
 		auto variables = GetPersistentVariables();
@@ -1019,22 +1017,22 @@ const CLI::TaskDef kCommands[] =
 			File::WriteLine(std_out, Join(variable.name, '=', EncodeUTF8(variable.value)));
 		}
 	}),
-	MakeTask("export", [](const Data::PropertySet & args, System::FileHandle & std_out)
+	CLI::MakeTask("export", [](const Data::PropertySet & args, System::FileHandle & std_out)
 	{
 		ValidateArgs(args, { Arg("path") });
 		ExportState(args, std_out);
 	}),
-	MakeTask("import", [](const Data::PropertySet & args, System::FileHandle & std_out)
+	CLI::MakeTask("import", [](const Data::PropertySet & args, System::FileHandle & std_out)
 	{
 		ValidateArgs(args, { Arg("path") });
 		ImportState(args);
 	}),
-	MakeTask("reset", [](const Data::PropertySet & args, System::FileHandle & std_out)
+	CLI::MakeTask("reset", [](const Data::PropertySet & args, System::FileHandle & std_out)
 	{
 		ValidateArgs(args);
 		Data::ResetPropertySet(Data::kPropertySetFormat, Bootstrap::global->prefs);
 	}),
-	MakeTask(kTasks, [](const Data::PropertySet & args, System::FileHandle & std_out)
+	CLI::MakeTask(kTasks, [](const Data::PropertySet & args, System::FileHandle & std_out)
 	{
 		ValidateArgs(args);
 		auto tasks = Data::GetPropertySet(Bootstrap::global->prefs, kTasks);

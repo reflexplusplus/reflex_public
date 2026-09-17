@@ -62,6 +62,8 @@ private:
 
 	Pair <Type,bool> m_type_active;
 
+	Key32 m_type_state;
+
 	AlreadyRetained <GLX::Object> m_content;
 
 	Reference <GLX::Text> m_value;

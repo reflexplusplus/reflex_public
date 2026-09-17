@@ -35,7 +35,7 @@ public:
 	{
 		Priority priority = kPriorityNormal;
 		FileHandle * std_out = nullptr;
-		bool allow_window = true;
+		bool allow_window = false;
 	};
 
 
