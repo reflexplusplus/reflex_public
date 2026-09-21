@@ -12,6 +12,8 @@ REFLEX_NS(Reflex::Data)
 
 struct MemoryTable : public Table
 {
+	REFLEX_OBJECT(MemoryTable, Table);	//need this to check in Clone
+
 	struct FileHeader
 	{
 		static constexpr UInt32 kMagic = K32("Table");
@@ -26,7 +28,6 @@ struct MemoryTable : public Table
 		UInt32 datasize;
 		UInt32 heapsize;
 		UInt32 freeheapsize;
-		//UInt32 indicessize;
 	};
 
 	
@@ -89,7 +90,6 @@ struct MemoryTable : public Table
 	const CString m_null_string;
 
 	bool m_has_key32_columns;
-
 };
 
 REFLEX_END

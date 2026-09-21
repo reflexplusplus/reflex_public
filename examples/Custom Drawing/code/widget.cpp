@@ -157,13 +157,12 @@ bool WidgetImpl::OnEvent(GLX::Object & src, GLX::Event & e)
 void WidgetImpl::OnSetStyle(const GLX::Style & style)
 {
 	auto width = Data::GetFloat32(style, "width", 2.0f);
-	auto fill = GLX::GetColour(style, "fill");		//unused in this demo
 
 	//Typically do SetGraphicCanvas here in OnSetStyle, or in OnUpdate if it depends on app state
 
 	auto workspace = Make<ObjectOf<Pair<GLX::Points,GLX::ColourPoints>>>();	//an optimisation, reuse buffers on each OnDraw to avoid allocations
 
-	GLX::SetColourCanvas(*this, {}, [this, width, fill, size_z = Make<GLX::SizeProperty>(), workspace](GLX::ColourCanvasContext & ctx)
+	GLX::SetColourCanvas(*this, {}, [this, width, size_z = Make<GLX::SizeProperty>(), workspace](GLX::ColourCanvasContext & ctx)
 	{
 		//this does *not* get called every frame, what we are doing here is preparing a VBO for GPU
 		//to manually reschedule need to call Redraw()

@@ -43,6 +43,44 @@ UInt32 GetAudioUnitVersion(const Data::PropertySet & args)
 	return (major << 16) | (minor << 8) | patch;
 }
 
+constexpr CString::View kMinMacOsArgument = "min_macos";
+constexpr CString::View kMinIosArgument = "min_ios";
+
+//a dotted numeric version, for example 10.15 or 14.0
+bool IsVersionNumber(const CString & value)
+{
+	bool part_has_digits = false;
+
+	REFLEX_LOOP(index, value.GetSize())
+	{
+		auto character = value[index];
+
+		if (character >= '0' && character <= '9') part_has_digits = true;
+		else if (character == '.' && part_has_digits) part_has_digits = false;
+		else return false;
+	}
+
+	return part_has_digits;
+}
+
+//returns an empty string when the argument was not passed
+CString GetMinimumOsVersion(const Data::PropertySet & args, CString::View property_id)
+{
+	auto property = args.QueryProperty<Data::CStringProperty>(MakeKey32(property_id));
+
+	if (!property)
+	{
+		if (Data::GetBool(args, property_id)) ThrowError(Join("invalid --", property_id), "<version>");
+		return {};
+	}
+
+	CString version = property->value;
+
+	if (!IsVersionNumber(version)) ThrowError(Join("invalid --", property_id), version);
+
+	return version;
+}
+
 struct AudioUnitComponent
 {
 	CString subtype;
@@ -116,6 +154,32 @@ void WriteBool(XmlWriter & xml, CString::View key, bool value)
 	xml.EmptyElement(value ? "true" : "false");
 }
 
+void WriteMinimumOsVersion(XmlWriter & xml, const Data::PropertySet & args, Key32 target)
+{
+	auto macos_version = GetMinimumOsVersion(args, kMinMacOsArgument);
+	auto ios_version = GetMinimumOsVersion(args, kMinIosArgument);
+
+	if (macos_version && ios_version) ThrowError("conflicting arguments", Join("--", kMinMacOsArgument, " and --", kMinIosArgument));
+
+	switch (target.value)
+	{
+	case MakeKey32("ios_app"):
+	case MakeKey32("ios_audioapp"):
+		if (macos_version) ThrowError(Join("--", kMinMacOsArgument, " is not valid for an iOS target"), macos_version);
+		break;
+
+	case MakeKey32("auv3"):	//generated for both macOS and iOS, so either argument is valid
+		break;
+
+	default:
+		if (ios_version) ThrowError(Join("--", kMinIosArgument, " is not valid for a macOS target"), ios_version);
+		break;
+	}
+
+	if (macos_version) WriteString(xml, "LSMinimumSystemVersion", macos_version);
+	else if (ios_version) WriteString(xml, "MinimumOSVersion", ios_version);
+}
+
 void WriteCommonBundleKeys(XmlWriter & xml, CString::View product, CString::View executable, CString::View bundle_id, CString::View version, CString::View package_type, bool signature)
 {
 	WriteString(xml, "CFBundleDevelopmentRegion", "English");
@@ -143,6 +207,7 @@ void WriteMacAppKeys(XmlWriter & xml, const Data::PropertySet & args, bool audio
 
 	WriteString(xml, "NSPrincipalClass", "NSApplication");
 	WriteString(xml, "LSApplicationCategoryType", Join("public.app-category.", Data::GetCString(args, "app_store_category", "music")));
+	if (Data::GetBool(args, "accessory")) WriteBool(xml, "LSUIElement", true);
 	if (audio_app) WriteString(xml, "NSMicrophoneUsageDescription", "Audio Input");
 }
 
@@ -305,6 +370,8 @@ Data::Archive GeneratePlist(const Data::PropertySet & args, Key32 target)
 			ThrowError("unknown target", "?");
 			break;
 		}
+
+		WriteMinimumOsVersion(xml, args, target);
 	}
 
 	return xml.GetOutput();

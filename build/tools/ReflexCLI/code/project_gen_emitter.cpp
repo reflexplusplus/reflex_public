@@ -104,9 +104,9 @@ void ReflexCLI::ProjectGen::WriteCMakeInvocation(Data::Archive & output, UInt in
 	}
 }
 
-void ReflexCLI::ProjectGen::WriteCMakeTargetValues(Data::Archive & output, UInt indentation, CString::View command, CString::View target, ArrayView<WString> values)
+void ReflexCLI::ProjectGen::WriteCMakeTargetValues(Data::Archive & output, UInt indentation, CString::View command, CString::View target, CString::View scope, ArrayView<WString> values)
 {
-	if (values) WriteCMakeInvocation(output, indentation, command, ToWString(Join(target, " PRIVATE")), values);
+	if (values) WriteCMakeInvocation(output, indentation, command, ToWString(Join(target, " ", scope)), values);
 }
 
 void ReflexCLI::ProjectGen::SaveFile(const WString & path, Data::Archive::View data, BuildPlatform platform)

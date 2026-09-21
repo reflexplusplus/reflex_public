@@ -218,6 +218,7 @@ enum TargetValueKind : UInt8
 	kTargetWindowsResources,
 	kTargetDefinitions,
 	kTargetIncludeDirectories,
+	kTargetPublicIncludeDirectories,
 	kTargetCompilerOptions,
 	kTargetLibraries,
 	kTargetValueKindCount
@@ -265,7 +266,17 @@ Array<WString> TargetConfigurationValues(const TargetConfiguration & config, Bui
 		return {};
 	case kTargetDefinitions: return PortableStrings(config, config.GetDefinitions());
 	case kTargetIncludeDirectories:
-		return PortablePaths(config, *config.GetPaths(true, kIncludeDirectories));
+	{
+		const auto public_directories = PortablePaths(config, config.GetPublicIncludeDirectories());
+		Array<WString> result;
+		for (const auto & directory : PortablePaths(config, *config.GetPaths(true, kIncludeDirectories)))
+		{
+			if (!Search(public_directories, directory)) result.Push(directory);
+		}
+		return result;
+	}
+	case kTargetPublicIncludeDirectories:
+		return PortablePaths(config, config.GetPublicIncludeDirectories());
 	case kTargetCompilerOptions: return PortableStrings(config, config.GetStrings(kCompilerOptions));
 	case kTargetLibraries:
 	{
@@ -372,6 +383,11 @@ void WriteBuildProperty(Data::Archive & output, CString::View target, BuildPrope
 	}
 }
 
+CString::View TargetValueScope(TargetValueKind kind)
+{
+	return kind == kTargetPublicIncludeDirectories ? "PUBLIC" : "PRIVATE";
+}
+
 CString CommonTargetValuesVariable(CString::View project_prefix, TargetValueKind kind)
 {
 	constexpr CString::View suffixes[] =
@@ -382,6 +398,7 @@ CString CommonTargetValuesVariable(CString::View project_prefix, TargetValueKind
 		"_COMMON_WINDOWS_RESOURCES",
 		"_COMMON_DEFINITIONS",
 		"_COMMON_INCLUDE_DIRECTORIES",
+		"_COMMON_PUBLIC_INCLUDE_DIRECTORIES",
 		"_COMMON_COMPILER_OPTIONS",
 		"_COMMON_LIBRARIES"
 	};
@@ -774,11 +791,11 @@ void WriteTarget(Data::Archive & output, const Project & project, const Target &
 		if (!common_build_properties.values[property] && target_build_properties[property]) WriteBuildProperty(output, cmake_target, BuildProperty(property), target_build_properties[property]);
 	}
 
-	constexpr CString::View commands[] = { "target_sources", "target_sources", "target_sources", "target_sources", "target_compile_definitions", "target_include_directories", "target_compile_options", "target_link_libraries" };
+	constexpr CString::View commands[] = { "target_sources", "target_sources", "target_sources", "target_sources", "target_compile_definitions", "target_include_directories", "target_include_directories", "target_compile_options", "target_link_libraries" };
 	REFLEX_STATIC_ASSERT(GetArraySize(commands) == kTargetValueKindCount);
 	REFLEX_LOOP(kind, kTargetValueKindCount) if (common_lists.target_values[kind])
 	{
-		WriteCMakeTargetValues(output, 1, commands[kind], cmake_target,
+		WriteCMakeTargetValues(output, 1, commands[kind], cmake_target, TargetValueScope(TargetValueKind(kind)),
 			{ ToWString(Join("${", CommonTargetValuesVariable(common_lists_prefix, TargetValueKind(kind)), "}")) });
 	}
 	if (common_lists.target_values[kTargetOtherFiles])
@@ -793,7 +810,7 @@ void WriteTarget(Data::Archive & output, const Project & project, const Target &
 	}
 	if (common_lists.link_dependencies)
 	{
-		WriteCMakeTargetValues(output, 1, "target_link_libraries", cmake_target,
+		WriteCMakeTargetValues(output, 1, "target_link_libraries", cmake_target, "PRIVATE",
 			{ ToWString(Join("${", CommonDependencyVariable(common_lists_prefix, true), "}")) });
 	}
 	Array<Array<WString>> platform_values[kTargetValueKindCount];
@@ -847,7 +864,7 @@ void WriteTarget(Data::Archive & output, const Project & project, const Target &
 	{
 		write_groups(platform_values[kind], [&](UInt indentation, ArrayView<WString> values)
 		{
-			WriteCMakeTargetValues(output, indentation, commands[kind], cmake_target, values);
+			WriteCMakeTargetValues(output, indentation, commands[kind], cmake_target, TargetValueScope(TargetValueKind(kind)), values);
 			if (kind == kTargetOtherFiles) WriteHeaderFileOnly(output, indentation, values);
 		});
 	}
@@ -858,7 +875,7 @@ void WriteTarget(Data::Archive & output, const Project & project, const Target &
 	});
 	write_groups(link_dependencies, [&](UInt indentation, ArrayView<WString> values)
 	{
-		WriteCMakeTargetValues(output, indentation, "target_link_libraries", cmake_target, values);
+		WriteCMakeTargetValues(output, indentation, "target_link_libraries", cmake_target, "PRIVATE", values);
 	});
 
 	constexpr BuildPhase action_phases[] = { kBuildPhasePreBuild, kBuildPhasePostBuild };

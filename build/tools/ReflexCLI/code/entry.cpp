@@ -747,6 +747,8 @@ const CLI::TaskDef kCommands[] =
 				print_arg(true, "--vendor <name>", "the vendor name to embed");
 				print_arg(true, "--au_components <id:type[:name],...>", "Audio Unit component records (4CC subtype and type)");
 				print_arg(true, "--au_manufacturer <4cc>", "the Audio Unit manufacturer code");
+				print_arg(true, "--min_macos <version>", "the minimum macOS version (LSMinimumSystemVersion)");
+				print_arg(true, "--min_ios <version>", "the minimum iOS version (MinimumOSVersion)");
 				return;
 
 			case K32("version"):
@@ -963,7 +965,9 @@ const CLI::TaskDef kCommands[] =
 			Arg("app_store_category"),
 			Arg("vendor"),
 			Arg("au_components"),
-			Arg("au_manufacturer")
+			Arg("au_manufacturer"),
+			Arg("min_macos"),
+			Arg("min_ios")
 		});
 		BuildPlist(args, std_out);
 	}),

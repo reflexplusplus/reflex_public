@@ -106,7 +106,7 @@ Reflex::Async::Worker::Result Reflex::Async::Detail::Fetch(Worker::Context & ctx
 		}
 		else
 		{
-			receive_data = [receive_data, max_byte_rate = Float64(network_simulation), start_time, bytes_received = UInt32(0)](const ArrayView<UInt8> & chunk) mutable
+			receive_data = [&ctx, receive_data, max_byte_rate = Float64(network_simulation), start_time, bytes_received = UInt32(0)](const ArrayView<UInt8> & chunk) mutable
 			{
 				if (max_byte_rate)
 				{
@@ -126,7 +126,16 @@ Reflex::Async::Worker::Result Reflex::Async::Detail::Fetch(Worker::Context & ctx
 					{
 						auto sleep_ms = Truncate((bytes_received - allowed) * 1000.0 / max_byte_rate_per_thread);
 
-						System::SuspendThread(sleep_ms);
+						while (sleep_ms)
+						{
+							auto sleep_chunk = Min(sleep_ms, 25);
+
+							System::SuspendThread(sleep_chunk);
+
+							sleep_ms -= sleep_chunk;
+
+							if (ctx.Cancelled()) return false;
+						}
 					}
 
 					return receive_data(chunk);

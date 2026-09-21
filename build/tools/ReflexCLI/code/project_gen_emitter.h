@@ -16,7 +16,7 @@ namespace ReflexCLI::ProjectGen
 	void WriteLine(Data::Archive & output, UInt indent, CString::View line = {});
 	void WriteLine(Data::Archive & output, UInt indent, WString::View line);
 	void WriteCMakeInvocation(Data::Archive & output, UInt indentation, CString::View command, WString::View head = {}, ArrayView<WString> values = {});
-	void WriteCMakeTargetValues(Data::Archive & output, UInt indentation, CString::View command, CString::View target, ArrayView<WString> values);
+	void WriteCMakeTargetValues(Data::Archive & output, UInt indentation, CString::View command, CString::View target, CString::View scope, ArrayView<WString> values);
 	void SaveFile(const WString & path, Data::Archive::View data, BuildPlatform platform);
 	void SaveText(const WString & path, CString::View text, BuildPlatform platform);
 	void SaveText(const WString & path, WString::View text, BuildPlatform platform);

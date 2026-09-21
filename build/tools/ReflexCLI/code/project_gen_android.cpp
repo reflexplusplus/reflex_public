@@ -477,7 +477,7 @@ void WriteCMakeHeaderOnlyFiles(Data::Archive & output, CString::View library, Ar
 	auto properties = paths;
 	properties.Push(L"PROPERTIES HEADER_FILE_ONLY TRUE");
 	WriteCMakeInvocation(output, 0, "set_source_files_properties", {}, properties);
-	WriteCMakeTargetValues(output, 0, "target_sources", library, paths);
+	WriteCMakeTargetValues(output, 0, "target_sources", library, "PRIVATE", paths);
 	Data::WriteLine(output);
 }
 
@@ -535,11 +535,11 @@ Data::Archive CMakeConfiguration(const TargetConfiguration & config, CString::Vi
 	for (auto & package : packages) WriteCMakeInvocation(output, 1, "find_package", ToWString(Join(package, " REQUIRED CONFIG")));
 	WriteCMakeInvocation(output, 1, "set_property", ToWString(Join("TARGET ", library, " PROPERTY CXX_STANDARD ",
 		standard_versions[config.GetEnum<CppStandard>(kCppStandard, kCppStandardNames, kCppStandard_cxx20)])));
-	WriteCMakeTargetValues(output, 1, "target_sources", library, sources);
-	WriteCMakeTargetValues(output, 1, "target_include_directories", library, include_directories);
-	WriteCMakeTargetValues(output, 1, "target_compile_definitions", library, defines);
-	WriteCMakeTargetValues(output, 1, "target_compile_options", library, compile_options);
-	WriteCMakeTargetValues(output, 1, "target_link_libraries", library, libraries);
+	WriteCMakeTargetValues(output, 1, "target_sources", library, "PRIVATE", sources);
+	WriteCMakeTargetValues(output, 1, "target_include_directories", library, "PRIVATE", include_directories);
+	WriteCMakeTargetValues(output, 1, "target_compile_definitions", library, "PRIVATE", defines);
+	WriteCMakeTargetValues(output, 1, "target_compile_options", library, "PRIVATE", compile_options);
+	WriteCMakeTargetValues(output, 1, "target_link_libraries", library, "PRIVATE", libraries);
 	if (!application)
 	{
 		auto output_directory = config.GetPath(kOutputDirectory);
@@ -552,8 +552,8 @@ Data::Archive CMakeConfiguration(const TargetConfiguration & config, CString::Vi
 		}
 	}
 	auto optimized = config.GetEnum<Optimization>(kOptimization, kOptimizationNames, kOptimization_none) != kOptimization_none;
-	if (config.GetBool(kDebugInformation, !optimized)) WriteCMakeTargetValues(output, 1, "target_link_options", library, { L"-g" });
-	if (config.GetBool(kDeadStrip, optimized)) WriteCMakeTargetValues(output, 1, "target_link_options", library, { L"\"-Wl,--gc-sections\"" });
+	if (config.GetBool(kDebugInformation, !optimized)) WriteCMakeTargetValues(output, 1, "target_link_options", library, "PRIVATE", { L"-g" });
+	if (config.GetBool(kDeadStrip, optimized)) WriteCMakeTargetValues(output, 1, "target_link_options", library, "PRIVATE", { L"\"-Wl,--gc-sections\"" });
 	Data::WriteLine(output, "endif()");
 	return output;
 }

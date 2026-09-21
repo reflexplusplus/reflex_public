@@ -107,6 +107,9 @@ function(_reflex_init_target target)
             endif()
         endif()
         reflex_target_set_apple_deployment_target(${target} "${ARG_APPLE_DEPLOYMENT_TARGET}")
+        # Recorded so the generated Info.plist declares the same minimum OS version.
+        set_target_properties(${target} PROPERTIES
+            REFLEX_APPLE_DEPLOYMENT_TARGET "${ARG_APPLE_DEPLOYMENT_TARGET}")
         reflex_target_set_objc_arc(${target} ${ARG_OBJC_ARC})
     endif()
 endfunction()
@@ -522,6 +525,16 @@ function(_reflex_generate_plist output_var target name executable vendor version
         --bundle_id "${_bundle_id}"
         --version   "${version}"
     )
+
+    get_target_property(_deployment_target ${target} REFLEX_APPLE_DEPLOYMENT_TARGET)
+    if(_deployment_target)
+        if(CMAKE_SYSTEM_NAME STREQUAL "iOS")
+            list(APPEND _args --min_ios "${_deployment_target}")
+        else()
+            list(APPEND _args --min_macos "${_deployment_target}")
+        endif()
+    endif()
+
     # AU / AUv3 need vendor, a shared manufacturer 4CC, and component records.
     if(_tool_target STREQUAL "au" OR _tool_target STREQUAL "auv3")
         list(APPEND _args
@@ -674,6 +687,7 @@ function(_reflex_add_plugin_format base_target format sources name vendor versio
         endif()
 
         reflex_add_target(${_t} TYPE APP SOURCES ${sources})
+        _reflex_init_target(${_t} FLOATING_POINT fast APPLE_DEPLOYMENT_TARGET "${_apple_deployment_target}")
 
         set_target_properties(${_t} PROPERTIES
             OUTPUT_NAME "${name}"
@@ -706,6 +720,7 @@ function(_reflex_add_plugin_format base_target format sources name vendor versio
         endif()
 
         reflex_add_target(${_t} TYPE MODULE_LIBRARY SOURCES ${sources})
+        _reflex_init_target(${_t} FLOATING_POINT fast APPLE_DEPLOYMENT_TARGET "${_apple_deployment_target}")
         set_target_properties(${_t} PROPERTIES
             OUTPUT_NAME      "${name}"
             PREFIX           ""
@@ -746,6 +761,7 @@ function(_reflex_add_plugin_format base_target format sources name vendor versio
         endif()
 
         reflex_add_target(${_t} TYPE MODULE_LIBRARY SOURCES ${sources})
+        _reflex_init_target(${_t} FLOATING_POINT fast APPLE_DEPLOYMENT_TARGET "${_apple_deployment_target}")
         set_target_properties(${_t} PROPERTIES
             OUTPUT_NAME      "${name}"
             PREFIX           ""
@@ -784,6 +800,7 @@ function(_reflex_add_plugin_format base_target format sources name vendor versio
         endif()
 
         reflex_add_target(${_t} TYPE MODULE_LIBRARY SOURCES ${sources})
+        _reflex_init_target(${_t} FLOATING_POINT fast APPLE_DEPLOYMENT_TARGET "${_apple_deployment_target}")
         set_target_properties(${_t} PROPERTIES
             OUTPUT_NAME "${name}"
             PREFIX      ""
@@ -816,6 +833,7 @@ function(_reflex_add_plugin_format base_target format sources name vendor versio
         endif()
 
         reflex_add_target(${_t} TYPE MODULE_LIBRARY SOURCES ${sources})
+        _reflex_init_target(${_t} FLOATING_POINT fast APPLE_DEPLOYMENT_TARGET "${_apple_deployment_target}")
         _reflex_resolve_package_id(_package_id "${vendor}" "${name}" "${package_id_vendor}" "${package_id_product}")
         _reflex_generate_plist(_plist ${_t} "${name}" "${name}" "${vendor}" "${version}" "component"
             "${package_id_vendor}" "${package_id_product}"
@@ -887,6 +905,8 @@ function(_reflex_add_plugin_format base_target format sources name vendor versio
         else()
             reflex_add_target(${_t} TYPE MODULE_LIBRARY SOURCES ${sources})
         endif()
+
+        _reflex_init_target(${_t} FLOATING_POINT fast APPLE_DEPLOYMENT_TARGET "${_apple_deployment_target}")
 
         _reflex_resolve_package_id(_package_id "${vendor}" "${name}" "${package_id_vendor}" "${package_id_product}")
         _reflex_generate_plist(_plist ${_t} "${name}" "${name} AUv3" "${vendor}" "${version}" "auv3"
@@ -969,8 +989,6 @@ function(_reflex_add_plugin_format base_target format sources name vendor versio
         "PRODUCT_PACKAGE_IDENTIFIER=${_product_package_identifier}"
         "AU_COMPONENTS=${au_components}"
         "AU_VENDOR_4CC=${au_vendor_4cc}")
-    _reflex_init_target(${_t} FLOATING_POINT fast
-        APPLE_DEPLOYMENT_TARGET "${_apple_deployment_target}")
     _reflex_add_windows_resource(${_t})
 
     # Link order matters — higher-level libraries first, dependencies last

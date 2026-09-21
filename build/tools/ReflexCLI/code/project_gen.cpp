@@ -845,15 +845,15 @@ const ReflexCLI::ProjectGen::PathGroup & ReflexCLI::ProjectGen::TargetConfigurat
 void ReflexCLI::ProjectGen::TargetConfiguration::ResolveIncludeDirectories(ArrayView<const TargetConfiguration *> dependencies)
 {
 	auto includes = Make<PathGroup>();
-	auto append = [](PathGroup & target, const PathGroup & source, WString::View source_root)
+	const auto project_root = platform->target->project->GetRoot();
+	auto append = [project_root](PathGroup & target, const PathGroup & source, WString::View source_root)
 	{
 		for (auto path : FlattenPaths(source))
 		{
 			if (source_root && !path.is_absolute)
 			{
-				path.path = ResolvePath(source_root, path);
+				path.path = File::MakeRelativePath(project_root, ResolvePath(source_root, path));
 				path.source = EncodeUTF8(path.path);
-				path.is_absolute = true;
 			}
 			bool found = false;
 			for (auto & existing : target.paths) if (ComparePath(existing.a, path)) found = true;

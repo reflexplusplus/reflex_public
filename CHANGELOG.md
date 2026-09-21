@@ -1,5 +1,46 @@
 # Changelog
 
+## v0.5.2 — CMake include paths and bundle metadata
+
+Reflex 0.5.2 is a maintenance release aimed at how projects consume the SDK. Generated CMake targets now expose their public include directories as PUBLIC, with paths relative to the package, so dependent targets inherit them and exported trees no longer carry absolute paths. Generated macOS and iOS bundles take their minimum OS version from the project's deployment target rather than a fixed value. It also fixes a crash when cloning a null table and an abort that could not proceed while a slow network was being emulated.
+
+### Changes
+#### CMake
+- The generated `Info.plist` now declares the minimum OS version, taken from the deployment target the `reflex_add_*` helpers already resolve: `LSMinimumSystemVersion` on macOS and `MinimumOSVersion` on iOS. The `reflex build-plist` tool gained the matching `--min_macos <version>` and `--min_ios <version>` arguments; passing neither writes no key.
+
+#### other
+- Validate release notes before building a release
+- Load the agent notes in Claude Code
+- Async::Detail::Fetch dont block abort when emulating slow network
+- examples\Custom Drawing remove unsused var
+- fix test-projects/minimal
+- fix File::Table::Clone would crash if cloning null table
+- Expand windows test matrix coverage, add Minimal option
+- emit public_include_directories as PUBLIC, with relative paths (#196)
+
+## v0.5.1 — graphics fixes and control state aliases
+
+Reflex 0.5.1 is a maintenance release. It fixes two GLX rendering bugs, separates the bitmap conversion APIs, accepts readable state names on generic controls, and stops spawned processes opening a console window on Windows by default.
+
+### Changes
+
+#### Graphics
+
+- Fixed grayscale JPG metadata handling, and separated the bitmap conversion APIs.
+- Fixed a scale and float alignment offset bug.
+
+#### Controls
+
+- `Bootstrap::GenericControl` now accepts the `rotary`, `dragedit`, `popup` and `button` state alias names.
+
+#### System
+
+- `System::Process::Options::allow_window` now defaults to false. Windows only; a spawned process no longer opens a console window unless it asks for one.
+
+#### Bootstrap
+
+- Moved the `Bootstrap::CLI` `MakeTask` helper to the header.
+
 ## v0.5.0 — semantic references and audio plugin parameter fixes
 
 Reflex 0.5.0 introduces semantic reference aliases that describe what a reference does with ownership, and renames several persistence and interface APIs to match. It also fixes a number of audio plugin parameter and host-compatibility problems, hardens CoreAudio and WinMM device handling, and moves Android builds to static archives.
@@ -57,15 +98,6 @@ Reflex 0.5.0 introduces semantic reference aliases that describe what a referenc
 #### Scripting
 
 - The VM now converts `bool` to `int32` where it previously did not.
-
-## Unreleased
-
-### Changes
-
-#### Reflex Build and project generation
-
-- `reflex_add_*` targets now honour the consumer's `CMAKE_OSX_DEPLOYMENT_TARGET` instead of always forcing the SDK default (11.0 macOS / 14.0 iOS).
-- Added an optional `APPLE_DEPLOYMENT_TARGET` argument to `reflex_add_app`, `reflex_add_vm_app`, `reflex_add_audio_plugin`, and `reflex_add_console_app` for per-target overrides.
 
 ## v0.4.4 — more flexible project generation
 
