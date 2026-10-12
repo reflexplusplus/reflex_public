@@ -16,7 +16,9 @@ class ComputedStyle;
 using ArrayOfLayer = Array < ConstReference <Layer> >;
 
 
-void SetReference(Data::PropertySet & properties, Key32 property_id, Key32 binding_id);
+void SetPropertyBinding(Data::PropertySet & properties, Key32 property_id, Key32 binding_id);
+
+Key32 GetPropertyBinding(const Data::PropertySet & properties, Key32 property_id);
 
 REFLEX_END
 

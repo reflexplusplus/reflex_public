@@ -99,7 +99,7 @@ namespace Reflex::GLX
 	void AddPath(Points & points, const Points::View & path, bool closed, Float width, PathJoin join, PathCap cap, Float miter_limit = 4.0f, Size pixel_size = kNormal);
 
 
-	[[deprecated]] void AddGradientFill(ColourPoints & colour_points, const Colour & from, const Colour & to, const Rect & rect, bool y);
+	void AddGradientFill(ColourPoints & colour_points, const Colour & from, const Colour & to, const Rect & rect, bool y);
 
 
 	void AddPointsWithColour(ColourPoints & colour_points, const Points::View & input, const Colour & colour);

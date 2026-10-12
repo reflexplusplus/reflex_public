@@ -107,7 +107,7 @@
 8:
 {
 	Path: ["Unset"];
-	@WString Description: "#p An @Unset marker on a named property. It clears a value at the current scope. Use it before replacing an appending property such as 'dependencies' or a build phase, which would otherwise accumulate earlier values.
+	@WString Description: "#p An @Unset marker on a named property. It clears a value at the current scope. Use it before replacing an appending property such as 'dependencies', Apple 'frameworks', include-directory lists, Android 'main_source_set', or a build phase, which would otherwise accumulate earlier values.
 
 <code>
 #p @Unset dependencies;
@@ -297,7 +297,7 @@
 25:
 {
 	Path: ["macos", "frameworks"];
-	@WString Description: "#p Framework names to link.
+	@WString Description: "#p Framework names to link. Repeated and inherited declarations append; use '@Unset frameworks;' before a declaration to replace inherited frameworks.
 
 #h2 Native generator mappings
 <list>
@@ -308,7 +308,7 @@
 26:
 {
 	Path: ["ios", "frameworks"];
-	@WString Description: "#p Framework names to link.
+	@WString Description: "#p Framework names to link. Repeated and inherited declarations append; use '@Unset frameworks;' before a declaration to replace inherited frameworks.
 
 #h2 Native generator mappings
 <list>
@@ -821,7 +821,7 @@
 66:
 {
 	Path: ["DeclarationProperties", "include_directories"];
-	@WString Description: "#p Include paths for this product.
+	@WString Description: "#p Include paths for this product. Repeated and inherited declarations append; use '@Unset include_directories;' before a declaration to replace inherited paths.
 
 #h2 Native generator mappings
 <list>
@@ -833,7 +833,7 @@
 67:
 {
 	Path: ["DeclarationProperties", "public_include_directories"];
-	@WString Description: "#p Include paths exported to dependent targets.
+	@WString Description: "#p Include paths exported to dependent targets. Repeated and inherited declarations append; use '@Unset public_include_directories;' before a declaration to replace inherited paths.
 
 #h2 Native generator mappings
 <list>
@@ -893,7 +893,7 @@
 75:
 {
 	Path: ["android", "main_source_set"];
-	@WString Description: "#p One source-set root or an ordered list of roots. Each root follows the standard Android source-set layout, for example 'java/', 'res/', and 'AndroidManifest.xml'. Roots are applied in declaration order, so a later root replaces an earlier file at the same relative path. Every generated Android target must use the same list, and each folder must exist.
+	@WString Description: "#p One source-set root or an ordered list of roots. Repeated and inherited declarations append; use '@Unset main_source_set;' before a declaration to replace inherited roots. Each root follows the standard Android source-set layout, for example 'java/', 'res/', and 'AndroidManifest.xml'. Roots are applied in declaration order, so a later root replaces an earlier file at the same relative path. Every generated Android target must use the same list, and each folder must exist.
 
 #h2 Native generator mappings
 <list>

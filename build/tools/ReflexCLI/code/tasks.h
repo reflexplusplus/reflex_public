@@ -94,12 +94,20 @@ namespace ReflexCLI
 
 	enum BuildPlatform : UInt8
 	{
-		kBuildPlatformWindows,
-		kBuildPlatformMacOS,
-		kBuildPlatformIOS,
-		kBuildPlatformAndroid,
-		kBuildPlatformLinux,
-		kBuildPlatformCMake
+		kBuildPlatformWindows = System::kPlatformWindows,
+		kBuildPlatformMacOS = System::kPlatformMacOS,
+		kBuildPlatformLinux = System::kPlatformLinux,
+		kBuildPlatformAndroid = System::kPlatformAndroid,
+		kBuildPlatformIOS = System::kPlatformIOS,
+		kBuildPlatformWeb = System::kPlatformWeb,
+		kNumBuildPlatform = System::kNumPlatform
+	};
+
+	enum MetaSystem : UInt8
+	{
+		kMetaSystemCMake,
+		kMetaSystemVSCode,
+		kNumMetaSystem
 	};
 
 
@@ -129,6 +137,7 @@ namespace ReflexCLI
 	constexpr Key32 kPersistentVariables = K32("variables");
 	constexpr Key32 kTemplateLibraries = K32("template_libraries");
 
-	constexpr CString::View kBuildPlatforms[] = { "windows", "macos", "ios", "android", "linux", "cmake" };
+	constexpr CString::View kBuildPlatforms[kNumBuildPlatform] = { "windows", "macos", "linux", "android", "ios", "web" };
+	constexpr CString::View kMetaSystems[kNumMetaSystem] = { "cmake", "vscode" };
 
 }

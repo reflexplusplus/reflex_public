@@ -35,9 +35,9 @@ public:
 	{
 		Function <Unretained<Object>(Object & global, App & instance)> instance_ctr;
 
-		Function <Unretained<Window::Client>(App & instance, UInt8 & window_flags)> view_ctr;
+		Function <Unretained<Window::Client>(App & instance, UInt8 & window_flags)> view_ctr;	//on macos, unset view_ctr configures the app as an 'accessory'
 
-		Array < Tuple<WString, WChar, Function<void()>> > app_menu;	//macos
+		Array < Tuple <WString, WChar, Function<void()> > > app_menu;		//macos specific
 	};
 
 	

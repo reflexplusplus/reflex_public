@@ -3,7 +3,7 @@
 #include "object/object.h"
 #include "idx.h"
 #include "meta/auxtypes.h"
-#include "function/type.h"
+#include "function/function_pointer.h"
 
 
 

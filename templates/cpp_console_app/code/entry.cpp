@@ -28,11 +28,11 @@ _PRODUCT-NAME-SYMBOL_::ConsoleSession::ConsoleSession(ArrayView <CString::View> 
 
 		auto file = System::FileHandle::Create(path, System::FileHandle::kModeOverwrite);
 
-		Output::SetLogFile(file);
+		Output::Enable(true, file);
 	}
 	else
 	{
-		Output::Disable();
+		Output::Enable(false, {});
 	}
 
 	m_lock.Attach(New<File::FileLocator>());

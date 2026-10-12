@@ -12,6 +12,10 @@
 			<folder path="resources/project_generator/windows_templates" compress="auto"/>
 		</VisualStudio>
 
+		<Web>
+			<folder path="resources/project_generator/web_templates" compress="auto"/>
+		</Web>
+
 		<Linux>
 			<folder path="resources/project_generator/linux_templates" compress="auto"/>
 		</Linux>

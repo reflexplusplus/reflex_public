@@ -104,7 +104,7 @@ Reflex::AlreadyRetained <Reflex::GLX::Object> Reflex::GLX::AcquireOverlay(Object
 {
 	auto overlay = Cast<Overlay>(Acquire(parent, id, kEnterAnimationFade, [&parent, style_id, oninit]()
 	{
-		Unretained <Object> overlay = *REFLEX_CREATE(Overlay);
+		Unretained <Object> overlay = REFLEX_CREATE(Overlay);
 
 		Reflex::Detail::SilentReference <Object> retain(overlay);
 
@@ -112,9 +112,9 @@ Reflex::AlreadyRetained <Reflex::GLX::Object> Reflex::GLX::AcquireOverlay(Object
 
 		overlay->SetMod(kMaxUInt32 - 1, Detail::ComputedStyle::Create(1.0f, 1.0f, Detail::ComputedStyle::kRenderFalse));
 
-		overlay->SetProperty(kDragDropTender, Null<Animation>());	//NAMESPACE HACK for Freestyle::DragManager
+		overlay->SetProperty(kDragDropTender, Null<Animation>());	//HACK for Freestyle::DragManager
 
-		Data::SetBool(overlay, kDragDropTender, false);					//NAMESPACE HACK for Freestyle::DragManager
+		Data::SetBool(overlay, kDragDropTender, false);				//HACK for Freestyle::DragManager
 
 		oninit(overlay);
 
@@ -126,7 +126,7 @@ Reflex::AlreadyRetained <Reflex::GLX::Object> Reflex::GLX::AcquireOverlay(Object
 	overlay->SendTop();
 
 	overlay->block_input = block_input;
-
+	
 	overlay->block_dragdrop = block_dragdrop;
 
 	return overlay;

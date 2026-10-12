@@ -6,6 +6,16 @@ namespace ReflexCLI::ProjectGen
 {
 	constexpr CString::View kGnuFloatingPointFast = "-ffast-math";
 
+	inline WString MakeBuildScriptName(CString::View configuration)
+	{
+		return ToWString(Join("build_", configuration));
+	}
+
+	inline WString MakeBuildScriptName(const TargetConfiguration & config)
+	{
+		return MakeBuildScriptName(config.GetName());
+	}
+
 	WString GetProjectFolder(const Project & project, BuildPlatform platform);
 	WString TranslateVariables(WString::View value, ArrayView <Variable> mappings, WString::View open = L"$(", WString::View close = L")");
 	Data::Archive Template(Data::Archive::View value, ArrayView <Variable> mappings);
@@ -18,13 +28,13 @@ namespace ReflexCLI::ProjectGen
 	void WriteCMakeInvocation(Data::Archive & output, UInt indentation, CString::View command, WString::View head = {}, ArrayView<WString> values = {});
 	void WriteCMakeTargetValues(Data::Archive & output, UInt indentation, CString::View command, CString::View target, CString::View scope, ArrayView<WString> values);
 	void SaveFile(const WString & path, Data::Archive::View data, BuildPlatform platform);
+	void SaveMetaFile(const WString & path, Data::Archive::View data, MetaSystem system);
+	void SetExecutable(const WString & path);
 	void SaveText(const WString & path, CString::View text, BuildPlatform platform);
 	void SaveText(const WString & path, WString::View text, BuildPlatform platform);
-	void SaveCommandScript(const WString & filename, Data::Archive::View text, BuildPlatform platform);
-	void SaveCommandScript(const WString & filename, WString::View text, BuildPlatform platform);
-	Array <CString::View> GnuWarningOptions(const TargetConfiguration & config);
+	Array <CString::View> GnuWarningOptions(const TargetConfiguration & config, bool gcc, bool cpp);
 	Array <CString::View> ClangFloatingPointOptions(const TargetConfiguration & config);
-	Array <CString::View> GnuCompileOptions(const TargetConfiguration & config, bool include_standard);
+	Array <CString::View> GnuCompileOptions(const TargetConfiguration & config, bool gcc, bool cpp, bool include_standard);
 }
 
 
@@ -51,22 +61,4 @@ inline void ReflexCLI::ProjectGen::SaveText(const WString & path, CString::View 
 inline void ReflexCLI::ProjectGen::SaveText(const WString & path, WString::View text, BuildPlatform platform)
 {
 	SaveFile(path, Data::EncodeUTF8(text), platform);
-}
-
-inline void ReflexCLI::ProjectGen::SaveCommandScript(const WString & filename, WString::View text, BuildPlatform platform)
-{
-	constexpr UInt32 kExecuteBits = 0111;
-	SaveText(filename, text, platform);
-	UInt32 permissions;
-	Require(GetFilePermissions(filename, permissions), "generated project", "could not read file permissions");
-	Require(SetFilePermissions(filename, permissions | kExecuteBits), "generated project", "could not set file permissions");
-}
-
-inline void ReflexCLI::ProjectGen::SaveCommandScript(const WString & filename, Data::Archive::View text, BuildPlatform platform)
-{
-	constexpr UInt32 kExecuteBits = 0111;
-	SaveFile(filename, text, platform);
-	UInt32 permissions;
-	Require(GetFilePermissions(filename, permissions), "generated project", "could not read file permissions");
-	Require(SetFilePermissions(filename, permissions | kExecuteBits), "generated project", "could not set file permissions");
 }

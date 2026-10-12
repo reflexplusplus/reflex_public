@@ -60,10 +60,11 @@ CString MakeWord(CString::View value)
 	CString result;
 	for (auto c : value)
 	{
-		if (c == ' ' || c == '#' || c == ':') result.Push('\\');
+		if (c == '#' || c == ':') result.Push('\\');
 		result.Push(c);
 	}
-	return result;
+	// Escape spaces after expanding path variables, including PROJECT_ROOT.
+	return Join("$(subst $(space),\\$(space),", result, ')');
 }
 
 CString Path(const PathDesc & path)
@@ -95,21 +96,59 @@ CString ArchitectureFlags(const TargetConfiguration & config)
 	return result;
 }
 
-CString CompileFlags(const TargetConfiguration & config)
+CString PkgConfigPackages(const TargetConfiguration & config)
 {
-	CString result = Merge(GnuCompileOptions(config, true), " ");
-	for (auto option : GccFloatingPointOptions(config)) result.Append(Join(' ', option));
+	Array<CString> names;
+	auto append = [&names](const TargetConfiguration & source)
+	{
+		for (auto & package : source.GetAppendableStrings(kPkgConfig))
+		{
+			if (!Search(names, package)) names.Push(package);
+		}
+	};
+	append(config);
+	for (auto & dependency : GetLinkDependencies(*config.platform->target, kBuildPlatformLinux))
+	{
+		auto platform = dependency->FindPlatform(kBuildPlatformLinux);
+		REFLEX_ASSERT(platform);
+		if (auto dependency_config = platform->FindConfiguration(config.GetName())) append(*dependency_config);
+	}
+	CString result;
+	for (auto & package : names)
+	{
+		result.Append(Join(' ', ShellQuote(EncodeUTF8(TranslateVariables(ToWString(package))))));
+	}
+	return result;
+}
+
+bool IsCSource(CString::View path)
+{
+	return path.size >= 2 && path[path.size - 2] == '.' && path[path.size - 1] == 'c';
+}
+
+CString CompileFlags(const TargetConfiguration & config, bool cpp)
+{
+	CString result = Merge(GnuCompileOptions(config, true, cpp, cpp), " ");
+	// Static archives may also be linked into shared plugin modules.
+	result.Append(" -fPIC");
 	result.Append(ArchitectureFlags(config));
-	for (auto & option : config.GetStrings(kCompilerOptions)) result.Append(Join(' ', ShellQuote(EncodeUTF8(TranslateVariables(ToWString(option))))));
+	if (cpp)
+	{
+		for (auto option : GccFloatingPointOptions(config)) result.Append(Join(' ', option));
+		// Configured compiler options may include C++-only flags.
+		for (auto & option : config.GetStrings(kCompilerOptions)) result.Append(Join(' ', ShellQuote(EncodeUTF8(TranslateVariables(ToWString(option))))));
+	}
 
 	for (auto & define : config.GetDefinitions()) result.Append(Join(" -D", ShellQuote(EncodeUTF8(TranslateVariables(ToWString(define))))));
 	for (auto & include : FlattenPaths(*config.GetPaths(true, kIncludeDirectories))) result.Append(Join(" -I", ShellQuote(Path(include))));
+	if (auto packages = PkgConfigPackages(config)) result.Append(Join(" $(shell pkg-config --cflags", packages, ")"));
 	return result;
 }
 
 CString LinkFlags(const TargetConfiguration & config)
 {
 	CString result = ArchitectureFlags(config);
+	if (config.GetProductType() == kOutputType_dynamic_library) result.Append(" -shared");
 	if (config.GetEnum<RuntimeLibrary>(kRuntimeLibrary, kRuntimeLibraryNames, kRuntimeLibrary_static) == kRuntimeLibrary_static)
 	{
 		result.Append(" -static-libgcc -static-libstdc++");
@@ -126,9 +165,16 @@ CString ProductFilename(const TargetConfiguration & config)
 	switch (config.GetProductType())
 	{
 	case kOutputType_console:
+	case kOutputType_app:
 		if (auto extension = EncodeUTF8(TranslateVariables(ToWString(config.GetString(kOutputExtension))))) return Join(output_name, '.', extension);
 		return output_name;
 	case kOutputType_static_library: return Join("lib", output_name, ".a");
+	case kOutputType_dynamic_library:
+	{
+		auto extension = EncodeUTF8(TranslateVariables(ToWString(config.GetString(kOutputExtension))));
+		if (extension) return Join(output_name, '.', extension);
+		return Join("lib", output_name, ".so");
+	}
 	default: return {};
 	}
 }
@@ -155,7 +201,11 @@ CString DependencyTargetPath(const Target & dependency, CString::View configurat
 	auto config = platform->FindConfiguration(configuration);
 	REFLEX_ASSERT(config);
 	auto path = config->GetPath(kPath);
-	if (!path.path) return Join("-l", dependency.GetName());
+	if (!path.path)
+	{
+		if (!dependency.IsLibrary()) return Join(OutputDirectory(dependency, *config), '/', ProductFilename(*config));
+		return Join("-l", dependency.GetName());
+	}
 	return PathValue(EncodeUTF8(TranslateVariables(ResolvePath(dependency.project->GetRoot(), path))));
 }
 
@@ -173,6 +223,8 @@ CString Libraries(const Target & target, const TargetConfiguration & config)
 {
 	CString result;
 	for (auto & dependency : GetLinkDependencies(target, kBuildPlatformLinux)) result.Append(Join(' ', ShellQuote(DependencyTargetPath(*dependency, config.GetName()))));
+	if (auto packages = PkgConfigPackages(config)) result.Append(Join(" $(shell pkg-config --libs", packages, ")"));
+	result.Append(" -ldl -pthread");
 	return result;
 }
 
@@ -182,7 +234,8 @@ WString BuildCommand(const BuildActionDesc & action)
 	for (auto & argument : action.command)
 	{
 		command.Push(L' ');
-		command.Append(ShellQuote(TranslateVariables(argument)));
+		auto value = TranslateVariables(argument);
+		command.Append(ShellQuote(ToWString(PathValue(EncodeUTF8(value)))));
 	}
 	return command;
 }
@@ -229,7 +282,7 @@ CString WriteBuildActions(Data::Archive & output, const Array<BuildActionDesc> &
 			auto stamp = MakeWord(Join(intermediate_directory, "/.actions/", action_target, ".stamp"));
 			Data::WriteLine(output, Join(stamp, ": ", prerequisites));
 			WriteActionRecipe(output, name, action);
-			WriteLine(output, 1, "@mkdir -p \"$(dir $@)\"");
+			WriteLine(output, 1, "@mkdir -p \"$$(dirname -- \"$@\")\"");
 			WriteLine(output, 1, "@touch \"$@\"");
 			dependency = stamp;
 		}
@@ -246,6 +299,8 @@ bool WriteConfiguration(Data::Archive & output, const Target & target, const Tar
 	switch (config.GetProductType())
 	{
 	case kOutputType_console:
+	case kOutputType_app:
+	case kOutputType_dynamic_library:
 		break;
 
 	case kOutputType_static_library:
@@ -262,13 +317,20 @@ bool WriteConfiguration(Data::Archive & output, const Target & target, const Tar
 	auto id = MakeIdentifier(Join(target.GetName(), '_', ToCString(target_index)));
 	auto intermediate_directory = IntermediateDirectory(target);
 	auto flags_name = Join("CXXFLAGS_", id);
+	auto c_flags_name = Join("CFLAGS_", id);
 	auto pre_build = WriteBuildActions(output, config.GetBuildActions(kBuildPhasePreBuild, System::kPlatformLinux), id, "pre", {}, intermediate_directory);
 	CString objects;
+	CString object_arguments;
+	CString depfiles;
 	auto files = GetFiles(config);
 	auto sources = FlattenPaths(*files.sources);
 	Require(!sources.Empty(), kSources, "undefined");
 
-	Data::WriteLine(output, Join(flags_name, " := ", CompileFlags(config)));
+	bool has_c_sources = false;
+	for (UInt i = 0; i < sources.GetSize(); ++i) has_c_sources = has_c_sources || IsCSource(Path(sources[i]));
+
+	Data::WriteLine(output, Join(flags_name, " := ", CompileFlags(config, true)));
+	if (has_c_sources) Data::WriteLine(output, Join(c_flags_name, " := ", CompileFlags(config, false)));
 	if (!static_lib)
 	{
 		Data::WriteLine(output, Join("LDFLAGS_", id, " := ", LinkFlags(config)));
@@ -279,9 +341,12 @@ bool WriteConfiguration(Data::Archive & output, const Target & target, const Tar
 	{
 		auto object_path = Join(intermediate_directory, "/", ToCString(i), ".o");
 		objects.Append(Join(' ', MakeWord(object_path)));
+		object_arguments.Append(Join(' ', ShellQuote(object_path)));
+		depfiles.Append(Join(' ', MakeWord(Join(intermediate_directory, "/", ToCString(i), ".d"))));
 	}
 	Data::WriteLine(output, Join("OBJECTS_", id, " :=", objects));
-	Data::WriteLine(output, Join("DEPFILES += $(OBJECTS_", id, ":.o=.d)"));
+	Data::WriteLine(output, Join("OBJECT_ARGS_", id, " :=", object_arguments));
+	Data::WriteLine(output, Join("DEPFILES +=", depfiles));
 	Data::WriteLine(output, CString::View {});
 
 	for (UInt i = 0; i < sources.GetSize(); ++i)
@@ -289,8 +354,9 @@ bool WriteConfiguration(Data::Archive & output, const Target & target, const Tar
 		auto source_path = Path(sources[i]);
 		auto object_path = Join(intermediate_directory, "/", ToCString(i), ".o");
 		Data::WriteLine(output, Join(MakeWord(object_path), ": ", MakeWord(source_path), pre_build ? Join(" |", pre_build) : CString {}));
-		WriteLine(output, 1, "@mkdir -p \"$(dir $@)\"");
-		WriteLine(output, 1, Join("$(CXX) $", "(", flags_name, ") -MMD -MP -c ", ShellQuote(source_path), " -o \"$@\""));
+		WriteLine(output, 1, "@mkdir -p \"$$(dirname -- \"$@\")\"");
+		auto is_c = IsCSource(source_path);
+		WriteLine(output, 1, Join(is_c ? "$(CC) $" : "$(CXX) $", "(", is_c ? c_flags_name : flags_name, ") -MMD -MP -c ", ShellQuote(source_path), " -o \"$@\""));
 		Data::WriteLine(output, CString::View {});
 	}
 
@@ -313,14 +379,14 @@ bool WriteConfiguration(Data::Archive & output, const Target & target, const Tar
 		if (!Search(order_prerequisites, prerequisite)) order_prerequisites.Push(std::move(prerequisite));
 	}
 	Data::WriteLine(output, Join(MakeWord(target_path), ": $(OBJECTS_", id, ")", link_prerequisites, order_prerequisites ? Join(" | ", Merge(order_prerequisites, ' ')) : CString {}));
-	WriteLine(output, 1, "@mkdir -p \"$(dir $@)\"");
+	WriteLine(output, 1, "@mkdir -p \"$$(dirname -- \"$@\")\"");
 	if (static_lib)
 	{
-		WriteLine(output, 1, Join("$(AR) rcs \"$@\" $(OBJECTS_", id, ")"));
+		WriteLine(output, 1, Join("$(AR) rcs \"$@\" $(OBJECT_ARGS_", id, ")"));
 	}
 	else
 	{
-		WriteLine(output, 1, Join("$(CXX) $(OBJECTS_", id, ") $(LDFLAGS_", id, ") -o \"$@\" $(LDLIBS_", id, ")"));
+		WriteLine(output, 1, Join("$(CXX) $(OBJECT_ARGS_", id, ") $(LDFLAGS_", id, ") -o \"$@\" $(LDLIBS_", id, ")"));
 	}
 	auto final_target = WriteBuildActions(output, config.GetBuildActions(kBuildPhasePostBuild, System::kPlatformLinux), id, "post", MakeWord(target_path), intermediate_directory);
 	Data::WriteLine(output, Join("TARGETS += ", final_target));
@@ -349,6 +415,7 @@ void WriteDependencyProjects(Data::Archive & output, Project & project, ArrayVie
 	{
 		auto id = DependencyProjectID(project);
 		auto directory = PathValue(EncodeUTF8(GetProjectFolder(project, kBuildPlatformLinux)));
+		Data::WriteLine(output, Join("DEPENDENCIES += ", id));
 		Data::WriteLine(output, Join(".PHONY: ", id));
 		Data::WriteLine(output, Join(id, previous ? Join(": ", previous) : CString(":")));
 		WriteLine(output, 1, Join("@$(MAKE) --no-print-directory -C ", ShellQuote(directory), " CONFIGURATION=", ShellQuote("$(CONFIGURATION)"), ' ', Merge(targets, ' ')));
@@ -415,19 +482,11 @@ void ReflexCLI::ProjectGen::GenerateLinuxProject(Project & project, BuildPlatfor
 	}
 	SaveFile(Join(directory, L"Makefile"), Template(Linux::Makefile,
 	{
+		{ "MAKEFILE_DIR", ToWString(Linux::PathValue(EncodeUTF8(directory))) },
+		{ "PROJECT_ROOT", ToWString(Linux::PathValue(EncodeUTF8(project.GetRoot()))) },
 		{ "DEFAULT_CONFIGURATION", ToWString(project.GetDefaultConfiguration()) },
 		{ "CONFIGURATIONS", Data::DecodeUTF8(configurations) },
 		{ "BUILD_HELPERS", Data::DecodeUTF8(build_helpers) },
 	}), kBuildPlatformLinux);
 
-	REFLEX_LOOP(idx, 2)
-	{
-		if (auto & configuration = debug_release_configurations[idx])
-		{
-			auto path = Join(directory, L"Build ", ToWString(configuration), L'.');
-
-			SaveCommandScript(Join(path, ReflexCLI::kCommand), ToWString(Join("#!/bin/sh\nexec make -C \"$(dirname \"$0\")\" ", kDebugRelease[idx], "\n")), kBuildPlatformLinux);
-			SaveText(Join(path, kBat), Join("@echo off\r\nwsl.exe --cd \"%~dp0\" --exec make ", kDebugRelease[idx], "\r\nexit /b %errorlevel%\r\n"), kBuildPlatformLinux);
-		}
-	}
 }

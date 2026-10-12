@@ -79,21 +79,21 @@ struct PropertyEditorImpl : public PropertyEditor
 
 	//layout io
 
-	virtual void OnRestore(Data::Archive::View & stream, Key32 context) override;
+	void OnRestore(Data::Archive::View & stream, Key32 context) override;
 
-	virtual void OnStore(Data::Archive & stream) const override;
-
-
-	virtual bool OnEvent(GLX::Object & src, GLX::Event & e) override;
-
-	virtual void OnAttachWindow() override;
-
-	virtual void OnDetachWindow() override;
-
-	virtual void OnUpdate() override;
+	void OnStore(Data::Archive & stream) const override;
 
 
-	virtual void OnRestoreHistory(Data::Archive::View stream, bool redo) override;
+	bool OnEvent(GLX::Object & src, GLX::Event & e) override;
+
+	void OnAttachWindow() override;
+
+	void OnDetachWindow() override;
+
+	void OnUpdate() override;
+
+
+	void OnRestoreHistory(Data::Archive::View stream, bool redo) override;
 
 
 
@@ -215,7 +215,7 @@ struct PropertyEditorImpl : public PropertyEditor
 	Data::PropertySet * GetNext(Data::PropertySet & node);
 
 
-	static bool BeginAddNode(PropertyEditorImpl & view, Data::PropertySet & parent);
+	//static bool BeginAddNode(PropertyEditorImpl & view, Data::PropertySet & parent);
 
 	static void RemoveNode(PropertyEditorImpl & view, Data::PropertySet & node);
 

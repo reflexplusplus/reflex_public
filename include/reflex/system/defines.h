@@ -20,7 +20,7 @@ namespace Reflex::System
 		kPlatformAndroid,
 		kPlatformIOS,
 
-		kPlatformWebAssembly,
+		kPlatformWeb,
 
 		kNumPlatform
 	};

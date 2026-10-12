@@ -64,6 +64,19 @@ namespace ReflexCLI
 
 		}
 
+		namespace Web
+		{
+
+			extern const Reflex::File::EmbeddedResource build_py;
+
+			extern const Reflex::File::EmbeddedResource index_html;
+
+			extern const Reflex::File::EmbeddedResource README_md;
+
+			extern const Reflex::File::EmbeddedResource serve_local_py;
+
+		}
+
 		namespace Linux
 		{
 

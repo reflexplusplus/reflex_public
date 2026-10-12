@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>[TITLE]</title>
+<style>
+html, body { margin: 0; overflow: hidden; background: rgb(64, 64, 64); font: 14px system-ui; }
+body { height: 100dvh; display: flex; flex-direction: column; }
+header { display: flex; flex: none; justify-content: center; align-items: center; gap: 8px; padding: 8px; background: white; }
+button[aria-pressed="true"] { background: #2879b8; color: white; }
+canvas { display: block; }
+#stage:not(.fit) canvas { box-shadow: 0 12px 24px rgba(0, 0, 0, 0.40); }
+#loading { position: absolute; inset: 0; display: grid; place-items: center; margin: 0; color: #ddd; pointer-events: none; }
+#loading[hidden] { display: none; }
+#body-area { position: relative; flex: 1; min-height: 0; display: flex; }
+#stage { position: relative; flex: 1; min-height: 0; min-width: 0; display: grid; place-items: safe center; overflow: auto; }
+#stage.fit { display: block; overflow: hidden; }
+#start-overlay { position: absolute; inset: 0; z-index: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px; background: rgba(64, 64, 64, 0.5); }
+#start-overlay[hidden] { display: none; }
+#start-audio { padding: 18px 56px; font: 28px system-ui; border: none; border-radius: 8px; background: white; color: #222; box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4); cursor: pointer; }
+#start-audio:disabled { opacity: 0.6; cursor: wait; }
+#status { flex: none; margin: 0; padding: 8px; white-space: pre-wrap; background: white; }
+</style>
+</head>
+<body>
+<header>
+    <button id="fit" disabled aria-pressed="false">Fit</button>
+</header>
+<pre id="status" hidden role="alert"></pre>
+<div id="body-area">
+    <main id="stage">
+        <canvas id="screen"></canvas>
+    </main>
+    <div id="loading" role="status">Loading… 0%</div>
+    <div id="start-overlay" hidden>
+        <button id="start-audio" disabled>Start</button>
+    </div>
+</div>
+<script type="module">
+import { startReflex } from "./runtime/runtime.js";
+const status = document.querySelector("#status");
+const loading = document.querySelector("#loading");
+const overlay = document.querySelector("#start-overlay");
+const onProgress = ({ loaded, total, done }) => {
+    loading.textContent = done ? "Loaded 100% — starting…" : total ? `Loading… ${Math.min(99, Math.floor(loaded * 100 / total))}%` : `Loading… ${(loaded / (1024 * 1024)).toFixed(1)} MiB`;
+    if (done) { loading.hidden = true; overlay.hidden = false; }
+};
+const fail = error => { loading.hidden = true; status.hidden = false; status.textContent = error?.stack || String(error); };
+try {
+    const app = await startReflex({
+        moduleUrl: "[MODULE]" + "?[GENERATE_TIMESTAMP]", canvas: document.querySelector("#screen"),
+        initialBytes: 32 * 1024 * 1024, maximumBytes: 512 * 1024 * 1024, onError: fail, onProgress,
+    });
+    loading.hidden = true;
+    const fitButton = document.querySelector("#fit");
+    fitButton.disabled = false;
+    fitButton.onclick = () => {
+        const fit = fitButton.getAttribute("aria-pressed") !== "true";
+        document.querySelector("#stage").classList.toggle("fit", fit);
+        app.setFit(fit);
+        fitButton.setAttribute("aria-pressed", String(fit));
+    };
+    const startButton = document.querySelector("#start-audio");
+    if (!app.audioSupported) overlay.remove();
+    startButton.disabled = false;
+    startButton.onclick = async () => {
+        startButton.disabled = true;
+        try {
+            let audioState;
+            // Start audio directly from the click, preserving user activation.
+            await app.runAudio(value => { audioState = value; });
+            if (audioState !== "running") throw new Error("Audio did not start; click Start to retry.");
+            overlay.style.pointerEvents = "none";
+            const duration = matchMedia("(prefers-reduced-motion: reduce)").matches ? 0 : 250;
+            await overlay.animate([{ opacity: 1 }, { opacity: 0 }], { duration, fill: "forwards" }).finished;
+            overlay.remove();
+            document.querySelector("#screen").focus();
+        } catch (error) { overlay.style.pointerEvents = ""; fail(error); }
+        finally { startButton.disabled = false; }
+    };
+} catch (error) { fail(error); }
+</script>
+</body>
+</html>

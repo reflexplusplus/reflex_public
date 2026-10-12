@@ -440,6 +440,7 @@ struct UI::Performance : public Panel
 	Tuple <InfoItem*,UInt16> m_window_infos[GLX::WindowClient::kNumDebugCounter];
 };
 
+/*
 struct UI::Animations : public Panel
 {
 	Animations(UI & view);
@@ -455,6 +456,7 @@ struct UI::Animations : public Panel
 
 	const GLX::Style * m_item_style;
 };
+*/
 
 void UI::Config(UInt8 flags)
 {
@@ -1360,6 +1362,7 @@ void UI::Performance::OnUpdate()
 	GLX::SetText(m_count.value, ToWString(count));
 }
 
+/*
 UI::Animations::Animations(UI & ui)
 	: view(ui),
 	m_item_style(&GLX::Style::null)
@@ -1381,6 +1384,7 @@ void UI::Animations::OnSetStyle(const ComputedStyle & cstyle)
 void UI::Animations::OnClock(Float)
 {
 }
+*/
 
 Detail::ConsolePanel::Ctr gViewInspectorCtr(L"UI", -2, []() -> Unretained <Detail::ConsolePanel>
 {

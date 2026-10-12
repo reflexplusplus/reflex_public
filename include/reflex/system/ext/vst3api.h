@@ -92,6 +92,7 @@ namespace Reflex::VST3API
 
 	struct IPluginFactory;
 	struct IPluginFactory2;
+	struct IPluginFactory3;
 	struct IPluginBase;
 
 	struct IPluginComponent;
@@ -146,6 +147,19 @@ namespace Reflex::VST3API
 		char vendor[64] = { 0 };
 		char version[64] = "1.0.0.1";
 		char sdkVersion[64] = "VST 3.6.14";
+	};
+
+	struct PClassInfoW
+	{
+		UID cid;
+		Int32 cardinality;
+		char category[32];
+		char16_t name[64];
+		UInt32 classFlags;
+		char subcategory[128];
+		char16_t vendor[64];
+		char16_t version[64];
+		char16_t sdkVersion[64];
 	};
 
 	enum MediaType
@@ -445,6 +459,26 @@ namespace Reflex::VST3API
 		virtual UInt32 REFLEX_STDCALL release() = 0;
 	};
 
+	#if defined(REFLEX_OS_LINUX)
+	struct IEventHandler : public IUnknown
+	{
+		virtual void REFLEX_STDCALL onFDIsSet(int fd) = 0;
+	};
+
+	struct ITimerHandler : public IUnknown
+	{
+		virtual void REFLEX_STDCALL onTimer() = 0;
+	};
+
+	struct IRunLoop : public IUnknown
+	{
+		virtual tresult REFLEX_STDCALL registerEventHandler(IEventHandler * handler, int fd) = 0;
+		virtual tresult REFLEX_STDCALL unregisterEventHandler(IEventHandler * handler) = 0;
+		virtual tresult REFLEX_STDCALL registerTimer(ITimerHandler * handler, UInt64 milliseconds) = 0;
+		virtual tresult REFLEX_STDCALL unregisterTimer(ITimerHandler * handler) = 0;
+	};
+	#endif
+
 	struct IBStream : public IUnknown
 	{
 		enum SeekMode
@@ -471,6 +505,12 @@ namespace Reflex::VST3API
 	struct IPluginFactory2 : public IPluginFactory
 	{
 		virtual tresult REFLEX_STDCALL getClassInfo2(Int32 index, PClassInfo2 & info) = 0;
+	};
+
+	struct IPluginFactory3 : public IPluginFactory2
+	{
+		virtual tresult REFLEX_STDCALL getClassInfoUnicode(Int32 index, PClassInfoW & info) = 0;
+		virtual tresult REFLEX_STDCALL setHostContext(IUnknown * context) = 0;
 	};
 
 	struct IPluginBase : public IUnknown
@@ -667,11 +707,17 @@ namespace Reflex::VST3API
 	};
 
 	REFLEX_DECLARE_VST3_CLASS(IUnknown, void, 0x00000000, 0x00000000, 0xC0000000, 0x00000046);
+	#if defined(REFLEX_OS_LINUX)
+	REFLEX_DECLARE_VST3_CLASS(IEventHandler, IUnknown, 0x561E65C9, 0x13A0496F, 0x813A2C35, 0x654D7983);
+	REFLEX_DECLARE_VST3_CLASS(ITimerHandler, IUnknown, 0x10BDD94F, 0x41424774, 0x821FAD8F, 0xECA72CA9);
+	REFLEX_DECLARE_VST3_CLASS(IRunLoop, IUnknown, 0x18C35366, 0x97764F1A, 0x9C5B8385, 0x7A871389);
+	#endif
 	REFLEX_DECLARE_VST3_CLASS(IBStream, IUnknown, 0xC3BF6EA2, 0x30994752, 0x9B6BF990, 0x1EE33E9B);
 	REFLEX_DECLARE_VST3_CLASS(IPluginBase, IUnknown, 0x22888DDB, 0x156E45AE, 0x8358B348, 0x08190625);
 
 	REFLEX_DECLARE_VST3_CLASS(IPluginFactory, IUnknown, 0x7A4D811C, 0x52114A1F, 0xAED9D2EE, 0x0B43BF9F);
 	REFLEX_DECLARE_VST3_CLASS(IPluginFactory2, IPluginFactory, 0x0007B650, 0xF24B4C0B, 0xA464EDB9, 0xF00B2ABB);
+	REFLEX_DECLARE_VST3_CLASS(IPluginFactory3, IPluginFactory2, 0x4555A2AB, 0xC1234E57, 0x9B122910, 0x36878931);
 	REFLEX_DECLARE_VST3_CLASS(IPluginComponent, IPluginBase, 0xE831FF31, 0xF2D54301, 0x928EBBEE, 0x25697802);
 	REFLEX_DECLARE_VST3_CLASS(IPluginAudioProcessor, IUnknown, 0x42043F99, 0xB7DA453C, 0xA569E79D, 0x9AAEC33D);
 	REFLEX_DECLARE_VST3_CLASS(IPluginEditController, IPluginBase, 0xDCD7BBE3, 0x7742448D, 0xA874AACC, 0x979C759E);
@@ -741,6 +787,7 @@ VERIFY_ENUM(kResultNoInterface, kNoInterface);
 VERIFY(PFactoryInfo);
 VERIFY(PClassInfo);
 VERIFY(PClassInfo2);
+VERIFY(PClassInfoW);
 VERIFY(ViewRect);
 VERIFY_VST(RoutingInfo);
 VERIFY_VST(BusInfo);
@@ -752,10 +799,17 @@ VERIFY_VST(ParameterInfo);
 VERIFY_VST(Event);
 
 VERIFY_X(IUnknown, FUnknown);
+
+#if defined(REFLEX_OS_LINUX)
+VERIFY_X(IEventHandler, Linux::IEventHandler);
+VERIFY_X(ITimerHandler, Linux::ITimerHandler);
+VERIFY_X(IRunLoop, Linux::IRunLoop);
+#endif
 VERIFY(IBStream);
 VERIFY(IPluginBase);
 VERIFY(IPluginFactory);
 VERIFY(IPluginFactory2);
+VERIFY(IPluginFactory3);
 VERIFY_X(IPluginView, IPlugView);
 VERIFY_X(IPluginComponent, Vst::IComponent);
 VERIFY_X(IPluginAudioProcessor, Vst::IAudioProcessor);

@@ -40,8 +40,6 @@ GLX::Form & InitButton(GLX::Form & form, const GLX::Style & style, Key32 id)
 
 struct SettingsPanel : public IDE::Detail::ConsolePanel
 {
-	static inline SettingsPanel * st_self = 0;
-
 	SettingsPanel();
 
 	void OnReset(Key32 context) override;

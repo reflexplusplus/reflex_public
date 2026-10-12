@@ -156,6 +156,10 @@ Array <CString::View> FindTargets(const CString::View & arg)
 		{
 			if (!Search(targets, *ptarget)) targets.Push(*ptarget);
 		}
+		else if (auto system = SearchValue<StringCompare>(ToView(kMetaSystems), value))
+		{
+			if (!Search(targets, *system)) targets.Push(*system);
+		}
 		else
 		{
 			CLI::ThrowError("invalid --target value");
@@ -169,9 +173,9 @@ Array<CString::View> GetHostDefaultGenerationPlatforms()
 {
 	switch (System::kPlatform)
 	{
-	case System::kPlatformWindows: return { "windows", "android", "linux" };
-	case System::kPlatformMacOS: return { "macos", "ios", "android" };
-	case System::kPlatformLinux: return { "linux", "android" };
+	case System::kPlatformWindows: return { "windows", "android", "web" };
+	case System::kPlatformMacOS: return { "macos", "ios", "android", "web" };
+	case System::kPlatformLinux: return { "linux", "android", "web" };
 	default: return {};
 	}
 }
@@ -210,8 +214,6 @@ Array <TemplateDefinition> GetTemplates()
 
 void Create(const Data::PropertySet & args, System::FileHandle & std_out)
 {
-	auto reflex_path = GetReflexPath();
-
 	auto std_in = Make<System::FileHandle>(System::FileHandle::kStandardStreamIn);
 
 	const auto prompt_required = [&std_out, std_in](CString::View title, WString::View default_value = {}) -> WString
@@ -398,11 +400,14 @@ void Create(const Data::PropertySet & args, System::FileHandle & std_out)
 
 	//check not in REFLEX_PATH path, except REFLEX_PATH/temp/...
 
-	if (CaseInsensitive::eq(Left<true>(output, reflex_path.GetSize()), reflex_path))
+	if (auto reflex_path = GetReflexPath())
 	{
-		if (!CaseInsensitive::eq(Mid<true>(output, reflex_path.GetSize(), 4), ToView(L"tmp/")))
+		if (CaseInsensitive::eq(Left<true>(output, reflex_path.GetSize()), reflex_path))
 		{
-			CLI::ThrowError("invalid output path, pass --output <folder> to a location outside the reflex repository");
+			if (!CaseInsensitive::eq(Mid<true>(output, reflex_path.GetSize(), 4), ToView(L"tmp/")))
+			{
+				CLI::ThrowError("invalid output path, pass --output <folder> to a location outside the reflex repository");
+			}
 		}
 	}
 
@@ -411,7 +416,9 @@ void Create(const Data::PropertySet & args, System::FileHandle & std_out)
 	Array <CString::View> targets;
 	if (Data::GetCString(args, "generate"))
 	{
-		targets = FindTargets(select("generate", true, ptmpl->platforms, true));
+		Array<CString> generators = ptmpl->platforms;
+		for (auto system : kMetaSystems) if (!Search(generators, system)) generators.Push(system);
+		targets = FindTargets(select("generate", true, generators, true));
 	}
 	else
 	{
@@ -453,15 +460,56 @@ WString GetGeneratedPlatformFolder(const ProjectGen::Project & project, CString:
 void Build(const Data::PropertySet & args, System::FileHandle & std_out)
 {
 	auto first = Data::GetCString(args, kFirstPositionalArg);
-	auto platform = kBuildPlatforms[System::kPlatform];
+	auto all = first == "all";
 	auto configuration = first;
+	Array<CString::View> platforms;
+	auto destination = CLI::GetString(args, "destination");
 	if (Search(kBuildPlatforms, first))
 	{
-		platform = first;
+		platforms.Push(first);
 		configuration = Data::GetCString(args, kFirstPositionalArg + 1);
 	}
+	else
+	{
+		Require(all || !Data::GetCString(args, kFirstPositionalArg + 1), "expected build arguments", "[platform|all] [configuration]");
+		if (all) configuration = Data::GetCString(args, kFirstPositionalArg + 1);
+		Require(!destination, "unexpected --destination", "specify ios explicitly to select an iOS destination");
+		auto project = GetProject(args);
+		for (auto platform : GetHostDefaultGenerationPlatforms())
+		{
+			auto index = Search(kBuildPlatforms, platform);
+			REFLEX_ASSERT(index);
+			for (auto & target : project->GetTargets())
+			{
+				if (!target->IsLibrary() && target->FindPlatform(BuildPlatform(index.value)))
+				{
+					platforms.Push(platform);
+					break;
+				}
+			}
+			// The first host default is its native platform; only 'all' selects the rest.
+			if (!all) break;
+		}
+	}
 
-	ProjectGen::Build(CLI::GetFilename(args, "path", true, "project.cfg"), platform, configuration, std_out);
+	Require(!platforms.Empty(), "build failed", all ? "no project platforms supported by the current host" : "project does not support the host's native platform; specify a platform explicitly");
+	auto path = CLI::GetFilename(args, "path", true, "project.cfg");
+	bool failed = false;
+	for (auto platform : platforms)
+	{
+		File::WriteLine(std_out, Join("* building ", platform, configuration ? Join(" ", configuration) : CString {}, " *"));
+		try
+		{
+			ProjectGen::Build(path, platform, configuration, destination, std_out);
+		}
+		catch (const CString & error)
+		{
+			failed = true;
+			Bootstrap::CLI::Print(std_out, Bootstrap::CLI::kColourBrightRed, Join(platform, ": ", error));
+		}
+		File::WriteLine(std_out);
+	}
+	Require(!failed, "build failed", "one or more platform builds failed; all selected platforms were attempted");
 }
 
 void Generate(const Data::PropertySet & args, System::FileHandle & std_out, bool fresh)
@@ -470,12 +518,13 @@ void Generate(const Data::PropertySet & args, System::FileHandle & std_out, bool
 	auto key = kFirstPositionalArg;
 	while (auto platform = Data::GetCString(args, key++))
 	{
-		Require(True(Search(kBuildPlatforms, platform)), "expected platform", "<windows|macos|ios|android|linux|cmake>...");
+		Require(True(Search(kBuildPlatforms, platform)) || True(Search(kMetaSystems, platform)), "expected generation output", "<windows|macos|ios|android|linux|web|cmake|vscode>...");
 		platforms.Push(platform);
 	}
 	if (platforms.Empty()) platforms = GetHostDefaultGenerationPlatforms();
 
-	ProjectGen::Generate(CLI::GetFilename(args, "path", true, "project.cfg"), platforms, std_out, fresh);
+	auto vscode = (!args.QueryProperty<Data::CStringProperty>("vscode") && !args.QueryProperty<Data::BoolProperty>("vscode")) || CLI::GetBool(args, "vscode");
+	ProjectGen::Generate(CLI::GetFilename(args, "path", true, "project.cfg"), platforms, std_out, fresh, vscode);
 }
 
 void Run(const Data::PropertySet & args, System::FileHandle & std_out)
@@ -493,9 +542,24 @@ void Edit(const Data::PropertySet & args)
 	auto platform = Data::GetCString(args, kFirstPositionalArg, kBuildPlatforms[System::kPlatform]);
 	auto project = GetProject(args);
 	auto directory = GetGeneratedPlatformFolder(project, platform);
+
 	auto get_ide_project = [&project, &directory](WString::View extension)
 	{
 		return Join(directory, ToWString(project->GetName()), File::kDot, extension);
+	};
+
+	auto open_vscode = [&project]()
+	{
+#if defined(REFLEX_OS_WINDOWS)
+		// The Windows PATH launcher is code.cmd; use PowerShell to resolve it and
+		// pass the folder literally, including spaces and shell metacharacters.
+		auto root = PlatformPath(project->GetRoot(), System::kPlatformWindows);
+		auto command = Join(L"$ErrorActionPreference = 'Stop'; & code '", Replace(root, L"'", L"''"), L"'; exit $LASTEXITCODE");
+		bool success = RunCommand(L"powershell.exe", { L"-NoProfile", L"-NonInteractive", L"-Command", command });
+#else
+		bool success = RunCommand(L"code", { project->GetRoot() });
+#endif
+		Require(success, "edit failed", "could not launch VS Code; install VS Code and make its code launcher available on PATH");
 	};
 
 	switch (MakeKey32(platform))
@@ -514,21 +578,20 @@ void Edit(const Data::PropertySet & args)
 #if defined(REFLEX_OS_WINDOWS)
 		auto studio = WString(L"C:/Program Files/Android/Android Studio/bin/studio64.exe");
 		Require(File::Exists(studio) && RunCommand(L"cmd.exe", { L"/d", L"/c", L"start", L"", studio, directory }, nullptr, true), "edit failed", "could not open Android Studio");
-#elif defined(REFLEX_OS_MACOS)
-		Require(RunCommand(L"/usr/bin/open", { L"-a", L"Android Studio", directory }), "edit failed", "could not open Android Studio");
 #else
-		ThrowError("edit failed", "Android Studio is not supported on this host");
+		Require(RunCommand(L"/usr/bin/open", { L"-a", L"Android Studio", directory }), "edit failed", "could not open Android Studio");
 #endif
 		return;
 	}
 
 	case K32("linux"):
 	case K32("cmake"):
-		ThrowError("edit failed", "this platform does not define an IDE project");
+	case K32("web"):
+		open_vscode();
 		return;
 
 	default:
-		ThrowError("expected platform", "<windows|macos|ios|android|linux|cmake>");
+		ThrowError("expected platform", "<windows|macos|ios|android|linux|web|cmake>");
 		return;
 	}
 }
@@ -576,7 +639,7 @@ void ImportState(const Data::PropertySet & args)
 {
 	auto path = CLI::GetFilename(args, "path", true, "export.cfg");
 	Data::PropertySet options;
-	Data::SetBool(options, kBuildPlatforms[System::kPlatform], true);	//shortcut, no webasm now so cmake wont be selected
+	Data::SetBool(options, kBuildPlatforms[System::kPlatform], true);	// Build-platform entries follow System::Platform.
 	auto imported = Data::DecodePropertySet(Data::kPropertySheetFormat, File::Open(path), options);
 	if (auto error = Data::GetError(imported)) ThrowError(error.value.c, ToCString(error.value.a));
 	auto keymap = Data::GetKeyMap(imported);
@@ -659,11 +722,11 @@ const CLI::TaskDef kCommands[] =
 			//PrintCommandWithDescription(std_out, "remove-template-library", "unregister a library's project templates");
 
 			File::WriteLine(std_out);
-			PrintCommandWithDescription(std_out, "generate", "generate native projects from project.cfg");
+			PrintCommandWithDescription(std_out, "generate", "generate platform projects from project.cfg");
 			PrintCommandWithDescription(std_out, "open", "open a project folder in the system file manager");
-			PrintCommandWithDescription(std_out, "edit", "open a generated IDE project");
-			PrintCommandWithDescription(std_out, "clean", "regenerate native projects from scratch");
-			PrintCommandWithDescription(std_out, "build", "run generated native build helpers");
+			PrintCommandWithDescription(std_out, "edit", "open a generated IDE project or the project folder in VS Code");
+			PrintCommandWithDescription(std_out, "clean", "regenerate platform projects from scratch");
+			PrintCommandWithDescription(std_out, "build", "build generated platform projects");
 			PrintCommandWithDescription(std_out, "set", "set a build variable");
 			PrintCommandWithDescription(std_out, "get", "view a build variable");
 			PrintCommandWithDescription(std_out, "unset", "remove a build variable");
@@ -703,17 +766,21 @@ const CLI::TaskDef kCommands[] =
 			case K32("generate"):
 				print_arg(true, "--path <path>", "the project.cfg description to generate, defaults to ./project.cfg");
 				print_arg(true, "[platform]...", "platforms to generate, defaults to platforms compatible with the current host");
+				print_arg(true, "[cmake|vscode]", "optional meta systems; VS Code is generated by default");
+				print_arg(true, "--vscode <bool>", "recreate disposable .vscode configuration, defaults to true");
 				print_arg(true, "--fresh", "clear selected generated platform projects before regenerating");
 				return;
 
 			case K32("build"):
-				print_arg(true, "[platform]", "the generated platform folder, defaults to the current host platform");
-				print_arg(true, "[configuration]", "run only this configuration, for example debug");
+				print_arg(true, "[platform|all]", "defaults to the host's native platform; all selects enabled project platforms compatible with the current host");
+				print_arg(true, "[configuration]", "run only this configuration, for example debug; defaults to all configurations");
+				print_arg(true, "--destination <device|simulator|all>", "select an iOS Xcode destination, defaults to all");
 				print_arg(true, "--path <project.cfg>", "the project description, defaults to ./project.cfg");
 				return;
 
 			case K32("clean"):
 				print_arg(true, "[platform]...", "platforms to regenerate from scratch, defaults to platforms compatible with the current host");
+				print_arg(true, "--vscode <bool>", "recreate disposable .vscode configuration, defaults to true");
 				print_arg(true, "--path <project.cfg>", "the project description, defaults to ./project.cfg");
 				return;
 
@@ -764,7 +831,7 @@ const CLI::TaskDef kCommands[] =
 				return;
 
 			case K32("edit"):
-				print_arg(true, "[platform]", "the generated IDE project to open, defaults to the current platform");
+				print_arg(true, "[platform]", "defaults to the host platform; uses VS Code where no dedicated IDE is supported");
 				print_arg(true, "--path <project.cfg>", "the project description, defaults to ./project.cfg");
 				return;
 
@@ -781,7 +848,7 @@ const CLI::TaskDef kCommands[] =
 				return;
 
 			case K32("set"):
-				print_arg(false, "<name> <value>", "set a string variable; true and false are stored as booleans");
+				print_arg(false, "<name> [value]", "set a variable; omitted value defaults to true; true and false are stored as booleans");
 				return;
 
 			case K32("get"):
@@ -822,7 +889,14 @@ const CLI::TaskDef kCommands[] =
 	CLI::MakeTask("where", [](const Data::PropertySet & args, System::FileHandle & std_out)
 	{
 		ValidateArgs(args);
-		File::WriteLine(std_out, GetReflexPath());
+		if (auto path = GetReflexPath())
+		{
+			File::WriteLine(std_out, path);
+		}
+		else
+		{
+			CLI::ThrowError("Reflex SDK not found: the CLI executable must be located inside a Reflex SDK installation");
+		}
 	}),
 	CLI::MakeTask("open", [](const Data::PropertySet & args, System::FileHandle & std_out)
 	{
@@ -924,19 +998,22 @@ const CLI::TaskDef kCommands[] =
 		{
 			Arg("path"),
 			Arg("fresh"),
+			Arg("vscode"),
 			Arg(kFirstPositionalArg),
 			Arg(kFirstPositionalArg + 1),
 			Arg(kFirstPositionalArg + 2),
 			Arg(kFirstPositionalArg + 3),
 			Arg(kFirstPositionalArg + 4),
-			Arg(kFirstPositionalArg + 5)
+			Arg(kFirstPositionalArg + 5),
+			Arg(kFirstPositionalArg + 6),
+			Arg(kFirstPositionalArg + 7)
 		});
 
 		Generate(args, std_out, CLI::GetBool(args, "fresh"));
 	}),
 	CLI::MakeTask("build", [](const Data::PropertySet & args, System::FileHandle & std_out)
 	{
-		ValidateArgs(args, { Arg("path"), Arg(kFirstPositionalArg), Arg(kFirstPositionalArg + 1) });
+		ValidateArgs(args, { Arg("path"), Arg("destination"), Arg(kFirstPositionalArg), Arg(kFirstPositionalArg + 1) });
 		Build(args, std_out);
 	}),
 	CLI::MakeTask("clean", [](const Data::PropertySet & args, System::FileHandle & std_out)
@@ -944,11 +1021,15 @@ const CLI::TaskDef kCommands[] =
 		ValidateArgs(args, 
 		{
 			Arg("path"),
+			Arg("vscode"),
 			Arg(kFirstPositionalArg),
 			Arg(kFirstPositionalArg + 1),
 			Arg(kFirstPositionalArg + 2),
 			Arg(kFirstPositionalArg + 3),
-			Arg(kFirstPositionalArg + 4)
+			Arg(kFirstPositionalArg + 4),
+			Arg(kFirstPositionalArg + 5),
+			Arg(kFirstPositionalArg + 6),
+			Arg(kFirstPositionalArg + 7)
 		});
 		Generate(args, std_out, true);
 	}),
@@ -981,15 +1062,19 @@ const CLI::TaskDef kCommands[] =
 	}),
 	CLI::MakeTask("set", [](const Data::PropertySet & args, System::FileHandle & std_out)
 	{
-		ValidateArgs(args, { RequiredArg(kFirstPositionalArg), RequiredArg(kFirstPositionalArg + 1) });
+		ValidateArgs(args, { RequiredArg(kFirstPositionalArg), Arg(kFirstPositionalArg + 1) });
 		CString name = Data::GetCString(args, kFirstPositionalArg);
 		auto pvalue = args.QueryProperty<Data::CStringProperty>(kFirstPositionalArg + 1);
-		Require(IsVariableName(name) && pvalue, "expected variable", "<name> <value>");
+		Require(IsVariableName(name), "expected variable", "<name> [value]");
 		auto variables = Data::AcquirePropertySet(Bootstrap::global->prefs, kPersistentVariables);
 		auto keymap = Data::AcquireKeyMap(variables);
 		auto id = Data::RegisterKey(keymap, name);
 		UnsetPersistentVariable(variables, id);
-		if (auto idx = Search(ToView(Reflex::Detail::kFalseTrue), pvalue->value))
+		if (!pvalue)
+		{
+			Data::SetBool(variables, id, true);
+		}
+		else if (auto idx = Search(ToView(Reflex::Detail::kFalseTrue), pvalue->value))
 		{
 			Data::SetBool(variables, id, idx.value == 1);
 		}
@@ -1214,8 +1299,7 @@ Reflex::UInt8 Reflex::System::OnStart(const ArrayView <CString::View> & cmdline)
 		{
 			auto id = cmdline[0];
 			auto tasks = Data::AcquirePropertySet(Bootstrap::global->prefs, ReflexCLI::kTasks);
-			Array<CString> commands;
-			for (auto arg : Mid<true>(cmdline, 2)) commands.Push(arg);
+			Array<CString> commands = ReflexCLI::CopyOwned(Mid<true>(cmdline, 2));
 
 			Data::RegisterKey(Data::AcquireKeyMap(*tasks), id);
 			auto task = Data::AcquirePropertySet(tasks, id);

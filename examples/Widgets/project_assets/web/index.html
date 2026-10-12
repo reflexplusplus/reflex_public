@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>[TITLE]</title>
+<style>
+html, body { margin: 0; overflow: hidden; background: rgb(64, 64, 64); font: 14px system-ui; }
+body { height: 100dvh; display: flex; flex-direction: column; }
+header { display: flex; flex: none; justify-content: center; align-items: center; gap: 8px; padding: 8px; background: white; }
+button[aria-pressed="true"] { background: #2879b8; color: white; }
+canvas { display: block; }
+#stage:not(.fit) canvas { box-shadow: 0 12px 24px rgba(0, 0, 0, 0.40); }
+#stage { flex: 1; min-height: 0; min-width: 0; display: grid; place-items: safe center; overflow: auto; }
+#stage.fit { display: block; overflow: hidden; }
+#status { flex: none; margin: 0; padding: 8px; white-space: pre-wrap; background: white; }
+</style>
+</head>
+<body>
+<header>
+    <button id="fit" disabled aria-pressed="false">Fit</button>
+    <button id="run-audio" hidden disabled aria-pressed="false">Run audio</button>
+</header>
+<pre id="status" role="status">Starting…</pre>
+<main id="stage">
+    <canvas id="screen"></canvas>
+</main>
+<script type="module">
+import { startReflex } from "./runtime/runtime.js";
+const status = document.querySelector("#status");
+const fail = error => { status.hidden = false; status.textContent = String(error.stack || error); };
+try {
+    const app = await startReflex({ moduleUrl: "[MODULE]" + "?[GENERATE_TIMESTAMP]", canvas: document.querySelector("#screen"),
+        initialBytes: 32 * 1024 * 1024, maximumBytes: 512 * 1024 * 1024, onError: fail });
+    status.hidden = true;
+    const fitButton = document.querySelector("#fit");
+    fitButton.disabled = false;
+    fitButton.onclick = () => {
+        const fit = fitButton.getAttribute("aria-pressed") !== "true";
+        document.querySelector("#stage").classList.toggle("fit", fit);
+        app.setFit(fit);
+        fitButton.setAttribute("aria-pressed", String(fit));
+    };
+    if (app.audioSupported) {
+        const button = document.querySelector("#run-audio");
+        button.hidden = false;
+        button.disabled = false;
+        let running = false;
+        const onState = value => {
+            running = value === "running";
+            button.setAttribute("aria-pressed", String(running));
+        };
+        button.onclick = async () => {
+            button.disabled = true;
+            try {
+                if (running) { await app.pauseAudio(); onState("suspended"); }
+                else await app.runAudio(onState);
+            } catch (error) { onState("failed"); fail(error); }
+            finally { button.disabled = false; }
+        };
+    }
+} catch (error) { fail(error); }
+</script>
+</body>
+</html>

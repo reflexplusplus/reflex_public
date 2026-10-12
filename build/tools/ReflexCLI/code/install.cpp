@@ -788,7 +788,7 @@ void ReflexCLI::SetPath(const WString & path, System::FileHandle & std_out)
 {
 	auto reflex_path = File::CorrectTrailingStroke(path);
 
-	if (System::Exists(GetReflexExecutablePath(reflex_path)))
+	if (System::Exists(MakeReflexExecutablePath(reflex_path)))
 	{
 		auto cli_path = SetPathImpl(reflex_path);
 

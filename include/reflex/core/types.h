@@ -51,6 +51,8 @@ namespace Reflex
 
 	using AtomicUInt32 = std::atomic <UInt32>;
 
+	using AtomicUInt64 = std::atomic <UInt64>;
+
 	using AtomicFloat32 = std::atomic <Float32>;
 
 	using AtomicPointer = std::atomic <void*>;

@@ -24,32 +24,21 @@ Reflex::Unretained <Reflex::IDE::ResourceGroup> Reflex::Bootstrap::CreateScriptO
 	struct State : public Object
 	{
 		WString path;
-
 		UInt8 context_flags;
-
 		Array < ConstRef <VM::Module> > modules;
-
 		Array < Tuple < CString::View, AlreadyRetained<Object> > > externals;
-
 		Function <void(VM::Context & context, GLX::Object & object)> on_create;
-
 		Reference <VM::Context> context;
-
 		Reference <GLX::Object> self;
 	};
 
 	auto state = Reflex::Make<State>();
 
 	state->path = path;
-
 	state->context_flags = context_flags;
-
 	state->modules.Append(modules);
-
 	state->modules.Push(GLXVM::g_glx);
-
 	state->on_create = on_create;
-
 	state->externals = externals;
 
 	auto onreload = [resourcepool, compiler, uid, state](IDE::ResourceGroup & monitor)
@@ -88,11 +77,9 @@ Reflex::Unretained <Reflex::IDE::ResourceGroup> Reflex::Bootstrap::CreateScriptO
 
 		if (!vm_program->Status()) return;
 
-		auto vm_context = VM::Context::Create(*vm_program, { .context_id = GLX::Core::desktop->GetContextID() });
+		auto vm_context = VM::Context::Create(vm_program, { .context_id = GLX::Core::desktop->GetContextID() });
 
-		Array < Tuple < CString::View, AlreadyRetained<Object> > > externals;
-
-		externals = state->externals;
+		auto externals = Copy(state->externals);
 
 		auto self = REFLEX_CREATE(GLXVM::Object, vm_context);
 
@@ -103,11 +90,8 @@ Reflex::Unretained <Reflex::IDE::ResourceGroup> Reflex::Bootstrap::CreateScriptO
 		if (!vm_context->Run()) return;
 
 		state->self->Detach();
-
 		state->context = vm_context;
-
 		state->self = self;
-
 		state->on_create(vm_context, *self);
 	};
 

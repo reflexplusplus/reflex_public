@@ -18,10 +18,10 @@ constexpr CString::View kPlatformConditions[] =
 {
 	"REFLEX_PLATFORM_WINDOWS",
 	"REFLEX_PLATFORM_MACOS",
-	"REFLEX_PLATFORM_IOS",
-	{},
 	"REFLEX_PLATFORM_LINUX",
-	{}
+	{},
+	"REFLEX_PLATFORM_IOS",
+	{} // Web uses its own direct-Clang emitter.
 };
 REFLEX_STATIC_ASSERT(GetArraySize(kPlatformConditions) == GetArraySize(kBuildPlatforms));
 
@@ -521,7 +521,10 @@ DependencyLists GetDependencyLists(const TargetPlatform & platform)
 	DependencyLists result;
 	for (auto & dependency : platform.GetDependencies())
 	{
-		if (!dependency->IsLibrary()) result.build.Push(ToWString(TargetName(dependency->GetName())));
+		// Package-provided libraries are ordered through their linked identifiers,
+		// rather than a build dependency on a source target that may not exist.
+		const bool packaged = Identifier(*dependency) != TargetName(dependency->GetName());
+		if (!dependency->IsLibrary() && !packaged) result.build.Push(ToWString(TargetName(dependency->GetName())));
 		auto dependency_platform = dependency->FindPlatform(platform.GetPlatform());
 		REFLEX_ASSERT(dependency_platform);
 		auto dependency_type = GetOutputType(*dependency_platform);
@@ -706,11 +709,78 @@ void WriteProjectDependencies(Data::Archive & output, Project & project, ArrayVi
 		auto target_name = TargetName(dependency_target->GetName());
 		auto source = File::MakeRelativePath(project.GetRoot(), dependency_project->GetRoot());
 		auto binary = Join(L"${CMAKE_BINARY_DIR}/reflex_dependencies/", ToWString(TargetName(dependency_project->GetName())), L'_', ToWString(target_name));
-		Data::WriteLine(output, Join("if(NOT TARGET ", target_name, ")"));
+		Data::WriteLine(output, Join("if(NOT TARGET ", Identifier(*dependency_target), ")"));
 		WriteCMakeInvocation(output, 1, "add_subdirectory", {}, { Value(source), Value(binary) });
 		Data::WriteLine(output, "endif()");
 	}
 	Data::WriteLine(output);
+}
+
+Array<WString> PkgConfigPackages(const TargetConfiguration & config)
+{
+	Array<WString> packages;
+	auto append = [&packages](const TargetConfiguration & source)
+	{
+		for (auto & package : source.GetAppendableStrings(kPkgConfig))
+		{
+			auto value = ToWString(package);
+			if (!Search(packages, value)) packages.Push(std::move(value));
+		}
+	};
+	append(config);
+	const auto platform = config.platform->GetPlatform();
+	for (auto & dependency : GetLinkDependencies(*config.platform->target, platform))
+	{
+		if (auto dependency_platform = dependency->FindPlatform(platform))
+			if (auto dependency_config = dependency_platform->FindConfiguration(config.GetName())) append(*dependency_config);
+	}
+	return packages;
+}
+
+void WritePkgConfigDependencies(Data::Archive & output, CString::View target, ArrayView<const TargetPlatform *> platforms)
+{
+	REFLEX_LOOP(platform_index, platforms.size)
+	{
+		auto platform = platforms[platform_index];
+		auto configurations = platform->GetTargetConfigurations();
+		Array<Array<WString>> packages;
+		for (auto & config : configurations) packages.Push(PkgConfigPackages(*config));
+		auto groups = BuildListGroups(packages);
+		if (!groups) continue;
+
+		WriteLine(output, 1, Join("if(", kPlatformConditions[platform->GetPlatform()], ")"));
+		WriteCMakeInvocation(output, 2, "find_package", L"PkgConfig REQUIRED");
+		// Scope imported targets to this source project as well as its target/platform/group.
+		WriteCMakeInvocation(output, 2, "string", L"MD5 _reflex_pkg_scope", { L"\"${CMAKE_CURRENT_SOURCE_DIR}\"" });
+		REFLEX_LOOP(group_index, groups.GetSize())
+		{
+			auto & group = groups[group_index];
+			const bool configured = group.inputs.GetSize() != configurations.size;
+			UInt indentation = 2;
+			if (configured)
+			{
+				CString condition = "CMAKE_CONFIGURATION_TYPES OR NOT CMAKE_BUILD_TYPE";
+				for (auto input : group.inputs)
+					condition.Append(Join(" OR CMAKE_BUILD_TYPE STREQUAL ", EncodeUTF8(Value(configurations[input]->GetName()))));
+				WriteLine(output, indentation++, Join("if(", condition, ")"));
+			}
+
+			auto prefix = Join("REFLEX_PKG_${_reflex_pkg_scope}_", target, '_', ToCString(platform_index), '_', ToCString(group_index));
+			Array<WString> arguments;
+			for (auto & package : group.values) arguments.Push(Value(package));
+			WriteCMakeInvocation(output, indentation, "pkg_check_modules", ToWString(Join(prefix, " REQUIRED IMPORTED_TARGET")), arguments);
+			auto imported_target = Join(L"PkgConfig::", ToWString(prefix));
+			Array<WString> links;
+			if (configured)
+			{
+				for (auto input : group.inputs) links.Push(ConfigItem(*configurations[input], imported_target));
+			}
+			else links.Push(Value(imported_target));
+			WriteCMakeTargetValues(output, indentation, "target_link_libraries", target, "PRIVATE", links);
+			if (configured) WriteLine(output, --indentation, "endif()");
+		}
+		WriteLine(output, 1, "endif()");
+	}
 }
 
 void WriteTarget(Data::Archive & output, const Project & project, const Target & target,
@@ -878,6 +948,8 @@ void WriteTarget(Data::Archive & output, const Project & project, const Target &
 		WriteCMakeTargetValues(output, indentation, "target_link_libraries", cmake_target, "PRIVATE", values);
 	});
 
+	WritePkgConfigDependencies(output, cmake_target, platforms);
+
 	constexpr BuildPhase action_phases[] = { kBuildPhasePreBuild, kBuildPhasePostBuild };
 	Array<BuildActionDesc> common_actions[GetArraySize(action_phases)];
 	const TargetConfiguration * common_action_contexts[GetArraySize(action_phases)] = {};
@@ -1035,7 +1107,7 @@ Data::Archive Preamble(const TargetConfiguration & context)
 
 REFLEX_END_INTERNAL
 
-void ReflexCLI::ProjectGen::GenerateCMakeProject(Project & project, BuildPlatform selected_platform, const WString &, Array<const TargetPlatform *> & generated_platforms, Map<WString> &)
+void ReflexCLI::ProjectGen::GenerateCMakeProject(Project & project, Array<const TargetPlatform *> & generated_platforms, Map<WString> & outputs)
 {
 	const TargetConfiguration * preamble_context = nullptr;
 	for (auto & target : project.GetTargets())
@@ -1061,7 +1133,7 @@ void ReflexCLI::ProjectGen::GenerateCMakeProject(Project & project, BuildPlatfor
 	{
 		Data::Archive output = Template(Data::Pack(CMake::kHeader), { { "PROJECT", ToWString(CMake::TargetName(project.GetName())) } });
 		output.Append(Template(Data::Pack(CMake::kPreamble), { { "PREAMBLE", Data::DecodeUTF8(CMake::Preamble(*preamble_context)) } }));
-		auto target_platforms = CollectTargetPlatforms(project, selected_platform, generated_platforms);
+		auto target_platforms = CollectAllTargetPlatforms(project);
 		CMake::WriteProjectDependencies(output, project, target_platforms);
 
 		CMake::ProjectCommonLists common_lists;
@@ -1159,7 +1231,9 @@ void ReflexCLI::ProjectGen::GenerateCMakeProject(Project & project, BuildPlatfor
 			}
 		}
 
-		SaveFile(Join(project.GetRoot(), L"CMakeLists.txt"), output, kBuildPlatformCMake);
+		auto filename = Join(project.GetRoot(), L"CMakeLists.txt");
+		SaveMetaFile(filename, output, kMetaSystemCMake);
+		outputs.Set(filename);
 	}
 
 }

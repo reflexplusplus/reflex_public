@@ -14,7 +14,8 @@ namespace ReflexCLI
 	struct TemplateDefinition;
 
 	WString GetReflexPath();
-	WString GetReflexExecutablePath(WString::View reflex_path);
+
+	WString MakeReflexExecutablePath(WString::View reflex_path);
 
 	CString EncodeUTF8(WString::View text);
 	WString DecodeUTF8(CString::View text);
@@ -28,6 +29,12 @@ namespace ReflexCLI
 	void ThrowError(CString::View msg, WString::View error);
 	void Require(bool test, CString::View msg, CString::View error);
 	void Require(bool test, CString::View msg, WString::View error);
+
+	template <typename TYPE> inline Array <Array <TYPE>> CopyOwned(ArrayView <ArrayView <TYPE>> items);
+	template <typename TYPE> inline Array <Array <TYPE>> CopyOwned(const Array <ArrayView <TYPE>> & items);
+
+	template <typename TYPE> inline Array <ArrayView <TYPE>> CopyUnowned(ArrayView < Array <TYPE> > items);
+	template <typename TYPE> inline Array <ArrayView <TYPE>> CopyUnowned(const Array <Array <TYPE>> & items);
 }
 
 struct ReflexCLI::TokenDefinition
@@ -79,4 +86,36 @@ inline void ReflexCLI::Require(bool test, CString::View msg, CString::View error
 inline void ReflexCLI::Require(bool test, CString::View msg, WString::View error)
 {
 	if (!test) ThrowError(msg, error);
+}
+
+template <typename TYPE> inline Reflex::Array <Reflex::Array <TYPE>> ReflexCLI::CopyOwned(ArrayView <ArrayView <TYPE>> items)
+{
+	Array < Array <TYPE> > rtn;
+
+	rtn.Allocate(items.size);
+
+	for (auto & i : items) rtn.Push(i);
+
+	return rtn;
+}
+
+template <typename TYPE> inline Reflex::Array <Reflex::Array <TYPE>> ReflexCLI::CopyOwned(const Array <ArrayView <TYPE>> & items)
+{
+	return CopyOwned(ToView(items));
+}
+
+template <typename TYPE> inline Reflex::Array <Reflex::ArrayView <TYPE>> ReflexCLI::CopyUnowned(ArrayView < Array <TYPE> > items)
+{
+	Array < ArrayView <TYPE> > rtn;
+
+	rtn.Allocate(items.size);
+
+	for (auto & i : items) rtn.Push(i);
+
+	return rtn;
+}
+
+template <typename TYPE> inline Reflex::Array <Reflex::ArrayView <TYPE>> ReflexCLI::CopyUnowned(const Array <Array <TYPE>> & items)
+{
+	return CopyUnowned(ToView(items));
 }

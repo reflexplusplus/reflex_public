@@ -146,7 +146,7 @@ Reflex::Unretained <Reflex::Data::PropertySet> Reflex::Bootstrap::Detail::Create
 {
 	constexpr Key32 kmobile = K32("mobile");
 
-	constexpr Key32 kOperatingSystems[System::kNumPlatform] = { K32("windows"), K32("macos"), K32("linux"), K32("android"), K32("ios"), K32("webasm") };
+	constexpr Key32 kOperatingSystems[System::kNumPlatform] = { K32("windows"), K32("macos"), K32("linux"), K32("android"), K32("ios"), K32("web") };
 	const Key32 kEnvironments[System::kNumEnvironmentType] = { kNullKey, kNullKey, GLX::kIsMobile ? kmobile : K32("desktop"), kmobile, K32("plugin") };
 
 	auto options = New<Data::PropertySet>();

@@ -173,9 +173,12 @@ Scroller:
 {	
 	inherit: Group;
 	
-	clip: true;
-	
-	fg: InnerShadow(indent: 4,4,0,8; width: 0,8; colour: 240);
+	fg: InnerShadow(indent: 4,0,0,8; width: 0,8; colour: 240);
+
+	body:
+	{
+		clip: true;
+	};
 	
 	Markup:
 	{

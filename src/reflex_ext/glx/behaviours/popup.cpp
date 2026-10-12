@@ -223,11 +223,11 @@ void Reflex::GLX::Detail::PlacePopup(Object & owner, Object & fg, WillRetain <Ob
 		{
 			m_onfocus = CreateAnimationClock([this](Float32)
 			{
-				auto & owner = *m_owner->Load();
-
 				m_onfocus.Clear();
 
-				owner.UnsetProperty<GLX::Object>(kpopup);
+				auto & owner = *m_owner->Load();
+
+				if (QueryPopup(owner) == object.Adr()) owner.UnsetProperty<GLX::Object>(kpopup);
 			});
 
 			auto & previous_focus = *m_previous_focus.Load();

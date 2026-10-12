@@ -41,7 +41,7 @@ struct AppImpl : public App
 
 Reflex::Unretained <Reflex::System::Task> ResourceBuilder::Compile(const WString::View & path)
 {
-	auto exe_path = ReflexCLI::GetReflexExecutablePath(ReflexCLI::GetReflexPath());
+	auto exe_path = ReflexCLI::MakeReflexExecutablePath(ReflexCLI::GetReflexPath());
 
 	REFLEX_ASSERT(exe_path);
 	REFLEX_ASSERT(File::Exists(exe_path));

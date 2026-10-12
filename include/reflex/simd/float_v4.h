@@ -384,7 +384,7 @@ REFLEX_INLINE Reflex::SIMD::FloatV4 Reflex::SIMD::Log2(const FloatV4 & value)
 
 REFLEX_INLINE Reflex::SIMD::FloatV4 Reflex::SIMD::Pow(const FloatV4 & x, const FloatV4 & y)
 {
-   return Exp2(REFLEX_MUL_F32_X4(Log2(x).data, y.data));
+   return Exp2(Reinterpret<FloatV4>(REFLEX_MUL_F32_X4(Log2(x).data, y.data)));
 }
 
 REFLEX_INLINE Reflex::SIMD::FloatV4 Reflex::SIMD::SquareRoot(const FloatV4 & x)

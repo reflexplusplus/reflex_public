@@ -1,0 +1,9 @@
+<resources output="code/resources.cpp">
+
+	<StatusItem>
+
+		<folder path="resources" public="true" compress="auto"/>
+
+	</StatusItem>
+
+</resources>

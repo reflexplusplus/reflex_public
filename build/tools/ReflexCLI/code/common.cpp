@@ -75,7 +75,7 @@ Reflex::WString ReflexCLI::GetReflexPath()
 	return {};
 }
 
-Reflex::WString ReflexCLI::GetReflexExecutablePath(WString::View reflex_path)
+Reflex::WString ReflexCLI::MakeReflexExecutablePath(WString::View reflex_path)
 {
 #if defined(REFLEX_OS_WINDOWS)
 	return Join(reflex_path, L"bin/tools/win/reflex.exe");

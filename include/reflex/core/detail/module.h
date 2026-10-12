@@ -138,6 +138,8 @@ private:
 //
 //impl
 
+REFLEX_DISABLE_WARNINGS
+
 inline Reflex::Detail::Module::Module(const char * name)
 	REFLEX_IF_DEBUG(: m_name(name))
 {
@@ -159,6 +161,8 @@ inline Reflex::Detail::Module::AbstractMember::AbstractMember(Module & module, I
 	module.m_num_member++;
 	module.m_ordered_members |= priority;
 }
+
+REFLEX_ENABLE_WARNINGS
 
 template <class TYPE> inline void Reflex::Detail::Module::Member<TYPE>::OnInit()
 {

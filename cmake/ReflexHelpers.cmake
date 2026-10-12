@@ -189,9 +189,11 @@ endfunction()
 function(_reflex_link_apple_app_frameworks target)
     target_link_libraries(${target} PRIVATE
         "-framework Cocoa"
+        "-framework DiskArbitration"
         "-framework Metal"
         "-framework QuartzCore"
-        "-framework DiskArbitration"
+        "-framework Network"
+        "-framework Security"
     )
 endfunction()
 
@@ -202,6 +204,8 @@ function(_reflex_link_apple_ios_frameworks target)
         "-framework QuartzCore"
         "-framework Foundation"
         "-framework UniformTypeIdentifiers"
+        "-framework Network"
+        "-framework Security"
     )
 endfunction()
 
@@ -215,6 +219,8 @@ function(_reflex_link_apple_audio_frameworks target)
             "-framework CoreAudioKit"
             "-framework CoreMIDI"
             "-framework CoreAudio"
+            "-framework Network"
+            "-framework Security"
         )
     else()
         target_link_libraries(${target} PRIVATE
@@ -224,6 +230,8 @@ function(_reflex_link_apple_audio_frameworks target)
             "-framework QuartzCore"
             "-framework CoreMIDI"
             "-framework CoreAudio"
+            "-framework Network"
+            "-framework Security"
         )
     endif()
 endfunction()
@@ -232,6 +240,8 @@ function(_reflex_link_apple_console_frameworks target)
     target_link_libraries(${target} PRIVATE
         "-framework Cocoa"
         "-framework DiskArbitration"
+        "-framework Network"
+        "-framework Security"
     )
 endfunction()
 
@@ -585,7 +595,7 @@ function(_reflex_build_inline_aax)
 
     set(_aax_sdk "${REFLEX_ROOT}/src/reflex/system/common/instance/ext/aax/SDK")
     if(REFLEX_PLATFORM_MACOS)
-        set(_aax_unity "${REFLEX_ROOT}/src/reflex/system/osx_aax.mm")
+        set(_aax_unity "${REFLEX_ROOT}/src/reflex/system/macos_aax.mm")
     else()
         set(_aax_unity "${REFLEX_ROOT}/src/reflex/system/win_aax.cpp")
     endif()
@@ -611,14 +621,30 @@ endfunction()
 
 
 # =========================================================
-# Internal: create one plugin format target
+# Internal: compiled xdg-shell protocol bindings (Linux Wayland)
 # =========================================================
+# Bindings are generated once and stored alongside the Wayland backend.
+# These files are pending; Wayland is not part of the initial Linux release.
+function(_reflex_linux_wayland_protocol out)
+    set(${out} "_ReflexWaylandProtocol" PARENT_SCOPE)
+    if(TARGET _ReflexWaylandProtocol)
+        return()
+    endif()
+
+    set(_protocol_dir "${REFLEX_ROOT}/src/reflex/system/linux/ui/wayland")
+    add_library(_ReflexWaylandProtocol STATIC
+        "${_protocol_dir}/xdg-shell-protocol.c"
+        "${_protocol_dir}/xdg-shell-client-protocol.h")
+    set_target_properties(_ReflexWaylandProtocol PROPERTIES
+        POSITION_INDEPENDENT_CODE ON)
+    target_include_directories(_ReflexWaylandProtocol PUBLIC "${_protocol_dir}")
+endfunction()
 
 # =========================================================
 # Internal: map a plugin format to its platform system-entry TU
 # =========================================================
 # Returns in <out> the absolute path to the per-platform unity source for
-# <basename> (e.g. "vst3" -> src/reflex/system/osx_vst3.mm on macOS), or empty
+# <basename> (e.g. "vst3" -> src/reflex/system/macos_vst3.mm on macOS), or empty
 # if no such source exists for the current platform / source tree.
 function(_reflex_platform_unity_source basename out)
     set(${out} "" PARENT_SCOPE)
@@ -627,7 +653,7 @@ function(_reflex_platform_unity_source basename out)
     elseif(REFLEX_PLATFORM_IOS)
         set(_cand "${REFLEX_ROOT}/src/reflex/system/ios_${basename}.mm")
     elseif(REFLEX_PLATFORM_MACOS)
-        set(_cand "${REFLEX_ROOT}/src/reflex/system/osx_${basename}.mm")
+        set(_cand "${REFLEX_ROOT}/src/reflex/system/macos_${basename}.mm")
     elseif(REFLEX_PLATFORM_LINUX)
         set(_cand "${REFLEX_ROOT}/src/reflex/system/linux_${basename}.cpp")
     else()
@@ -663,6 +689,22 @@ function(_reflex_resolve_target_lib alias basename out)
                     _reflex_init_target(${_srctgt} APPLE_DEPLOYMENT_TARGET 10.15)
                 else()
                     _reflex_init_target(${_srctgt})
+                endif()
+                if(REFLEX_PLATFORM_LINUX)
+                    set_target_properties(${_srctgt} PROPERTIES
+                        POSITION_INDEPENDENT_CODE ON)
+                    if(REFLEX_LINUX_BACKEND STREQUAL "wayland")
+                        _reflex_linux_wayland_protocol(_wayland)
+                        target_compile_definitions(${_srctgt} PRIVATE REFLEX_LINUX_BACKEND_WAYLAND=1)
+                        target_link_libraries(${_srctgt} PUBLIC ${_wayland})
+                    else()
+                        target_compile_definitions(${_srctgt} PRIVATE REFLEX_LINUX_BACKEND_X11=1)
+                    endif()
+                    target_link_libraries(${_srctgt} PUBLIC ${REFLEX_LINUX_LINK_LIBS})
+                    if(alias STREQUAL "TargetAudioApp")
+                        pkg_check_modules(ReflexLinuxAudio REQUIRED IMPORTED_TARGET GLOBAL alsa)
+                        target_link_libraries(${_srctgt} PUBLIC PkgConfig::ReflexLinuxAudio)
+                    endif()
                 endif()
                 # ObjC++ entry TUs (.mm) are MRC, matching the prebuilt libs
                 # (no CLANG_ENABLE_OBJC_ARC → MRC default). The macOS entry
@@ -771,6 +813,34 @@ function(_reflex_add_plugin_format base_target format sources name vendor versio
         # this the module is <name>.dll and collides with the CLAP target's .dll.
         if(REFLEX_PLATFORM_WINDOWS)
             set_target_properties(${_t} PROPERTIES SUFFIX ".vst3")
+        elseif(REFLEX_PLATFORM_LINUX)
+            # Linux VST3 bundles contain a separate shared library per architecture.
+            set(_arch "${CMAKE_SYSTEM_PROCESSOR}")
+            if(_arch STREQUAL "amd64")
+                set(_arch "x86_64")
+            elseif(_arch STREQUAL "arm64")
+                set(_arch "aarch64")
+            endif()
+            set_property(TARGET ${_t} PROPERTY SUFFIX ".so")
+            set(_bundle_path "${name}.vst3/Contents/${_arch}-linux")
+
+            set(_configs ${CMAKE_CONFIGURATION_TYPES} ${CMAKE_BUILD_TYPE} Debug Release)
+            list(REMOVE_DUPLICATES _configs)
+            foreach(_config IN LISTS _configs)
+                string(TOUPPER "${_config}" _upper)
+                get_target_property(_directory ${_t} "LIBRARY_OUTPUT_DIRECTORY_${_upper}")
+                if(_directory)
+                    set_property(TARGET ${_t} PROPERTY "LIBRARY_OUTPUT_DIRECTORY_${_upper}"
+                        "${_directory}/${_bundle_path}")
+                endif()
+            endforeach()
+
+            get_target_property(_directory ${_t} LIBRARY_OUTPUT_DIRECTORY)
+            if(NOT _directory)
+                set(_directory "${CMAKE_CURRENT_BINARY_DIR}")
+            endif()
+            set_property(TARGET ${_t} PROPERTY LIBRARY_OUTPUT_DIRECTORY
+                "${_directory}/${_bundle_path}")
         endif()
 
         if(REFLEX_PLATFORM_MACOS)
@@ -807,8 +877,8 @@ function(_reflex_add_plugin_format base_target format sources name vendor versio
         target_link_libraries(${_t} PRIVATE ${_fmtlib})
 
         # See VST3 above: match the canonical VS project (CLAP.vcxproj
-        # TargetExt=.clap) and emit a flat <name>.clap module on Windows.
-        if(REFLEX_PLATFORM_WINDOWS)
+        # TargetExt=.clap) and emit a flat <name>.clap module on Windows and Linux.
+        if(REFLEX_PLATFORM_WINDOWS OR REFLEX_PLATFORM_LINUX)
             set_target_properties(${_t} PROPERTIES SUFFIX ".clap")
         endif()
 
@@ -899,14 +969,14 @@ function(_reflex_add_plugin_format base_target format sources name vendor versio
         endif()
 
         # No prebuilt .a exists for AUv3 — build the platform-specific unity
-        # TU inline. osx_auv3.mm pulls in Cocoa/AppKit; ios_auv3.mm pulls in
+        # TU inline. macos_auv3.mm pulls in Cocoa/AppKit; ios_auv3.mm pulls in
         # UIKit. They are mutually exclusive — building the wrong one yields
         # missing-header errors.
         if(NOT TARGET Reflex::TargetAUv3)
             if(REFLEX_PLATFORM_IOS)
                 set(_auv3_unity "${REFLEX_ROOT}/src/reflex/system/ios_auv3.mm")
             else()
-                set(_auv3_unity "${REFLEX_ROOT}/src/reflex/system/osx_auv3.mm")
+                set(_auv3_unity "${REFLEX_ROOT}/src/reflex/system/macos_auv3.mm")
             endif()
             reflex_add_target(_ReflexSrc_TargetAUv3 TYPE STATIC_LIBRARY SOURCES "${_auv3_unity}")
             target_include_directories(_ReflexSrc_TargetAUv3 PRIVATE
@@ -987,19 +1057,33 @@ function(_reflex_add_plugin_format base_target format sources name vendor versio
 
         if(NOT REFLEX_PLATFORM_IOS)
             target_link_libraries(${_t} PRIVATE
-                "-framework Cocoa" "-framework Metal" "-framework QuartzCore"
-                "-framework DiskArbitration" "-framework OpenGL"
-                "-framework CoreMIDI" "-framework CoreAudio"
-                "-framework AudioToolbox" "-framework AVFoundation"
+                "-framework Cocoa"
+                "-framework DiskArbitration"
+                "-framework Metal"
+                "-framework QuartzCore"
+                "-framework OpenGL"
+                "-framework CoreMIDI"
+                "-framework CoreAudio"
+                "-framework AudioToolbox"
+                "-framework AVFoundation"
+                "-framework Network"
+                "-framework Security"
             )
         else()
             target_link_libraries(${_t} PRIVATE
-                "-framework UIKit" "-framework Metal" "-framework QuartzCore"
-                "-framework Foundation" "-framework UniformTypeIdentifiers"
+                "-framework UIKit"
+                "-framework Metal"
+                "-framework QuartzCore"
+                "-framework Foundation"
+                "-framework UniformTypeIdentifiers"
                 "-framework QuickLook"
-                "-framework CoreMIDI" "-framework CoreAudio"
+                "-framework CoreMIDI"
+                "-framework CoreAudio"
                 "-framework CoreAudioKit"
-                "-framework AudioToolbox" "-framework AVFoundation"
+                "-framework AudioToolbox"
+                "-framework AVFoundation"
+                "-framework Network"
+                "-framework Security"
             )
         endif()
 
@@ -1024,6 +1108,8 @@ function(_reflex_add_plugin_format base_target format sources name vendor versio
         target_link_libraries(${_t} PRIVATE Reflex::TargetAAX)
 
         if(REFLEX_PLATFORM_MACOS)
+            reflex_target_set_macos_exported_symbols(${_t}
+                "${REFLEX_ROOT}/resources/macos/aax_exports.txt")
             # .aaxplugin is a standard macOS bundle: Contents/MacOS/<name>.
             _reflex_resolve_package_id(_package_id "${vendor}" "${name}" "${package_id_vendor}" "${package_id_product}")
             _reflex_generate_plist(_plist ${_t} "${name}" "${name}" "${vendor}" "${version}" "aax"
@@ -1037,19 +1123,27 @@ function(_reflex_add_plugin_format base_target format sources name vendor versio
             )
             target_link_options(${_t} PRIVATE -ObjC)
             target_link_libraries(${_t} PRIVATE
-                "-framework Cocoa" "-framework Metal" "-framework QuartzCore"
-                "-framework DiskArbitration" "-framework OpenGL"
-                "-framework CoreMIDI" "-framework CoreAudio"
-                "-framework AudioToolbox" "-framework AVFoundation"
+                "-framework Cocoa"
+                "-framework DiskArbitration"
+                "-framework Metal"
+                "-framework QuartzCore"
+                "-framework OpenGL"
+                "-framework CoreMIDI"
+                "-framework CoreAudio"
+                "-framework AudioToolbox"
+                "-framework AVFoundation"
+                "-framework Network"
+                "-framework Security"
             )
         endif()
 
         if(REFLEX_PLATFORM_WINDOWS)
             # Windows .aaxplugin is a folder: <name>.aaxplugin/Contents/x64/<name>.aaxplugin
             # The SDK entry points are exported by AAX_Exports.cpp in the umbrella.
+            # $<0:> stops multi-config generators appending a per-config subfolder.
             set_target_properties(${_t} PROPERTIES
                 SUFFIX ".aaxplugin"
-                LIBRARY_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/${name}.aaxplugin/Contents/x64")
+                LIBRARY_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/${name}.aaxplugin/Contents/x64$<0:>")
         endif()
 
         # PACE wraptool signing — optional, skipped gracefully without creds.
@@ -1111,32 +1205,9 @@ function(_reflex_add_plugin_format base_target format sources name vendor versio
         "${CMAKE_CURRENT_SOURCE_DIR}/resources.xml" ABSOLUTE)
     _reflex_add_resource_build(${_t} "${_resources_xml}")
 
-    # After every step that writes into the bundle, and before the copy below.
+    # After every step that writes into the bundle.
     if(NOT format STREQUAL "AUv3" AND NOT format STREQUAL "AAX")
         _reflex_codesign_bundle(${_t} "${format}")
-    endif()
-
-    # Optional: copy built plugins to user plugin folders after build
-    if(REFLEX_COPY_PLUGINS_AFTER_BUILD AND REFLEX_PLATFORM_MACOS AND NOT format STREQUAL "Standalone")
-        set(_user_plugins "$ENV{HOME}/Library/Audio/Plug-Ins")
-        if(format STREQUAL "VST3")
-            set(_dest "${_user_plugins}/VST3/${name}.vst3")
-        elseif(format STREQUAL "CLAP")
-            set(_dest "${_user_plugins}/CLAP/${name}.clap")
-        elseif(format STREQUAL "AU")
-            set(_dest "${_user_plugins}/Components/${name}.component")
-        elseif(format STREQUAL "VST2")
-            set(_dest "${_user_plugins}/VST/${name}.vst")
-        else()
-            set(_dest "")
-        endif()
-        if(_dest)
-            add_custom_command(TARGET ${_t} POST_BUILD
-                COMMAND "${CMAKE_COMMAND}" -E copy_directory
-                    "$<TARGET_BUNDLE_DIR:${_t}>" "${_dest}"
-                COMMENT "Copying ${format} to ${_dest}"
-            )
-        endif()
     endif()
 
 endfunction()
@@ -1237,6 +1308,10 @@ function(reflex_add_audio_plugin target)
         "NAME;VENDOR;VERSION;PACKAGE_ID_VENDOR;PACKAGE_ID_PRODUCT;AU_COMPONENTS;AU_VENDOR_4CC;AAX_WRAP_GUID;AAX_SIGN_ID;AAX_ACCOUNT;APPLE_DEPLOYMENT_TARGET"
         "FORMATS;SOURCES" ${ARGN})
 
+    if(REFLEX_COPY_PLUGINS_AFTER_BUILD)
+        message(WARNING "REFLEX_COPY_PLUGINS_AFTER_BUILD is no longer supported; call reflex_copy_plugin_after_build for each plugin target")
+    endif()
+
     if(NOT A_FORMATS)
         message(WARNING "reflex_add_audio_plugin: no FORMATS specified for '${target}'")
         return()
@@ -1291,6 +1366,110 @@ function(reflex_add_audio_plugin target)
         endif()
     endif()
 
+endfunction()
+
+
+# =========================================================
+# reflex_copy_plugin_after_build
+# =========================================================
+# Copies a plugin target created by reflex_add_audio_plugin into DESTINATION
+# after every build. Without DESTINATION it copies to the per-user plugin
+# folder for FORMAT, or to the system folder where there is no per-user one:
+#   macOS:   ~/Library/Audio/Plug-Ins/{VST3,CLAP,Components,VST}
+#            /Library/Application Support/Avid/Audio/Plug-Ins (AAX)
+#   Windows: %LOCALAPPDATA%/Programs/Common/{VST3,CLAP}
+#            %ProgramFiles%/Steinberg/VstPlugins (VST2)
+#            %CommonProgramFiles%/Avid/Audio/Plug-Ins (AAX)
+# System folders may need elevated permissions.
+#
+# Usage:
+#   reflex_copy_plugin_after_build(
+#       TARGET      MyPlugin_VST3
+#       FORMAT      VST3
+#       DESTINATION "/path/to/test-host/plugins"   # optional
+#   )
+
+function(reflex_copy_plugin_after_build)
+    cmake_parse_arguments(A "" "TARGET;FORMAT;DESTINATION" "" ${ARGN})
+
+    if(NOT A_TARGET OR NOT A_FORMAT)
+        message(FATAL_ERROR "reflex_copy_plugin_after_build: TARGET and FORMAT are required")
+    endif()
+    if(NOT TARGET ${A_TARGET})
+        message(FATAL_ERROR "reflex_copy_plugin_after_build: unknown target '${A_TARGET}'")
+    endif()
+
+    if(A_FORMAT STREQUAL "VST3")
+        set(_ext "vst3")
+    elseif(A_FORMAT STREQUAL "CLAP")
+        set(_ext "clap")
+    elseif(A_FORMAT STREQUAL "AU")
+        set(_ext "component")
+    elseif(A_FORMAT STREQUAL "VST2")
+        set(_ext "vst")
+    elseif(A_FORMAT STREQUAL "AAX")
+        set(_ext "aaxplugin")
+    else()
+        message(FATAL_ERROR "reflex_copy_plugin_after_build: unsupported FORMAT '${A_FORMAT}' (VST3 CLAP AU VST2 AAX)")
+    endif()
+
+    if(NOT A_DESTINATION)
+        if(REFLEX_PLATFORM_MACOS)
+            set(_user_plugins "$ENV{HOME}/Library/Audio/Plug-Ins")
+            if(A_FORMAT STREQUAL "VST3")
+                set(A_DESTINATION "${_user_plugins}/VST3")
+            elseif(A_FORMAT STREQUAL "CLAP")
+                set(A_DESTINATION "${_user_plugins}/CLAP")
+            elseif(A_FORMAT STREQUAL "AU")
+                set(A_DESTINATION "${_user_plugins}/Components")
+            elseif(A_FORMAT STREQUAL "VST2")
+                set(A_DESTINATION "${_user_plugins}/VST")
+            elseif(A_FORMAT STREQUAL "AAX")
+                set(A_DESTINATION "/Library/Application Support/Avid/Audio/Plug-Ins")
+            endif()
+        elseif(REFLEX_PLATFORM_WINDOWS)
+            file(TO_CMAKE_PATH "$ENV{LOCALAPPDATA}" _local_app_data)
+            if(A_FORMAT STREQUAL "VST3")
+                set(A_DESTINATION "${_local_app_data}/Programs/Common/VST3")
+            elseif(A_FORMAT STREQUAL "CLAP")
+                set(A_DESTINATION "${_local_app_data}/Programs/Common/CLAP")
+            elseif(A_FORMAT STREQUAL "VST2")
+                file(TO_CMAKE_PATH "$ENV{ProgramFiles}" _program_files)
+                set(A_DESTINATION "${_program_files}/Steinberg/VstPlugins")
+                message(WARNING "reflex_copy_plugin_after_build: Windows has no standard VST2 folder; "
+                    "copying ${A_TARGET} to ${A_DESTINATION}. Pass DESTINATION to use your host's VST2 folder.")
+            elseif(A_FORMAT STREQUAL "AAX")
+                file(TO_CMAKE_PATH "$ENV{CommonProgramFiles}" _common_program_files)
+                set(A_DESTINATION "${_common_program_files}/Avid/Audio/Plug-Ins")
+            endif()
+        endif()
+        if(NOT A_DESTINATION)
+            message(FATAL_ERROR "reflex_copy_plugin_after_build: no default ${A_FORMAT} folder on this platform; pass DESTINATION")
+        endif()
+    endif()
+
+    if(REFLEX_PLATFORM_MACOS)
+        add_custom_command(TARGET ${A_TARGET} POST_BUILD
+            COMMAND "${CMAKE_COMMAND}" -E copy_directory
+                "$<TARGET_BUNDLE_DIR:${A_TARGET}>"
+                "${A_DESTINATION}/$<TARGET_FILE_BASE_NAME:${A_TARGET}>.${_ext}"
+            COMMENT "Copying ${A_TARGET} to ${A_DESTINATION}")
+    elseif(A_FORMAT STREQUAL "AAX")
+        # Windows .aaxplugin is a folder in the target's binary dir: <name>.aaxplugin/Contents/x64/<name>.aaxplugin
+        get_target_property(_bin_dir ${A_TARGET} BINARY_DIR)
+        get_target_property(_name ${A_TARGET} OUTPUT_NAME)
+        add_custom_command(TARGET ${A_TARGET} POST_BUILD
+            COMMAND "${CMAKE_COMMAND}" -E copy_directory
+                "${_bin_dir}/${_name}.aaxplugin"
+                "${A_DESTINATION}/${_name}.aaxplugin"
+            COMMENT "Copying ${A_TARGET} to ${A_DESTINATION}")
+    else()
+        add_custom_command(TARGET ${A_TARGET} POST_BUILD
+            COMMAND "${CMAKE_COMMAND}" -E make_directory "${A_DESTINATION}"
+            COMMAND "${CMAKE_COMMAND}" -E copy_if_different
+                "$<TARGET_FILE:${A_TARGET}>" "${A_DESTINATION}/"
+            COMMENT "Copying ${A_TARGET} to ${A_DESTINATION}")
+    endif()
 endfunction()
 
 

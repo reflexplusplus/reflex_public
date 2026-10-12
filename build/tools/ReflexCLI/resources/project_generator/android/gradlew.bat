@@ -24,7 +24,7 @@ if not defined JAVA_EXE (
 	exit /b 1
 )
 pushd "%APP_HOME%" || exit /b 1
-"%JAVA_EXE%" -classpath "%APP_HOME%gradle\wrapper\gradle-wrapper.jar" org.gradle.wrapper.GradleWrapperMain %*
+"%JAVA_EXE%" --enable-native-access=ALL-UNNAMED -classpath "%APP_HOME%gradle\wrapper\gradle-wrapper.jar" org.gradle.wrapper.GradleWrapperMain %*
 set "GRADLE_EXIT_CODE=%ERRORLEVEL%"
 popd
 endlocal & exit /b %GRADLE_EXIT_CODE%

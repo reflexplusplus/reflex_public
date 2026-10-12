@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>[TITLE]</title>
+<style>
+html, body { margin: 0; overflow: hidden; background: white; font: 14px system-ui; }
+header { display: flex; align-items: center; gap: 8px; padding: 8px; }
+canvas { display: block; }
+#loading { position: absolute; inset: 0; display: grid; place-items: center; color: #555; pointer-events: none; }
+#loading[hidden] { display: none; }
+#stage { position: relative; min-height: calc(100vh - 48px); }
+#status { margin: 0; padding: 8px; white-space: pre-wrap; }
+</style>
+</head>
+<body>
+<header><button id="fit" disabled aria-pressed="false">Fit</button></header>
+<pre id="status" hidden role="alert"></pre>
+<main id="stage">
+    <div id="loading" role="status">Loading… 0%</div>
+    <canvas id="screen"></canvas>
+</main>
+<script type="module">
+import { startReflex } from "./runtime/runtime.js";
+const status = document.querySelector("#status");
+const loading = document.querySelector("#loading");
+const onProgress = ({ loaded, total, done }) => {
+    loading.textContent = done ? "Loaded 100% — starting…" : total ? `Loading… ${Math.min(99, Math.floor(loaded * 100 / total))}%` : `Loading… ${(loaded / (1024 * 1024)).toFixed(1)} MiB`;
+};
+const fail = error => { loading.hidden = true; status.hidden = false; status.textContent = error?.stack || String(error); };
+try {
+    const app = await startReflex({
+        moduleUrl: "[MODULE]" + "?[GENERATE_TIMESTAMP]", canvas: document.querySelector("#screen"),
+        initialBytes: 32 * 1024 * 1024, maximumBytes: 512 * 1024 * 1024, onError: fail, onProgress,
+    });
+    loading.hidden = true;
+    const fitButton = document.querySelector("#fit");
+    fitButton.disabled = false;
+    fitButton.onclick = () => {
+        const fit = fitButton.getAttribute("aria-pressed") !== "true";
+        app.setFit(fit);
+        fitButton.setAttribute("aria-pressed", String(fit));
+    };
+} catch (error) { fail(error); }
+</script>
+</body>
+</html>

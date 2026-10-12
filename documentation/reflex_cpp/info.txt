@@ -732,10 +732,10 @@
 #p UInt8 GetModifierKeys(const Event & e); //Modifier key flags.
 #p KeyCode GetKeyCode(const Event & e);    //Key code from key events.
 #p WChar GetKeyCharacter(const Event & e);    //Character from key events.
-#p TRef<Menu> GetMenu(Event & e);          //Returns Menu from kMenuOpen event.
-#p TRef<Menu> GetMenu(Event & e, Key32 context); //Same, filtered by context.
+#p AlreadyRetained <Menu> GetMenu(Event & e);          //Returns Menu from kMenuOpen event.
+#p AlreadyRetained <Menu> GetMenu(Event & e, Key32 context); //Same, filtered by context.
 #p Transaction GetTransactionStage(const Event & e); //Retrieve transaction stage.
-#p TRef<Object> GetDragSource(Event & e);  //Retrieve drag source.
+#p AlreadyRetained <Object> GetDragSource(Event & e);  //Retrieve drag source.
 </code>
 
 #h1 Example: Custom Event End-to-End
@@ -2332,7 +2332,7 @@ See also Bootstrap::Detail::SetStyle.
 #p m_drag_drop_visualiser = GLX::CreateDragDropBeginListener([this](Reflex::Object & drag_data)
 #p {
 #p 	auto origin = GLX::GetFocus();
-#p 	TRef <GLX::WindowClient> window = origin->GetWindow();
+#p 	auto window = origin->GetWindow();
 #p 
 #p 	//create drag cursor
 #p 	auto cursor = New<GLX::Object>();
@@ -5528,6 +5528,94 @@ See also Bootstrap::Detail::SetStyle.
 
 223:
 {
+	@WString Description: "#p Reflex's standard binary PropertySet serializer. Use kPropertySetFormat for application data, presets, and other Reflex-internal persistence. It preserves the supported property types and nested structure, including multiple typed values stored under the same property ID.
+
+#p Property IDs are stored as Key32 values. A KeyMap is not required to encode or decode this format; if present, it is serialized as a supported map property.
+
+#h1 Encoding and decoding
+
+<code>
+#p Data::PropertySet data;
+#p Data::SetInt32(data, $qversion$q, 1);
+#p Data::SetCString(data, $qtitle$q, $qExample$q);
+#p auto child = Data::AcquirePropertySet(data, $qsettings$q);
+#p Data::SetFloat32Array(child, $qvalues$q, {1.0f, 2.0f});
+#p
+#p auto bytes = Data::EncodePropertySet(Data::kPropertySetFormat, data);
+#p File::Save(path, bytes);
+#p
+#p auto restored = Data::DecodePropertySet(Data::kPropertySetFormat, File::Open(path));
+#p auto settings = Data::GetPropertySet(restored, $qsettings$q);
+#p auto values = Data::GetFloat32Array(settings, $qvalues$q);
+</code>
+
+#h1 Supported types
+
+#p The standard format has serializers for the following object types.
+
+#h2 Structure and null values
+<list>
+#p PropertySet
+#p PropertySetArray
+#p Object (restored as Object::null, for JSON null values)
+</list>
+
+#h2 Scalar properties
+<list>
+#p BoolProperty
+#p UInt8Property
+#p ObjectOf<UInt16>
+#p UInt32Property
+#p UInt64Property
+#p ObjectOf<Int8>
+#p ObjectOf<Int16>
+#p Int32Property
+#p Int64Property
+#p Float32Property
+#p Float64Property
+#p CStringProperty
+#p WStringProperty
+#p Key32Property
+</list>
+
+#h2 Binary data and arrays
+<list>
+#p ArchiveObject (also named BinaryProperty; ObjectOf<Array<UInt8>>)
+#p ArrayOfUInt32Property
+#p ArrayOfUInt64Property
+#p ArrayOfInt32Property
+#p ArrayOfInt64Property
+#p ArrayOfFloat32Property
+#p ArrayOfFloat64Property
+#p ArrayOfCStringProperty
+#p ArrayOfWStringProperty
+#p ArrayOfKey32Property
+</list>
+
+#p Arrays of bool, UInt16, Int8, and Int16 are not supported by the standard format.
+
+#h2 Key32 maps
+<list>
+#p MapOfKey32Property<NullType>
+#p MapOfKey32Property<bool>
+#p MapOfKey32Property<UInt32>
+#p MapOfKey32Property<UInt64>
+#p MapOfKey32Property<Int32>
+#p MapOfKey32Property<Int64>
+#p MapOfKey32Property<Float32>
+#p MapOfKey32Property<Float64>
+#p MapOfKey32Property<Key32>
+#p MapOfKey32Property<Archive>
+#p MapOfKey32Property<CString> (also named KeyMap)
+#p MapOfKey32Property<WString>
+</list>
+
+#h1 Unsupported types and errors
+
+#p Only registered types are serialized. Unsupported property types are omitted during encoding and an error is logged. Check kPropertySetFormat->SupportsType(REFLEX_TYPEID(T)) when storing a property object type whose support is uncertain.
+
+#p Decoding reports invalid headers, invalid streams, unsupported versions, and unknown serialized types through Data::GetError on the returned PropertySet.";
+
 	Path: ["Reflex", "Data", "kPropertySetFormat"];
 
 	Module: ["Reflex", "Data", "Format"];

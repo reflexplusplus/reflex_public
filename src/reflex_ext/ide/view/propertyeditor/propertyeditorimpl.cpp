@@ -8,6 +8,7 @@
 
 REFLEX_BEGIN_INTERNAL(Reflex::IDE::Detail)
 
+/*
 struct PropertyEditorImpl::Dialog : public GLX::Object
 {
 public:
@@ -76,11 +77,11 @@ private:
 
 	friend Dialog;
 
-	virtual bool OnEvent(GLX::Object & src, GLX::Event & e) override;
+	bool OnEvent(GLX::Object & src, GLX::Event & e) override;
 
-	virtual void OnSetStyle(const GLX::Style & style) override;
+	void OnSetStyle(const GLX::Style & style) override;
 
-	virtual void OnUpdate() override;
+	void OnUpdate() override;
 
 
 
@@ -93,6 +94,7 @@ private:
 	bool m_edited = false;
 
 };
+*/
 
 struct PropertyEditorImpl::ModificationScope
 {
@@ -692,6 +694,7 @@ Data::PropertySet * PropertyEditorImpl::PropertyEditorImpl::GetNext(Data::Proper
 	return 0;
 }
 
+/*
 bool PropertyEditorImpl::PropertyEditorImpl::BeginAddNode(View & view, Data::PropertySet & parent)
 {
 	//constexpr auto OnDone = [](const Array <Dialog::Field*> & fields, PropertyEditorImpl & view, Data::PropertySet & parent)
@@ -728,6 +731,7 @@ bool PropertyEditorImpl::PropertyEditorImpl::BeginAddNode(View & view, Data::Pro
 
 	return true;
 }
+*/
 
 void PropertyEditorImpl::PropertyEditorImpl::RemoveNode(View & view, Data::PropertySet & node)
 {
@@ -1029,6 +1033,7 @@ void PropertyEditorImpl::PopulateProperties()
 	}
 }
 
+/*
 PropertyEditorImpl::Dialog::Field::Field(const Interface::PropertyRef & propertyref)
 	: m_textedit(false)
 {
@@ -1236,6 +1241,7 @@ bool PropertyEditorImpl::Dialog::OnDragDropReceiveExternal(const Reflex::Object 
 
 	return true;
 }
+*/
 
 const Key32 PropertyEditorImpl::PropertyEditorImpl::kTypeLabelID = "type";
 

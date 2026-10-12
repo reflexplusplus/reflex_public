@@ -147,7 +147,8 @@ template <class auto_t> REFLEX_INLINE auto Retain(auto_t && objectref)
 		object.RetainMt();
 	}
 
-	return AlreadyRetained(object);
+	//return AlreadyRetained(object);
+	return AlreadyRetained<NonRefT<decltype(object)>>(object);	//MSVC 14.51 WORKAROUND
 }
 
 template <class auto_t> REFLEX_INLINE void Release(auto_t && objectref)

@@ -173,15 +173,6 @@ namespace ReflexCLI::Documentation
 		return index(type, usage_index);
 	}
 
-	template <typename TYPE> inline Array <Array <TYPE>> CopyOwned(ArrayView <ArrayView <TYPE>> items);
-
-	template <typename TYPE> inline Array <Array <TYPE>> CopyOwned(const Array <ArrayView <TYPE>> & items);
-
-	template <typename TYPE> inline Array <ArrayView <TYPE>> CopyUnowned(ArrayView < Array <TYPE> > items);
-
-	template <typename TYPE> inline Array <ArrayView <TYPE>> CopyUnowned(const Array <Array <TYPE>> & items);
-
-
 	inline constexpr CString::View kModuleCategory = "module";
 	inline constexpr CString::View kNamespaceSubCategory = "namespace";
 	inline constexpr CString::View kGroupSubCategory = "group";
@@ -207,7 +198,7 @@ namespace ReflexCLI::Documentation
 
 
 //
-//
+//impl
 
 inline Reflex::Data::Table::ConstRowCursor ReflexCLI::Documentation::FindSymbol(const Data::Table & table, Docformat::Symbol symbol)
 {
@@ -217,36 +208,4 @@ inline Reflex::Data::Table::ConstRowCursor ReflexCLI::Documentation::FindSymbol(
 inline Reflex::WString ReflexCLI::Documentation::GetDescription(const SymbolInfo & info)
 {
 	return Data::GetWString(info.record, kDescription);
-}
-
-template <typename TYPE> inline Reflex::Array <Reflex::Array <TYPE>> ReflexCLI::Documentation::CopyOwned(ArrayView <ArrayView <TYPE>> items)
-{
-	Array < Array <TYPE> > rtn;
-
-	rtn.Allocate(items.size);
-
-	for (auto & i : items) rtn.Push(i);
-
-	return rtn;
-}
-
-template <typename TYPE> inline Reflex::Array <Reflex::Array <TYPE>> ReflexCLI::Documentation::CopyOwned(const Array <ArrayView <TYPE>> & items)
-{
-	return CopyOwned(ToView(items));
-}
-
-template <typename TYPE> inline Reflex::Array <Reflex::ArrayView <TYPE>> ReflexCLI::Documentation::CopyUnowned(ArrayView < Array <TYPE> > items)
-{
-	Array < ArrayView <TYPE> > rtn;
-
-	rtn.Allocate(items.size);
-
-	for (auto & i : items) rtn.Push(i);
-
-	return rtn;
-}
-
-template <typename TYPE> inline Reflex::Array <Reflex::ArrayView <TYPE>> ReflexCLI::Documentation::CopyUnowned(const Array <Array <TYPE>> & items)
-{
-	return CopyUnowned(ToView(items));
 }

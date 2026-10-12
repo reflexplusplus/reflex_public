@@ -50,8 +50,6 @@ Idx g_abstract_list_idx;
 
 bool g_abstract_list_dragging = false;
 
-UInt8 g_abstract_list_modifierflags = 0;
-
 constexpr KeyCode kPrevKey[2] = { kKeyCodeLeft, kKeyCodeUp };
 
 constexpr KeyCode kNextKey[2] = { kKeyCodeRight, kKeyCodeDown };

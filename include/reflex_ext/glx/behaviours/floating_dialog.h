@@ -42,11 +42,11 @@ public:
 
 private:
 
-	virtual void OnAttachObject() override;
+	void OnAttachObject() override;
 
-	virtual void OnDetachObject() override;
+	void OnDetachObject() override;
 
-	virtual void OnAttachWindow() override;
+	void OnAttachWindow() override;
 
 
 	Reference <ResizeBehaviour> m_resize;

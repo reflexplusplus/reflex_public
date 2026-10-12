@@ -402,6 +402,10 @@ struct PropertySheetInterface : public Data::Detail::PropertySheetInterface
 			RequireAnonymous();
 			return CreatePlatform(keymap, parent, kBuildPlatformLinux);
 
+		case K32("web"):
+			RequireAnonymous();
+			return CreatePlatform(keymap, parent, kBuildPlatformWeb);
+
 		case K32("Configuration"):
 			RequireNamed();
 			RequireStructure(CheckParent(parent, kPropertySetTypePlatform), "Configuration is only valid in a platform");
@@ -717,6 +721,14 @@ struct FormatHolder
 			AddKnown<Data::CStringProperty>(rules, kAndroidSigningProperties);
 			break;
 
+		case kBuildPlatformWeb:
+			AddKnown<Data::CStringProperty>(rules, kWebEntryPage);
+			break;
+
+		case kBuildPlatformLinux:
+			AddAppendableStrings(rules, kPkgConfig);
+			break;
+
 		default:
 			break;
 		}
@@ -753,7 +765,7 @@ struct FormatHolder
 		AddKnown<Data::ArrayOfKey32Property>(structural_rules, kInherit, &HandleInherit);
 		AddFree<PlatformPropertySet>(structural_rules, &HandleStructuralChild);
 
-		REFLEX_LOOP(platform, kBuildPlatformCMake)
+		REFLEX_LOOP(platform, kNumBuildPlatform)
 		{
 			Append(platform_rules[platform], common_rules);
 			AddPlatform(platform_rules[platform], BuildPlatform(platform));
@@ -785,8 +797,8 @@ struct FormatHolder
 	PropertyRules package_rules;
 	PropertyRules common_rules;
 	PropertyRules structural_rules;
-	PropertyRules platform_rules[kBuildPlatformCMake];
-	PropertyRules configuration_rules[kBuildPlatformCMake];
+	PropertyRules platform_rules[kNumBuildPlatform];
+	PropertyRules configuration_rules[kNumBuildPlatform];
 };
 
 Reflex::Detail::Module::Member<ReflexCLI::ProjectGen::FormatHolder> g_format_holder(Bootstrap::module);

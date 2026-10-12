@@ -1,7 +1,6 @@
 #pragma once
 
-#define REFLEX_INCLUDE_UI false
-#include "reflex_ext.h"
+#include "reflex_ext/bootstrap.h"
 
 
 

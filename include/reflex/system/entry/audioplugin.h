@@ -107,7 +107,6 @@ public:
 	virtual void ReportProcessingDelay(UInt32 delay) = 0;
 
 	virtual void ReportStateChange(UInt8 change_flags) = 0;	//parameters, descriptions, note names or general state (for parameters, do not call for host automation!)
-															//kChangeParameterValues means "the values changed internally, re-read them" - update the values the callbacks report before calling
 
 
 

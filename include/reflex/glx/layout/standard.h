@@ -76,37 +76,44 @@ REFLEX_NS(Reflex::GLX)
 
 template <class AUTO> REFLEX_INLINE auto AddInline(Object & parent, AUTO && child, Orientation ortho = kOrientationFit)
 {
-	return AddInline(parent, WillRetain(Deref(child)), ortho);
+	//return AddInline(parent, WillRetain(Deref(child)), ortho);
+	return AddInline(parent, WillRetain<NonRefT<decltype(Deref(child))>>(Deref(child)), ortho);	//MSVC 14.51 WORKAROUND
 }
 
 template <class AUTO> REFLEX_INLINE auto AddInlineFlex(Object & parent, AUTO && child, Orientation ortho = kOrientationFit)
 {
-	return AddInlineFlex(parent, WillRetain(Deref(child)), ortho);
+	//return AddInlineFlex(parent, WillRetain(Deref(child)), ortho);
+	return AddInlineFlex(parent, WillRetain<NonRefT<decltype(Deref(child))>>(Deref(child)), ortho);	//MSVC 14.51 WORKAROUND
 }
 
 template <class AUTO> REFLEX_INLINE auto AddFloat(Object & parent, AUTO && child, Orientation x, Orientation y)
 {
-	return AddFloat(parent, WillRetain(Deref(child)), x, y);
+	//return AddFloat(parent, WillRetain(Deref(child)), x, y);
+	return AddFloat(parent, WillRetain<NonRefT<decltype(Deref(child))>>(Deref(child)), x, y);	//MSVC 14.51 WORKAROUND
 }
 
 template <class AUTO> REFLEX_INLINE auto AddFloat(Object & parent, AUTO && child, Alignment alignment)
 {
-	return AddFloat(parent, WillRetain(Deref(child)), alignment);
+	//return AddFloat(parent, WillRetain(Deref(child)), alignment);
+	return AddFloat(parent, WillRetain<NonRefT<decltype(Deref(child))>>(Deref(child)), alignment);	//MSVC 14.51 WORKAROUND
 }
 
 template <class AUTO> REFLEX_INLINE auto AddStretch(Object & parent, AUTO && child)
 {
-	return AddStretch(parent, WillRetain(Deref(child)));
+	//return AddStretch(parent, WillRetain(Deref(child)));
+	return AddStretch(parent, WillRetain<NonRefT<decltype(Deref(child))>>(Deref(child)));	//MSVC 14.51 WORKAROUND
 }
 
 template <class AUTO> REFLEX_INLINE auto AddAbsolute(Object & parent, AUTO && child)
 {
-	return AddAbsolute(parent, WillRetain(Deref(child)));
+	//return AddAbsolute(parent, WillRetain(Deref(child)));
+	return AddAbsolute(parent, WillRetain<NonRefT<decltype(Deref(child))>>(Deref(child)));	//MSVC 14.51 WORKAROUND
 }
 
 template <class AUTO> REFLEX_INLINE auto AddAbsolute(Object & parent, AUTO && child, Point position)
 {
-	return AddAbsolute(parent, WillRetain(Deref(child)), position);
+	//return AddAbsolute(parent, WillRetain(Deref(child)), position);
+	return AddAbsolute(parent, WillRetain<NonRefT<decltype(Deref(child))>>(Deref(child)), position);	//MSVC 14.51 WORKAROUND
 }
 
 REFLEX_END

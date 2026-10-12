@@ -112,6 +112,11 @@ elseif(APPLE)
 
 elseif(CMAKE_SYSTEM_NAME STREQUAL "Linux")
 
+    set(REFLEX_LINUX_BACKEND "x11" CACHE STRING "Linux UI backend: x11 or wayland")
+    set_property(CACHE REFLEX_LINUX_BACKEND PROPERTY STRINGS x11 wayland)
+    if(NOT REFLEX_LINUX_BACKEND STREQUAL "x11" AND NOT REFLEX_LINUX_BACKEND STREQUAL "wayland")
+        message(FATAL_ERROR "Reflex: REFLEX_LINUX_BACKEND must be x11 or wayland")
+    endif()
     set(_REFLEX_PLATFORM    "linux")
     set(_REFLEX_LIB_PREFIX  "lib")
     set(_REFLEX_LIB_SUFFIX  ".a")
@@ -119,16 +124,23 @@ elseif(CMAKE_SYSTEM_NAME STREQUAL "Linux")
     set(_REFLEX_LIB_DIR_REL "${REFLEX_ROOT}/bin/lib/linux/Release")
     find_package(Threads REQUIRED)
     find_package(CURL REQUIRED)
-    set(_REFLEX_LINUX_COMMON_LIBS "Threads::Threads;CURL::libcurl")
-    set(_REFLEX_LINUX_UI_LIBS "wayland-client;wayland-egl;EGL;GLESv2")
+    set(_REFLEX_LINUX_COMMON_LIBS "Threads::Threads;CURL::libcurl;${CMAKE_DL_LIBS}")
 
-elseif(EMSCRIPTEN)
+    # Resolve only the selected window/graphics backend. Include directories
+    # and library names come from pkg-config, matching build/lib/linux/Makefile.
+    find_package(PkgConfig REQUIRED)
+    if(REFLEX_LINUX_BACKEND STREQUAL "x11")
+        pkg_check_modules(ReflexLinuxUi REQUIRED IMPORTED_TARGET GLOBAL
+            egl glesv2 x11 x11-xcb xcb xcb-icccm xcb-cursor xcb-randr
+            xcb-xkb xcb-xtest xcb-sync xkbcommon xkbcommon-x11 dbus-1)
+    else()
+        pkg_check_modules(ReflexLinuxUi REQUIRED IMPORTED_TARGET GLOBAL
+            wayland-client wayland-egl egl glesv2 xkbcommon dbus-1)
+    endif()
+    set(_REFLEX_LINUX_UI_LIBS "PkgConfig::ReflexLinuxUi")
 
-    set(_REFLEX_PLATFORM    "webasm")
-    set(_REFLEX_LIB_PREFIX  "lib")
-    set(_REFLEX_LIB_SUFFIX  ".a")
-    set(_REFLEX_LIB_DIR_DBG "${REFLEX_ROOT}/bin/lib/webasm/Debug")
-    set(_REFLEX_LIB_DIR_REL "${REFLEX_ROOT}/bin/lib/webasm/Release")
+    set(REFLEX_LINUX_LINK_LIBS "${_REFLEX_LINUX_UI_LIBS};${_REFLEX_LINUX_COMMON_LIBS}"
+        CACHE INTERNAL "Reflex Linux system link libraries")
 
 elseif(CMAKE_SYSTEM_NAME STREQUAL "Android")
 
@@ -176,6 +188,13 @@ reflex_fetch_libs()
 function(_reflex_import_lib alias name)
     if(TARGET Reflex::${alias})
         return()
+    endif()
+
+    # Until UI code has its own backend libraries, select the variant of each
+    # target archive containing that code. Common archives share one filename.
+    if(CMAKE_SYSTEM_NAME STREQUAL "Linux" AND REFLEX_LINUX_BACKEND STREQUAL "wayland"
+       AND alias MATCHES "^Target(App|AudioApp|VST2|VST3|CLAP)$")
+        set(name "${name}_Wayland")
     endif()
 
     set(_dbg_lib  "${_REFLEX_LIB_DIR_DBG}/${_REFLEX_LIB_PREFIX}${name}${_REFLEX_LIB_SUFFIX}")
@@ -245,16 +264,76 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
             )
         endif()
     endforeach()
+
+    if(TARGET Reflex::TargetAudioApp)
+        # Only standalone audio-app consumers need ALSA; prebuilt archives
+        # need its link library but do not require its headers at configure time.
+        set_property(TARGET Reflex::TargetAudioApp APPEND PROPERTY
+            INTERFACE_LINK_LIBRARIES asound
+        )
+    endif()
+
+    # GNU ld resolves static archives in a single pass, so dependents must
+    # precede dependencies on the link line. Carrying the inter-library
+    # dependencies on the imported targets makes any consumer order link.
+    if(TARGET Reflex::CommonUi AND TARGET Reflex::Common)
+        set_property(TARGET Reflex::CommonUi APPEND PROPERTY
+            INTERFACE_LINK_LIBRARIES Reflex::Common
+        )
+    endif()
+    foreach(_linux_entry_target TargetApp TargetAudioApp)
+        if(TARGET Reflex::${_linux_entry_target} AND TARGET Reflex::CommonUi)
+            set_property(TARGET Reflex::${_linux_entry_target} APPEND PROPERTY
+                INTERFACE_LINK_LIBRARIES Reflex::CommonUi
+            )
+        endif()
+    endforeach()
+    if(TARGET Reflex::TargetConsole AND TARGET Reflex::Common)
+        set_property(TARGET Reflex::TargetConsole APPEND PROPERTY
+            INTERFACE_LINK_LIBRARIES Reflex::Common
+        )
+    endif()
+    if(TARGET Reflex::Vm)
+        if(TARGET Reflex::CommonUi)
+            set_property(TARGET Reflex::Vm APPEND PROPERTY
+                INTERFACE_LINK_LIBRARIES Reflex::CommonUi
+            )
+        endif()
+        if(TARGET Reflex::Common)
+            set_property(TARGET Reflex::Vm APPEND PROPERTY
+                INTERFACE_LINK_LIBRARIES Reflex::Common
+            )
+        endif()
+        set_property(TARGET Reflex::Vm APPEND PROPERTY
+            INTERFACE_LINK_LIBRARIES "${_REFLEX_LINUX_UI_LIBS};${_REFLEX_LINUX_COMMON_LIBS}"
+        )
+    endif()
 endif()
 
 # =========================================================
-# Plugin format targets — Windows + macOS
+# Plugin format targets — Windows + macOS + Linux
 # =========================================================
 
-if(WIN32 OR (APPLE AND NOT CMAKE_SYSTEM_NAME STREQUAL "iOS"))
+if(WIN32 OR (APPLE AND NOT CMAKE_SYSTEM_NAME STREQUAL "iOS")
+   OR CMAKE_SYSTEM_NAME STREQUAL "Linux")
     _reflex_import_lib(TargetVST3  ReflexTargetVST3)
     _reflex_import_lib(TargetCLAP  ReflexTargetCLAP)
     _reflex_import_lib(TargetVST2  ReflexTargetVST2)
+endif()
+
+if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
+    foreach(_linux_plugin_target TargetVST3 TargetCLAP TargetVST2)
+        if(TARGET Reflex::${_linux_plugin_target})
+            set_property(TARGET Reflex::${_linux_plugin_target} APPEND PROPERTY
+                INTERFACE_LINK_LIBRARIES "${_REFLEX_LINUX_UI_LIBS};${_REFLEX_LINUX_COMMON_LIBS}"
+            )
+            if(TARGET Reflex::CommonUi)
+                set_property(TARGET Reflex::${_linux_plugin_target} APPEND PROPERTY
+                    INTERFACE_LINK_LIBRARIES Reflex::CommonUi
+                )
+            endif()
+        endif()
+    endforeach()
 endif()
 
 # =========================================================

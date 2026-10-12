@@ -11,6 +11,7 @@
 #include "system/module.h"
 
 #include "system/types.h"
+#include "system/math.h"
 #include "system/simd.h"
 #include "system/defines.h"
 
@@ -20,17 +21,19 @@
 #include "system/file_handle.h"
 #include "system/external_resource.h"
 #include "system/http.h"
+#include "system/socket.h"
 #include "system/disk_iterator.h"
 #include "system/directory_iterator.h"
 #include "system/functions.h"
 
 #include "system/dialog.h"
 #include "system/window.h"
+#include "system/status_item.h"
 #include "system/renderer.h"
 
 #include "system/audio.h"
 #include "system/midi.h"
 
 #include "system/entry/console.h"		//framework: console/cmd line app
-#include "system/entry/app.h"			//framework: ui app
-#include "system/entry/audioplugin.h"	//framework: vst/au plugin
+#include "system/entry/app.h"			//framework: ui app (on macos, if no view_ctr then 'accessory' app)
+#include "system/entry/audioplugin.h"	//framework: clap/vst/au/aax plugin + standalone

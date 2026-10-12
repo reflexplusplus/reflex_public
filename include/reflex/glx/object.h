@@ -222,7 +222,7 @@ protected:
 
 	void OnDragDropLeave(Reflex::Object & data) final;
 
-	void OnDragDropReceive(Reflex::Object & data) final;
+	void OnDragDropReceive(const Core::Pointer & pointer, Reflex::Object & data) final;
 
 	bool OnDragDropReceiveExternal(const Reflex::Object & data) override;
 

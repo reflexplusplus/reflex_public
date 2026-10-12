@@ -3,16 +3,6 @@
 
 REFLEX_BEGIN_INTERNAL(ReflexCLI::ProjectGen::VisualStudio)
 
-constexpr CString::View kFindMsBuild =
-"@echo off\r\n"
-"for /f \"usebackq delims=\" %%I in (`\"%ProgramFiles(x86)%\\Microsoft Visual Studio\\Installer\\vswhere.exe\" -latest -products * -requires Microsoft.Component.MSBuild -find MSBuild\\**\\Bin\\amd64\\MSBuild.exe`) do set \"MSBUILD=%%I\"\r\n"
-"if not defined MSBUILD exit /b 1\r\n";
-
-constexpr CString::View kMsBuild =
-	"echo Building [CONFIG] ^| [ARCHITECTURE]\r\n"
-	"\"%MSBUILD%\" \"%~dp0[PROJECT].sln\" /p:Configuration=\"[CONFIG]\" /p:Platform=[ARCHITECTURE] /t:Build /m /v:minimal /nologo\r\n"
-	"if errorlevel 1 exit /b %errorlevel%\r\n";
-
 struct ProjectReference
 {
 	CString path;
@@ -222,6 +212,7 @@ void WriteCompileSettings(XmlWriter & xml, const Context & context, const Target
 	xml.Element("WarningLevel", kWarningLevelOptions[warning_level]);
 	xml.WriteBoolElement("MultiProcessorCompilation", true);
 	xml.Element("Optimization", kOptimizationOptions[optimization]);
+	xml.WriteBoolElement("FunctionLevelLinking", config.GetBool(kDeadStrip, optimization != kOptimization_none), {});
 	xml.Element("RuntimeLibrary", kRuntimeLibraryOptions[runtime_library][optimization == kOptimization_none]);
 	xml.Element("FloatingPointModel", kFloatingPointOptions[floating_point]);
 	xml.Element("PreprocessorDefinitions", JoinList(defines, "%(PreprocessorDefinitions)"));
@@ -693,20 +684,6 @@ void ReflexCLI::ProjectGen::GenerateVisualStudioProject(Project & project, Build
 
 	Require(!solution_configs.Empty(), "project", "has no configurations");
 
-	for (auto & [config,architectures] : solution_configs)
-	{
-		Data::Archive script = Data::Pack(VisualStudio::kFindMsBuild);
-		for (auto & architecture : architectures)
-		{
-			script.Append(Template(Data::Pack(VisualStudio::kMsBuild),
-			{
-				{ "PROJECT", ToWString(project.GetName()) },
-				{ "CONFIG", ToWString(config) },
-				{ "ARCHITECTURE", ToWString(architecture) },
-			}));
-		}
-		SaveFile(File::SetExtension(Join(directory, L"Build ", ToWString(config)), kBat), script, kBuildPlatformWindows);
-	}
 	XmlWriter defaults;
 	{
 		XmlScope root(defaults, "Project");

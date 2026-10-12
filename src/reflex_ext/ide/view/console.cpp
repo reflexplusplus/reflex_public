@@ -59,7 +59,7 @@ struct Console : public Object
 
 	Console(AlreadyRetained <GLX::Object> root, const Function <void()> & onclose)
 		: m_global(TheGlobal::Get()),
-		m_window(System::Window::Create(System::kWindowStyleResizable | System::kWindowStyleMinimisable, Data::GetBool(m_global->m_prefs, kOnTop))),
+		m_window(System::Window::Create(System::kWindowStyleFrame | System::kWindowStyleResizable | System::kWindowStyleMinimisable, Data::GetBool(m_global->m_prefs, kOnTop))),
 		windowdlg(New<MainWindowDelegate>(*this, m_window, root, onclose))
 	{
 	}
@@ -271,7 +271,7 @@ Console::MainWindowDelegate::~MainWindowDelegate()
 }
 
 Console::UndockedPanel::UndockedPanel(MainWindowDelegate & windowdlg, Key32 panelid)
-	: m_window(System::Window::Create(System::kWindowStyleResizable | System::kWindowStyleMinimisable, true)),
+	: m_window(System::Window::Create(System::kWindowStyleFrame | System::kWindowStyleResizable | System::kWindowStyleMinimisable, true)),
 	m_glxwindow(New<WindowDelegate>(false))
 {
 	auto & tabgroup = windowdlg.m_tabgroup;

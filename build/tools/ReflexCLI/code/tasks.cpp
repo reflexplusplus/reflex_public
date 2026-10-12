@@ -186,7 +186,8 @@ bool ApplyExpressionFunction(Key32 op, const WString & value, WString & result, 
 
 	case K32("generate_4cc"):
 	{
-		auto bytes = Data::Pack(MakeKey32(value));
+		auto key = MakeKey32(value);
+		auto bytes = Data::Pack(key);
 		UInt8 output[2] = { UInt8(bytes[0] ^ bytes[1]), UInt8(bytes[2] ^ bytes[3]) };
 		result = ToWString(Data::BytesToHex({ output, 2 }));
 		return true;
@@ -214,7 +215,7 @@ bool ApplyExpressionFunction(Key32 op, const WString & value, WString & result, 
 
 	case K32("get_reflex_cli_path"):
 		Require(!value, "get_reflex_cli_path", "input must be empty");
-		result = GetReflexExecutablePath(GetReflexPath());
+		result = System::GetExecutablePath();
 		return true;
 
 	default: 

@@ -13,8 +13,11 @@ namespace Reflex::GLX
 
 	using Colour = System::Colour;
 
+	using Color = Colour;
+
 	using Graphic = System::Renderer::Graphic;
 
+	
 	class StyleSheet;
 
 	class Style;
@@ -141,8 +144,6 @@ namespace Reflex::GLX
 //impl
 
 REFLEX_NS(Reflex::GLX)
-
-[[deprecated("use kresizable")]] constexpr Key32 kresize = kresizable;
 
 [[deprecated("Use kTransactionStageNull")]] constexpr auto kTransactionNull = kTransactionStageNull;
 [[deprecated("Use kTransactionStageBegin")]] constexpr auto kTransactionBegin = kTransactionStageBegin;

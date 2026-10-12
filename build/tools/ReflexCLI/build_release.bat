@@ -16,7 +16,7 @@ if /i "%ARCH%"=="ARM64" (
 if errorlevel 1 exit /b %errorlevel%
 
 for %%I in ("%~dp0.") do set "SOURCE_DIR=%%~fI"
-set "BUILD_DIR=%SOURCE_DIR%\output\cmake-release"
+set "BUILD_DIR=%SOURCE_DIR%\output\cmake-release-windows"
 
 cmake -S "%SOURCE_DIR%" -B "%BUILD_DIR%"
 if errorlevel 1 exit /b %errorlevel%

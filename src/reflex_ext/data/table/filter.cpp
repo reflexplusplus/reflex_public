@@ -33,7 +33,7 @@ template <class TYPE> bool InequalValue(const Table::ConstRowCursor & row, const
 }
 
 template <class TYPE> bool GreaterThanOrEqualValue(const Table::ConstRowCursor & row, const Table::ColumnInfo & columninfo, const Data::Archive & value, const Data::KeyMap *)
-{ 
+{
 	return row.ReadValue<TYPE>(columninfo) >= Data::Unpack<TYPE>(value);
 }
 
@@ -42,7 +42,7 @@ template <class TYPE> bool GreaterThanOrEqualBinary(const Table::ConstRowCursor 
 	auto a = Data::Unpack<ArrayView<TYPE>>(ReadHeap(row, columninfo));
 	auto b = Data::Unpack<ArrayView<TYPE>>(value);
 
-	return b < a;
+	return (b < a) || (a == b);
 }
 
 template <class TYPE> bool LessThanValue(const Table::ConstRowCursor & row, const Table::ColumnInfo & columninfo, const Data::Archive & value, const Data::KeyMap *)
@@ -76,11 +76,6 @@ template <class TYPE> bool GreaterThanBinary(const Table::ConstRowCursor & row, 
 	{
 		return (a != b);
 	}
-}
-
-template <auto FUNC> bool Not(const Table::ConstRowCursor & row, const Table::ColumnInfo & column, const Data::Archive & value, const Data::KeyMap * keymap)
-{
-	return !FUNC(row, column, value, keymap);
 }
 
 struct CompiledQuery
@@ -272,20 +267,20 @@ Reflex::Data::QueryCompare * const Reflex::Data::kGreaterThanOrEqual[Table::kNum
 {
 	&Unavailable,
 
-	&Not<LessThanValue<UInt8>>,
-	&Not<LessThanValue<UInt32>>,
-	&Not<LessThanValue<UInt64>>,
+	&GreaterThanOrEqualValue<UInt8>,
+	&GreaterThanOrEqualValue<UInt32>,
+	&GreaterThanOrEqualValue<UInt64>,
 
-	&Not<LessThanValue<Int32>>,	//Float32
-	&Not<LessThanValue<Int64>>,	//Float64
+	&GreaterThanOrEqualValue<Int32>,	//Float32
+	&GreaterThanOrEqualValue<Int64>,	//Float64
 
-	&Not<LessThanValue<Float32>>,	//Float32
-	&Not<LessThanValue<Float64>>,	//Float64
+	&GreaterThanOrEqualValue<Float32>,	//Float32
+	&GreaterThanOrEqualValue<Float64>,	//Float64
 
-	&Not<LessThanValue<UInt32>>,
+	&GreaterThanOrEqualValue<UInt32>,
 
-	&Not<LessThanValue<UInt32>>,	//Date32
-	&Not<LessThanValue<UInt64>>,	//Date64
+	&GreaterThanOrEqualValue<UInt32>,	//Date32
+	&GreaterThanOrEqualValue<UInt64>,	//Date64
 
 	&Unavailable,
 	&Unavailable,
@@ -295,8 +290,8 @@ Reflex::Data::QueryCompare * const Reflex::Data::kGreaterThanOrEqual[Table::kNum
 	&Unavailable,
 	&Unavailable,
 	&Unavailable,
-	&Not<LessThanArray<char>>,
-	&Not<LessThanArray<char>>,
+	&GreaterThanOrEqualBinary<char>,
+	&GreaterThanOrEqualBinary<char>,
 	&Unavailable,
 };
 

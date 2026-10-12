@@ -1,5 +1,13 @@
 #pragma once
 
+#ifndef REFLEX_USE_STD_FUNCTION
+#define REFLEX_USE_STD_FUNCTION 0
+#endif
+
+#ifndef REFLEX_USE_BUILTIN_MATH
+#define REFLEX_USE_BUILTIN_MATH 1
+#endif
+
 
 
 
@@ -8,7 +16,7 @@
 
 #define REFLEX_ARCH_WEBASM
 
-#include "common.h"
+#include "clang.h"
 #include <cstdlib>
 #include <cstring>
 
@@ -17,13 +25,10 @@
 //
 //env
 
-#if defined(_CPPRTTI)
-#define REFLEX_RTTI_ENABLED
-#endif
-
-#define REFLEX_64BIT 0
 static_assert(sizeof(void*) == 4, "Pointer size is not 4 bytes");
 
+// Preserve explicit Web build configuration rather than infer it from optimization.
+#undef REFLEX_DEBUG
 #ifdef _DEBUG
 #define REFLEX_DEBUG 1
 #else
@@ -36,38 +41,24 @@ static_assert(sizeof(void*) == 4, "Pointer size is not 4 bytes");
 //
 //keywords
 
-#define REFLEX_DISABLE_WARNINGS
+// Reflex allocations require 16-byte alignment, independently of libc malloc.
 
-#define REFLEX_ENABLE_WARNINGS
-
-
-#define REFLEX_FORCEINLINE __attribute__((always_inline)) inline
-
-#define REFLEX_NOINLINE __attribute__((noinline))
-
+#undef REFLEX_ALLOC16
+#undef REFLEX_FREE16
 
 #define REFLEX_ALLOC16(size) aligned_malloc(size)
+#define REFLEX_FREE16(ptr) aligned_free(ptr)
 
-#define REFLEX_FREE16(ptr_nonnull) aligned_free(ptr_nonnull)
-
-#define REFLEX_STACKALLOC(size) alloca(size)
-
-
-#define REFLEX_EXPORT __attribute__((visibility("default")))
-
-
-#pragma clang diagnostic ignored "-Wconstant-logical-operand"
-#pragma clang diagnostic ignored "-Wswitch-enum"
-#pragma clang diagnostic ignored "-Wswitch"
 #pragma clang diagnostic ignored "-Wnonportable-include-path"
-#pragma clang diagnostic ignored "-Winvalid-offsetof"
 
 
 
 
 inline void * aligned_malloc(size_t size)
 {
-	size_t total_size = size + sizeof(void*) + 16;
+	constexpr size_t overhead = sizeof(void*) + 15;
+	if (size > SIZE_MAX - overhead) return nullptr;
+	size_t total_size = size + overhead;
 
 	void * ptr = malloc(total_size);
 
@@ -84,6 +75,7 @@ inline void * aligned_malloc(size_t size)
 
 inline void aligned_free(void * ptr_nonnull)
 {
+	if (ptr_nonnull == nullptr) return;
 	void * original_ptr = reinterpret_cast<void**>(ptr_nonnull)[-1];
 
 	free(original_ptr);

@@ -225,7 +225,7 @@ template <class ... TYPES> inline Reflex::Signal<TYPES...>::Mute::~Mute()
 }
 
 template <class ... TYPES> inline Reflex::Signal<TYPES...>::Listener::Listener(Signal & signal, const FunctionType & fn)
-	: FunctionType(Cast<typename FunctionType::Base>(fn))
+	: FunctionType(fn)
 {
 	Attach(signal.m_list);
 }

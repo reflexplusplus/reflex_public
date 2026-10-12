@@ -84,6 +84,11 @@ function(_reflex_build_apply_target_defaults target)
     if(MSVC)
         target_compile_options(${target} PRIVATE /MP)
     endif()
+    # Reflex preserves several public nested aliases that GCC otherwise rejects
+    # as name-changing declarations. Keep those diagnostics non-fatal on Linux.
+    if(CMAKE_SYSTEM_NAME STREQUAL "Linux" AND CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+        target_compile_options(${target} PRIVATE -fpermissive)
+    endif()
     if(WIN32)
         target_compile_definitions(${target} PRIVATE UNICODE _UNICODE)
     endif()
@@ -91,6 +96,16 @@ function(_reflex_build_apply_target_defaults target)
         set_target_properties(${target} PROPERTIES
             XCODE_GENERATE_SCHEME ON
             XCODE_SCHEME_ENVIRONMENT "MALLOC_PERMIT_INSANE_REQUESTS=1")
+    endif()
+endfunction()
+
+# Reject missing implementations at link time instead of when a host loads the
+# Linux module. Builds that deliberately resolve symbols at load time can opt out.
+option(REFLEX_ALLOW_UNDEFINED_SYMBOLS "Allow unresolved symbols in Linux shared libraries and plugins" OFF)
+
+function(_reflex_build_forbid_undefined target)
+    if(CMAKE_SYSTEM_NAME STREQUAL "Linux" AND NOT REFLEX_ALLOW_UNDEFINED_SYMBOLS)
+        target_link_options(${target} PRIVATE "LINKER:--no-undefined")
     endif()
 endfunction()
 
@@ -118,8 +133,10 @@ function(reflex_add_target target)
         add_library(${target} STATIC ${ARG_SOURCES})
     elseif(_type STREQUAL "DYNAMIC_LIBRARY")
         add_library(${target} SHARED ${ARG_SOURCES})
+        _reflex_build_forbid_undefined(${target})
     elseif(_type STREQUAL "MODULE_LIBRARY")
         add_library(${target} MODULE ${ARG_SOURCES})
+        _reflex_build_forbid_undefined(${target})
     else()
         message(FATAL_ERROR
             "reflex_add_target(${target}): TYPE must be CONSOLE, APP, STATIC_LIBRARY, DYNAMIC_LIBRARY, or MODULE_LIBRARY")
@@ -185,6 +202,11 @@ function(reflex_target_set_warning_level target level)
     else()
         message(FATAL_ERROR
             "Reflex: warning level '${level}' is unsupported by '${CMAKE_CXX_COMPILER_ID}'")
+    endif()
+
+    if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU" AND NOT _level STREQUAL "PEDANTIC")
+        # GCC mistakes temporary Reflex reference wrappers for temporary referents.
+        list(APPEND _options "$<$<COMPILE_LANG_AND_ID:CXX,GNU>:-Wno-dangling-reference>")
     endif()
 
     foreach(_option IN LISTS _options)

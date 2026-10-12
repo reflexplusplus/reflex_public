@@ -81,15 +81,15 @@ private:
 };
 
 ViewImpl::ViewImpl(App & app)
-	: View(app, kChunkVersion, L":res:Notes/styles.glx", true),
-	app(app),
-	m_selection(0),
-	m_new(L"New"),
-	m_open(L"Open"),
-	m_save(L"Save"),
-	m_add_note(L"Add Note"),
-	m_ide(L"Console"),
-	m_textarea(true)
+	: View(app, kChunkVersion, L":res:Notes/styles.glx", true)
+	, app(app)
+	, m_selection(0)
+	, m_new(L"New")
+	, m_open(L"Open")
+	, m_save(L"Save")
+	, m_add_note(L"Add Note")
+	, m_textarea(true)
+	, m_ide(L"Console")
 {
 	Data::SetBool(m_left, GLX::kresizable, true);
 

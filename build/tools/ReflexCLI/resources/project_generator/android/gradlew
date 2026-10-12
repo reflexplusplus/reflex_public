@@ -16,4 +16,4 @@ else
 fi
 
 cd "$SCRIPT_DIR"
-exec "$JAVA_EXE" -classpath "$SCRIPT_DIR/gradle/wrapper/gradle-wrapper.jar" org.gradle.wrapper.GradleWrapperMain "$@"
+exec "$JAVA_EXE" --enable-native-access=ALL-UNNAMED -classpath "$SCRIPT_DIR/gradle/wrapper/gradle-wrapper.jar" org.gradle.wrapper.GradleWrapperMain "$@"

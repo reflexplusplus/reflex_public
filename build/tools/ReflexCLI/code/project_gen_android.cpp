@@ -494,7 +494,7 @@ Data::Archive CMakeConfiguration(const TargetConfiguration & config, CString::Vi
 	Require(!sources.Empty(), kSources, "are required");
 	for (auto & path : FlattenPaths(*config.GetPaths(true, kIncludeDirectories))) include_directories.Push(CMakeQuote(Path(path)));
 	for (auto & define : config.GetDefinitions()) defines.Push(CMakeQuote(Variables(ToWString(define))));
-	for (auto option : GnuCompileOptions(config, false)) compile_options.Push(ToWString(option));
+	for (auto option : GnuCompileOptions(config, false, true, false)) compile_options.Push(ToWString(option));
 	for (auto option : ClangFloatingPointOptions(config)) compile_options.Push(ToWString(option));
 	for (auto & option : config.GetStrings(kCompilerOptions)) compile_options.Push(CMakeQuote(Variables(ToWString(option))));
 	for (auto & dependency : GetLinkDependencies(*config.platform->target, kBuildPlatformAndroid))
@@ -657,22 +657,6 @@ Data::Archive Activity(CString::View package_id, CString::View library)
 	});
 }
 
-void WriteHostHelpers(const WString & directory, const TargetConfiguration & config, CString::View gradle_configuration, bool application)
-{
-	auto build_name = Join(L"Build ", ToWString(config.GetName()));
-	auto task = application ? Join("assemble", gradle_configuration) : Join("externalNativeBuild", gradle_configuration);
-	SaveText(Join(directory, build_name, L".bat"), Join("call \"%~dp0gradlew.bat\" ", task, "\r\n"), kBuildPlatformAndroid);
-	SaveCommandScript(Join(directory, build_name, L'.', ReflexCLI::kCommand), Join(L"#!/bin/sh\nexec \"$(dirname \"$0\")/gradlew\" ", ToWString(task), L" </dev/null\n"), kBuildPlatformAndroid);
-}
-
-void SetExecutable(const WString & path)
-{
-	constexpr UInt32 kExecuteBits = 0111;
-	UInt32 permissions;
-	bool read = GetFilePermissions(path, permissions);
-	Require(read && SetFilePermissions(path, permissions | kExecuteBits), "gradlew", "error applying permissions");
-}
-
 REFLEX_END_INTERNAL
 
 void ReflexCLI::ProjectGen::GenerateAndroidProject(Project & project, BuildPlatform, const WString & directory, Array<const TargetPlatform *> & generated_platforms, Map<WString> & outputs)
@@ -777,7 +761,7 @@ void ReflexCLI::ProjectGen::GenerateAndroidProject(Project & project, BuildPlatf
 			SaveFile(Join(directory, ToWString(file)), File::Extract(*resource), kBuildPlatformAndroid);
 		}
 	}
-	Android::SetExecutable(Join(directory, L"gradlew"));
+	SetExecutable(Join(directory, L"gradlew"));
 	auto package_path = Replace(package_id, ".", "/");
 	if (!application)
 	{
@@ -803,8 +787,6 @@ void ReflexCLI::ProjectGen::GenerateAndroidProject(Project & project, BuildPlatf
 	SaveFile(Join(directory, L"settings.gradle"), Android::Settings(project.GetName(), module), kBuildPlatformAndroid);
 	SaveFile(Join(directory, ToWString(module), L"/build.gradle"), application ? Android::AppGradle(*targets.GetFirst().target, package_id, *debug, *release) : Android::LibraryGradle(targets, package_id), kBuildPlatformAndroid);
 	SaveFile(Join(directory, ToWString(module), L"/CMakeLists.txt"), Android::CMake(project.GetName(), targets, application), kBuildPlatformAndroid);
-	Android::WriteHostHelpers(directory, *debug, kDebug, application);
-	Android::WriteHostHelpers(directory, *release, kRelease, application);
 	if (application)
 	{
 		Android::AddApplicationArtifact(outputs, *debug);

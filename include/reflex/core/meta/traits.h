@@ -48,6 +48,8 @@ namespace Reflex
 
 	template <class TYPE> struct IsReference <TYPE&> { static constexpr bool value = true; };
 
+	template <class TYPE> struct IsReference <TYPE&&> { static constexpr bool value = true; };
+
 
 	template <class A, class ... B> struct IsType;
 
@@ -87,7 +89,7 @@ namespace Reflex
 	REFLEX_PUBLISH_TRAIT_VALUE(IsTrivial);
 	REFLEX_PUBLISH_TRAIT_VALUE(IsObject);
 
-	template <class A, class B> static constexpr bool kIsType = IsType<A,B>::value;
+	template <class A, class ... B> static constexpr bool kIsType = IsType<A,B...>::value;
 
 }
 

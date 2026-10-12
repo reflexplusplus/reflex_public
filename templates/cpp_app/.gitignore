@@ -1,4 +1,5 @@
 /third_party/
+/.vscode/
 **/*.cache
 .DS_Store
 code/resources.h

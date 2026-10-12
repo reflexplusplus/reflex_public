@@ -35,10 +35,15 @@
 #define REFLEX_DISABLE_WARNINGS \
   _Pragma("GCC diagnostic push") \
   _Pragma("GCC diagnostic ignored \"-Wunused-variable\"") \
+  _Pragma("GCC diagnostic ignored \"-Wunused-but-set-variable\"") \
   _Pragma("GCC diagnostic ignored \"-Wmisleading-indentation\"") \
+  _Pragma("GCC diagnostic ignored \"-Wuninitialized\"") \
   _Pragma("GCC diagnostic ignored \"-Wmaybe-uninitialized\"") \
   _Pragma("GCC diagnostic ignored \"-Wunused-parameter\"") \
-  _Pragma("GCC diagnostic ignored \"-Wmissing-field-initializers\"")
+  _Pragma("GCC diagnostic ignored \"-Wmissing-field-initializers\"") \
+  _Pragma("GCC diagnostic ignored \"-Wimplicit-fallthrough\"") \
+  _Pragma("GCC diagnostic ignored \"-Wvolatile\"") \
+  _Pragma("GCC diagnostic ignored \"-Wdangling-pointer\"")
 
 #define REFLEX_ENABLE_WARNINGS _Pragma("GCC diagnostic pop")
 

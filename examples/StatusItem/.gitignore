@@ -1,0 +1,10 @@
+/third_party/
+/.vscode/
+projects/
+output/
+build/
+/code/resources.cpp
+/code/resources.h
+**/*.cache
+reflex_log.txt
+reflex_leaks.txt

@@ -6,6 +6,30 @@ Relevant license texts are included in the repository at the paths noted
 below.
 
 
+Khronos OpenGL ES / Platform Headers
+-----------------------------------
+gl3.h: Copyright 2013-2026 The Khronos Group Inc.
+gl3platform.h: Copyright 2017-2020 The Khronos Group Inc.
+khrplatform.h: Copyright (c) 2008-2018 The Khronos Group Inc.
+
+Used to build Reflex's web libraries and declare their OpenGL ES import ABI.
+The headers are included in the reflex source distribution under
+src/reflex/system/web/ext/, but are not included in reflex_public. These notices
+and license texts are included in both distributions.
+
+Licenses:
+- gl3.h and khrplatform.h: MIT
+- gl3platform.h: Apache License 2.0
+
+License texts in this repository:
+- licenses/Khronos_MIT_LICENSE.txt
+- licenses/Apache-2.0_LICENSE.txt
+
+Upstream:
+- https://github.com/KhronosGroup/OpenGL-Registry
+- https://github.com/KhronosGroup/EGL-Registry
+
+
 VST3 SDK
 --------
 Copyright (c) 2025 Steinberg Media Technologies GmbH

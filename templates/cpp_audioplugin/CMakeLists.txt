@@ -64,3 +64,11 @@ reflex_add_audio_plugin(_PRODUCT-NAME-SYMBOL_
     AU_COMPONENTS      "_PRODUCT-4CC_:aufx"
     AU_VENDOR_4CC      "_VENDOR-4CC_"
 )
+
+# ---- Optional: copy a built plugin after each build ----
+# DESTINATION defaults to the standard plugin folder for FORMAT.
+# reflex_copy_plugin_after_build(
+#     TARGET      _PRODUCT-NAME-SYMBOL__VST3
+#     FORMAT      VST3
+#     DESTINATION "/path/to/test-host/plugins"   # optional
+# )

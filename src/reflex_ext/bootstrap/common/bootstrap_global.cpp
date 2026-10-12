@@ -140,7 +140,11 @@ AlreadyRetained <Object> GlobalImpl::EnableIde(bool enable)
 
 			if (logfile)
 			{
-				Output::SetLogFile(New<System::FileHandle>(logfile, System::FileHandle::kModeOverwrite));
+				Output::Enable(true, New<System::FileHandle>(logfile, System::FileHandle::kModeOverwrite));
+			}
+			else
+			{
+				Output::Enable(true, {});
 			}
 
 			m_ide = IDE::Start(resourcepool, prefs);
@@ -149,7 +153,7 @@ AlreadyRetained <Object> GlobalImpl::EnableIde(bool enable)
 		{
 			m_ide.Clear();
 
-			Output::Disable();
+			Output::Enable(REFLEX_DEBUG, {});
 		}
 
 		Data::SetBool(prefs, kIDE, enable);

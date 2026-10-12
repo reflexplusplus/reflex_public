@@ -224,7 +224,7 @@ protected:
 
 	virtual void OnDragDropLeave(Reflex::Object & data) {}
 
-	virtual void OnDragDropReceive(Reflex::Object & data) {}
+	virtual void OnDragDropReceive(const Pointer & pointer, Reflex::Object & data) {}
 
 	virtual bool OnDragDropReceiveExternal(const Reflex::Object & data) { return false; }
 

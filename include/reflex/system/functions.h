@@ -118,7 +118,7 @@ namespace Reflex::System
 namespace Reflex::System::Detail
 {
 
-	void Log(const char * msg);
+	void Log(LogType type, const char * msg);
 
 
 	void EnumerateStackTrace(void * client, FunctionPointer<void(void *, UInt frame, const void * address, const char * symbol)> callback);

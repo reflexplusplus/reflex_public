@@ -13,7 +13,8 @@
 #
 # Version source (first that resolves): REFLEX_VERSION, version.txt, "latest".
 # Libraries follow the TARGET platform; tools and docs are host binaries and
-# follow the BUILD HOST. They are published for macOS + Windows only.
+# follow the BUILD HOST. Tools are published for macOS, Windows and Linux;
+# documentation binaries are published for macOS and Windows only.
 #
 # This is a no-op when libraries are already present without a fetch marker
 # (i.e. a local source build), so it never clobbers locally built libs.
@@ -27,8 +28,10 @@ function(_reflex_host_asset_platform _out)
         set(${_out} "windows" PARENT_SCOPE)
     elseif(CMAKE_HOST_APPLE)
         set(${_out} "macos" PARENT_SCOPE)
+    elseif(CMAKE_HOST_SYSTEM_NAME STREQUAL "Linux")
+        set(${_out} "linux" PARENT_SCOPE)
     else()
-        set(${_out} "" PARENT_SCOPE)   # no tools/docs assets published for Linux
+        set(${_out} "" PARENT_SCOPE)   # no host assets published for this platform
     endif()
 endfunction()
 
@@ -237,7 +240,7 @@ function(reflex_fetch_libs)
     endif()
 
     # ReflexDocumentation (both flavours) -> bin/tools. Host binary, as above.
-    if(NOT "${_host_platform}" STREQUAL "")
+    if(_host_platform STREQUAL "macos" OR _host_platform STREQUAL "windows")
         _reflex_fetch_asset("${_json}" "${_token}" "reflex-docs-${_host_platform}.zip" "${_tools_dir}" _docs_rc)
     endif()
 

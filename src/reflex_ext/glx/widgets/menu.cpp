@@ -9,6 +9,8 @@
 
 REFLEX_BEGIN_INTERNAL(Reflex::GLX)
 
+REFLEX_DECLARE_KEY32(SubmenuHoverTimer);
+
 Unretained <Object> CreateWithLabel(const WString::View & label, const Style & style)
 {
 	auto item = REFLEX_CREATE(Object);
@@ -56,7 +58,7 @@ struct ContextMenu : public MenuImpl
 		st_self = nullptr;
 	}
 
-	bool OnEvent(GLX::Object & src, GLX::Event & e) override
+	bool OnEvent(Object & src, Event & e) override
 	{
 		if (e.id == kRequestClose)
 		{
@@ -105,7 +107,7 @@ void CloseSubMenu(MenuImpl & self)
 
 		auto submenu = Cast<MenuImpl>(popup);
 
-		GLX::Select(submenu->m_parent_item, false);	//no event here, so safe
+		Select(submenu->m_parent_item, false);	//no event here, so safe
 
 		submenu->Detach(); //dont reference self after this
 	}
@@ -114,6 +116,21 @@ void CloseSubMenu(MenuImpl & self)
 void Highlight(Object & object, bool value = true)
 {
 	SetState(object, kHoverState, value);
+}
+
+MenuImpl * QuerySubMenu(Object & item)
+{
+	return item.QueryProperty<MenuImpl>(kNullKey);
+}
+
+Object * QueryContainingItem(MenuImpl & menu, Object & item)
+{
+	if (auto idx = GLX::LookupBranchIndex(menu.m_content, item))
+	{
+		return GLX::LookupChildAtIndex(menu.m_content, idx.value).Adr();
+	}
+
+	return nullptr;
 }
 
 REFLEX_END_INTERNAL
@@ -135,7 +152,7 @@ Reflex::GLX::MenuImpl::MenuImpl()
 
 void Reflex::GLX::MenuImpl::Clear()
 {
-	DetachClock(*this, kNullKey);
+	if (this == m_root) DetachClock(*this, kSubmenuHoverTimer);
 
 	m_content.Clear();
 }
@@ -236,7 +253,7 @@ bool Reflex::GLX::MenuImpl::OpenSubMenu(Object & item)
 {
 	if (auto window = GetWindow())
 	{
-		if (auto submenu = item.QueryProperty<MenuImpl>(kNullKey))
+		if (auto submenu = QuerySubMenu(item))
 		{
 			if (!submenu->GetWindow())
 			{
@@ -303,11 +320,9 @@ bool Reflex::GLX::MenuImpl::OnEvent(Object & src, Event & e)
 		switch (keycode)
 		{
 		case kKeyCodeDown:
-			if (auto idx = LookupBranchIndex(m_content, Core::desktop->GetFocus()))
+			if (auto item = QueryContainingItem(*this, Core::desktop->GetFocus()))
 			{
-				auto item = LookupChildAtIndex(m_content, idx.value)->GetNext();
-
-				if (RevealAndFocus(*this, item, true)) return true;
+				if (RevealAndFocus(*this, item->GetNext(), true)) return true;
 			}
 			else if (RevealAndFocus(*this, m_content.GetFirst(), true))
 			{
@@ -316,11 +331,9 @@ bool Reflex::GLX::MenuImpl::OnEvent(Object & src, Event & e)
 			break;
 
 		case kKeyCodeUp:
-			if (auto idx = LookupBranchIndex(m_content, Core::desktop->GetFocus()))
+			if (auto item = QueryContainingItem(*this, Core::desktop->GetFocus()))
 			{
-				auto item = LookupChildAtIndex(m_content, idx.value)->GetPrev();
-
-				if (RevealAndFocus(*this, item, false)) return true;
+				if (RevealAndFocus(*this, item->GetPrev(), false)) return true;
 			}
 			else if (RevealAndFocus(*this, m_content.GetLast(), false))
 			{
@@ -342,19 +355,17 @@ bool Reflex::GLX::MenuImpl::OnEvent(Object & src, Event & e)
 
 		case kKeyCodeRight:
 		case kKeyCodeEnter:
-			if (auto idx = GLX::LookupBranchIndex(m_content, Core::desktop->GetFocus()))
+			if (auto item = QueryContainingItem(*this, Core::desktop->GetFocus()))
 			{
-				auto item = GLX::LookupChildAtIndex(m_content, idx.value);
-
-				if (auto menu = item->QueryProperty<MenuImpl>(kNullKey))
+				if (auto menu = QuerySubMenu(*item))
 				{
-					OpenSubMenu(item);
+					OpenSubMenu(*item);
 
 					if (auto first = menu->m_content.GetFirst()) first->Focus();
 				}
 				else if (keycode == kKeyCodeEnter)
 				{
-					GLX::Emit(item, kMouseDown);
+					GLX::Emit(*item, kMouseDown);
 				}
 			}
 			return true;
@@ -444,7 +455,40 @@ void Reflex::GLX::MenuImpl::OnAttachWindow()
 {
 	Object * src = this;
 
-	if (auto owner = QueryProperty<Reflex::Detail::WeakRef<Object>>(kowner)) src = owner->Load().Adr();
+	if (this == m_root)
+	{
+		if (auto owner = QueryProperty<Reflex::Detail::WeakRef<Object>>(kowner)) src = owner->Load().Adr();
+
+		SetAbstractProperty(*this, kHoverState, Core::desktop->CreateListener(Core::Desktop::kNotificationMouseOver, [this]()
+		{
+			auto mouseover = Core::desktop->GetMouseOver();
+
+			if (auto menu = Cast<MenuImpl>(QueryParentByType<Menu>(mouseover)))
+			{
+				if (menu->m_root == this)
+				{
+					if (auto item = QueryContainingItem(*menu, mouseover))
+					{
+						AttachPeriodicClock(*this, kSubmenuHoverTimer, 0.35f, [this, menu_ref = Core::WeakReference(*menu), item_ref = Core::WeakReference(*item)]()
+						{
+							auto & item = *item_ref;
+
+							DetachClock(*this, kSubmenuHoverTimer);
+
+							if (BranchContains(item, Core::desktop->GetMouseOver()))
+							{
+								Cast<MenuImpl>(*menu_ref)->OpenSubMenu(item);
+							}
+						});
+					}
+				}
+			}
+			else
+			{
+				DetachClock(*this, kSubmenuHoverTimer);
+			}
+		}));
+	}
 
 	EmitMenuOpenEvent(*src, *this, m_context);
 
@@ -452,26 +496,6 @@ void Reflex::GLX::MenuImpl::OnAttachWindow()
 	REFLEX_ASSERT(Core::desktop->GetFocus().Adr() != this);
 
 	
-	//mouseover delegate
-
-	SetAbstractProperty(*this, kHoverState, Core::desktop->CreateListener(Core::Desktop::kNotificationMouseOver, [this]()
-	{
-		auto & content = m_content;
-
-		if (auto idx = LookupBranchIndex(content, Core::desktop->GetMouseOver()))
-		{
-			AttachPeriodicClock(*m_root, kNullKey, 0.35f, [this, ref = Core::WeakReference(LookupChildAtIndex(content, idx.value))]()
-			{
-				auto & item = *ref;
-
-				if (BranchContains(item, Core::desktop->GetMouseOver())) OpenSubMenu(item);
-
-				DetachClock(*m_root, kNullKey);
-			});
-		}
-	}));
-
-
 	//support popup handler
 
 	GLX::ScrollArea::OnAttachWindow();
@@ -497,7 +521,9 @@ void Reflex::GLX::MenuImpl::OnAttachWindow()
 
 void Reflex::GLX::MenuImpl::OnDetachWindow()
 {
-	DetachClock(*this, kNullKey);	//this not root
+	if (this == m_root) DetachClock(*this, kSubmenuHoverTimer);
+
+	DetachClock(*this, kNullKey);
 
 	UnsetProperty<Reflex::Object>(kFocusedState);
 

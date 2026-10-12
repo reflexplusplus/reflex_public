@@ -1,10 +1,32 @@
 # Changelog
 
+## v0.6.0 — Linux and web platform support
+
+Reflex 0.6.0 adds two platforms: Linux, with UI apps, audio apps and VST2, VST3 and CLAP plug-ins, and the web, with UI and audio applications in the browser. Projects can now also be generated for VS Code, and native and plug-in development gain experimental status items and sockets, simpler plug-in deployment, and broad platform reliability improvements.
+
+### Changes
+
+- Add Linux support for UI apps (X11, EGL/OpenGL ES 3), ALSA audio apps, and VST2, VST3 and CLAP plug-ins, with Linux build environment and toolchain documentation.
+- Add a web target with UI and audio support.
+- Add `reflex generate vscode` project generation, and allow `reflex create --generate cmake` without listing CMake in the project's platforms.
+- Add experimental `System::Socket`, a synchronous TCP client with TLS on macOS, iOS and Windows, and plain TCP on Linux and Android.
+- `Reflex::Output::Enable(console, logfile)` replaces `SetLogFile` and `Disable`.
+- CLAP plug-ins query host extensions during `init`, as the CLAP specification requires.
+- Add experimental `System::StatusItem` support for macOS menu-bar items and Windows notification-area items. Standalone macOS apps without a view now run as accessory apps, without a Dock icon or main menu.
+- Add `reflex_copy_plugin_after_build`, a CMake helper for deploying built audio plug-ins, and fix session restoration so audio-plugin parameter values continue to match their saved IDs after a parameter layout changes.
+- Present VST2 and VST3 event plug-ins as instruments, allowing hosts to load them without requiring an audio input.
+- Improve native CLI builds and SDK configuration: builds default to the host platform, `build all` continues across platform failures, SDK paths can be overridden consistently, and Windows x86 is opt-in.
+- Raise generated project support to macOS 12, add workarounds for Visual Studio 2026, fix an iOS interface-orientation crash, and make Windows and macOS prefer native renderers over OpenGL.
+- Extend GLX with `ShowOverlayedDialog`, property-binding helpers, pointer information for received drag-and-drop events, and improved image gradients; fix menu hover behavior, incrementer quantisation, and window-renderer cleanup.
+- Improve platform integration and diagnostics, including StatusItem behavior, system logging, Metal error handling, Android compiler warnings, console-target isolation, and documentation generation.
+- Add `REFLEX_ATOMIC_SET_IF`, document `Data::kPropertySetFormat`, and make minor VM and macOS deprecation refinements. Fix undefined behaviour in `ToUTF8` exposed by GCC.
+
 ## v0.5.3 — AAX plug-in support and VM improvements
 
 Reflex 0.5.3 adds AAX audio plug-in support, extending the SDK's native plug-in target options to include Avid Pro Tools. The release also expands the Reflex VM with more efficient execution plus script-object const members and constructors, while GLX receives widget rendering, styling, and stability improvements. Project generation now resolves included configuration variables and inherited templates more predictably, and a Widgets example provides practical UI references.
 
 ### Changes
+
 #### AAX
 - Add AAX audio plug-in support, including the platform integration needed to build and run Reflex plug-ins in Avid Pro Tools
 
@@ -31,6 +53,7 @@ Reflex 0.5.3 adds AAX audio plug-in support, extending the SDK's native plug-in 
 - Fix IDE builder focus handling and reorder build targets
 - Make minor portability and warning fixes
 
+
 ## v0.5.2 — CMake include paths and bundle metadata
 
 Reflex 0.5.2 is a maintenance release aimed at how projects consume the SDK. Generated CMake targets now expose their public include directories as PUBLIC, with paths relative to the package, so dependent targets inherit them and exported trees no longer carry absolute paths. Generated macOS and iOS bundles take their minimum OS version from the project's deployment target rather than a fixed value. It also fixes a crash when cloning a null table and an abort that could not proceed while a slow network was being emulated.
@@ -48,6 +71,7 @@ Reflex 0.5.2 is a maintenance release aimed at how projects consume the SDK. Gen
 - fix File::Table::Clone would crash if cloning null table
 - Expand windows test matrix coverage, add Minimal option
 - emit public_include_directories as PUBLIC, with relative paths (#196)
+
 
 ## v0.5.1 — graphics fixes and control state aliases
 
@@ -71,6 +95,7 @@ Reflex 0.5.1 is a maintenance release. It fixes two GLX rendering bugs, separate
 #### Bootstrap
 
 - Moved the `Bootstrap::CLI` `MakeTask` helper to the header.
+
 
 ## v0.5.0 — semantic references and audio plugin parameter fixes
 
@@ -130,6 +155,7 @@ Reflex 0.5.0 introduces semantic reference aliases that describe what a referenc
 
 - The VM now converts `bool` to `int32` where it previously did not.
 
+
 ## v0.4.4 — more flexible project generation
 
 Reflex 0.4.4 expands the project generator with reusable dependency packages and host-appropriate defaults. It also improves generated CMake apps, installation guidance, and automated agent testing.
@@ -147,6 +173,7 @@ Reflex 0.4.4 expands the project generator with reusable dependency packages and
 - `--auto-quit` now accepts whole-second values, making automated application runs easier to configure.
 - Updated the public bootstrap instructions to accept a chosen installation directory directly.
 
+
 ## v0.4.3 — clearer CLI validation and guidance
 
 Reflex 0.4.3 improves installation guidance for developers and AI agents, and makes ReflexCLI report invalid command arguments clearly before running a command.
@@ -162,11 +189,13 @@ Reflex 0.4.3 improves installation guidance for developers and AI agents, and ma
 
 - Commands now validate their arguments before execution, with clear errors for unknown, excess, and missing arguments.
 
+
 ## v0.4.1 — portable builds and audio-plugin parameters
 
 Reflex 0.4.1 makes generated desktop and Android builds more portable, with consistent target defaults, dependency handling, and path resolution across the native and CMake workflows. It also modernizes the Bootstrap audio-plugin parameter API, so existing audio plugins should review the accompanying migration guidance before updating.
 
 ### Changes
+
 #### Project generation and CMake
 
 - Centralized generated-target creation and platform defaults, so native and CMake projects use the same baseline configuration.
@@ -192,6 +221,7 @@ Reflex 0.4.1 makes generated desktop and Android builds more portable, with cons
 - Refined Bootstrap controls and module initialization naming.
 - Pre-release tags no longer trigger the public-repository export workflow.
 
+
 ## v0.3.30
 
 ### Bootstrap multi-class audio plugins
@@ -204,6 +234,7 @@ Reflex 0.4.1 makes generated desktop and Android builds more portable, with cons
 
 - Added `[[nodiscard]]` to `Reflex::New` and selected object-creating/acquiring APIs. Existing user code that intentionally ignores these results may now produce compiler warnings.
 
+
 ## v0.3.12
 
 ### Data table and documentation tooling
@@ -211,6 +242,7 @@ Reflex 0.4.1 makes generated desktop and Android builds more portable, with cons
 - Added `Reflex::Data::Table` as a first-class `Reflex::Data` API, including typed in-memory table storage plus query, filter, sort, slice, group, count, and aggregate helpers.
 - Added a new `reflex doc` documentation mode to `ReflexCLI`.
 - Added template-local `AGENTS.md` files and refreshed the root agent guidance.
+
 
 ## v0.3.10
 
@@ -220,6 +252,7 @@ Reflex 0.4.1 makes generated desktop and Android builds more portable, with cons
 - Added indent support for the `ImageMask` style layer.
 - Improved GLX stylesheet conditional-variable error reporting and related documentation coverage.
 - Renamed `GLX::Detail::ClearImage` to `UnsetImage`.
+
 
 ## v0.3.8
 
@@ -233,6 +266,7 @@ Reflex 0.4.1 makes generated desktop and Android builds more portable, with cons
 
 - Expanded the Reflex C++ manual entries, including additional core helper discoverability and ownership/reference notes.
 - Added `reflex_log.txt` to relevant template/example/test-project `.gitignore` files and added missing `.gitignore` coverage for several tool build folders.
+
 
 ## v0.2.02
 

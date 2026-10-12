@@ -4,7 +4,7 @@
 #include "../detail/initialiser.h"
 #include "../object/tref.h"
 #include "../key.h"
-#include "../function.h"
+#include "../function/function_pointer.h"
 
 
 
@@ -97,7 +97,7 @@ struct Reflex::StandardAllocator::Lock
 
 	~Lock();
 
-	void Enumerate(UInt start, UInt n, const Function <void(const AllocInfo & info)> & callback) const;
+	void Enumerate(UInt start, UInt n, void * client, const FunctionPointer <void(void * client, const AllocInfo & info)> & callback) const;
 
 	const AlreadyRetained <StandardAllocator> allocator;
 };

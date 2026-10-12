@@ -2,16 +2,6 @@
 
 REFLEX_BEGIN_INTERNAL(ReflexCLI::ProjectGen::Xcode)
 
-constexpr CString::View kMacOSBuild =
-"#!/bin/sh\n"
-"exec xcodebuild -quiet -workspace [WORKSPACE] -scheme Build -configuration [CONFIGURATION] -destination 'generic/platform=macOS' build\n";
-
-constexpr CString::View kIOSBuild =
-"#!/bin/sh\n"
-"set -e\n"
-"xcodebuild -workspace [WORKSPACE] -scheme Build -configuration [CONFIGURATION] -destination 'generic/platform=iOS' build\n"
-"xcodebuild -quiet -workspace [WORKSPACE] -scheme Build -configuration [CONFIGURATION] -destination 'generic/platform=iOS Simulator' build\n";
-
 struct Context
 {
 	const Project & project;
@@ -495,10 +485,10 @@ Array <CString> Definitions(const TargetConfiguration & config)
 Array<CString> WarningFlags(const TargetConfiguration & config)
 {
 	Array<CString> result = config.GetStrings(kCompilerOptions);
+	result.Append(CopyOwned(GnuWarningOptions(config, false, true)));
 	auto warning_level = config.GetEnum<WarningLevel>(kWarningLevel, kWarningLevelNames, kWarningLevel_standard);
-	for (auto option : GnuWarningOptions(config)) result.Push(option);
 	result.Push(warning_level == kWarningLevel_pedantic ? "-Wnullability-completeness" : "-Wno-nullability-completeness");
-	for (auto option : ClangFloatingPointOptions(config)) result.Push(option);
+	result.Append(CopyOwned(ClangFloatingPointOptions(config)));
 	return result;
 }
 
@@ -1298,22 +1288,4 @@ void ReflexCLI::ProjectGen::GenerateXcodeProject(Project & project, BuildPlatfor
 	SaveFile(Join(workspace, L"contents.xcworkspacedata"), workspace_xml.GetOutput(), selected_platform);
 	Xcode::WriteWorkspaceBuildScheme(workspace, directory, contexts);
 
-	Map<CString::View,bool> written_scripts;
-	for (auto & context : contexts)
-	{
-		for (auto & config : context.platform.GetTargetConfigurations())
-		{
-			if (SetFiltered(written_scripts.Acquire(config->GetName()), true))
-			{
-				auto workspace = Join(L"\"$(dirname \"$0\")/", ToWString(project.GetName()), L".xcworkspace\"");
-				auto configuration = ShellQuote(ToWString(config->GetName()));
-				auto command = Template(Data::Pack(selected_platform == kBuildPlatformIOS ? Xcode::kIOSBuild : Xcode::kMacOSBuild),
-				{
-					{ "WORKSPACE", workspace },
-					{ "CONFIGURATION", configuration },
-				});
-				SaveCommandScript(Join(directory, L"Build ", ToWString(config->GetName()), L'.', ReflexCLI::kCommand), command, selected_platform);
-			}
-		}
-	}
 }

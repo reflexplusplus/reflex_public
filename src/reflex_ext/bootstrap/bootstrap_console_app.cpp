@@ -304,11 +304,11 @@ Reflex::UInt8 Reflex::Bootstrap::CLI::Detail::Dispatch(ArrayView <CString::View>
 
 		if ((flags & kFlagForceVerbose) || GetBool(args, "verbose"))
 		{
-			Output::SetLogFile(out);
+			Output::Enable(REFLEX_DEBUG, out);
 		}
 		else
 		{
-			Output::Disable();
+			Output::Enable(REFLEX_DEBUG, {});
 		}
 
 		auto task_arg = Data::GetCString(args, kcommand);

@@ -1,6 +1,5 @@
 #pragma once
 
-#include "../forward.h"
 #include "nullreturn.h"
 
 
@@ -8,6 +7,10 @@
 
 //
 //Detail
+
+REFLEX_NS(Reflex)
+template <class SIG> class Function;
+REFLEX_END
 
 REFLEX_NS(Reflex::Detail)
 
@@ -26,11 +29,6 @@ struct FunctionTraits<RTN(ARGS...)>
 			return Detail::NullReturn<RTN>::Get();
 		};
 	}
-};
-
-template <class RTN, class... ARGS> 
-struct FunctionTraits<std::function<RTN(ARGS...)>> : FunctionTraits<RTN(ARGS...)> 
-{
 };
 
 template <class RTN, class... ARGS>

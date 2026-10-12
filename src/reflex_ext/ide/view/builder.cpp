@@ -1287,6 +1287,7 @@ bool BuilderImpl::TextEditor::OnEvent(GLX::Object & src, GLX::Event & e)
 
 		case GLX_KEY_CODE(GLX::kKeyCodeF3, GLX::kModifierKeyShift):
 			shift = true;
+			[[fallthrough]];
 		case GLX_KEY_CODE(GLX::kKeyCodeF3, GLX::kModifierKeyNone):
 			if (auto needle = Data::GetWString(*this, kSearch))
 			{

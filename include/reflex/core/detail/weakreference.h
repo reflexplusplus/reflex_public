@@ -141,7 +141,8 @@ template <class TYPE> inline Reflex::Detail::LegacyWeakReference<TYPE>::LegacyWe
 }
 
 template <class TYPE> inline Reflex::Detail::LegacyWeakReference<TYPE>::LegacyWeakReference(const LegacyWeakReference & weakref)
-	: CommonReference<TYPE>(weakref.m_object)
+	: Item<LegacyWeakReference<TYPE>,false,NullType>() //suppress GCC warning
+	, CommonReference<TYPE>(weakref.m_object)
 {
 	this->Attach(Cast<Target>(this->m_object)->m_list);
 }

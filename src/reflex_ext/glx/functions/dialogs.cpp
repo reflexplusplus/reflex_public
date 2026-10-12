@@ -1,4 +1,6 @@
 #include "../../../../include/reflex_ext/glx/functions/dialogs.h"
+#include "../../../../include/reflex_ext/glx/behaviours/floating_dialog.h"
+#include "../../../../include/reflex_ext/glx/functions/overlay.h"
 
 
 
@@ -55,4 +57,17 @@ Reflex::WString Reflex::GLX::ShowFolderDialog(Data::PropertySet & prefs, Key32 i
 	if (rtn) Data::SetWString(prefs, id, rtn);
 
 	return rtn;
+}
+
+void Reflex::GLX::ShowOverlayedDialog(WindowClient & window, Object & dialog, bool modal, Key32 overlay_id)
+{
+	auto overlay = AcquireOverlay(window.GetContent(), overlay_id, modal, modal, K32("Overlay"), {});
+
+	//window.GLX::Core::WindowClient::GetContent()->ComputeLayout();	//size overlay to window before FloatingDialogBehaviour centers content
+
+	auto behaviour = New<FloatingDialogBehaviour>();
+
+	dialog.SetDelegate(FloatingDialogBehaviour::kClassID, behaviour);
+
+	behaviour->Attach(overlay);
 }

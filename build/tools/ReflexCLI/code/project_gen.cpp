@@ -517,17 +517,32 @@ Reflex::Array<ReflexCLI::ProjectGen::PlatformTarget> ReflexCLI::ProjectGen::Coll
 {
 	Array<PlatformTarget> result;
 	Array<Target *> visited;
-	auto visit = [&result, &visited, &root, &generated_platforms, platform, cmake = platform == kBuildPlatformCMake](Target & target, auto && visit) -> void
+	auto visit = [&result, &visited, &root, &generated_platforms, platform](Target & target, auto && visit) -> void
 	{
 		if (Search(visited, &target)) return;
 		visited.Push(&target);
-		auto target_platform = cmake ? nullptr : target.FindPlatform(platform);
-		auto dependencies = cmake ? target.GetDependencies() : target.GetDependencies(platform);
+		auto target_platform = target.FindPlatform(platform);
+		auto dependencies = target.GetDependencies(platform);
 		result.Push({ Reference<Target>(target), target_platform, target_platform && !target.IsLibrary() && GetOutputType(*target_platform) != kOutputType_static_library ? GetLinkDependencies(target, platform) : Array<Reference<Target>>() });
 		if (target.project.Adr() == &root && !target.IsLibrary() && target_platform) generated_platforms.Push(target_platform);
 		for (auto & dependency : dependencies) visit(*dependency, visit);
 	};
-	for (auto & target : root.GetTargets()) if (!target->IsLibrary() && (platform == kBuildPlatformCMake || target->FindPlatform(platform))) visit(*target, visit);
+	for (auto & target : root.GetTargets()) if (!target->IsLibrary() && target->FindPlatform(platform)) visit(*target, visit);
+	return result;
+}
+
+Reflex::Array<ReflexCLI::ProjectGen::PlatformTarget> ReflexCLI::ProjectGen::CollectAllTargetPlatforms(Project & root)
+{
+	Array<PlatformTarget> result;
+	Array<Target *> visited;
+	auto visit = [&result, &visited](Target & target, auto && visit) -> void
+	{
+		if (Search(visited, &target)) return;
+		visited.Push(&target);
+		result.Push({ Reference<Target>(target), nullptr, {} });
+		for (auto & dependency : target.GetDependencies()) visit(*dependency, visit);
+	};
+	for (auto & target : root.GetTargets()) if (!target->IsLibrary()) visit(*target, visit);
 	return result;
 }
 
@@ -598,52 +613,41 @@ bool ReflexCLI::ProjectGen::ComparePaths(ArrayView<PathDesc> a, ArrayView<PathDe
 
 Reflex::Reference<ReflexCLI::ProjectGen::PathGroup> ReflexCLI::ProjectGen::ConsolidatePathGroups(const TargetPlatform & platform)
 {
-	REFLEX_LOCAL(bool,FindPath)(const PathGroup & group, const PathDesc & path, CString group_path, Key32 & type, CString & found_group)
+	struct PresentedPath
 	{
-		for (auto & item : group.paths)
-		{
-			if (!ComparePath(item.a, path)) continue;
-			type = item.b;
-			found_group = std::move(group_path);
-			return true;
-		}
-		for (auto & child : group)
-		{
-			auto child_path = group_path ? Join(group_path, "/", child.name) : child.name;
-			if (Call(child, path, std::move(child_path), type, found_group)) return true;
-		}
-		return false;
-	}
-	REFLEX_END
+		Key32 type;
+		CString group;
+	};
 
-	REFLEX_LOCAL(void,Merge)(PathGroup & root, PathGroup & target, const PathGroup & source, Key32 type, CString group_path)
+	Map<WString, PresentedPath> indexed_paths[2];
+
+	auto merge = [&indexed_paths](PathGroup & target, const PathGroup & source, Key32 type, CString group_path, auto && merge) -> void
 	{
 		for (auto & item : source.paths)
 		{
-			Key32 existing_type;
-			CString existing_group;
-			if (FindPath::Call(root, item.a, {}, existing_type, existing_group))
+			auto & index = indexed_paths[item.a.is_absolute ? 1 : 0];
+			if (auto existing = index.Search(item.a.path))
 			{
-				Require(existing_type == type && existing_group == group_path, "conflicting presentation file groups", Join(EncodeUTF8(item.a.path)));
+				Require(existing->type == type && existing->group == group_path, "conflicting presentation file groups", Join(EncodeUTF8(item.a.path)));
 				continue;
 			}
+			index.Set(item.a.path, PresentedPath { type, group_path });
 			target.paths.Push({ item.a, type });
 		}
 		for (auto & child : source)
 		{
 			auto child_path = group_path ? Join(group_path, "/", child.name) : child.name;
-			Call(root, AcquirePathGroup(target, child.name), child, type, std::move(child_path));
+			merge(AcquirePathGroup(target, child.name), child, type, std::move(child_path), merge);
 		}
-	}
-	REFLEX_END
+	};
 
 	auto result = Make<PathGroup>();
 	for (auto & config : platform.GetTargetConfigurations())
 	{
 		auto [sources,headers,other] = GetFiles(config);
-		Merge::Call(*result, *result, *sources, Key32(kSources), {});
-		Merge::Call(*result, *result, *headers, Key32(kHeaders), {});
-		Merge::Call(*result, *result, *other, Key32(kOtherFiles), {});
+		merge(*result, *sources, Key32(kSources), {}, merge);
+		merge(*result, *headers, Key32(kHeaders), {}, merge);
+		merge(*result, *other, Key32(kOtherFiles), {}, merge);
 	}
 	return result;
 }
@@ -758,7 +762,9 @@ Reflex::Array<ReflexCLI::Variable> ReflexCLI::ProjectGen::TargetConfiguration::G
 Reflex::Reference<ReflexCLI::ProjectGen::PathGroup> ReflexCLI::ProjectGen::TargetConfiguration::GetPaths(bool folders, CString::View property) const
 {
 	if (property == kIncludeDirectories && m_include_directories) return m_include_directories;
-	return GetDeclaredPaths(folders, property);
+	auto & cached = m_declared_path_groups[folders].Acquire(property);
+	if (!cached) cached = GetDeclaredPaths(folders, property);
+	return cached;
 }
 
 Reflex::Reference<ReflexCLI::ProjectGen::PathGroup> ReflexCLI::ProjectGen::TargetConfiguration::GetDeclaredPaths(bool folders, CString::View property) const
@@ -1060,16 +1066,16 @@ Reflex::Array<Reflex::Reference<ReflexCLI::ProjectGen::Target>> ReflexCLI::Proje
 
 REFLEX_BEGIN_INTERNAL(ReflexCLI)
 
-void GenerateProjectGraph(const WString & path, ArrayView <CString::View> platforms_filter, System::FileHandle & out, bool fresh)
+void GenerateProjectGraph(const WString & path, ArrayView <CString::View> platforms_filter, ArrayView<MetaSystem> meta_systems, System::FileHandle & out, bool fresh, bool editor_root)
 {
 	static constexpr decltype(&ProjectGen::GenerateVisualStudioProject) kGenerators[] =
 	{ 
 		&ProjectGen::GenerateVisualStudioProject, 
 		&ProjectGen::GenerateXcodeProject,
-		&ProjectGen::GenerateXcodeProject,
-		&ProjectGen::GenerateAndroidProject,
 		&ProjectGen::GenerateLinuxProject,
-		&ProjectGen::GenerateCMakeProject
+		&ProjectGen::GenerateAndroidProject,
+		&ProjectGen::GenerateXcodeProject,
+		&ProjectGen::GenerateWebProject
 	};
 	REFLEX_STATIC_ASSERT(GetArraySize(kGenerators) == GetArraySize(kBuildPlatforms));
 
@@ -1117,8 +1123,6 @@ void GenerateProjectGraph(const WString & path, ArrayView <CString::View> platfo
 	}
 	Require(True(platforms), "project", "no platforms");
 	
-	if (Search(platforms_filter, kBuildPlatforms[kBuildPlatformCMake]) && !Search(platforms, kBuildPlatformCMake)) platforms.Push(kBuildPlatformCMake);
-
 	for (auto platform : platforms)
 	{
 		if (Search(platforms_filter, kBuildPlatforms[platform]))
@@ -1174,6 +1178,31 @@ void GenerateProjectGraph(const WString & path, ArrayView <CString::View> platfo
 				Bootstrap::CLI::ThrowError(Join(platform_name, ": ", error));
 			}
 		}
+	}
+
+	// Meta systems consume the resolved graph after all requested native outputs.
+	// CMake also exports included source projects
+	static constexpr decltype(&ProjectGen::GenerateCMakeProject) kMetaGenerators[] = { &ProjectGen::GenerateCMakeProject, &ProjectGen::GenerateVSCodeProject };
+	REFLEX_STATIC_ASSERT(GetArraySize(kMetaGenerators) == kNumMetaSystem);
+
+	for (auto system : meta_systems)
+	{
+		if (system == kMetaSystemVSCode && !editor_root) continue;
+		bool generated = false;
+		for (auto & generated_project : projects)
+		{
+			if (system == kMetaSystemVSCode && generated_project.Adr() != root_project.Adr()) continue;
+			if (system == kMetaSystemCMake && generated_project->IsLibraryOnly()) continue;
+			Array<const ProjectGen::TargetPlatform *> generated_platforms;
+			Map<WString> generated_outputs;
+			kMetaGenerators[system](*generated_project, generated_platforms, generated_outputs);
+			if (system == kMetaSystemCMake)
+			{
+				for (auto generated : generated_platforms) collect_post_generate(generated->GetTargetConfigurations());
+			}
+			if (!generated_outputs.Empty()) generated = true;
+		}
+		if (generated) Bootstrap::CLI::Print(out, Bootstrap::CLI::kColourBrightBlack, Join("generated ", kMetaSystems[system]));
 	}
 
 	auto previous = System::GetCurrentDirectory();
@@ -1233,7 +1262,7 @@ void CollectSourceProjects(WString::View project_path, BuildPlatform platform, A
 	if (include_project) result.Push(std::move(filename));
 }
 
-Array<WString> GetSourceProjects(WString::View project_path, BuildPlatform platform)
+Array<WString> FindSourceProjects(WString::View project_path, BuildPlatform platform)
 {
 	Array<WString> result, active, completed;
 	CollectSourceProjects(project_path, platform, result, active, completed, false);
@@ -1268,74 +1297,52 @@ void GenerateSourceProjects(WString::View project_path, ArrayView<CString::View>
 	{
 		auto platform_index = Search(kBuildPlatforms, platform);
 		REFLEX_ASSERT(platform_index);
-		for (auto & source_project : GetSourceProjects(project_path, BuildPlatform(platform_index.value)))
+		for (auto & source_project : FindSourceProjects(project_path, BuildPlatform(platform_index.value)))
 		{
-			GenerateProjectGraph(source_project, { platform }, std_out, fresh);
+			GenerateProjectGraph(source_project, { platform }, {}, std_out, fresh, false);
 		}
 	}
-}
-
-void RunBuildHelpers(ArrayView<WString> scripts, System::FileHandle & std_out)
-{
-	const bool is_windows = System::kPlatform == System::kPlatformWindows;
-	WString::View tool = is_windows ? L"cmd.exe" : L"/bin/sh";
-	bool ran = false;
-
-	for (auto & script : scripts)
-	{
-		if (!File::Exists(script)) continue;
-		Array<WString> commands;
-		if (is_windows) commands.Append({ L"/d", L"/c" });
-		commands.Push(script);
-		Require(RunCommand(tool, commands, &std_out, true), "build failed", ToCString(script));
-		ran = true;
-	}
-
-	Require(ran, "build failed", "nothing to build");
-}
-
-void BuildGeneratedProject(WString::View project_path, CString::View platform, CString::View configuration, System::FileHandle & std_out)
-{
-	static constexpr WString::View kPrefix = L"Build ";
-	const auto ext = System::kPlatform == System::kPlatformWindows ? kBat : kCommand;
-	Array<Reference<ProjectGen::Project>> projects;
-	auto project = ProjectGen::Project::Acquire(projects, project_path);
-	auto directory = Join(project->GetRoot(), project->GetGeneratedDirectory(), ToWString(platform), File::kStroke);
-	auto make_config = [ext](WString::View value) { return Join(kPrefix, value, File::kDot, ext); };
-
-	Array<WString> scripts;
-	if (configuration)
-	{
-		scripts.Push(Join(directory, make_config(ToWString(configuration))));
-	}
-	else
-	{
-		auto [folders, files] = File::List(directory, false);
-		for (auto & [name, unused] : files)
-		{
-			if (CaseInsensitive::eq(Left<true>(name, kPrefix.size), kPrefix) && File::CheckExtension(name, ext)) scripts.Push(Join(directory, name));
-		}
-	}
-
-	Bootstrap::CLI::Print(std_out, Bootstrap::CLI::kColourWhite, project->GetName());
-	RunBuildHelpers(scripts, std_out);
 }
 
 REFLEX_END_INTERNAL
 
-void ReflexCLI::ProjectGen::Generate(const WString & path, ArrayView<CString::View> platforms, System::FileHandle & std_out, bool fresh)
+Reflex::Array<Reflex::WString> ReflexCLI::ProjectGen::GetSourceProjects(Reflex::WString::View project_path, BuildPlatform platform)
 {
-	GenerateSourceProjects(path, platforms, std_out, fresh);
-	GenerateProjectGraph(path, platforms, std_out, fresh);
+	return FindSourceProjects(project_path, platform);
 }
 
-void ReflexCLI::ProjectGen::Build(const WString & path, CString::View platform, CString::View configuration, System::FileHandle & std_out)
+void ReflexCLI::ProjectGen::Generate(const WString & path, ArrayView<CString::View> outputs, System::FileHandle & std_out, bool fresh, bool vscode)
 {
-	auto platform_index = Search(kBuildPlatforms, platform);
-	Require(True(platform_index), "expected platform", "<windows|macos|ios|android|linux> [configuration]");
-	for (auto & source_project : GetSourceProjects(path, BuildPlatform(platform_index.value)))
+	Array<CString::View> platforms;
+	Array<MetaSystem> meta_systems;
+	for (auto name : outputs)
 	{
-		BuildGeneratedProject(source_project, platform, configuration, std_out);
+		if (Search(kBuildPlatforms, name))
+		{
+			if (!Search(platforms, name)) platforms.Push(name);
+		}
+		else if (auto system = Search(kMetaSystems, name))
+		{
+			auto value = MetaSystem(system.value);
+			if (!Search(meta_systems, value)) meta_systems.Push(value);
+		}
+		else Require(false, "generation output", name);
 	}
-	BuildGeneratedProject(path, platform, configuration, std_out);
+	if (vscode && !Search(meta_systems, kMetaSystemVSCode)) meta_systems.Push(kMetaSystemVSCode);
+	GenerateSourceProjects(path, platforms, std_out, fresh);
+	if (Search(meta_systems, kMetaSystemCMake))
+	{
+		Array<WString> generated;
+		for (auto platform : kBuildPlatforms)
+		{
+			auto index = Search(kBuildPlatforms, platform);
+			for (auto & source_project : FindSourceProjects(path, BuildPlatform(index.value)))
+			{
+				if (Search(generated, source_project)) continue;
+				generated.Push(source_project);
+				GenerateProjectGraph(source_project, {}, { kMetaSystemCMake }, std_out, fresh, false);
+			}
+		}
+	}
+	GenerateProjectGraph(path, platforms, meta_systems, std_out, fresh, true);
 }

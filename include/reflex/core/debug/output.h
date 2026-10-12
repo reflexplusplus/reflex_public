@@ -39,11 +39,9 @@ public:
 
 	//setup
 
-	static void SetLogFile(WillRetain <System::FileHandle> logfile);
+	static void Enable(bool console, WillRetain <System::FileHandle> logfile);
 
 	static AlreadyRetained <System::FileHandle> GetLogFile();
-
-	static void Disable();	//disables capture of logs to queue
 
 
 

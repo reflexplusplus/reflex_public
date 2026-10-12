@@ -171,7 +171,6 @@ REFLEX_INLINE void Reflex::GLX::Detail::XAxis::SetSize(Size & size, Float value)
 REFLEX_INLINE void Reflex::GLX::Detail::XAxis::SetSize(Size & size, Float value, Float ortho)
 {
 	size.w = value;
-
 	size.h = ortho;
 }
 
@@ -183,7 +182,6 @@ REFLEX_INLINE void Reflex::GLX::Detail::XAxis::IncSize(Size & size, Float delta)
 REFLEX_INLINE void Reflex::GLX::Detail::XAxis::IncSize(Size & size, Float delta, Float ortho)
 {
 	size.w += delta;
-
 	size.h += ortho;
 }
 
@@ -229,9 +227,8 @@ REFLEX_INLINE void Reflex::GLX::Detail::YAxis::SetSize(Size & size, Float value)
 
 REFLEX_INLINE void Reflex::GLX::Detail::YAxis::SetSize(Size & size, Float value, Float ortho)
 {
-	size.h = value;
-
 	size.w = ortho;
+	size.h = value;
 }
 
 REFLEX_INLINE void Reflex::GLX::Detail::YAxis::IncSize(Size & size, Float delta)
@@ -241,9 +238,8 @@ REFLEX_INLINE void Reflex::GLX::Detail::YAxis::IncSize(Size & size, Float delta)
 
 REFLEX_INLINE void Reflex::GLX::Detail::YAxis::IncSize(Size & size, Float delta, Float ortho)
 {
-	size.h += delta;
-
 	size.w += ortho;
+	size.h += delta;
 }
 
 REFLEX_INLINE Reflex::Float Reflex::GLX::Detail::YAxis::GetSize(Size size)
@@ -253,20 +249,12 @@ REFLEX_INLINE Reflex::Float Reflex::GLX::Detail::YAxis::GetSize(Size size)
 
 REFLEX_INLINE Reflex::GLX::Point Reflex::GLX::Detail::MakePoint(bool yaxis, Float axis, Float ortho)
 {
-	Point rtn = { ortho, ortho };
-
-	(&rtn.x)[yaxis] = axis;
-
-	return rtn;
+	return yaxis ? Point { ortho, axis } : Point { axis, ortho };
 }
 
 REFLEX_INLINE Reflex::GLX::Size Reflex::GLX::Detail::MakeSize(bool yaxis, Float axis, Float ortho)
 {
-	Size rtn = { ortho, ortho };
-
-	(&rtn.w)[yaxis] = axis;
-
-	return rtn;
+	return yaxis ? Size { ortho, axis } : Size { axis, ortho };
 }
 
 REFLEX_INLINE void Reflex::GLX::Detail::SetPoint(bool yaxis, Point & point, Float value)
@@ -276,7 +264,7 @@ REFLEX_INLINE void Reflex::GLX::Detail::SetPoint(bool yaxis, Point & point, Floa
 
 REFLEX_INLINE Reflex::Float Reflex::GLX::Detail::GetPoint(bool yaxis, Point point)
 {
-	return (&point.x)[yaxis];
+	return yaxis ? point.y : point.x;
 }
 
 REFLEX_INLINE void Reflex::GLX::Detail::SetSize(bool yaxis, Size & size, Float value)
@@ -286,17 +274,17 @@ REFLEX_INLINE void Reflex::GLX::Detail::SetSize(bool yaxis, Size & size, Float v
 
 REFLEX_INLINE void Reflex::GLX::Detail::IncPoint(bool yaxis, Point & point, Float value)
 {
-	(&point.x)[yaxis] += value;
+	(yaxis ? point.y : point.x) += value;
 }
 
 REFLEX_INLINE void Reflex::GLX::Detail::IncSize(bool yaxis, Size & size, Float value)
 {
-	(&size.w)[yaxis] += value;
+	(yaxis ? size.h : size.w) += value;
 }
 
 REFLEX_INLINE Reflex::Float Reflex::GLX::Detail::GetSize(bool yaxis, Size size)
 {
-	return (&size.w)[yaxis];
+	return yaxis ? size.h : size.w;
 }
 
 REFLEX_INLINE Reflex::Pair <Reflex::Float> Reflex::GLX::Detail::GetPointComponents(bool yaxis, Point p)

@@ -30,12 +30,14 @@ namespace ReflexCLI::ProjectGen
 	constexpr CString::View kAndroidMainSourceSet = "main_source_set";
 	constexpr CString::View kAndroidSigningProperties = "signing_properties";
 	constexpr CString::View kOutputDirectory = "output_directory";
+	constexpr CString::View kWebEntryPage = "entry_page";
 	constexpr CString::View kCppStandard = "cpp_standard";
 	constexpr CString::View kRtti = "rtti";
 	constexpr CString::View kDefines = "defines";
 	constexpr CString::View kIncludeDirectories = "include_directories";
 	constexpr CString::View kPublicIncludeDirectories = "public_include_directories";
 	constexpr CString::View kCompilerOptions = "compiler_options";
+	constexpr CString::View kPkgConfig = "pkg_config";
 	constexpr CString::View kWarningLevel = "warning_level";
 	constexpr CString::View kOptimization = "optimization";
 	constexpr CString::View kFloatingPoint = "floating_point";
@@ -295,6 +297,7 @@ namespace ReflexCLI::ProjectGen
 		Array<Variable> m_variables;
 		Reference<PathGroup> m_include_directories;
 		Reference<PathGroup> m_public_include_directories;
+		mutable Map<Key32, Reference<PathGroup>> m_declared_path_groups[2];
 	};
 
 	struct PlatformTarget
@@ -322,6 +325,7 @@ namespace ReflexCLI::ProjectGen
 	}
 
 	Array<PlatformTarget> CollectTargetPlatforms(Project & root, BuildPlatform platform, Array<const TargetPlatform *> & generated_platforms);
+	Array<PlatformTarget> CollectAllTargetPlatforms(Project & root);
 
 	Pair <const TargetConfiguration*,const TargetConfiguration*> FindDebugAndReleaseConfigurations(const TargetPlatform & platform);
 	OutputType GetOutputType(const TargetPlatform & platform);
@@ -340,14 +344,17 @@ namespace ReflexCLI::ProjectGen
 	void GenerateXcodeProject(Project &, BuildPlatform, const WString &, Array<const TargetPlatform *> &, Map<WString> &);
 	void GenerateAndroidProject(Project &, BuildPlatform, const WString &, Array<const TargetPlatform *> &, Map<WString> &);
 	void GenerateLinuxProject(Project &, BuildPlatform, const WString &, Array<const TargetPlatform *> &, Map<WString> &);
-	void GenerateCMakeProject(Project &, BuildPlatform, const WString &, Array<const TargetPlatform *> &, Map<WString> &);
+	void GenerateWebProject(Project &, BuildPlatform, const WString &, Array<const TargetPlatform *> &, Map<WString> &);
+	void GenerateCMakeProject(Project &, Array<const TargetPlatform *> &, Map<WString> &);
+	void GenerateVSCodeProject(Project &, Array<const TargetPlatform *> &, Map<WString> &);
 
 	WString ExpandVariables(WString::View value, ArrayView <Variable> variables, System::Platform platform = System::kNumPlatform);
 
 
-	void Generate(const WString & path, ArrayView<CString::View> platforms, System::FileHandle & std_out, bool fresh = false);
+	void Generate(const WString & path, ArrayView<CString::View> outputs, System::FileHandle & std_out, bool fresh = false, bool vscode = true);
 
-	void Build(const WString & path, CString::View platform, CString::View configuration, System::FileHandle & std_out);
+	Array<WString> GetSourceProjects(WString::View project_path, BuildPlatform platform);
+	void Build(const WString & path, CString::View platform, CString::View configuration, CString::View destination, System::FileHandle & std_out);
 }
 
 

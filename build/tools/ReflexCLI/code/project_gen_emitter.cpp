@@ -109,6 +109,14 @@ void ReflexCLI::ProjectGen::WriteCMakeTargetValues(Data::Archive & output, UInt 
 	if (values) WriteCMakeInvocation(output, indentation, command, ToWString(Join(target, " ", scope)), values);
 }
 
+void ReflexCLI::ProjectGen::SetExecutable(const WString & path)
+{
+	constexpr UInt32 kExecuteBits = 0111;
+	UInt32 permissions;
+	bool read = GetFilePermissions(path, permissions);
+	Require(read && SetFilePermissions(path, permissions | kExecuteBits), "generated project", Join("error applying executable permissions: ", EncodeUTF8(path)));
+}
+
 void ReflexCLI::ProjectGen::SaveFile(const WString & path, Data::Archive::View data, BuildPlatform platform)
 {
 	auto existing = File::Open(path);
@@ -121,7 +129,16 @@ void ReflexCLI::ProjectGen::SaveFile(const WString & path, Data::Archive::View d
 	}
 }
 
-Reflex::Array<Reflex::CString::View> ReflexCLI::ProjectGen::GnuWarningOptions(const TargetConfiguration & config)
+void ReflexCLI::ProjectGen::SaveMetaFile(const WString & path, Data::Archive::View data, MetaSystem system)
+{
+	if (File::Open(path) != data)
+	{
+		File::MakePath(File::SplitFilename(path).a);
+		if (!File::Save(path, data)) Bootstrap::CLI::ThrowError(Join(kMetaSystems[system], ": failed to write '", EncodeUTF8(path), "'"));
+	}
+}
+
+Reflex::Array<Reflex::CString::View> ReflexCLI::ProjectGen::GnuWarningOptions(const TargetConfiguration & config, bool gcc, bool cpp)
 {
 	REFLEX_STATIC_ASSERT(kWarningLevelCount == 4);
 	auto warning_level = config.GetEnum<WarningLevel>(kWarningLevel, kWarningLevelNames, kWarningLevel_standard);
@@ -156,6 +173,7 @@ Reflex::Array<Reflex::CString::View> ReflexCLI::ProjectGen::GnuWarningOptions(co
 		result.Push("-Wno-missing-field-initializers");
 		result.Push("-Wno-char-subscripts");
 		result.Push("-Wno-missing-braces");
+		if (gcc && cpp) result.Push("-Wno-dangling-reference");
 	}
 	return result;
 }
@@ -182,18 +200,17 @@ Reflex::Array<Reflex::CString::View> ReflexCLI::ProjectGen::ClangFloatingPointOp
 	}
 }
 
-Reflex::Array <Reflex::CString::View> ReflexCLI::ProjectGen::GnuCompileOptions(const TargetConfiguration & config, bool include_standard)
+Reflex::Array <Reflex::CString::View> ReflexCLI::ProjectGen::GnuCompileOptions(const TargetConfiguration & config, bool gcc, bool cpp, bool include_standard)
 {
 	REFLEX_STATIC_ASSERT(GetArraySize(kGnuStandards) == kCppStandardCount);
 	REFLEX_STATIC_ASSERT(GetArraySize(kGnuOptimizations) == kOptimizationCount);
 
 	Array<CString::View> result;
-	auto cpp_standard = config.GetEnum<CppStandard>(kCppStandard, kCppStandardNames, kCppStandard_cxx20);
+	if (include_standard) result.Push(kGnuStandards[config.GetEnum<CppStandard>(kCppStandard, kCppStandardNames, kCppStandard_cxx20)]);
+	if (!config.GetBool(kRtti, true)) result.Push("-fno-rtti");
 	auto optimization = config.GetEnum<Optimization>(kOptimization, kOptimizationNames, kOptimization_none);
 	auto optimized = optimization != kOptimization_none;
-	if (include_standard) result.Push(kGnuStandards[cpp_standard]);
-	if (!config.GetBool(kRtti, true)) result.Push("-fno-rtti");
-	for (auto option : GnuWarningOptions(config)) result.Push(option);
+	result.Append(GnuWarningOptions(config, gcc, cpp));
 	result.Push(kGnuOptimizations[optimization]);
 	if (config.GetBool(kDebugInformation, !optimized)) result.Push("-g");
 	if (config.GetBool(kDeadStrip, optimized))

@@ -1,3 +1,4 @@
+/.vscode/
 /third_party/
 **/*.cache
 /local.cfg

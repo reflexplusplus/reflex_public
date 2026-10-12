@@ -129,7 +129,7 @@ void AppImpl::RunTask(CString::View command, Array <WString> && args, const Func
 	args.Push(L"--detail");
 	args.Push(L"true");
 
-	job.task = System::Process::Create(ReflexCLI::GetReflexExecutablePath(m_reflex_path), args, { .std_out = temp_file.b.Adr(), .allow_window = false });
+	job.task = System::Process::Create(ReflexCLI::MakeReflexExecutablePath(m_reflex_path), args, { .std_out = temp_file.b.Adr(), .allow_window = false });
 
 	temp_file.b.Clear();	//System::Process now owns the temp file handle
 

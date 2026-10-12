@@ -31,11 +31,15 @@
 	#endif
 
 #elif defined(__wasm__)
-	#include "preprocessor/webasm.h"
+	#include "preprocessor/web.h"
 
 #elif defined(__GNUC__)
 	#define REFLEX_OS_LINUX
-	#include "preprocessor/linux_intel.h"
+	#if __arm__ || __aarch64__
+		#include "preprocessor/linux_arm.h"
+	#else
+		#include "preprocessor/linux_intel.h"
+	#endif
 
 #elif defined(_WIN32) || defined(_WIN64)
 	#define REFLEX_OS_WINDOWS
