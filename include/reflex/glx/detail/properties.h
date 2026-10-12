@@ -58,6 +58,11 @@ struct GenericPropertiesSchema : public Reflex::Object
 		return Extend(RemoveConst(defs), n).data;
 	}
 
+	void RegisterDefaultBindings(ArrayView <Key32> ids)
+	{
+		RemoveConst(default_bindings).Append(ids);
+	}
+
 	void Pop()	//workaround for Gradient 
 	{
 		RemoveConst(defs).Pop();
@@ -89,6 +94,8 @@ struct GenericPropertiesSchema : public Reflex::Object
 	const Array <Item> defs;
 
 	const Array <const Item*> bindable;
+
+	const Array <Key32> default_bindings;
 
 	FunctionPointer <void(GenericLayer&, const void*, void*, void*/*VTable&*/)> oninit;
 

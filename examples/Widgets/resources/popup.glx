@@ -1,0 +1,9 @@
+include: "common.glx";
+
+Popup:
+{
+	render: x4;
+	size: 24;
+	bg: TriangleFill(indent: 5,4; direction: bottom; colour: 192; corner: 3);
+	@Alias menu;
+};

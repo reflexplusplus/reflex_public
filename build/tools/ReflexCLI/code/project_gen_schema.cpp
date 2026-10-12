@@ -1,4 +1,7 @@
 #include "project_gen.h"
+#if REFLEX_DEBUG
+#include "../../common/docformat/include/docformat.h"
+#endif
 
 REFLEX_NS(ReflexCLI::ProjectGen)
 
@@ -818,7 +821,201 @@ const PropertyRules & GetPropertySetRules(ReflexCLI::ProjectGen::PropertySetType
 	}
 }
 
+#if REFLEX_DEBUG
+void ExportDocumentationSymbolsImpl(const WString & folder)
+{
+	constexpr CString::View kNamespace = "";
+
+	struct DocumentedType
+	{
+		CString::View name;
+		const PropertyRules * rules = nullptr;
+		const PropertyRules * inherited_rules = nullptr;
+		CString::View base;
+	};
+
+	// The runtime rules retain only hashed IDs. Resolve their public spellings
+	// here so documentation metadata adds no storage to release builds.
+	Data::KeyMap names;
+	const CString::View known_names[] =
+	{
+		kEnabled, kInherit, kFormat, kProjectInclude, kProjectName,
+		kGeneratedDirectory, kDefaultConfiguration, kImport,
+		kOutputName, kOutputType, kOutputExtension, kArchitectures,
+		kSources, kHeaders, kOtherFiles, kWindowsResources,
+		kAndroidNativeAppGlue, kAndroidSdkPath, kAndroidDependencies,
+		kAndroidSdk, kAndroidMinSdk, kAndroidPackageId,
+		kAndroidMainSourceSet, kAndroidSigningProperties,
+		kOutputDirectory, kCppStandard, kRtti, kDefines,
+		kIncludeDirectories, kPublicIncludeDirectories, kCompilerOptions,
+		kWarningLevel, kOptimization, kFloatingPoint, kRuntimeLibrary,
+		kDebugInformation, kDeadStrip, kMacOSExportedSymbols,
+		kMacOSBuildAllArchitectures, kWindowsSdk, kCMakeIdentifier,
+		kCMakeFindPackages, kCMakeIncludes, kCMakeVariables,
+		kXcodeFrameworkProperties[0], kXcodeArcProperties[0],
+		kXcodeBundleIdentifierProperties[0], kXcodeCodesignProperties[0],
+		kXcodeDevelopmentTeamProperties[0], kXcodeInfoPlistProperties[0],
+		kXcodeEntitlementsProperties[0], kXcodeIconProperties[0],
+		kXcodeMinimumVersionProperties[0], kXcodeLaunchScreenProperty,
+		kName, kPath, kSourceProject, kCommand, kInputs, kOutputs,
+		kAlwaysRun, kConfigurations, kTargets, kDependencies, kFiles,
+	};
+	for (auto name : known_names) Data::RegisterKey(names, name);
+	for (auto phase : kBuildPhases) Data::RegisterKey(names, phase);
+
+	auto symbol_for_type = [=](CString::View name)
+	{
+		return Docformat::Symbol(MakeKey32(kNamespace), MakeKey32(name));
+	};
+
+	auto symbol_for_member = [=](CString::View owner, CString::View name)
+	{
+		return Docformat::Symbol(MakeKey32(owner), MakeKey32(name));
+	};
+
+	Data::PropertySet symbols;
+	Docformat::RegisterKeys(symbols);
+	UInt index = 0;
+
+	auto add_type = [&](CString::View name, CString::View base = {}, bool indexed = true)
+	{
+		auto record = Data::AcquirePropertySet(symbols, index++);
+		Docformat::SetSymbol(*record, symbol_for_type(name));
+		Docformat::SetNamespace(*record, kNamespace);
+		Docformat::SetName(*record, name);
+		Docformat::SetCategory(*record, Docformat::kCategoryType);
+		Docformat::SetTypeFlags(*record, Docformat::kTypeFlagObject);
+		Docformat::SetIndexed(*record, indexed);
+		if (base) Docformat::SetTypeBase(*record, symbol_for_type(base));
+	};
+
+	for (auto name : { "Boolean", "String", "StringList", "Identifier", "IdentifierList", "Number", "BuildStepList" }) add_type(name, {}, false);
+	add_type("Files");
+	add_type("Variables");
+
+	auto type_for_rule = [&](const PropertyRule & rule)
+	{
+		if (rule.address.type_id == GetTypeID<Data::BoolProperty>()) return symbol_for_type("Boolean");
+		if (rule.address.type_id == GetTypeID<Data::CStringProperty>()) return symbol_for_type("String");
+		if (rule.address.type_id == GetTypeID<Data::ArrayOfCStringProperty>()) return symbol_for_type("StringList");
+		if (rule.address.type_id == GetTypeID<Data::Key32Property>()) return symbol_for_type("Identifier");
+		if (rule.address.type_id == GetTypeID<Data::ArrayOfKey32Property>()) return symbol_for_type("IdentifierList");
+		if (rule.address.type_id == GetTypeID<Data::Int32Property>() || rule.address.type_id == GetTypeID<Data::Float32Property>()) return symbol_for_type("Number");
+		if (rule.address.type_id == GetTypeID<Data::PropertySetArray>()) return symbol_for_type("BuildStepList");
+		if (rule.address.type_id == GetTypeID<Data::PropertySet>()) return symbol_for_type("Files");
+		if (rule.address.type_id == GetTypeID<ValidatedPropertySet>())
+		{
+			switch (rule.property_set_type)
+			{
+			case kPropertySetTypeFiles: return symbol_for_type("Files");
+			case kPropertySetTypeBuildStep: return symbol_for_type("BuildStep");
+			default: return symbol_for_type("Variables");
+			}
+		}
+
+		return Docformat::Symbol();
+	};
+
+	auto type_for_property = [&](const PropertyRules & rules, Key32 id)
+	{
+		Docformat::Symbol best;
+		UInt best_rank = 0;
+		for (auto & rule : rules.known_properties)
+		{
+			if (rule.address.id != id) continue;
+			auto value_type = type_for_rule(rule);
+			if (!value_type) continue;
+			UInt rank = 1;
+			if (rule.address.type_id == GetTypeID<Data::ArrayOfCStringProperty>() || rule.address.type_id == GetTypeID<Data::ArrayOfKey32Property>()) rank = 2;
+			if (rule.address.type_id == GetTypeID<Data::PropertySet>()) rank = 3;
+			if (rule.address.type_id == GetTypeID<ValidatedPropertySet>()) rank = 4;
+			if (rule.address.type_id == GetTypeID<Data::PropertySetArray>()) rank = 5;
+			if (rank > best_rank)
+			{
+				best = value_type;
+				best_rank = rank;
+			}
+		}
+		return best;
+	};
+
+	auto add_members = [&](const DocumentedType & type)
+	{
+		if (!type.rules) return;
+		const Key32 shared_properties[] =
+		{
+			kEnabled, kInherit, kDependencies, kCMakeIdentifier, kArchitectures, kIncludeDirectories,
+			kPublicIncludeDirectories, kOutputName, kOutputExtension,
+		};
+		Array<Key32> added;
+		for (auto & rule : type.rules->known_properties)
+		{
+			if (!IsSet(rule.address.id) || rule.address.id == K32("test_strings") || rule.address.id == K32("test_objects") || rule.address.id == Data::kkeymap || rule.address.id == Data::kError) continue;
+			if (type.name == "DeclarationProperties" && !Search(ToView(shared_properties), rule.address.id)) continue;
+			if (type.name == "TargetProperties" && (Search(ToView(shared_properties), rule.address.id) || rule.address.id == Key32(kPath) || rule.address.id == Key32(kSourceProject))) continue;
+			if (type.name == "Library" && rule.address.id != Key32(kPath) && rule.address.id != Key32(kSourceProject)) continue;
+			if (type.inherited_rules && HasRuleID(type.inherited_rules->known_properties, rule.address.id)) continue;
+			if (Search(added, rule.address.id)) continue;
+			auto name = Data::GetKey(names, rule.address.id);
+			Require(True(name), "documentation export", "unregistered property name");
+			if (auto value_type = type_for_property(*type.rules, rule.address.id))
+			{
+				auto record = Data::AcquirePropertySet(symbols, index++);
+				Docformat::SetSymbol(*record, symbol_for_member(type.name, name));
+				Docformat::SetNamespace(*record, kNamespace);
+				Docformat::SetName(*record, name);
+				Docformat::SetCategory(*record, Docformat::kCategoryMember);
+				Docformat::SetParent(*record, symbol_for_type(type.name));
+				Docformat::SetTypedefTarget(*record, value_type);
+				added.Push(rule.address.id);
+			}
+		}
+	};
+
+	const DocumentedType types[] =
+	{
+		{ "Project", &g_format_holder->project_rules },
+		{ "DeclarationProperties", &g_format_holder->structural_rules },
+		{ "TargetProperties", &g_format_holder->structural_rules, nullptr, "DeclarationProperties" },
+		{ "Template", nullptr, nullptr, "TargetProperties" },
+		{ "Target", nullptr, nullptr, "TargetProperties" },
+		{ "Library", &g_format_holder->structural_rules, nullptr, "DeclarationProperties" },
+		{ "Package", &g_format_holder->package_rules },
+		{ "BuildStep", &g_format_holder->build_step_rules },
+		{ "Unset" },
+		{ "windows", &g_format_holder->platform_rules[kBuildPlatformWindows], &g_format_holder->common_rules },
+		{ "macos", &g_format_holder->platform_rules[kBuildPlatformMacOS], &g_format_holder->common_rules },
+		{ "ios", &g_format_holder->platform_rules[kBuildPlatformIOS], &g_format_holder->common_rules },
+		{ "android", &g_format_holder->platform_rules[kBuildPlatformAndroid], &g_format_holder->common_rules },
+		{ "linux", &g_format_holder->platform_rules[kBuildPlatformLinux], &g_format_holder->common_rules },
+		{ "Configuration" },
+	};
+
+	for (auto & type : types) add_type(type.name, type.base);
+	for (auto & type : types) add_members(type);
+
+	Require(File::IsDirectory(folder), "documentation export", "output folder not found");
+	Require(File::Save(Join(folder, L"symbols.txt"), Data::EncodePropertySet(Data::kPropertySheetFormat, symbols)), "documentation export", "could not write symbols.txt");
+
+	const auto info_path = Join(folder, L"info.txt");
+	if (!File::Exists(info_path))
+	{
+		Data::PropertySet info;
+		Require(File::Save(info_path, Data::EncodePropertySet(Data::kPropertySheetFormat, info)), "documentation export", "could not write info.txt");
+	}
+}
+#endif
+
 REFLEX_END_INTERNAL
+
+#if REFLEX_DEBUG
+void ReflexCLI::ProjectGen::ExportDocumentationSymbols()
+{
+	auto folder = Join(GetReflexPath(), L"documentation/reflex_generate/", File::kStroke);
+	Require(File::IsDirectory(folder), "documentation export", "output folder not found");
+	ExportDocumentationSymbolsImpl(folder);
+}
+#endif
 
 REFLEX_BOOTSTRAP_NULL_INSTANCE(ReflexCLI::ProjectGen, ValidatedPropertySet);
 REFLEX_BOOTSTRAP_NULL_INSTANCE(ReflexCLI::ProjectGen, Unset);

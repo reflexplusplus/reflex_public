@@ -21,29 +21,57 @@ Array<PathDesc> GetPaths(const Data::PropertySet & values, CString::View name)
 	return result;
 }
 
+Array<Variable> ResolveVariables(ArrayView<Reference<Project>> includes, const Data::PropertySet & document, Key32 property,
+	const Data::KeyMap & keymap, ArrayView<const ValidatedPropertySet *> scopes = {}, ArrayView<Variable> persistent = {})
+{
+	Array<Variable> result;
+	// Includes are ordered overlays: later documents replace earlier defaults.
+	for (auto & included : includes)
+	{
+		for (auto & variable : included->GetDocumentVariables(property)) SetVariable(result, variable.name, variable.value);
+	}
+	// Read only declarations at each scope. Property queries can otherwise fall
+	// back to a parent or an included document and reapply a lower-priority value.
+	auto apply_scope = [&result, property, &keymap](const Data::PropertySet & scope)
+	{
+		for (auto & item : scope.Iterate())
+		{
+			if (item.key.id != property) continue;
+			auto node = DynamicCast<Data::PropertySet>(item.value);
+			if (!node) continue;
+			for (auto & [address, value] : node->Iterate())
+			{
+				if (address.type_id == GetTypeID<Data::KeyMap>()) continue;
+				auto name = Data::GetKey(keymap, address.id);
+				Require(address.type_id == GetTypeID<Data::CStringProperty>(), name, "expected a string");
+				SetVariable(result, name, ToWString(Cast<Data::CStringProperty>(value)->value));
+			}
+			break;
+		}
+	};
+	apply_scope(document);
+	for (auto scope : scopes) apply_scope(*scope);
+	for (auto & variable : persistent) SetVariable(result, variable.name, variable.value);
+	for (auto & variable : result) Require(IsVariableName(variable.name), "invalid variable name", variable.name);
+	return result;
+}
+
 REFLEX_NOINLINE Array<Variable> GetVariables(const ValidatedPropertySet & values, Key32 property, const Data::KeyMap & keymap)
 {
 	Array<const ValidatedPropertySet *> scopes;
 	for (auto scope = &values; scope; scope = scope->parent ? scope->parent.Adr() : nullptr) scopes.Push(scope);
-
-	Array<Variable> result;
-	UInt index = scopes.GetSize();
-	if (index)
+	REFLEX_ASSERT(scopes.GetSize());
+	auto root = scopes.GetLast();
+	Array<const ValidatedPropertySet *> overlays;
+	for (UInt index = scopes.GetSize() - 1; index; --index) overlays.Push(scopes[index - 1]);
+	Array<Variable> persistent;
+	if (property == kNullKey) persistent = GetPersistentVariables();
+	if (root->type == kPropertySetTypeProject)
 	{
-		if (scopes[index - 1]->type == kPropertySetTypeProject)
-		{
-			auto project = Cast<Project>(scopes[index - 1]);
-			result = project->GetDocumentVariables(property);
-			--index;
-		}
+		auto project = Cast<Project>(root);
+		return ResolveVariables(project->GetIncludes(), *project, property, keymap, overlays, persistent);
 	}
-	for (; index; --index)
-	{
-		result = DecodeVariables(*scopes[index - 1], property, keymap, result);
-	}
-	if (property == kNullKey) for (auto & variable : GetPersistentVariables()) SetVariable(result, variable.name, variable.value);
-	for (auto & variable : result) Require(IsVariableName(variable.name), "invalid variable name", variable.name);
-	return result;
+	return ResolveVariables({}, *root, property, keymap, overlays, persistent);
 }
 
 REFLEX_NOINLINE UInt ParseEnumImpl(const Data::PropertySet & node, CString::View property_name, ArrayView<CString::View> enum_strings, Key32 default_value)
@@ -103,18 +131,19 @@ void DecodeProjectDocument(Project & project, Array<Reference<Project>> & projec
 	// Each referenced document retains its own root, keymap, source path, and targets.
 	auto source = Data::DecodePropertySet(Data::kPropertySheetFormat, blob, options);
 	if (auto error = Data::GetError(source)) ThrowError(ToCString(error.value.a + 1), error.value.c);
-	auto variables = DecodeVariables(source, kNullKey, Data::GetKeyMap(source));
-	for (auto & variable : GetPersistentVariables()) SetVariable(variables, variable.name, variable.value);
+	auto persistent = GetPersistentVariables();
+	auto variables = ResolveVariables(project.GetIncludes(), source, kNullKey, Data::GetKeyMap(source), {}, persistent);
 	auto folder = File::SplitFilename(filename).a;
 
-	auto AcquireIncludes = [&project, &projects, &variables, folder](ArrayView<CString> paths)
+	auto AcquireIncludes = [&project, &projects, &variables, &source, &persistent, folder](ArrayView<CString> paths)
 	{
 		for (auto & path : paths)
 		{
 			auto expanded = EvaluateVariableExpressions(ToWString(path), variables, kVariableSyntaxProject, {});
 			auto include_path = File::ResolveIncludePath(folder, File::CorrectStrokes(expanded));
 			auto included = Project::Acquire(projects, include_path, project.keymap.Adr());
-			project.AddInclude(std::move(included));
+			project.AddInclude(included);
+			variables = ResolveVariables(project.GetIncludes(), source, kNullKey, Data::GetKeyMap(source), {}, persistent);
 		}
 	};
 	AcquireIncludes(GetCStrings(source, kProjectInclude));
@@ -122,6 +151,14 @@ void DecodeProjectDocument(Project & project, Array<Reference<Project>> & projec
 
 	g_project_format->Decode(project, File::Open(filename), options);
 	if (auto error = Data::GetError(project)) ThrowError(ToCString(error.value.a + 1), error.value.c);
+}
+
+void EnumerateValidatedPropertySets(const Data::PropertySet & node, ArrayView <PropertySetType> types, const Function <void(const ValidatedPropertySet&)> & enumerate)
+{
+	for (auto & [key,node] : node.Iterate<ValidatedPropertySet>())
+	{
+		if (node->IsEnabled() && Search(types, node->type)) enumerate(node);
+	}
 }
 
 REFLEX_END_INTERNAL
@@ -158,11 +195,10 @@ Reflex::Reference<ReflexCLI::ProjectGen::Project> ReflexCLI::ProjectGen::Project
 	DecodeProjectDocument(*project, projects, filename, options);
 	project->Initialize(filename);
 	project->m_initialized = true;
-
 	return project;
 }
 
-void ReflexCLI::ProjectGen::Project::AddInclude(Reference<Project> project)
+void ReflexCLI::ProjectGen::Project::AddInclude(WillRetain <Project> project)
 {
 	for (auto & existing : m_includes) if (existing.Adr() == project.Adr()) return;
 	m_includes.Push(std::move(project));
@@ -170,12 +206,21 @@ void ReflexCLI::ProjectGen::Project::AddInclude(Reference<Project> project)
 
 const ReflexCLI::ProjectGen::ValidatedPropertySet * ReflexCLI::ProjectGen::Project::FindTemplate(Key32 id) const
 {
-	for (auto & item : Iterate<ValidatedPropertySet>())
+	try
 	{
-		auto candidate = Cast<ValidatedPropertySet>(item.value);
-		if (candidate->type == kPropertySetTypeTemplate && candidate->id == id && candidate->IsEnabled()) return candidate.Adr();
+		EnumerateValidatedPropertySets(*this, { kPropertySetTypeTemplate }, [id](const ValidatedPropertySet & candidate)
+		{
+			if (candidate.id == id) throw(&candidate);
+		});
 	}
-	for (auto & included : m_includes) if (auto match = included->FindTemplate(id)) return match;
+	catch (const ValidatedPropertySet * candidate)
+	{
+		return candidate;
+	}
+	for (auto & include : ReverseIterate(m_includes))
+	{
+		if (auto match = include->FindTemplate(id)) return match;
+	}
 	return nullptr;
 }
 
@@ -204,26 +249,7 @@ bool ReflexCLI::ProjectGen::Project::FindDependency(CString::View name, Referenc
 
 Reflex::Array<ReflexCLI::Variable> ReflexCLI::ProjectGen::Project::GetDocumentVariables(Key32 property) const
 {
-	Array<Variable> result;
-	for (UInt index = m_includes.GetSize(); index; --index)
-	{
-		for (auto & variable : m_includes[index - 1]->GetDocumentVariables(property)) SetVariable(result, variable.name, variable.value);
-	}
-	for (auto & item : Iterate())
-	{
-		if (item.key.id != property) continue;
-		auto node = DynamicCast<Data::PropertySet>(item.value);
-		if (!node) continue;
-		for (auto & [address, value] : node->Iterate())
-		{
-			if (address.type_id == GetTypeID<Data::KeyMap>()) continue;
-			auto name = Data::GetKey(*keymap, address.id);
-			Require(address.type_id == GetTypeID<Data::CStringProperty>(), name, "expected a string");
-			SetVariable(result, name, ToWString(Cast<Data::CStringProperty>(value)->value));
-		}
-		break;
-	}
-	return result;
+	return ResolveVariables(m_includes, *this, property, *keymap);
 }
 
 bool ReflexCLI::ProjectGen::Project::HasDocumentProperty(Key32 id) const
@@ -274,18 +300,14 @@ void ReflexCLI::ProjectGen::Project::Initialize(WString::View source_cfg_path)
 		}
 	}
 
-	auto add_target = [this](ValidatedPropertySet & source, bool library)
+	EnumerateValidatedPropertySets(*this, { kPropertySetTypeTarget, kPropertySetTypeLibrary }, [this](const ValidatedPropertySet & source)
 	{
-		if (!source.IsEnabled()) return;
-		m_targets.Push(Make<Target>(*this, source, library));
-	};
-	for (auto & item : values.Iterate<ValidatedPropertySet>())
+		m_targets.Push(Make<Target>(*this, source, source.type == kPropertySetTypeLibrary));
+	});
+	EnumerateValidatedPropertySets(*this, { kPropertySetTypePackage }, [this](const ValidatedPropertySet & source)
 	{
-		auto source = Cast<ValidatedPropertySet>(item.value);
-		if (source->type == kPropertySetTypeTarget) add_target(*source, false);
-		else if (source->type == kPropertySetTypeLibrary) add_target(*source, true);
-		else if (source->type == kPropertySetTypePackage) m_packages.Push(Make<Package>(*this, *source));
-	}
+		m_packages.Push(Make<Package>(*this, source));
+	});
 	Array<CString> configuration_names;
 	for (auto & target : m_targets)
 	{
@@ -331,7 +353,7 @@ void ReflexCLI::ProjectGen::Project::Initialize(WString::View source_cfg_path)
 	ResolveTargetDependencies(*this);
 }
 
-ReflexCLI::ProjectGen::Package::Package(Project & project, ValidatedPropertySet & source)
+ReflexCLI::ProjectGen::Package::Package(const Project & project, const ValidatedPropertySet & source)
 	: CompiledObject(GetDriverName(source))
 	, project(project)
 {
@@ -346,7 +368,7 @@ ReflexCLI::ProjectGen::Package::Package(Project & project, ValidatedPropertySet 
 	RequireUnique(m_dependency_names, kDependencies);
 }
 
-ReflexCLI::ProjectGen::Target::Target(Project & project, ValidatedPropertySet & source, bool library)
+ReflexCLI::ProjectGen::Target::Target(const Project & project, const ValidatedPropertySet & source, bool library)
 	: CompiledObject(GetDriverName(source))
 	, project(project)
 	, m_library(library)
@@ -354,7 +376,7 @@ ReflexCLI::ProjectGen::Target::Target(Project & project, ValidatedPropertySet & 
 {
 	for (auto & item : m_source->Iterate<PlatformPropertySet>())
 	{
-		auto platform = Cast<PlatformPropertySet>(item.value);
+		auto platform = NoRetain(item.value);
 		if (platform->IsEnabled()) m_platforms.Push(Make<TargetPlatform>(*this, platform));
 	}
 	Require(True(m_platforms), GetName(), "has no platforms");
@@ -368,14 +390,10 @@ ReflexCLI::ProjectGen::TargetPlatform::TargetPlatform(Target & target, PlatformP
 	, m_source(values)
 {
 	Array<Key32> dependency_ids;
-	for (auto & item : values.Iterate<ValidatedPropertySet>())
+	EnumerateValidatedPropertySets(values, { kPropertySetTypeConfiguration }, [this, &target, &values, &dependency_ids](const ValidatedPropertySet & configuration)
 	{
-		auto configuration = Cast<ValidatedPropertySet>(item.value);
-		if (configuration->type != kPropertySetTypeConfiguration) continue;
-		if (!configuration->IsEnabled()) continue;
-
 		Array<Key32> configuration_dependencies;
-		if (auto dependencies = configuration->QueryProperty<AppendableKeys>(MakeKey32(kDependencies)))
+		if (auto dependencies = configuration.QueryProperty<AppendableKeys>(MakeKey32(kDependencies)))
 			configuration_dependencies.Append(dependencies->values);
 		if (m_configurations)
 		{
@@ -395,13 +413,13 @@ ReflexCLI::ProjectGen::TargetPlatform::TargetPlatform(Target & target, PlatformP
 		}
 
 		m_configurations.Push(Make<TargetConfiguration>(*this, configuration));
-	}
+	});
 	Require(True(m_configurations), Join(target.GetName(), ':', GetName()), "has no configurations");
 }
 
 void ReflexCLI::ProjectGen::Target::ResolveDependencies()
 {
-	auto expand_dependency = [](Project & scope, CString::View dependency_name, Array<const Package *> & active_packages, Array<Reference<Target>> & result, auto && expand_dependency) -> void
+	auto expand_dependency = [](const Project & scope, CString::View dependency_name, Array<const Package *> & active_packages, Array<Reference<Target>> & result, auto && expand_dependency) -> void
 	{
 		Reference<Target> target;
 		Reference<Package> package;
@@ -630,7 +648,7 @@ Reflex::Reference<ReflexCLI::ProjectGen::PathGroup> ReflexCLI::ProjectGen::Conso
 	return result;
 }
 
-ReflexCLI::ProjectGen::TargetConfiguration::TargetConfiguration(TargetPlatform & target_platform, ValidatedPropertySet & values)
+ReflexCLI::ProjectGen::TargetConfiguration::TargetConfiguration(TargetPlatform & target_platform, const ValidatedPropertySet & values)
 	: CompiledObject(GetDriverName(values))
 	, platform(target_platform)
 	, m_source(values)

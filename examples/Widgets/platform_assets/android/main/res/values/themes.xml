@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools">
+	<style name="Theme.ReflexApp" parent="Theme.Material3.DayNight.NoActionBar">
+		<item name="android:windowLightStatusBar">true</item>
+		<item name="android:statusBarColor">@android:color/transparent</item>
+		<item name="android:enforceNavigationBarContrast" tools:targetApi="q">false</item>
+		<item name="android:enforceStatusBarContrast" tools:targetApi="q">false</item>
+		<item name="android:navigationBarColor">@android:color/transparent</item>
+		<item name="android:windowSplashScreenBackground" tools:ignore="NewApi">@android:color/black</item>
+		<item name="android:windowSplashScreenAnimatedIcon" tools:ignore="NewApi">@drawable/splash_icon</item>
+		<item name="android:windowSplashScreenIconBackgroundColor" tools:ignore="NewApi">@android:color/black</item>
+	</style>
+</resources>

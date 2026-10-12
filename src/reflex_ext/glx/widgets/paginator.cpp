@@ -7,21 +7,49 @@
 //
 //
 
-REFLEX_BEGIN_INTERNAL(Reflex::GLX)
+struct Reflex::GLX::Paginator::LayoutModel : public Detail::StandardLayout
+{
+	Pair <AccommodateFn, AlignFn> OnRebuild(GLX::Object & object, UInt8 layout_flags) override
+	{
+		auto base = Detail::StandardLayout::OnRebuild(object, layout_flags);
 
-REFLEX_END_INTERNAL
+		auto self = Cast<Paginator>(object);
+
+		Alignment alignments[] = { kAlignmentLeft, kAlignmentRight };
+
+		if (object.GetLayoutFlags() & kFlowY)
+		{
+			alignments[0] = kAlignmentTop;
+			alignments[1] = kAlignmentBottom;
+		}
+
+		auto palignments = alignments;
+
+		for (auto & i : self->m_prevnext)
+		{
+			EnableFloat(i, *palignments++);
+		}
+
+		return base;
+	}
+
+	static LayoutModel st_self;
+};
+
+Reflex::GLX::Paginator::LayoutModel Reflex::GLX::Paginator::LayoutModel::st_self;
 
 Reflex::GLX::Paginator::Paginator()
+	: AbstractViewBar(LayoutModel::st_self)
 {
 	m_show[0] = false;
-
 	m_show[1] = false;
 
-	SkipExit(m_prevnext[0], false);
+	for (auto & i : m_prevnext)
+	{
+		i.SetParent(*this);
 
-	SkipExit(m_prevnext[1], false);
-
-	//EnableMouse(false);
+		SkipExit(i, false);
+	}
 }
 
 void Reflex::GLX::Paginator::OnSetStyle(const Style & style)
@@ -43,7 +71,7 @@ bool Reflex::GLX::Paginator::OnEvent(Object & src, Event & e)
 		{
 			Float itemsize = Detail::GetSize(GetAxis(*this), /*item->*/GetRect().size);
 
-			EmitJump(AbstractViewBar::region.start + (itemsize * (idx.value ? 1.0f : -1.0f)));
+			EmitJump(GetRange().b.start + (itemsize * (idx.value ? 1.0f : -1.0f)));
 
 			return true;
 		}
@@ -66,28 +94,11 @@ bool Reflex::GLX::Paginator::OnEvent(Object & src, Event & e)
 	return Object::OnEvent(src, e);
 }
 
-void Reflex::GLX::Paginator::SetFlow(UInt8 flowflags)
-{
-	Alignment alignments[] = { kAlignmentLeft, kAlignmentRight };
-
-	if (flowflags & kFlowY)
-	{
-		alignments[0] = kAlignmentTop;
-		
-		alignments[1] = kAlignmentBottom;
-	}
-
-	auto palignments = alignments;
-
-	for (auto & i : m_prevnext)
-	{
-		AddFloat(*this, i, *palignments++);
-	}
-}
-
 void Reflex::GLX::Paginator::OnUpdate()
 {
-	bool shows[2] = { True(AbstractViewBar::region.start), AbstractViewBar::region.start < (AbstractViewBar::extent - AbstractViewBar::region.length) };
+	auto [extent, region] = GetRange();
+
+	bool shows[2] = { True(region.start), region.start < (extent - region.length) };
 
 	Button * btn = m_prevnext;
 

@@ -279,10 +279,11 @@ void Reflex::Bootstrap::ParameterControl::OnUpdate()
 
 		EnableOnClock(true);
 
-		OnClock(0.0f);
 	}
 	else
 	{
 		EnableOnClock(false);
 	}
+
+	OnClock(0.0f);	//update label for synchronous compute bounds plus for enum display
 }

@@ -35,7 +35,7 @@ public:
 
 protected:
 
-	virtual void SetFlow(UInt8 flowflags) override;
+	struct LayoutModel;
 
 	virtual bool OnEvent(Object & src, Event & e) override;
 

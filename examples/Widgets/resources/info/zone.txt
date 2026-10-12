@@ -1,0 +1,3 @@
+Zone demonstrates direct MoveBehaviour and ResizeBehaviour use without RangeBar adapting the geometry.
+
+Resize every edge and corner or move the centre; the owner snaps and constrains the delegate rectangle to make feedback visible in the log.

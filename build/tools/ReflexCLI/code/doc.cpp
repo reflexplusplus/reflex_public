@@ -762,11 +762,14 @@ void List(const Data::PropertySet & args, CString::View value, System::FileHandl
 		}
 	}
 
+	Array<Pair<CString, const SymbolInfo*>> matches;
+	matches.Allocate(64);
+
 	auto query = Merge(SplitPath(value), ':');
 
 	for (auto & [symbol, info] : context.index->symbols)
 	{
-		if (parent_symbol && info.parent_symbol != parent_symbol)
+		if (!info.indexed || (parent_symbol && info.parent_symbol != parent_symbol))
 		{
 			continue;
 		}
@@ -775,25 +778,27 @@ void List(const Data::PropertySet & args, CString::View value, System::FileHandl
 
 		if (PathStartsWith(path, context.path))
 		{
-			CString combined = Merge(Mid(path, context.path.GetSize()), ':');
-
-			combined.Push(':');
-			combined.Append(info.name);
+			auto [scope, name] = BuildFullSymbolName(*context.index, info);
+			CString combined = Docformat::PrependNamespace(scope, name);
 
 			if (query.Empty() || Search<CaseInsensitive>(combined, query))
 			{
-				CString line;
-
-				line.Append(CLI::Detail::kColours[CLI::kColourBrightBlack]);
-				line.Append(kCategoryTags[info.category_ex]);
-				line.Append(CLI::Detail::kColours[CLI::kColourDefault]);
-				line.Push(' ');
-
-				out.Write(line.GetData(), line.GetSize());
-
-				PrintSymbol(out, *context.index, location, info);
+				matches.Push({ combined, &info });
 			}
 		}
+	}
+
+	Sort(matches, [](const auto & a, const auto & b) { return a.a < b.a; });
+
+	for (auto & match : matches)
+	{
+		CString line;
+		line.Append(CLI::Detail::kColours[CLI::kColourBrightBlack]);
+		line.Append(kCategoryTags[match.b->category_ex]);
+		line.Append(CLI::Detail::kColours[CLI::kColourDefault]);
+		line.Push(' ');
+		out.Write(line.GetData(), line.GetSize());
+		PrintSymbol(out, *context.index, location, *match.b);
 	}
 }
 

@@ -4,12 +4,6 @@
 
 
 //
-//TODO need GenericProperties / WidgetWithProperties
-
-
-
-
-//
 //implementation
 
 REFLEX_BEGIN_INTERNAL(Reflex::GLX)
@@ -29,11 +23,8 @@ struct RotaryDisplayPropertiesDelegate : public GLX::Object::Delegate
 	void OnAttachObject() override
 	{
 		m_range = GetProperty<RangeProperty>(object, krange);
-
 		m_value = GetProperty<Data::Float32Property>(object, kvalue);
-
 		m_angle = Data::Detail::AcquireProperty<Data::Float32Property>(object, m_angle_id);
-
 		m_sweep = Data::Detail::AcquireProperty<GLX::RangeProperty>(object, m_sweep_id);
 
 		OnSetStyle(object->GetCurrentStyle());
@@ -41,7 +32,7 @@ struct RotaryDisplayPropertiesDelegate : public GLX::Object::Delegate
 
 	void OnSetStyle(const Style & style) override
 	{
-		auto range = Data::GetFloat32Array(style, MakeKey32("sweep_range"));
+		auto range = Data::GetFloat32Array(style, K32("sweep_range"));
 
 		if (range.size == 2)
 		{
@@ -57,10 +48,9 @@ struct RotaryDisplayPropertiesDelegate : public GLX::Object::Delegate
 
 	void OnUpdate() override
 	{
-		auto [angle, sweep] = CalcRotaryAngleAndSweep(m_range->value, m_value->value, m_value_origin, m_sweep_range);
+		auto [angle, sweep] = Detail::CalcRotaryAngleAndSweep(m_range->value, m_value->value, m_value_origin, m_sweep_range);
 
 		m_angle->value = angle;
-
 		m_sweep->value = sweep;
 
 		object->Realign();
@@ -77,6 +67,39 @@ struct RotaryDisplayPropertiesDelegate : public GLX::Object::Delegate
 
 	Reference <RangeProperty> m_sweep;
 	Reference <Data::Float32Property> m_angle;
+};
+
+struct SliderDisplayPropertiesDelegate : public GLX::Object::Delegate
+{
+	REFLEX_OBJECT(GLX::SliderDisplayPropertiesDelegate, Delegate);
+
+	SliderDisplayPropertiesDelegate(Float value_origin, Key32 region_id)
+		: m_value_origin(value_origin), 
+		m_region_id(region_id)
+	{
+	}
+
+	void OnAttachObject() override
+	{
+		m_value = GetProperty<Data::Float32Property>(object, kvalue);
+		m_region = Data::Detail::AcquireProperty<GLX::RangeProperty>(object, m_region_id);
+		
+		OnUpdate();
+	}
+
+	void OnUpdate() override
+	{
+		auto start = Min(m_value_origin, m_value->value);
+		auto end = Max(m_value_origin, m_value->value);
+		m_region->value = { start, end - start };
+		
+		object->Realign();
+	}
+
+	Float m_value_origin;
+	Key32 m_region_id;
+	ConstReference <Data::Float32Property> m_value;
+	Reference <RangeProperty> m_region;
 };
 
 constexpr Key32 kIncrementer = "{Incrementer}";
@@ -281,7 +304,7 @@ void Reflex::GLX::RotarySlider::OnDetachWindow()
 
 Reflex::GLX::Core::Trap Reflex::GLX::RotarySlider::OnPointerTender(Core::PointerAction action, const Core::Pointer & pointer, UInt8 flags)
 {
-	if (Detail::GetBool(GetCurrentStyle(), MakeKey32("circular"), True(GetLayoutFlags() & GLX::kFlowY)))
+	if (Detail::IsCircular(*this))
 	{
 		if (CircleContains(GetRect().size.w, TransformPosition(*this, pointer.position)))
 		{
@@ -316,7 +339,7 @@ void Reflex::GLX::RotarySlider::OnQueryProperty(Address address, Reflex::Object 
 
 void Reflex::GLX::RotarySlider::OnSetProperty(Address adr, Reflex::Object & object)
 {
-	if (adr == MakeAddress<Data::Float32Property>(MakeKey32("sensitivity")))
+	if (adr == MakeAddress<Data::Float32Property>(K32("sensitivity")))
 	{
 		auto t = AutoRelease(object);
 
@@ -346,12 +369,21 @@ Reflex::AlreadyRetained <Reflex::GLX::Object::Delegate> Reflex::GLX::AttachRotar
 {
 	auto d = New<RotaryDisplayPropertiesDelegate>(value_origin, angle_id, sweep_id);
 
-	object.SetDelegate(angle_id, d);
+	object.SetDelegate(K32("rotary_slider"), d);
 
 	return NoRetain(d);
 }
 
-Reflex::Tuple <Reflex::Float, Reflex::GLX::Range> Reflex::GLX::CalcRotaryAngleAndSweep(Range value_range, Float value, Float value_origin, Range sweep_range)
+Reflex::AlreadyRetained <Reflex::GLX::Object::Delegate> Reflex::GLX::AttachSliderDisplayPropertiesDelegate(GLX::Object & object, Float value_origin, Key32 region_id)
+{
+	auto d = New<SliderDisplayPropertiesDelegate>(value_origin, region_id);
+
+	object.SetDelegate(K32("rotary_slider"), d);
+
+	return NoRetain(d);
+}
+
+Reflex::Tuple <Reflex::Float, Reflex::GLX::Range> Reflex::GLX::Detail::CalcRotaryAngleAndSweep(Range value_range, Float value, Float value_origin, Range sweep_range)
 {
 	if (value_range.length)
 	{

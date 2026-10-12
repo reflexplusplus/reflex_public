@@ -15,8 +15,8 @@ namespace Reflex::GLX
 
 
 	AlreadyRetained <Object::Delegate> AttachRotaryDisplayPropertiesDelegate(GLX::Object & object, Float value_origin = 0.0f, Key32 indicator_id = MakeKey32("indicator"), Key32 sweep_id = MakeKey32("sweep"));
-
-	Tuple <Float,Range> CalcRotaryAngleAndSweep(Range value_range, Float value, Float value_origin, Range sweep_range = { 0.375f, 0.75f });
+	
+	AlreadyRetained <Object::Delegate> AttachSliderDisplayPropertiesDelegate(GLX::Object & object, Float value_origin = 0.0f, Key32 region_id = MakeKey32("region"));
 
 }
 
@@ -120,6 +120,17 @@ REFLEX_SET_TRAIT(Reflex::GLX::RotarySlider, IsSingleThreadExclusive);
 
 //
 //impl
+
+REFLEX_NS(Reflex::GLX::Detail)
+
+inline bool IsCircular(GLX::RotarySlider & object)
+{
+	return Detail::GetBool(object.GetCurrentStyle(), K32("circular"), True(object.GetLayoutFlags() & GLX::kFlowY));
+}
+
+Tuple <Float, Range> CalcRotaryAngleAndSweep(Range value_range, Float value, Float value_origin, Range sweep_range = { 0.375f, 0.75f });
+
+REFLEX_END
 
 inline Reflex::Tuple <Reflex::GLX::Range, Reflex::Float> Reflex::GLX::RotarySlider::GetRange() const
 {

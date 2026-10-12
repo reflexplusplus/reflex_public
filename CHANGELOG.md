@@ -1,5 +1,36 @@
 # Changelog
 
+## v0.5.3 — AAX plug-in support and VM improvements
+
+Reflex 0.5.3 adds AAX audio plug-in support, extending the SDK's native plug-in target options to include Avid Pro Tools. The release also expands the Reflex VM with more efficient execution plus script-object const members and constructors, while GLX receives widget rendering, styling, and stability improvements. Project generation now resolves included configuration variables and inherited templates more predictably, and a Widgets example provides practical UI references.
+
+### Changes
+#### AAX
+- Add AAX audio plug-in support, including the platform integration needed to build and run Reflex plug-ins in Avid Pro Tools
+
+#### VM
+- Optimise VM execution and stack handling
+- Add script-object const members and constructor syntax
+- Improve object-method intrinsic ordering and other VM behavior
+
+#### GLX
+- Improve `RangeBar`, image fitting and rendering, slider fills, and default style bindings
+- Add `CreateCompositeGraphic` and native vector-sheet error reporting
+- Fix animated state changes, `TextEdit`, and Bootstrap rotary/slider control styling and delegate caching
+- Add margin syntax support
+
+#### ReflexCLI and project generation
+- Resolve included configuration variables and inherited templates in overlay order
+- Sort `doc list` output and add `reflex_generate` documentation
+- Add UI stubs to macOS and Windows console targets
+
+#### Examples and other improvements
+- Add the Widgets example
+- Add `Set` and `Unset` methods to `Optional`
+- Improve `REFLEX_ATOMIC` macro type deduction
+- Fix IDE builder focus handling and reorder build targets
+- Make minor portability and warning fixes
+
 ## v0.5.2 — CMake include paths and bundle metadata
 
 Reflex 0.5.2 is a maintenance release aimed at how projects consume the SDK. Generated CMake targets now expose their public include directories as PUBLIC, with paths relative to the package, so dependent targets inherit them and exported trees no longer carry absolute paths. Generated macOS and iOS bundles take their minimum OS version from the project's deployment target rather than a fixed value. It also fixes a crash when cloning a null table and an abort that could not proceed while a slow network was being emulated.

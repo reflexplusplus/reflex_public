@@ -78,7 +78,8 @@ explicitly:
 Inheritance is copy-based and declaration ordered. A local template must be
 declared before use; templates in included documents are already available.
 Template lookup searches the current document first and then included documents
-recursively in declaration order, returning the first matching ID. `inherit`
+recursively in reverse declaration order, so a later include wins when names
+match. `inherit`
 overwrites properties already present on the receiving object; properties
 written afterward override the copied values. Later templates in an inheritance
 array override earlier templates.
@@ -203,6 +204,10 @@ comparisons:
 Persistent values also form the highest-precedence variable overlay. They are
 applied while resolving include paths and again when resolving each final
 target's variables, so a CLI value overrides a cfg default at every scope.
+Included documents are applied in listed order: a later include can replace a
+variable declared by an earlier include, and the including document can replace
+both. An include path may use variables from the current document and from
+includes already loaded, but not from an include that follows it.
 Declare cfg defaults with `variables`:
 
 ```propertysheet

@@ -1,0 +1,3 @@
+Popup opens a contextual menu anchored to its trigger and dismisses when focus leaves the popup.
+
+This demo provides two actions that log when selected and uses the shared menu style from the C++ Audio Plugin template.

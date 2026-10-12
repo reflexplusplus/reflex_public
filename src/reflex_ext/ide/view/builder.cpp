@@ -199,7 +199,7 @@ struct BuilderImpl : public Detail::BuilderPanel
 			if (token->attributes.resolved_path) return token;
 		}
 
-		return 0;
+		return nullptr;
 	}
 
 	Tuple < ConstReference <Reflex::Object>, Data::Archive, Data::Archive > & AcquireState(Key32 id)
@@ -246,6 +246,8 @@ struct BuilderImpl : public Detail::BuilderPanel
 
 
 	Reference <Interface> m_editor;
+	
+	bool m_pending_set_focus = false;
 
 
 	const Tuple <ConstReference<Reflex::Object>,Data::Archive,Data::Archive> m_null_state;
@@ -876,8 +878,10 @@ bool BuilderImpl::OnEvent(GLX::Object & src, GLX::Event & e)
 			if (auto paddress = item->QueryProperty<ObjectOf<Address>>(kNullKey))
 			{
 				Open(paddress->value, true);
-
-				m_editor->Focus();
+				
+				m_pending_set_focus = true;
+				
+				Update();
 			}
 
 			return true;
@@ -1009,6 +1013,8 @@ void BuilderImpl::OnUpdate()
 	{
 		m_editor->ClearError();
 	}
+
+	if (SetFiltered(m_pending_set_focus, false)) m_editor->Focus();
 }
 
 void BuilderImpl::OnClock(Float32)
@@ -1296,6 +1302,12 @@ bool BuilderImpl::TextEditor::OnEvent(GLX::Object & src, GLX::Event & e)
 			EndSearch(*this);
 			return true;
 		}
+	}
+	else if (e.id == GLX::kFocus)
+	{
+		m_texteditor->Focus();
+		
+		return true;
 	}
 
 	return Interface::OnEvent(src, e);

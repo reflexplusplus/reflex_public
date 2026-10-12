@@ -737,7 +737,7 @@ const CLI::TaskDef kCommands[] =
 				return;
 
 			case K32("build-plist"):
-				print_arg(false, "--target <app|audioapp|ios_app|ios_audioapp|vst2|vst3|clap|au|auv3>", "the plist target type to generate");
+				print_arg(false, "--target <app|audioapp|ios_app|ios_audioapp|vst2|vst3|clap|au|auv3|aax>", "the plist target type to generate");
 				print_arg(false, "--output <path>", "the output plist file path");
 				print_arg(false, "--product <name>", "the product name to embed");
 				print_arg(true, "--executable <name>", "the bundle executable name, defaults to the product name");
@@ -909,6 +909,14 @@ const CLI::TaskDef kCommands[] =
 		ValidateArgs(args, { Arg("root"), Arg("parent"), Arg(kFirstPositionalArg), Arg(kFirstPositionalArg + 1) });
 		Doc(args, std_out);
 	}),
+#if REFLEX_DEBUG
+	CLI::MakeTask("export-generate-doc", [](const Data::PropertySet & args, System::FileHandle & std_out)
+	{
+		ValidateArgs(args, {});
+		std_out.Flush(true);
+		ProjectGen::ExportDocumentationSymbols();
+	}),
+#endif
 	CLI::MakeTask("create", &Create),
 	CLI::MakeTask("generate", [](const Data::PropertySet & args, System::FileHandle & std_out)
 	{

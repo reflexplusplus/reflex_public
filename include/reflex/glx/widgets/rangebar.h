@@ -46,13 +46,10 @@ public:
 	void EnableResize(bool enable = true);
 
 
-	void SetSnap(Float snap);
-
-	Float GetSnap() const;
-
-
 
 protected:
+
+	virtual void OnSetMinSize(Float32 min_size) override;
 
 	virtual void OnSetRange() override;
 
@@ -66,21 +63,22 @@ private:
 
 	struct Layout;
 
+	struct DragState;
+
 
 	bool m_enable_resize;
 
-	UInt8 m_transactionflag;
+	bool m_transaction_active;
 
-	Float m_snap;
+
+	Reference <Data::Float32Property> m_min_size_property;
+
+	Reference <RangeProperty> m_range_property, m_region_property;
+
 
 	Float m_pixsize;
 
-	Float m_minsize;
-
 	GLX::Object m_bar;
-
-
-	Reference <RangeProperty> m_range, m_region;
 
 };
 

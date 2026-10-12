@@ -36,7 +36,7 @@ public:
 
 	//setup
 	
-	virtual void SetFlow(UInt8 flowflags) { GLX::SetFlow(*this, flowflags); }
+	void SetMinSize(Float min_size) { OnSetMinSize(min_size); }
 
 
 	
@@ -48,25 +48,26 @@ public:
 
 
 
-	//info
-
-	const Float extent = 1.0f;
-
-	const Range region = kNormalRange;
-
-
-
 protected:
+
+	using Object::Object;
 
 	bool EmitTransaction(TransactionStage stage, Range region, Orientation edge = kOrientationCenter);
 
 	bool EmitJump(Float region_start);
 
 
+	virtual void OnSetMinSize(Float32 min_size) {}
+
 	virtual void OnSetRange() {}
 
 
-	using Object::Object;
+
+private:
+
+	Float m_extent = 1.0f;
+
+	Range m_region = kNormalRange;
 
 };
 
@@ -80,5 +81,5 @@ REFLEX_SET_TRAIT(Reflex::GLX::AbstractViewBar, IsSingleThreadExclusive);
 
 REFLEX_INLINE Reflex::Tuple <Reflex::Float, Reflex::GLX::Range> Reflex::GLX::AbstractViewBar::GetRange() const
 {
-	return { extent, region };
+	return { m_extent, m_region };
 }

@@ -177,7 +177,7 @@ struct Reflex::System::AudioPlugin::Configuration::Class
 
 	CString vendor, product, version;
 
-	Pair <UInt8> channels_io;
+	Pair <UInt8> channels_io;	//TODO this needs replacing with general channel/bus descs, see system_audioplugin_extensions.md
 
 	Pair <bool> midi_io;
 
@@ -230,9 +230,8 @@ struct Reflex::System::AudioPlugin::Configuration::Class
 
 	struct AAX
 	{
-		UInt32 manufacturer_4cc;
-		UInt32 product_4cc;
-		UInt32 native_4cc;
+		UInt32 vendor_4cc;
+		UInt32 uid_4cc;
 		UInt32 audiosuite_4cc;
 	}
 

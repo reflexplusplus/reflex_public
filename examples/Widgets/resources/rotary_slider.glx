@@ -1,0 +1,107 @@
+include: "common.glx";
+
+@Bitmap image_strip:
+{
+	path: "images/rotary.png";
+	density: 2;
+	tile: 100;
+	antialias: true;
+};
+
+Rotary:
+{
+	margin: 8;
+	transition: 0.25;
+	render: x4;
+	size: 64;
+	colour: 128;
+	sweep_range: 0.375,0.75;
+	bg:
+	Rotate
+	(
+		angle: &indicator;
+		content:
+		Align
+		(
+			position: right;
+			size: 10,2;
+			content: Fill(corner: 1)
+		)
+	),
+	Circle(sweep: &sweep; width: 10; colour: 255,32),
+	Circle(sweep: 0.375,0.75; width: 2);
+
+	@State hover: { colour: 96; };
+};
+
+BitmapRotary:
+{
+	margin: 8;
+	size: 64;
+	bg: 
+	ImageSelector(source: image_strip; frame: &value; fit: stretch),
+	Border(color: 0);
+};
+
+UnipolarSlider:
+{
+	circular: false;
+
+	margin: 8;
+	size: 32,192;
+
+	bg:
+	Mask
+	(
+		mask: Fill(corner: 4);
+		content:
+		Fill(colour: 232),
+		Bar
+		(
+			//range & region are default bindings, shown here for clarity
+			//range: &range;
+			//region: &region;
+			content:
+			Fill(colour: 42,142,214),
+			Line(position: top; width: 2; colour: 255,128)
+		),
+		Gradient(angle: top; from: 255,64; to: 255,0),
+		InnerShadow(width: 3; colour: 0,64),
+		Border(colour: 185; corner: 4)
+	);
+};
+
+BipolarSlider:
+{
+	circular: false;
+
+	margin: 8;
+	size: 192,32;
+
+	bg:
+	Mask
+	(
+		mask: Fill(corner: 4);
+		content:
+		Fill(colour: 232),
+		Bar
+		(
+			//range & region are default bindings, shown here for clarity
+			//range: &range;	
+			//region: &region;
+			content:
+			Fill(colour: 220,102,44),
+			If
+			(
+				input: &value;
+				op: lt;
+				value: 0;
+				then: Line(position: left; width: 2; colour: 255,128);
+				else: Line(position: right; width: 2; colour: 255,128)
+			)
+		),
+		Gradient(angle: top; from: 255,64; to: 255,0),
+		InnerShadow(width: 3; colour: 0,64),
+		Border(colour: 185; corner: 4)
+	);
+};

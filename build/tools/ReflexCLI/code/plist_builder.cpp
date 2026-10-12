@@ -255,6 +255,14 @@ void WritePluginKeys(XmlWriter & xml, const Data::PropertySet & args)
 	WriteCommonBundleKeys(xml, product, executable, GetString(args, "bundle_id"), GetString(args, "version"), "BNDL", true);
 }
 
+void WriteAaxKeys(XmlWriter & xml, const Data::PropertySet & args)
+{
+	auto product = GetString(args, "product");
+	auto executable = Data::GetCString(args, "executable", product);
+	WriteCommonBundleKeys(xml, product, executable, GetString(args, "bundle_id"), GetString(args, "version"), "TDMw", false);
+	WriteString(xml, "CFBundleSignature", "PTul");
+}
+
 void WriteAudioUnitComponent(XmlWriter & xml, const Data::PropertySet & args, const AudioUnitComponent & component, bool auv3)
 {
 	auto vendor = GetString(args, "vendor");
@@ -356,6 +364,10 @@ Data::Archive GeneratePlist(const Data::PropertySet & args, Key32 target)
 		case MakeKey32("vst2"):
 		case MakeKey32("vst3"):
 			WritePluginKeys(xml, args);
+			break;
+
+		case MakeKey32("aax"):
+			WriteAaxKeys(xml, args);
 			break;
 
 		case MakeKey32("au"):

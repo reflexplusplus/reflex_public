@@ -8,12 +8,12 @@
 
 REFLEX_BEGIN_INTERNAL(Reflex::Bootstrap)
 
-constexpr Pair <Key32> kControlTypeStates[GenericControl::kNumType] =
+constexpr Key32 kControlTypeStates[GenericControl::kNumType] =
 {
-	{ K32("continuous"), K32("rotary") },
-	{ K32("discrete"), K32("dragedit") },
-	{ K32("enumeration"), K32("popup") },
-	{ K32("boolean"), K32("button") },
+	K32("continuous"),
+	K32("discrete"),
+	K32("enumeration"),
+	K32("boolean"),
 };
 
 struct ControlCompiledStyle : public Object
@@ -23,13 +23,6 @@ struct ControlCompiledStyle : public Object
 		, positioning_flags(ParseControlPositioning(style))
 		, flow_flags(ParseControlFlow(style))
 	{
-		REFLEX_LOOP(idx, GenericControl::kNumType)
-		{
-			auto [state,alias] = kControlTypeStates[idx];
-
-			type_states[idx] = style.QuerySubStyle(alias) ? alias : state;
-		}
-
 		if (auto labels = style.QuerySubStyle("labels"))
 		{
 			auto labels_itr = labels->Iterate<Data::CStringProperty>();
@@ -43,15 +36,6 @@ struct ControlCompiledStyle : public Object
 				remap_view.Set(item.key.id, label);
 			}
 		}
-	}
-
-	void Apply(GLX::Object & control) const
-	{
-		control.SetStyle(content_style);
-
-		control.SetPositioningFlags(positioning_flags);
-
-		GLX::SetFlow(control, flow_flags);
 	}
 
 	static UInt8 ParseControlPositioning(const GLX::Style & style)
@@ -101,13 +85,49 @@ struct ControlCompiledStyle : public Object
 
 	Map <Key32, WString::View> remap_view;
 
-	Key32 type_states[GenericControl::kNumType];
-
 	ConstAlreadyRetained <GLX::Style> content_style;
 
 	UInt8 positioning_flags;
 
 	UInt8 flow_flags;
+};
+
+struct RotarySliderWithDisplayDelegate : public GLX::RotarySlider
+{
+	void OnBuildLayout(AccommodateFn & accommodate, AlignFn & align) override
+	{
+		GLX::RotarySlider::OnBuildLayout(accommodate, align);
+
+		AttachDisplayDelegate();
+	}
+
+	void OnSetStyle(const GLX::Style & style) override
+	{
+		GLX::RotarySlider::OnSetStyle(style);
+
+		AttachDisplayDelegate();
+	}
+
+	void AttachDisplayDelegate()
+	{
+		if (SetFiltered(m_filter, UInt8(GLX::Detail::IsCircular(*this))))
+		{
+			m_delegate->Detach();
+
+			if (m_filter)
+			{
+				m_delegate = GLX::AttachRotaryDisplayPropertiesDelegate(*this);
+			}
+			else
+			{
+				m_delegate = GLX::AttachSliderDisplayPropertiesDelegate(*this);
+			}
+		}
+	}
+
+	UInt8 m_filter = kMaxUInt8;
+
+	Reference <GLX::Object::Delegate> m_delegate;
 };
 
 REFLEX_END_INTERNAL
@@ -164,8 +184,7 @@ Reflex::AlreadyRetained <Reflex::GLX::Object> Reflex::Bootstrap::GenericControl:
 		switch (type)
 		{
 		case kTypeContinuous:
-			m_content = REFLEX_CREATE(GLX::RotarySlider);
-			GLX::AttachRotaryDisplayPropertiesDelegate(m_content);
+			m_content = REFLEX_CREATE(RotarySliderWithDisplayDelegate);
 			break;
 
 		case kTypeDiscrete:
@@ -184,7 +203,7 @@ Reflex::AlreadyRetained <Reflex::GLX::Object> Reflex::Bootstrap::GenericControl:
 			return {};
 		}
 
-		auto type_state = Cast<ControlCompiledStyle>(m_cstyle)->type_states[type];
+		auto type_state = kControlTypeStates[m_type_active.a];
 
 		if (type_state != m_type_state)
 		{
@@ -201,7 +220,7 @@ Reflex::AlreadyRetained <Reflex::GLX::Object> Reflex::Bootstrap::GenericControl:
 
 		GLX::Activate(m_content, active);
 
-		Cast<ControlCompiledStyle>(m_cstyle)->Apply(m_content);
+		ApplyStyle();
 	}
 
 	return m_content;
@@ -209,10 +228,19 @@ Reflex::AlreadyRetained <Reflex::GLX::Object> Reflex::Bootstrap::GenericControl:
 
 void Reflex::Bootstrap::GenericControl::OnSetStyle(const GLX::Style & style)
 {
-	auto compiled_style = GLX::Detail::Compile<ControlCompiledStyle>(style);
+	m_cstyle = GLX::Detail::Compile<ControlCompiledStyle>(style);
 
-	m_cstyle = compiled_style;
+	ApplyStyle();
+}
 
-	if (m_content->GetParent()) compiled_style->Apply(m_content);	//guard prevents applying also on UnsetState and SetState in AcquireWidget
+void Reflex::Bootstrap::GenericControl::ApplyStyle()
+{
+	auto current = Cast<ControlCompiledStyle>(m_cstyle);
+
+	m_content->SetPositioningFlags(current->positioning_flags);
+
+	GLX::SetFlow(m_content, current->flow_flags);
+
+	m_content->SetStyle(current->content_style);
 }
 

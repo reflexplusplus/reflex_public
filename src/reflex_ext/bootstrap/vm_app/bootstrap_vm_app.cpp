@@ -1,4 +1,5 @@
 #include "reflex_ext/bootstrap/vm_app.h"
+#include "reflex_ext/vm.h"
 #include "vm_view_wrapper.h"
 #include "../common/[require].h"
 
@@ -37,19 +38,13 @@ struct VmAppDelegate : public App
 	{
 		File::ResourcePool::Lock lock(global->resourcepool);
 
-		Array < Tuple < CString::View, AlreadyRetained<Object> > > externals;
+		VM::GlobalObject externals[2]
+		{
+			{ "prefs", global->prefs },
+			{ "self", this }
+		};
 
-		externals.Push({ "prefs", global->prefs });
-
-		externals.Push({ "self", this });
-
-		auto prebindings = Make<VM::Compiler::Context>(New<VM::Bindings>(VM::kContextFlagMain));
-
-		prebindings->Instantiate(g_bindings);
-
-		if (!Detail::RegisterScriptGlobals(prebindings->bindings, externals)) return;
-
-		auto program = AutoRelease(m_compiler->Compile(lock, m_path, VM::kContextFlagMain, prebindings));
+		auto program = VM::Compile(m_compiler, lock, m_path, VM::kContextFlagMain, { g_bindings }, externals);
 
 		if (IDE::kIsAwake)
 		{
@@ -90,13 +85,13 @@ struct VmAppDelegate : public App
 		m_onrestore = nullptr;
 
 		{
-			m_context = VM::Context::Create(*program, { .context_id = contextid });
+			m_context = VM::Context::Create(program, { .context_id = contextid });
 
 			m_context->SetProperty(kNullKey, lock.resourcepool);	//For VM::Thread
 
 			VM::Context::Scope scope(*m_context);
 
-			if (!Detail::SetScriptGlobals(*m_context, externals)) return;
+			if (!VM::SetGlobals(*m_context, externals)) return;
 
 			if (!m_context->Run()) return;
 
@@ -366,9 +361,9 @@ const Reflex::VM::Module Reflex::Bootstrap::VmAppDelegate::g_bindings("Bootstrap
 //
 //		VM::AddMethod(bindings, "GetNumParameter", int32_t, { audioplugin_t }, [](VM::Context & context)
 //		{
-//			VM_POP1(AudioPlugin&);
+//			auto & arg = VM::Pop<AudioPlugin&>(context);
 //
-//			VM_RTN(arg.GetParameterValues().b);
+//			VM::Return(context, arg.GetParameterValues().b);
 //		});
 //
 //
@@ -380,9 +375,9 @@ const Reflex::VM::Module Reflex::Bootstrap::VmAppDelegate::g_bindings("Bootstrap
 //
 //		VM::AddConstructor(bindings, audiodelegate_monitor_t, { audioplugin_t }, [](VM::Context & context)
 //		{
-//			VM_POP1(AudioPlugin&);
+//			auto & arg = VM::Pop<AudioPlugin&>(context);
 //
-//			VM_RTN(REFLEX_CREATE(AudioPlugin::MonitorObject, arg));
+//			VM::Return(context, REFLEX_CREATE(AudioPlugin::MonitorObject, arg));
 //		});
 //
 //		VM::Detail::BindObjectMethod<&AudioPlugin::MonitorObject::Poll>(bindings, audiodelegate_monitor_t, "Poll");

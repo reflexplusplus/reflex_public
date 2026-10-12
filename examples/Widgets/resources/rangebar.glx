@@ -1,0 +1,91 @@
+include: "common.glx";
+
+@Font Medium:
+{
+	path: "fonts/OpenSans/static/OpenSans/OpenSans-Regular.ttf";
+	size: 12;
+};
+
+size: 760, 330;
+padding: 8,4;
+
+Options:
+{
+};
+
+Constraints:
+{
+	size: 0,42;
+	margin: 0,0,5,0;
+};
+
+Option:
+{
+	size: 96,24;
+	margin: 2,0;
+	bg: Fill(colour: 228; corner: 4), Text(font: Medium; value: &value; colour: 48; justify: center);
+	@State hover: { bg: Fill(colour: 216; corner: 4), Text(font: Medium; value: &value; colour: 32; justify: center); };
+	@State selected: { bg: Fill(colour: 42,142,214; corner: 4), Text(font: Medium; value: &value; colour: 255; justify: center); };
+};
+
+Field:
+{
+	transition: 0.25;
+	
+	size: 186,32;
+	margin: 0,4,0,10;
+
+	bg:
+	Fill(colour: 237; corner: 4), 
+	Inline
+	(
+		content:
+		Align(size: 96,32; content: Text(font: Medium; value: &label; colour: 64; justify: center)),
+		Align(size: 86,32; content: Text(font: Medium; colour: 32; justify: center))
+	),
+	Border(colour: 190; corner: 4);
+
+	@State active:
+	{
+		bg:
+		Fill(colour: 255; corner: 4),
+		Inline
+		(
+			content:
+			Align(size: 96,32; content: Text(font: Medium; value: &label; colour: 64; justify: center)),
+			Align(size: 86,32; content: TextEdit(font: Medium; colour: 32; justify: center))
+		),
+		Border(colour: 42,142,214; corner: 4);
+	};
+};
+
+Track:
+{
+	padding: 16;
+	bg:
+	Fill(colour: 250; corner: 4),
+	Border(colour: 225; corner: 4);
+};
+
+Status:
+{
+	bg: 
+	Text(indent: 0,8; font: Medium; value: &value; colour: 64; justify: center);
+};
+
+Range:
+{
+	size: 32;
+	bg: 
+	Fill(colour: 232; corner: 4),
+	Bar
+	(
+		//uses default bindings
+		//range: &range; 
+		//region: &region; 
+		min_size: &min_size;
+		content: 
+		Fill(colour: 42,142,214; corner: 3)
+	),
+	Border(colour: 185; corner: 4);
+};

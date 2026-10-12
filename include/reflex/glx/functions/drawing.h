@@ -125,12 +125,6 @@ namespace Reflex::GLX
 
 
 
-	//to vbo
-
-	[[nodiscard]] Unretained <System::Renderer::Graphic> CreateGraphic(const Points::View & points, System::Renderer::PrimitiveType primitive_type = System::Renderer::kPrimitiveTypeTriangles);
-
-	[[nodiscard]] Unretained <System::Renderer::Graphic> CreateGraphic(const ColourPoints::View & colour_points, System::Renderer::PrimitiveType primitive_type = System::Renderer::kPrimitiveTypeTriangles);
-
 }
 
 
@@ -256,14 +250,4 @@ REFLEX_INLINE void Reflex::GLX::AddPath(Points & output, const Points::View & pa
 
 		Detail::AddPathExImpl(output, rescaler.path, closed, width, join, cap, miter_limit);
 	}
-}
-
-REFLEX_INLINE Reflex::Unretained <Reflex::System::Renderer::Graphic> Reflex::GLX::CreateGraphic(const Points::View & points, System::Renderer::PrimitiveType type)
-{
-	return Core::g_renderer->CreatePrimitives(type, points);
-}
-
-REFLEX_INLINE Reflex::Unretained <Reflex::System::Renderer::Graphic> Reflex::GLX::CreateGraphic(const ColourPoints::View & colourpoints, System::Renderer::PrimitiveType type)
-{
-	return Core::g_renderer->CreatePrimitives(type, colourpoints);
 }

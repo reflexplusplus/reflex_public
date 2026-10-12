@@ -24,7 +24,7 @@
 
 #define REFLEX_ATOMIC_READ_UNORDERED(var) var.load(std::memory_order_relaxed)
 
-#define REFLEX_ATOMIC_WRITE(var, value) var.store(value, std::memory_order_release)
+#define REFLEX_ATOMIC_WRITE(var, ...) var.store(__VA_ARGS__, std::memory_order_release)
 
 #define REFLEX_ATOMIC_WRITE_UNORDERED(var, value) var.store(value, std::memory_order_relaxed)
 
@@ -34,7 +34,7 @@
 
 #define REFLEX_ATOMIC_OR(var, flags) var.fetch_or(flags, std::memory_order_release)
 
-#define REFLEX_ATOMIC_POLL(var) var.exchange(0, std::memory_order_acquire)
+#define REFLEX_ATOMIC_POLL(var) var.exchange(decltype(var){}, std::memory_order_acquire)
 
 #define REFLEX_ATOMIC_SET_FILTERED(var, value) (var.exchange(value, std::memory_order_acq_rel) != value)
 

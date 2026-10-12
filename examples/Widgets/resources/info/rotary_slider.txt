@@ -1,0 +1,3 @@
+A rotary slider changes a continuous value by dragging, with optional keyboard adjustment and reset behavior.
+
+The rotary display delegate publishes the indicator angle and sweep used by the Rotate and Circle layers. The slider display delegate publishes a region between zero and the value for the Bar layer; the style uses the value to place the marker at the filled edge. The bitmap rotary binds its image frame directly to the value. This demo logs transaction stages with the current value.

@@ -1,0 +1,3 @@
+A button is a click target that emits an action when activated with the pointer or keyboard.
+
+This demo logs each click so the event route and visual states can be checked.

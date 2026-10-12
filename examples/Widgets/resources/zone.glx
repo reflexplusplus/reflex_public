@@ -1,0 +1,7 @@
+include: "common.glx";
+
+Zone:
+{
+	size: 120,64;
+	bg: Fill(colour: 90,174,110; corner: 3), Border(colour: 36,102,54; width: 2; corner: 3);
+};

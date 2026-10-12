@@ -1,43 +1,8 @@
 #include "[require].h"
+#include "../../../../include/reflex_ext/vm.h"
 
 
 
-
-
-bool Reflex::Bootstrap::Detail::RegisterScriptGlobals(VM::Bindings & bindings, const ArrayView < Tuple <CString::View, AlreadyRetained<Object>> > & globals)
-{
-	for (auto & item : globals)
-	{
-		auto object_t = item.b->object_t;
-
-		do
-		{
-			if (auto type = bindings.QueryType(object_t->type_id))
-			{
-				bindings.RegisterGlobal(type, VM::kGlobal, item.a, VM::Bindings::Global::kFlagsConst);
-
-				break;
-			}
-
-			object_t = object_t->base;
-		}
-		while (object_t && object_t != Object::kDynamicTypeInfo);
-
-		if (!object_t || object_t == Object::kDynamicTypeInfo) return false;
-	}
-
-	return true;
-}
-
-bool Reflex::Bootstrap::Detail::SetScriptGlobals(VM::Context & context, const ArrayView < Tuple <CString::View, AlreadyRetained<Object>> > & globals)
-{
-	for (auto & item : globals)
-	{
-		if (!context.SetGlobal({ VM::kGlobal, item.a }, item.b)) return false;
-	}
-
-	return true;
-}
 
 Reflex::Unretained <Reflex::IDE::ResourceGroup> Reflex::Bootstrap::CreateScriptObject(const WString::View & path, UInt8 context_flags, const ArrayView <ConstRef<VM::Module>> & modules, const ArrayView < Tuple <CString::View, AlreadyRetained<Object>> > & externals, const Function <void(VM::Context & context, GLX::Object & object)> & on_create)
 {
@@ -97,7 +62,7 @@ Reflex::Unretained <Reflex::IDE::ResourceGroup> Reflex::Bootstrap::CreateScriptO
 
 		for (auto & module : state->modules) prebindings->Instantiate(module);
 
-		if (!Detail::RegisterScriptGlobals(prebindings->bindings, state->externals)) return;
+		if (!VM::RegisterGlobals(prebindings->bindings, state->externals)) return;
 
 		auto self_t = VM::QueryType<GLX::Object>(prebindings->bindings);
 
@@ -133,7 +98,7 @@ Reflex::Unretained <Reflex::IDE::ResourceGroup> Reflex::Bootstrap::CreateScriptO
 
 		externals.Push({ "self", self });
 
-		if (!Detail::SetScriptGlobals(*vm_context, externals)) return;
+		if (!VM::SetGlobals(*vm_context, externals)) return;
 
 		if (!vm_context->Run()) return;
 

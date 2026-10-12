@@ -89,4 +89,9 @@ namespace ReflexCLI::ProjectGen
 
 
 	extern ConstAlreadyRetained<Data::Format> g_project_format;
+
+#if REFLEX_DEBUG
+	// Writes the generated symbol index for the public project.cfg schema.
+	void ExportDocumentationSymbols();
+#endif
 }

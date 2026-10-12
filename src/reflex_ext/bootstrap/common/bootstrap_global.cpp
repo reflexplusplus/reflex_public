@@ -239,7 +239,7 @@ Reflex::Bootstrap::Global::Global(CString::View vendor, CString::View product, W
 		lock.Attach(New<File::FileLocator>());
 
 #ifndef REFLEX_BOOTSTRAP_TYPE_CONSOLE_APP
-		if (project_dir) lock.Attach(New<IDE::ProxyPath>(MakeKey32("res"), resources_subdomain, Join(project_dir, L"resources", System::kPathDelimiter)));
+		if (project_dir) lock.Attach(New<IDE::ProxyPath>(K32("res"), resources_subdomain, Join(project_dir, L"resources", System::kPathDelimiter)));
 #endif
 	}
 

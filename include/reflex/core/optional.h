@@ -32,6 +32,10 @@ struct Reflex::Optional
 
 	Optional(const TYPE & value, bool set) : value(value), set(set) {}
 
+	void Set(const TYPE & value) { Optional::value = value; set = true; }
+
+	void Unset() { Optional::value = {}; set = false; }
+
 	explicit operator bool() const { return set; }
 
 	bool operator==(const Optional & value) const = default;

@@ -325,6 +325,7 @@ public:
 	template <class TYPE> using PropertyReferenceType = void;
 
 
+	
 	//location
 
 	using Item::Detach;
@@ -357,6 +358,7 @@ protected:
 
 
 	const AlreadyRetained <GLX::Object> object;
+
 
 
 private:

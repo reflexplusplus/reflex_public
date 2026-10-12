@@ -11,4 +11,5 @@
 #include "functions/dragdrop.h"
 #include "functions/clock.h"
 #include "functions/drawing.h"
+#include "functions/vbo.h"
 #include "functions/properties.h"

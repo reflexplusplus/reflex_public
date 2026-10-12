@@ -57,6 +57,8 @@ private:
 
 	void OnSetStyle(const GLX::Style & style) override;
 
+	void ApplyStyle();
+
 
 	ConstReference <Reflex::Object> m_cstyle;
 

@@ -574,6 +574,43 @@ endfunction()
 
 
 # =========================================================
+# Internal: inline AAX target (no prebuilt lib, mirrors AUv3)
+# =========================================================
+# Compiles the Reflex AAX umbrella, which includes the required SDK sources,
+# into a static lib aliased Reflex::TargetAAX.
+function(_reflex_build_inline_aax)
+    if(TARGET Reflex::TargetAAX)
+        return()
+    endif()
+
+    set(_aax_sdk "${REFLEX_ROOT}/src/reflex/system/common/instance/ext/aax/SDK")
+    if(REFLEX_PLATFORM_MACOS)
+        set(_aax_unity "${REFLEX_ROOT}/src/reflex/system/osx_aax.mm")
+    else()
+        set(_aax_unity "${REFLEX_ROOT}/src/reflex/system/win_aax.cpp")
+    endif()
+
+    reflex_add_target(_ReflexSrc_TargetAAX TYPE STATIC_LIBRARY SOURCES "${_aax_unity}")
+    target_include_directories(_ReflexSrc_TargetAAX PRIVATE
+        "${REFLEX_ROOT}/include"
+        "${REFLEX_ROOT}/src"
+        "${_aax_sdk}/Interfaces"
+        "${_aax_sdk}/Interfaces/ACF"
+    )
+    if(REFLEX_PLATFORM_MACOS)
+        _reflex_init_target(_ReflexSrc_TargetAAX APPLE_DEPLOYMENT_TARGET 10.15 OBJC_ARC ON)
+    else()
+        _reflex_init_target(_ReflexSrc_TargetAAX)
+    endif()
+    if(REFLEX_PLATFORM_MACOS)
+        set_source_files_properties("${_aax_unity}" PROPERTIES
+            COMPILE_FLAGS "-Wno-deprecated-declarations -Wno-nullability-completeness")
+    endif()
+    add_library(Reflex::TargetAAX ALIAS _ReflexSrc_TargetAAX)
+endfunction()
+
+
+# =========================================================
 # Internal: create one plugin format target
 # =========================================================
 
@@ -659,9 +696,9 @@ function(_reflex_resolve_target_lib alias basename out)
 endfunction()
 
 
-function(_reflex_add_plugin_format base_target format sources name vendor version package_id_vendor package_id_product au_components au_vendor_4cc)
+function(_reflex_add_plugin_format base_target format sources name vendor version package_id_vendor package_id_product au_components au_vendor_4cc aax_wrap_guid aax_sign_id aax_account apple_deployment_target)
 
-    set(_apple_deployment_target "${ARGV10}")   # optional
+    set(_apple_deployment_target "${apple_deployment_target}")
 
     set(_t "${base_target}_${format}")
 
@@ -971,6 +1008,76 @@ function(_reflex_add_plugin_format base_target format sources name vendor versio
         # the container .app's signature.
         _reflex_codesign_bundle(${_t} "AUv3 extension")
 
+    elseif(format STREQUAL "AAX")
+
+        # AAX is macOS + Windows only (no iOS). Built inline from source like
+        # AUv3 — the AAX SDK ships source-only, so there is no prebuilt lib.
+        if(NOT (REFLEX_PLATFORM_MACOS OR REFLEX_PLATFORM_WINDOWS))
+            return()
+        endif()
+
+        _reflex_build_inline_aax()   # creates Reflex::TargetAAX
+
+        reflex_add_target(${_t} TYPE MODULE_LIBRARY SOURCES ${sources})
+        _reflex_init_target(${_t} FLOATING_POINT fast APPLE_DEPLOYMENT_TARGET "${_apple_deployment_target}")
+        set_target_properties(${_t} PROPERTIES OUTPUT_NAME "${name}" PREFIX "")
+        target_link_libraries(${_t} PRIVATE Reflex::TargetAAX)
+
+        if(REFLEX_PLATFORM_MACOS)
+            # .aaxplugin is a standard macOS bundle: Contents/MacOS/<name>.
+            _reflex_resolve_package_id(_package_id "${vendor}" "${name}" "${package_id_vendor}" "${package_id_product}")
+            _reflex_generate_plist(_plist ${_t} "${name}" "${name}" "${vendor}" "${version}" "aax"
+                "${package_id_vendor}" "${package_id_product}")
+            _reflex_set_bundle_identifier(${_t} "${_package_id}.aax")
+            set_target_properties(${_t} PROPERTIES
+                SUFFIX                   ""
+                BUNDLE                   TRUE
+                BUNDLE_EXTENSION         "aaxplugin"
+                MACOSX_BUNDLE_INFO_PLIST "${_plist}"
+            )
+            target_link_options(${_t} PRIVATE -ObjC)
+            target_link_libraries(${_t} PRIVATE
+                "-framework Cocoa" "-framework Metal" "-framework QuartzCore"
+                "-framework DiskArbitration" "-framework OpenGL"
+                "-framework CoreMIDI" "-framework CoreAudio"
+                "-framework AudioToolbox" "-framework AVFoundation"
+            )
+        endif()
+
+        if(REFLEX_PLATFORM_WINDOWS)
+            # Windows .aaxplugin is a folder: <name>.aaxplugin/Contents/x64/<name>.aaxplugin
+            # The SDK entry points are exported by AAX_Exports.cpp in the umbrella.
+            set_target_properties(${_t} PROPERTIES
+                SUFFIX ".aaxplugin"
+                LIBRARY_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/${name}.aaxplugin/Contents/x64")
+        endif()
+
+        # PACE wraptool signing — optional, skipped gracefully without creds.
+        if(aax_account AND aax_sign_id AND aax_wrap_guid)
+            # wraptool ships with PACE Eden/Fusion, not on PATH by default.
+            find_program(WRAPTOOL wraptool
+                HINTS "/Applications/PACEAntiPiracy/Eden/Fusion/Current/bin")
+            if(WRAPTOOL)
+                if(REFLEX_PLATFORM_MACOS)
+                    set(_aax_artifact "$<TARGET_BUNDLE_DIR:${_t}>")
+                else()
+                    set(_aax_artifact "${CMAKE_CURRENT_BINARY_DIR}/${name}.aaxplugin")
+                endif()
+                # AAX requires the PACE *wrap* (anti-piracy wrapper + sign); the bare
+                # 'sign' op signs without wrapping and won't load in Pro Tools.
+                # --account = PACE/iLok account; --signid = Apple Developer ID cert.
+                add_custom_command(TARGET ${_t} POST_BUILD
+                    COMMAND "${WRAPTOOL}" wrap --verbose
+                        --account "${aax_account}" --wcguid "${aax_wrap_guid}" --signid "${aax_sign_id}"
+                        --in "${_aax_artifact}" --out "${_aax_artifact}"
+                    COMMENT "PACE wraptool wrapping ${name}.aaxplugin")
+            else()
+                message(STATUS "Reflex AAX: wraptool not found — building unsigned ${name}.aaxplugin")
+            endif()
+        else()
+            message(STATUS "Reflex AAX: no signing args (AAX_ACCOUNT/AAX_WRAP_GUID/AAX_SIGN_ID) — building unsigned ${name}.aaxplugin")
+        endif()
+
     else()
         message(WARNING "Reflex: unknown plugin format '${format}' — skipped")
         return()
@@ -1005,7 +1112,7 @@ function(_reflex_add_plugin_format base_target format sources name vendor versio
     _reflex_add_resource_build(${_t} "${_resources_xml}")
 
     # After every step that writes into the bundle, and before the copy below.
-    if(NOT format STREQUAL "AUv3")
+    if(NOT format STREQUAL "AUv3" AND NOT format STREQUAL "AAX")
         _reflex_codesign_bundle(${_t} "${format}")
     endif()
 
@@ -1042,7 +1149,7 @@ endfunction()
 # the scheme). Xcode would otherwise auto-create a direct-.appex run scheme that
 # it refuses to launch ("Direct installation of an App Extension is not
 # supported"). This writes a shared scheme with the APP as the runnable and
-# "Ask on Launch", mirroring the JUCE AUv3 debug workflow.
+# "Ask on Launch", the standard AUv3 debug workflow.
 
 function(_reflex_generate_auv3_scheme_script name app_target auv3_target)
     set(_template "${REFLEX_ROOT}/resources/ios/AUv3Debug.xcscheme.in")
@@ -1119,11 +1226,15 @@ endfunction()
 #       AU_COMPONENTS  "ES2M:aumu:Example Synth,ES2F:aufx:Example FX"
 #       AU_VENDOR_4CC  "NdAu"      # 4-char vendor code
 #       APPLE_DEPLOYMENT_TARGET "10.15"   # optional; defaults to CMAKE_OSX_DEPLOYMENT_TARGET
+#       # AAX-specific (optional; all three required to auto-sign with PACE wraptool):
+#       AAX_ACCOUNT    "myilokacct"          # PACE/iLok account name
+#       AAX_SIGN_ID    "Developer ID: ..."   # signing certificate identity
+#       AAX_WRAP_GUID  "....-....-...."       # wrap GUID
 #   )
 
 function(reflex_add_audio_plugin target)
     cmake_parse_arguments(A ""
-        "NAME;VENDOR;VERSION;PACKAGE_ID_VENDOR;PACKAGE_ID_PRODUCT;AU_COMPONENTS;AU_VENDOR_4CC;APPLE_DEPLOYMENT_TARGET"
+        "NAME;VENDOR;VERSION;PACKAGE_ID_VENDOR;PACKAGE_ID_PRODUCT;AU_COMPONENTS;AU_VENDOR_4CC;AAX_WRAP_GUID;AAX_SIGN_ID;AAX_ACCOUNT;APPLE_DEPLOYMENT_TARGET"
         "FORMATS;SOURCES" ${ARGN})
 
     if(NOT A_FORMATS)
@@ -1144,6 +1255,7 @@ function(reflex_add_audio_plugin target)
             "${A_NAME}" "${A_VENDOR}" "${A_VERSION}"
             "${A_PACKAGE_ID_VENDOR}" "${A_PACKAGE_ID_PRODUCT}"
             "${A_AU_COMPONENTS}" "${A_AU_VENDOR_4CC}"
+            "${A_AAX_WRAP_GUID}" "${A_AAX_SIGN_ID}" "${A_AAX_ACCOUNT}"
             "${A_APPLE_DEPLOYMENT_TARGET}"
         )
     endforeach()
@@ -1153,7 +1265,7 @@ function(reflex_add_audio_plugin target)
     # "Embed App Extensions" build phase that runs in the correct order:
     # sign extension → copy into PlugIns/ → sign container. A POST_BUILD
     # copy_directory breaks iOS because it modifies the container after Xcode
-    # seals it, invalidating the code signature. JUCE embeds AUv3 the same way.
+    # seals it, invalidating the code signature.
     set(_app_t  "${target}_Standalone")
     set(_auv3_t "${target}_AUv3")
     if(TARGET ${_app_t} AND TARGET ${_auv3_t})

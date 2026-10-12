@@ -1,0 +1,11 @@
+Generate a native project with the Reflex++ CLI:
+
+    cd path/to/reflex/examples/Widgets
+    reflex generate
+
+Or configure the included CMake project:
+
+    cmake -S . -B build
+    cmake --build build --config Debug
+
+The fixture has deliberately not been built or run as part of its setup.

@@ -1,0 +1,5 @@
+RangeBar represents a logical extent and selected region, allowing the region to move and, when enabled, resize.
+
+This demo covers unipolar and bipolar mappings, a tiny scrollbar thumb, resizable ranges with owner snapping, and inverted vertical flow.
+
+The log records transaction stage, edge, emitted range, published state, and any owner-accepted range so visual, hit-target, and logical behavior can be compared.

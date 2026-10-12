@@ -1,0 +1,986 @@
+0:
+{
+	Path: ["TargetProperties"];
+	@WString Description: "#p Build properties shared by @Target and @Template declarations. Platform and configuration blocks can override these values. See DeclarationProperties for the dependency and identity fields shared with @Library.
+
+<code>
+#p @Target App:
+#p {
+#p 	type: app;
+#p 	optimization: speed;
+#p };
+</code>";
+};
+
+1:
+{
+	Path: ["Target"];
+	@WString Description: "#p A generated product. See TargetProperties for its project.cfg properties.
+
+<code>
+#p @Target App:
+#p {
+#p 	inherit: cpp_app;
+#p };
+</code>";
+};
+
+2:
+{
+	Path: ["Template"];
+	@WString Description: "#p A reusable, uninstantiated definition for a target or library. See TargetProperties for generated-target settings and Library for external-library path and source-project fields.
+
+<code>
+#p @Template product:
+#p {
+#p 	cpp_standard: cxx20;
+#p };
+</code>";
+};
+
+3:
+{
+	Path: ["Library"];
+	@WString Description: "#p An external static library used for linking and dependency resolution. It does not produce a native build target. See DeclarationProperties for its shared dependency, identity, and include-directory fields.
+
+<code>
+#p @Library AcmeDSP:
+#p {
+#p 	@windows: { path: $qlib/AcmeDSP.lib$q; };
+#p };
+</code>";
+};
+
+4:
+{
+	Path: ["DeclarationProperties"];
+	@WString Description: "#p Properties used by both generated targets and external libraries. @Target and @Template also use TargetProperties for native build settings; @Library has additional 'path' and 'source_project' fields.
+
+<code>
+#p @Target App:
+#p {
+#p 	dependencies: [Core, Audio];
+#p 	include_directories: $qcode/include$q;
+#p };
+</code>";
+};
+
+5:
+{
+	Path: ["Configuration"];
+	@WString Description: "#p A named @Configuration inside a platform block. Configuration IDs are user-defined; projects commonly use 'Debug' and 'Release', but the schema permits additional names. It overrides values from the surrounding platform and target; property lookup proceeds from Configuration to platform to target to project. Android generation is the exception: it requires exactly two configurations named 'Debug' and 'Release' (case-insensitive) and does not derive them from 'optimization'. It is not a separate platform-specific syntax type.
+
+<code>
+#p @windows:
+#p {
+#p 	@Configuration Debug: { optimization: none; };
+#p };
+</code>";
+};
+
+6:
+{
+	Path: ["Files"];
+	@WString Description: "#p A named @Files block, commonly 'sources', 'headers', or 'other'; Windows also accepts 'resources'. Values may be paths, path arrays, or nested presentation groups. Its group names are user-defined, so this type has no fixed property members.
+
+<code>
+#p @Files sources:
+#p {
+#p 	code: $qcode/**/*.cpp$q;
+#p };
+</code>";
+};
+
+7:
+{
+	Path: ["Variables"];
+	@WString Description: "#p A @Variables block containing user-defined string values. An anonymous block supplies variables at the current scope; named blocks are used for fixed properties such as 'defines' and 'cmake_variables'. Variable names inside the block are user-defined, not fixed project.cfg IDs.
+
+<code>
+#p @Variables defines:
+#p {
+#p 	FEATURE_ENABLED: $q$q;
+#p };
+</code>";
+};
+
+8:
+{
+	Path: ["Unset"];
+	@WString Description: "#p An @Unset marker on a named property. It clears a value at the current scope. Use it before replacing an appending property such as 'dependencies' or a build phase, which would otherwise accumulate earlier values.
+
+<code>
+#p @Unset dependencies;
+#p dependencies: Core;
+</code>";
+};
+
+9:
+{
+	Path: ["BuildStep"];
+	@WString Description: "#p A build action assigned with @BuildStep post_generate, @BuildStep pre_build, or @BuildStep post_build. The 'post_generate' phase runs during reflex generate after project generation; 'pre_build' and 'post_build' are emitted as native build actions. A phase accepts one step or an array of steps and appends to inherited actions by default; use @Unset on the phase ID before replacing them. 'command' is a required argument vector, not a shell command string. The supported fields are 'name', 'command', 'inputs', 'outputs', and 'always_run'. Android generation does not support 'post_build' actions.
+
+<code>
+#p @BuildStep pre_build:
+#p {
+#p 	command: [$qtool$q, $q--prepare$q];
+#p 	inputs: $qinput.txt$q;
+#p };
+</code>";
+};
+
+10:
+{
+	Path: ["Project"];
+	@WString Description: "#p The root of a project.cfg document. It declares 'format', 'name', included documents, and an optional 'default_configuration', and contains named @Template, @Target, @Library, and @Package objects. An anonymous @Variables block supplies project variable defaults.
+
+<code>
+#p format: 1;
+#p name: $qExample$q;
+#p include: $qcommon.cfg$q;
+#p 
+#p @Variables:
+#p {
+#p 	PRODUCT_VERSION: $q1.0$q;
+#p };
+#p 
+#p @Template product:
+#p {
+#p 	cpp_standard: cxx20;
+#p };
+#p 
+#p @Target App:
+#p {
+#p 	inherit: product;
+#p 	type: app;
+#p 	@Files sources: { code: $qcode/**/*.cpp$q; };
+#p 	@windows:
+#p 	{
+#p 		sdk: $q10.0$q;
+#p 		@Configuration Debug: { optimization: none; };
+#p 		@Configuration Release: { optimization: speed; };
+#p 	};
+#p };
+</code>";
+};
+
+11:
+{
+	Path: ["Package"];
+	@WString Description: "#p A named dependency-only bundle declared at project scope. Its 'dependencies' list may contain targets, libraries, or other packages. A package produces neither a native target nor a linker input of its own.
+
+<code>
+#p @Package Toolkit:
+#p {
+#p 	dependencies: [Core, UI];
+#p };
+</code>";
+};
+
+12:
+{
+	Path: ["windows"];
+	@WString Description: "#p An anonymous @windows block inside a template, target, or library. It overrides shared properties for Windows and adds 'sdk' and the 'resources' @Files block. Named @Configuration blocks may override it further.
+
+<code>
+#p @windows:
+#p {
+#p 	sdk: $q10.0$q;
+#p };
+</code>";
+};
+
+13:
+{
+	Path: ["macos"];
+	@WString Description: "#p An anonymous @macos block inside a template, target, or library. It overrides shared properties and adds Apple-specific settings, including 'exported_symbols' and 'build_all_architectures'. Named @Configuration blocks may override it further.
+
+<code>
+#p @macos:
+#p {
+#p 	frameworks: AppKit;
+#p 	bundle_identifier: $qcom.example.app$q;
+#p };
+</code>";
+};
+
+14:
+{
+	Path: ["ios"];
+	@WString Description: "#p An anonymous @ios block inside a template, target, or library. It overrides shared properties and adds Apple-specific settings, including 'launch_screen'. Named @Configuration blocks may override it further.
+
+<code>
+#p @ios:
+#p {
+#p 	bundle_identifier: $qcom.example.app$q;
+#p 	deployment_target: 16.0;
+#p };
+</code>";
+};
+
+15:
+{
+	Path: ["android"];
+	@WString Description: "#p An anonymous @android block inside a template, target, or library. It overrides shared properties and adds Android SDK, package, dependency, and source-set settings. Named @Configuration blocks may override it further.
+
+<code>
+#p @android:
+#p {
+#p 	package_id: $qcom.example.app$q;
+#p 	@Configuration Debug: {};
+#p 	@Configuration Release: {};
+#p };
+</code>";
+};
+
+16:
+{
+	Path: ["linux"];
+	@WString Description: "#p An anonymous @linux block inside a template, target, or library. It overrides shared properties and contains named @Configuration blocks; it has no Linux-only fixed properties in the current schema.
+
+<code>
+#p @linux:
+#p {
+#p 	@Configuration Release: { optimization: speed; };
+#p };
+</code>";
+};
+
+17:
+{
+	Path: ["TargetProperties", "post_generate"];
+	@WString Description: "#p Build steps run by reflex generate after native projects have been generated. Supply one @BuildStep post_generate object or an array; repeated and inherited declarations append unless cleared with @Unset post_generate. See BuildStep for fields.";
+};
+
+18:
+{
+	Path: ["TargetProperties", "pre_build"];
+	@WString Description: "#p Build steps emitted before the native build. Supply one @BuildStep pre_build object or an array; repeated and inherited declarations append unless cleared with @Unset pre_build. See BuildStep for fields.";
+};
+
+19:
+{
+	Path: ["TargetProperties", "post_build"];
+	@WString Description: "#p Build steps emitted after the native build. Supply one @BuildStep post_build object or an array; repeated and inherited declarations append unless cleared with @Unset post_build. Android generation does not support this phase. See BuildStep for fields.";
+};
+
+20:
+{
+	Path: ["BuildStep", "name"];
+	@WString Description: "#p Optional display name for the action. When omitted, a name is generated from the phase and its position.";
+};
+
+21:
+{
+	Path: ["BuildStep", "command"];
+	@WString Description: "#p Required command argument vector. The first element is the executable and following elements are arguments; this is not a single shell command string.";
+};
+
+22:
+{
+	Path: ["BuildStep", "inputs"];
+	@WString Description: "#p Optional input path or paths used by native build tools to decide whether the action needs to run.";
+};
+
+23:
+{
+	Path: ["BuildStep", "outputs"];
+	@WString Description: "#p Optional output path or paths produced by the action, used with inputs for incremental native builds.";
+};
+
+24:
+{
+	Path: ["BuildStep", "always_run"];
+	@WString Description: "#p Boolean, default false. Requests that the native build action run even when its declared inputs and outputs are up to date.";
+};
+
+25:
+{
+	Path: ["macos", "frameworks"];
+	@WString Description: "#p Framework names to link.
+
+#h2 Native generator mappings
+<list>
+#p Xcode: SDK framework references and '-framework' arguments in OTHER_LDFLAGS.
+</list>";
+};
+
+26:
+{
+	Path: ["ios", "frameworks"];
+	@WString Description: "#p Framework names to link.
+
+#h2 Native generator mappings
+<list>
+#p Xcode: SDK framework references and '-framework' arguments in OTHER_LDFLAGS.
+</list>";
+};
+
+27:
+{
+	Path: ["macos", "arc"];
+	@WString Description: "#p Controls Objective-C automatic reference counting.
+
+#h2 Native generator mappings
+<list>
+#p Xcode: CLANG_ENABLE_OBJC_ARC = YES or NO.
+</list>";
+};
+
+28:
+{
+	Path: ["ios", "arc"];
+	@WString Description: "#p Controls Objective-C automatic reference counting.
+
+#h2 Native generator mappings
+<list>
+#p Xcode: CLANG_ENABLE_OBJC_ARC = YES or NO.
+</list>";
+};
+
+29:
+{
+	Path: ["macos", "bundle_identifier"];
+	@WString Description: "#p Bundle identifier. On macOS, a non-empty identifier also makes an app or dynamic-library product a bundle; the value must agree across configurations.
+
+#h2 Native generator mappings
+<list>
+#p Xcode: PRODUCT_BUNDLE_IDENTIFIER.
+</list>";
+};
+
+30:
+{
+	Path: ["ios", "bundle_identifier"];
+	@WString Description: "#p Bundle identifier. An iOS app requires a value, and it must agree across configurations.
+
+#h2 Native generator mappings
+<list>
+#p Xcode: PRODUCT_BUNDLE_IDENTIFIER.
+</list>";
+};
+
+31:
+{
+	Path: ["macos", "code_sign"];
+	@WString Description: "#p Controls signing for signable products; defaults to true. Signing style and identity or team depend on 'development_team' and product type.
+
+#h2 Native generator mappings
+<list>
+#p Xcode: false emits CODE_SIGNING_ALLOWED = NO.
+#p Xcode: true selects automatic or manual signing settings.
+</list>";
+};
+
+32:
+{
+	Path: ["ios", "code_sign"];
+	@WString Description: "#p Controls signing for signable products; defaults to true.
+
+#h2 Native generator mappings
+<list>
+#p Xcode: false emits CODE_SIGNING_ALLOWED = NO.
+#p Xcode: true with 'development_team' emits CODE_SIGN_STYLE = Automatic and DEVELOPMENT_TEAM.
+</list>";
+};
+
+33:
+{
+	Path: ["macos", "development_team"];
+	@WString Description: "#p A 10-character Apple team identifier. Automatic signing also requires 'bundle_identifier'.
+
+#h2 Native generator mappings
+<list>
+#p Xcode: DEVELOPMENT_TEAM and CODE_SIGN_STYLE = Automatic for an automatically signable product with 'code_sign' enabled.
+</list>";
+};
+
+34:
+{
+	Path: ["ios", "development_team"];
+	@WString Description: "#p A 10-character Apple team identifier. Automatic signing also requires 'bundle_identifier'.
+
+#h2 Native generator mappings
+<list>
+#p Xcode: DEVELOPMENT_TEAM and CODE_SIGN_STYLE = Automatic for an automatically signable product with 'code_sign' enabled.
+</list>";
+};
+
+35:
+{
+	Path: ["macos", "info_plist"];
+	@WString Description: "#p Path to an Info.plist file. The path must be the same across configurations.
+
+#h2 Native generator mappings
+<list>
+#p Xcode: INFOPLIST_FILE and GENERATE_INFOPLIST_FILE = NO.
+</list>";
+};
+
+36:
+{
+	Path: ["ios", "info_plist"];
+	@WString Description: "#p Path to an Info.plist file. The path must be the same across configurations.
+
+#h2 Native generator mappings
+<list>
+#p Xcode: INFOPLIST_FILE and normally GENERATE_INFOPLIST_FILE = NO.
+#p Xcode: with 'launch_screen', generates the launch-storyboard key.
+</list>";
+};
+
+37:
+{
+	Path: ["macos", "entitlements"];
+	@WString Description: "#p Path to signing entitlements. Entitlements require an app or bundled product, and the path must be the same across configurations.
+
+#h2 Native generator mappings
+<list>
+#p Xcode: CODE_SIGN_ENTITLEMENTS.
+</list>";
+};
+
+38:
+{
+	Path: ["ios", "entitlements"];
+	@WString Description: "#p Path to signing entitlements. Entitlements require an app or bundled product, and the path must be the same across configurations.
+
+#h2 Native generator mappings
+<list>
+#p Xcode: CODE_SIGN_ENTITLEMENTS.
+</list>";
+};
+
+39:
+{
+	Path: ["macos", "icon"];
+	@WString Description: "#p Asset catalog path. The path must be the same across configurations.
+
+#h2 Native generator mappings
+<list>
+#p Xcode: adds the path to resources.
+#p Xcode: ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon.
+</list>";
+};
+
+40:
+{
+	Path: ["ios", "icon"];
+	@WString Description: "#p Asset catalog path. The path must be the same across configurations.
+
+#h2 Native generator mappings
+<list>
+#p Xcode: adds the path to resources.
+#p Xcode: ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon.
+</list>";
+};
+
+41:
+{
+	Path: ["macos", "deployment_target"];
+	@WString Description: "#p Non-negative minimum macOS version.
+
+#h2 Native generator mappings
+<list>
+#p Xcode: MACOSX_DEPLOYMENT_TARGET.
+</list>";
+};
+
+42:
+{
+	Path: ["ios", "deployment_target"];
+	@WString Description: "#p Non-negative minimum iOS version.
+
+#h2 Native generator mappings
+<list>
+#p Xcode: IPHONEOS_DEPLOYMENT_TARGET.
+</list>";
+};
+
+43:
+{
+	Path: ["macos", "exported_symbols"];
+	@WString Description: "#p Path to an exported-symbols list.
+
+#h2 Native generator mappings
+<list>
+#p Xcode: EXPORTED_SYMBOLS_FILE.
+</list>";
+};
+
+44:
+{
+	Path: ["macos", "build_all_architectures"];
+	@WString Description: "#p Controls whether Xcode builds all configured architectures or only the active one.
+
+#h2 Native generator mappings
+<list>
+#p Xcode: true emits ONLY_ACTIVE_ARCH = NO.
+#p Xcode: false emits ONLY_ACTIVE_ARCH = YES.
+</list>";
+};
+
+45:
+{
+	Path: ["ios", "launch_screen"];
+	@WString Description: "#p Path to an app launch storyboard. The path must agree across configurations and is valid only for app targets.
+
+#h2 Native generator mappings
+<list>
+#p Xcode: adds the path to resources.
+#p Xcode: INFOPLIST_KEY_UILaunchStoryboardName from the filename without '.storyboard'.
+</list>";
+};
+
+46:
+{
+	Path: ["windows", "sdk"];
+	@WString Description: "#p Required Windows SDK version. The value must be the same across configurations.
+
+#h2 Native generator mappings
+<list>
+#p MSVC: WindowsTargetPlatformVersion in the project's Globals property group.
+</list>";
+};
+
+47:
+{
+	Path: ["windows", "resources"];
+	@WString Description: "#p Windows resource paths supplied with the 'resources' @Files block. Only '.rc' and '.res' files are accepted. Resource lists must agree across configurations.
+
+#h2 Native generator mappings
+<list>
+#p MSVC: '.rc' files are ResourceCompile items.
+#p MSVC: '.res' files are Resource items.
+</list>";
+};
+
+48:
+{
+	Path: ["TargetProperties", "type"];
+	@WString Description: "#p Native product kind.
+
+<list>
+#p 'console' - command-line executable.
+#p 'app' - graphical application.
+#p 'dynamic_library' - shared library.
+#p 'static_library' - static archive.
+</list>
+
+#h2 Native generator mappings
+<list>
+#p MSVC: ConfigurationType.
+#p MSVC: 'console' and 'app' set Link SubSystem to Console or Windows.
+#p Xcode: PBX product type for the selected product kind.
+</list>";
+};
+
+49:
+{
+	Path: ["TargetProperties", "cpp_standard"];
+	@WString Description: "#p C++ language standard.
+
+<list>
+#p 'cxx17' - C++17.
+#p 'cxx20' - C++20.
+</list>
+
+#h2 Native generator mappings
+<list>
+#p MSVC: ClCompile LanguageStandard = stdcpp17 or stdcpp20.
+#p MSVC: 'cxx20' enables UseStandardPreprocessor.
+#p Xcode: CLANG_CXX_LANGUAGE_STANDARD = c++17 or c++20.
+</list>";
+};
+
+50:
+{
+	Path: ["TargetProperties", "rtti"];
+	@WString Description: "#p Boolean controlling C++ runtime type information; defaults to enabled.
+
+#h2 Native generator mappings
+<list>
+#p MSVC: ClCompile RuntimeTypeInfo.
+#p Xcode: GCC_ENABLE_CPP_RTTI.
+</list>";
+};
+
+51:
+{
+	Path: ["TargetProperties", "defines"];
+	@WString Description: "#p Preprocessor definitions declared with the 'defines' @Variables block.
+
+#h2 Native generator mappings
+<list>
+#p MSVC: ClCompile PreprocessorDefinitions, preserving inherited definitions.
+#p Xcode: GCC_PREPROCESSOR_DEFINITIONS, preserving inherited definitions.
+</list>";
+};
+
+52:
+{
+	Path: ["TargetProperties", "compiler_options"];
+	@WString Description: "#p Extra compiler arguments.
+
+#h2 Native generator mappings
+<list>
+#p MSVC: ClCompile AdditionalOptions, followed by inherited options.
+#p Xcode: contributes to OTHER_CPLUSPLUSFLAGS.
+</list>";
+};
+
+53:
+{
+	Path: ["TargetProperties", "warning_level"];
+	@WString Description: "#p Compiler warning preset.
+
+<list>
+#p 'none' - disable warnings.
+#p 'relaxed' - reduced warning set.
+#p 'standard' - standard warning set.
+#p 'pedantic' - strictest warning set.
+</list>
+
+#h2 Native generator mappings
+<list>
+#p MSVC: ClCompile WarningLevel = Level1, Level3, or Level4.
+#p MSVC: 'none' sets TurnOffAllWarnings = true.
+#p Xcode: contributes warning flags to OTHER_CPLUSPLUSFLAGS.
+</list>";
+};
+
+54:
+{
+	Path: ["TargetProperties", "optimization"];
+	@WString Description: "#p Compiler optimization preset.
+
+<list>
+#p 'none' - disable optimization.
+#p 'size' - optimize for minimum code size.
+#p 'speed' - optimize for execution speed.
+#p 'full' - maximum optimization.
+</list>
+
+#h2 Native generator mappings
+<list>
+#p MSVC: ClCompile Optimization = Disabled, MinSpace, MaxSpeed, or Full.
+#p MSVC: influences the runtime-library variant, debug information, dead stripping, and incremental linking defaults.
+#p Xcode: GCC_OPTIMIZATION_LEVEL = 0, s, 2, or 3.
+#p Xcode: influences debug-information and dead-strip defaults.
+</list>";
+};
+
+55:
+{
+	Path: ["TargetProperties", "floating_point"];
+	@WString Description: "#p Floating-point behavior.
+
+<list>
+#p 'default' - use the toolchain default.
+#p 'precise' - favor predictable IEEE-style results.
+#p 'fast' - permit faster, less strict floating-point transformations.
+#p 'strict' - require strict floating-point semantics.
+</list>
+
+#h2 Native generator mappings
+<list>
+#p MSVC: ClCompile FloatingPointModel = Precise, Fast, or Strict.
+#p MSVC: 'default' leaves the setting unspecified.
+#p Xcode: contributes Clang floating-point flags to OTHER_CPLUSPLUSFLAGS.
+</list>";
+};
+
+56:
+{
+	Path: ["TargetProperties", "runtime_library"];
+	@WString Description: "#p C/C++ runtime linkage.
+
+<list>
+#p 'static' - link the runtime into the product.
+#p 'dynamic' - use the shared runtime library.
+</list>
+
+#h2 Native generator mappings
+<list>
+#p MSVC: ClCompile RuntimeLibrary = a MultiThreaded or MultiThreadedDLL variant.
+#p MSVC: uses the Debug variant when 'optimization' is 'none'.
+#p Android: selects the 'c++_static' or 'c++_shared' NDK runtime for each build type.
+</list>";
+};
+
+57:
+{
+	Path: ["TargetProperties", "debug_information"];
+	@WString Description: "#p Boolean controlling linker debug information. When omitted, it defaults to enabled for unoptimized configurations.
+
+#h2 Native generator mappings
+<list>
+#p MSVC: Link GenerateDebugInformation for non-static-library targets.
+#p Xcode: GCC_GENERATE_DEBUGGING_SYMBOLS; enabled values also set DEBUG_INFORMATION_FORMAT = dwarf-with-dsym.
+</list>";
+};
+
+58:
+{
+	Path: ["TargetProperties", "dead_strip"];
+	@WString Description: "#p Boolean controlling linker elimination and folding. When omitted, it defaults to enabled for optimized configurations.
+
+#h2 Native generator mappings
+<list>
+#p MSVC: Link OptimizeReferences and EnableCOMDATFolding for non-static-library targets.
+#p MSVC: contributes to the LinkIncremental decision.
+#p Xcode: DEAD_CODE_STRIPPING.
+</list>";
+};
+
+59:
+{
+	Path: ["TargetProperties", "output_directory"];
+	@WString Description: "#p Final product directory.
+
+#h2 Native generator mappings
+<list>
+#p MSVC: OutDir when a path is supplied.
+#p Xcode: CONFIGURATION_BUILD_DIR.
+</list>";
+};
+
+60:
+{
+	Path: ["TargetProperties", "sources"];
+	@WString Description: "#p Source files declared with the 'sources' @Files block.
+
+#h2 Native generator mappings
+<list>
+#p MSVC: ClCompile items in the project and its '.filters' file.
+#p Xcode: PBX file references and PBXSourcesBuildPhase items.
+</list>";
+};
+
+61:
+{
+	Path: ["TargetProperties", "headers"];
+	@WString Description: "#p Header files declared with the 'headers' @Files block.
+
+#h2 Native generator mappings
+<list>
+#p MSVC: ClInclude items in the project and its '.filters' file.
+#p Xcode: PBX file references.
+</list>";
+};
+
+62:
+{
+	Path: ["TargetProperties", "other"];
+	@WString Description: "#p Additional files declared with the 'other' @Files block.
+
+#h2 Native generator mappings
+<list>
+#p MSVC: None items in the project and its '.filters' file.
+#p Xcode: PBX file references.
+</list>";
+};
+
+63:
+{
+	Path: ["DeclarationProperties", "output_name"];
+	@WString Description: "#p Native product name. Defaults to the project name when absent.
+
+#h2 Native generator mappings
+<list>
+#p MSVC: TargetName.
+#p Xcode: PRODUCT_NAME.
+</list>";
+};
+
+64:
+{
+	Path: ["DeclarationProperties", "extension"];
+	@WString Description: "#p Optional product extension without a leading dot. When absent, the native extension for the product kind is used.
+
+#h2 Native generator mappings
+<list>
+#p MSVC: TargetExt with a leading dot when supplied.
+#p Xcode: WRAPPER_EXTENSION for apps and bundled dynamic libraries, otherwise EXECUTABLE_EXTENSION.
+</list>";
+};
+
+65:
+{
+	Path: ["DeclarationProperties", "architectures"];
+	@WString Description: "#p Architectures to generate.
+
+#h2 Native generator mappings
+<list>
+#p MSVC: ProjectConfiguration and solution configurations for Win32 ('x86') and x64 ('x64').
+#p MSVC: other architecture values are unsupported.
+#p Xcode: ARCHS; iOS writes separate device and simulator ARCHS settings.
+</list>";
+};
+
+66:
+{
+	Path: ["DeclarationProperties", "include_directories"];
+	@WString Description: "#p Include paths for this product.
+
+#h2 Native generator mappings
+<list>
+#p MSVC: ClCompile AdditionalIncludeDirectories, together with public paths and public paths inherited from dependencies.
+#p Xcode: HEADER_SEARCH_PATHS.
+</list>";
+};
+
+67:
+{
+	Path: ["DeclarationProperties", "public_include_directories"];
+	@WString Description: "#p Include paths exported to dependent targets.
+
+#h2 Native generator mappings
+<list>
+#p MSVC: ClCompile AdditionalIncludeDirectories for this product.
+#p MSVC: consumers receive the paths through dependency resolution.
+#p Xcode: HEADER_SEARCH_PATHS for this product; consumers receive the paths through dependency resolution.
+</list>";
+};
+
+68:
+{
+	Path: ["Project", "default_configuration"];
+	@WString Description: "#p Optional configuration ID selected by default for generation and build commands. It must exist on every platform of every target. When omitted, Reflex selects 'Release' if available, otherwise the first declared configuration.";
+};
+
+69:
+{
+	Path: ["Project", "format"];
+	@WString Description: "#p Required project.cfg format version. The current and only supported value is 1. Normal projects normally inherit it from a shared project_configs/ include.";
+};
+
+70:
+{
+	Path: ["Project", "generated_directory"];
+	@WString Description: "#p Name of the immediate subdirectory below the project document that contains generated platform projects. Defaults to 'projects'; generated output is placed below this folder by platform. The value must be a single folder name, not a path.";
+};
+
+71:
+{
+	Path: ["Project", "import"];
+	@WString Description: "#p Compatibility spelling for 'include'. Its documents are added to the same ordered lookup graph after all 'include' entries. New project.cfg files should use 'include'.";
+};
+
+72:
+{
+	Path: ["Project", "include"];
+	@WString Description: "#p A project.cfg file or array of files to include. Relative paths are resolved from the declaring document. Included documents are acquired before the including document, and their templates and declarations participate in ordered lookup.";
+};
+
+73:
+{
+	Path: ["Project", "name"];
+	@WString Description: "#p Project name used as the default product name and in generated native project metadata. It may use project variables. It is required unless the document contains only external @Library declarations.";
+};
+
+74:
+{
+	Path: ["android", "gradle_dependencies"];
+	@WString Description: "#p Android dependency coordinates or file paths. Each value must be either a Maven 'group:artifact:version' coordinate or a file path.
+
+#h2 Native generator mappings
+<list>
+#p Android: matching Gradle 'debugImplementation' or 'releaseImplementation' dependency.
+</list>";
+};
+
+75:
+{
+	Path: ["android", "main_source_set"];
+	@WString Description: "#p One source-set root or an ordered list of roots. Each root follows the standard Android source-set layout, for example 'java/', 'res/', and 'AndroidManifest.xml'. Roots are applied in declaration order, so a later root replaces an earlier file at the same relative path. Every generated Android target must use the same list, and each folder must exist.
+
+#h2 Native generator mappings
+<list>
+#p Android: overlays each root into the generated module's 'src/main' folder.
+</list>";
+};
+
+76:
+{
+	Path: ["android", "min_sdk"];
+	@WString Description: "#p Non-negative minimum Android API level. Defaults to 28 and must not exceed 'sdk'. It must be identical across the project's Android targets and configurations.
+
+#h2 Native generator mappings
+<list>
+#p Android: Gradle minSdk.
+</list>";
+};
+
+77:
+{
+	Path: ["android", "native_app_glue"];
+	@WString Description: "#p Boolean. It must not vary between an Android target's 'Debug' and 'Release' configurations.
+
+#h2 Native generator mappings
+<list>
+#p Android: adds NDK 'android_native_app_glue' sources and include directory to the native target.
+</list>";
+};
+
+78:
+{
+	Path: ["android", "package_id"];
+	@WString Description: "#p Java package and Android application namespace. It must be a valid Java package name and identical across the project's Android targets and configurations.
+
+#h2 Native generator mappings
+<list>
+#p Android: Gradle namespace.
+</list>";
+};
+
+79:
+{
+	Path: ["android", "sdk"];
+	@WString Description: "#p Android compile SDK API level. Defaults to 37 and must be positive, no less than 'min_sdk', and identical across the project's Android targets and configurations.
+
+#h2 Native generator mappings
+<list>
+#p Android: Gradle compileSdk.
+</list>";
+};
+
+80:
+{
+	Path: ["android", "sdk_path"];
+	@WString Description: "#p Optional local Android SDK folder. Keep this machine-specific path out of shared source configuration when possible.
+
+#h2 Native generator mappings
+<list>
+#p Android: generated 'local.properties' sdk.dir.
+</list>";
+};
+
+81:
+{
+	Path: ["android", "signing_properties"];
+	@WString Description: "#p Path to a Gradle properties file used for app signing. It may provide 'storeFile', 'storePassword', 'keyAlias', and 'keyPassword'; relative 'storeFile' paths are resolved from that properties file. This property is valid only for app targets.
+
+#h2 Native generator mappings
+<list>
+#p Android: matching Gradle signing configuration.
+#p Android: a missing file warns and disables that build variant.
+</list>";
+};
+
+82:
+{
+	Path: ["Library", "path"];
+	@WString Description: "#p Path to the external static-library product for the current platform and configuration. When omitted, native generators use the library's symbolic name and their normal toolchain conventions.
+
+#h2 Native generator mappings
+<list>
+#p Android: an explicit path is linked directly and may use '$(Architecture)' for the active ABI.
+</list>";
+};
+
+83:
+{
+	Path: ["Library", "source_project"];
+	@WString Description: "#p Optional path to the source project's project.cfg. When available, reflex generate recursively generates reachable source projects and reflex build builds them in dependency order. The path is resolved from the declaring @Library document; a missing source project is ignored so the same declaration can support binary-only SDKs.";
+};

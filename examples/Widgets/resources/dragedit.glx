@@ -1,0 +1,34 @@
+include: "common.glx";
+
+@Font Medium:
+{
+	path: "fonts/OpenSans/static/OpenSans/OpenSans-Regular.ttf";
+	size: 14;
+};
+
+DragEdit:
+{
+	transition: 0.25;
+	size: 128,40;
+
+	bg:
+	Fill(colour: 244; corner: 4),
+	Border(colour: 176; width: 1; corner: 4),
+	Text(font: Medium; value: &value; colour: 40; justify: center);
+
+	@State hover:
+	{
+		bg:
+		Fill(colour: 255; corner: 4),
+		Border(colour: 42,142,214; width: 1; corner: 4),
+		Text(font: Medium; value: &value; colour: 24; justify: center);
+	};
+
+	@State active:
+	{
+		bg:
+		Fill(colour: 235,246,255; corner: 4),
+		Border(colour: 42,142,214; width: 2; corner: 4),
+		TextEdit(font: Medium; value: &value; colour: 24; justify: center);
+	};
+};

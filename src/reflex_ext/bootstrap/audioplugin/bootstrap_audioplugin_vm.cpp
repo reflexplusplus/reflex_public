@@ -25,13 +25,13 @@
 //
 //			if (args.b < values.b)
 //			{
-//				VM_RTN(Control::Create(args.a, args.b));
+//				VM::Return(context, Control::Create(args.a, args.b));
 //			}
 //			else
 //			{
 //				Bootstrap::Value32 unused;
 //
-//				VM_RTN(Control::Create(Null<Bootstrap::ParamInfo>(), unused));
+//				VM::Return(context, Control::Create(Null<Bootstrap::ParamInfo>(), unused));
 //			}
 //		});
 //	}

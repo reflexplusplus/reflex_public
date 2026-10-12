@@ -100,7 +100,7 @@ template <class TYPE, class const_auto_1> inline Reflex::ConstAlreadyRetained <T
 
 	auto & object = Deref(objectref);
 
-	Object * ptr = RemoveConst(object).QueryProperty(MakeAddress<TYPE>(id), RemoveConst(&fallback));
+	Object * ptr = object.QueryProperty(MakeAddress<TYPE>(id), RemoveConst(&fallback));
 
 	return Cast<TYPE>(ptr);
 }

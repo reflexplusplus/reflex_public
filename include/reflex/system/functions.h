@@ -23,7 +23,7 @@ namespace Reflex::System
 
 	UInt64 GetTime();
 
-	Float64 GetElapsedTime();
+	Float64 GetElapsedTime();	//high accuracy performance-timer
 
 
 

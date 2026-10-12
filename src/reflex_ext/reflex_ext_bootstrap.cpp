@@ -12,7 +12,7 @@
 #include "bootstrap/common/bootstrap_ui_view.cpp"
 #include "bootstrap/common/bootstrap_ui_functions.cpp"
 
-#if defined (REFLEX_BOOTSTRAP_VM) || defined(REFLEX_BOOTSTRAP_TYPE_VM_APP)
+#if defined(REFLEX_BOOTSTRAP_TYPE_VM_APP) || defined (REFLEX_ENABLE_VM)
 #include "bootstrap/common/bootstrap_ui_vm_view.cpp"
 #endif
 

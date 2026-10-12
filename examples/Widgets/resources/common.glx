@@ -1,0 +1,46 @@
+#option margin_syntax reflex
+
+//as your project grows you will probably want to use multiple stylesheets, and share common styles here
+
+@Font Medium:
+{
+	path: "fonts/OpenSans/static/OpenSans/OpenSans-Regular.ttf";
+	size: 12;
+};
+
+menu:
+{
+	margin: 4,0;
+	padding: 4;
+	render: x4;
+	render_pad: 12;
+	animate: true;
+
+	bg:
+	Shadow(blur: 8; colour: 0,64; corner: 8),
+	Fill(colour: 255; corner: 8);
+
+	item:
+	{
+		transition: 0.125;
+		size: 26;
+		fg: Text(indent: 4,10; colour: 32; font: Medium; value: &value; justify: left);
+
+		@State hover:
+		{
+			bg: Fill(indent: 1,0; corner: 4; colour: 244);
+		};
+
+		@State focused:
+		{
+			bg: Border(indent: 1,0; corner: 4; colour: 220);
+
+			@State hover:
+			{
+				bg:
+				Fill(indent: 1,0; corner: 4; colour: 232),
+				Border(indent: 1,0; corner: 4; colour: 220);
+			};
+		};
+	};
+};

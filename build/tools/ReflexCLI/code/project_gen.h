@@ -166,7 +166,7 @@ namespace ReflexCLI::ProjectGen
 		WString::View GetRoot() const { return m_root; }
 		ArrayView<Reference<Project>> GetIncludes() const { return m_includes; }
 		ArrayView<Reference<Target>> GetTargets() const { return m_targets; }
-		void AddInclude(Reference<Project> project);
+		void AddInclude(WillRetain <Project> project);
 		const ValidatedPropertySet * FindTemplate(Key32 id) const;
 		Reference<Target> FindTarget(CString::View name) const;
 		bool FindDependency(CString::View name, Reference<Target> & target, Reference<Package> & package) const;
@@ -196,9 +196,9 @@ namespace ReflexCLI::ProjectGen
 		static Package & null;
 
 		Package() = default;
-		Package(Project & project, ValidatedPropertySet & source);
+		Package(const Project & project, const ValidatedPropertySet & source);
 
-		const AlreadyRetained<Project> project;
+		const ConstAlreadyRetained<Project> project;
 
 		ArrayView<CString> GetDependencyNames() const { return m_dependency_names; }
 
@@ -212,9 +212,9 @@ namespace ReflexCLI::ProjectGen
 		static Target & null;
 
 		Target() {}
-		Target(Project & project, ValidatedPropertySet & source, bool library);
+		Target(const Project & project, const ValidatedPropertySet & source, bool library);
 
-		const AlreadyRetained<Project> project;
+		const ConstAlreadyRetained<Project> project;
 
 		bool IsLibrary() const { return m_library; }
 		ArrayView<Reference<Target>> GetDependencies() const { return m_dependencies; }
@@ -228,7 +228,7 @@ namespace ReflexCLI::ProjectGen
 
 	private:
 		bool m_library = false;
-		const AlreadyRetained<ValidatedPropertySet> m_source;
+		const ConstAlreadyRetained<ValidatedPropertySet> m_source;
 		Array<Reference<Target>> m_dependencies;
 		Array<Reference<TargetPlatform>> m_platforms;
 	};
@@ -258,7 +258,7 @@ namespace ReflexCLI::ProjectGen
 	class TargetConfiguration : public CompiledObject
 	{
 	public:
-		TargetConfiguration(TargetPlatform & platform, ValidatedPropertySet & values);
+		TargetConfiguration(TargetPlatform & platform, const ValidatedPropertySet & values);
 
 		CString GetString(Key32 id, CString::View fallback = {}) const;
 		Array<CString> GetStrings(CString::View id) const;
@@ -291,7 +291,7 @@ namespace ReflexCLI::ProjectGen
 		CString Expand(CString::View value, System::Platform emission_platform = System::kNumPlatform, bool allow_deferred = true) const;
 		UInt GetEnumIndex(CString::View property, ArrayView<CString::View> names, UInt fallback) const;
 
-		const AlreadyRetained<ValidatedPropertySet> m_source;
+		const ConstAlreadyRetained<ValidatedPropertySet> m_source;
 		Array<Variable> m_variables;
 		Reference<PathGroup> m_include_directories;
 		Reference<PathGroup> m_public_include_directories;
