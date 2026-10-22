@@ -6,6 +6,13 @@
 
 REFLEX_BEGIN_INTERNAL(ReflexCLI::ProjectGen)
 
+template <class TYPE> ConstAlreadyRetained <TYPE> GetRootLevelProperty(const Data::PropertySet & values, Key32 id)
+{
+	// Read only this document's declarations, without querying included projects.
+	for (auto & item : values.Iterate<TYPE>()) if (item.key.id == id) return item.value;
+	return kNullObject;
+}
+
 template <class ARRAY> void RequireUnique(const ARRAY & values, CString::View property_name)
 {
 	REFLEX_LOOP(index, values.GetSize())
@@ -65,7 +72,7 @@ REFLEX_NOINLINE Array<Variable> GetVariables(const ValidatedPropertySet & values
 	Array<const ValidatedPropertySet *> overlays;
 	for (UInt index = scopes.GetSize() - 1; index; --index) overlays.Push(scopes[index - 1]);
 	Array<Variable> persistent;
-	if (property == kNullKey) persistent = GetPersistentVariables();
+	if (property == kNullKey) persistent = GlobalVariables::Get();
 	if (root->type == kPropertySetTypeProject)
 	{
 		auto project = Cast<Project>(root);
@@ -131,7 +138,7 @@ void DecodeProjectDocument(Project & project, Array<Reference<Project>> & projec
 	// Each referenced document retains its own root, keymap, source path, and targets.
 	auto source = Data::DecodePropertySet(Data::kPropertySheetFormat, blob, options);
 	if (auto error = Data::GetError(source)) ThrowError(ToCString(error.value.a + 1), error.value.c);
-	auto persistent = GetPersistentVariables();
+	auto persistent = GlobalVariables::Get();
 	auto variables = ResolveVariables(project.GetIncludes(), source, kNullKey, Data::GetKeyMap(source), {}, persistent);
 	auto folder = File::SplitFilename(filename).a;
 
@@ -191,7 +198,12 @@ Reflex::Reference<ReflexCLI::ProjectGen::Project> ReflexCLI::ProjectGen::Project
 	project->m_cfg_path = filename;
 	project->m_root = File::SplitFilename(filename).a;
 	projects.Push(project);
-	auto options = Data::GetPropertySet(Bootstrap::global->prefs, kPersistentVariables);
+	const auto & source = GlobalVariables::GetProperties();
+	Data::PropertySet options = source;
+	for (auto i : source.Iterate<Data::CStringProperty>())
+	{
+		Data::SetBool(options, i.key.id, True(i.value->value));
+	}
 	DecodeProjectDocument(*project, projects, filename, options);
 	project->Initialize(filename);
 	project->m_initialized = true;
@@ -280,24 +292,22 @@ void ReflexCLI::ProjectGen::Project::Initialize(WString::View source_cfg_path)
 	m_format = UInt32(Data::GetInt32(values, kFormat));
 	Require(m_format == 1, "format", "unsupported format version");
 
-	if (auto value = Data::GetCString(values, kGeneratedDirectory))
+	if (auto value = GetRootLevelProperty<Data::CStringProperty>(values, kGeneratedDirectory)->value)
 	{
-		constexpr char disallow[] = { L'~', ':', '/', '\\', '.' };
-		for (auto i : disallow) Require(!Search(value, i), kGeneratedDirectory, "must name an immediate sub-folder");
-		m_generated_directory = File::CorrectTrailingStroke(DecodeUTF8(value));
+		auto path = File::CorrectStrokes(DecodeUTF8(value));
+		auto directory = File::CorrectTrailingStroke(File::ResolveIncludePath(m_root, path));
+		auto [root, generated_directory] = Splice<true>(directory, m_root.GetSize());
+		Require(root == m_root && generated_directory, kGeneratedDirectory, "must name a folder inside the project directory");
+		m_generated_directory = generated_directory;
 	}
 
 	auto keymap = Data::AcquireKeyMap(values);
 
 	auto project_variables = GetVariables(values, kNullKey, *keymap);
 
-	for (auto & item : values.Iterate())
+	if (auto value = GetRootLevelProperty<Data::CStringProperty>(values, kProjectName)->value)
 	{
-		if (item.key == MakeAddress<Data::CStringProperty>(MakeKey32(kProjectName)))
-		{
-			m_name = EncodeUTF8(EvaluateVariableExpressions(ToWString(Cast<Data::CStringProperty>(item.value)->value), project_variables, kVariableSyntaxProject, {}));
-			break;
-		}
+		m_name = EncodeUTF8(EvaluateVariableExpressions(ToWString(value), project_variables, kVariableSyntaxProject, {}));
 	}
 
 	EnumerateValidatedPropertySets(*this, { kPropertySetTypeTarget, kPropertySetTypeLibrary }, [this](const ValidatedPropertySet & source)
@@ -660,7 +670,7 @@ ReflexCLI::ProjectGen::TargetConfiguration::TargetConfiguration(TargetPlatform &
 	auto & target = *target_platform.target;
 	REFLEX_ASSERT(target_platform.target.Adr() == &target);
 
-	constexpr CString::View kReservedVariables[] = { "Platform", "Configuration", "TargetName", "OutputName", "Extension", "Architecture", "PlatformVariant" };
+	constexpr CString::View kReservedVariables[] = { "Platform", "Configuration", "TargetName", "OutputName", "Extension", "Architecture", "PlatformVariant", "OutputDirectory", "Entitlements" };
 	m_variables = GetVariables(*m_source, kNullKey, *m_source->keymap);
 	for (auto variable_name : kReservedVariables) Require(!FindVariable(m_variables, variable_name), "reserved variable", variable_name);
 
@@ -678,6 +688,9 @@ ReflexCLI::ProjectGen::TargetConfiguration::TargetConfiguration(TargetPlatform &
 		resolved.Push(Expand(ToWString(VariableReference(variable.name, kVariableSyntaxProject))));
 	}
 	REFLEX_LOOP(i, m_variables.GetSize()) m_variables[i].value = std::move(resolved[i]);
+	// Build steps can follow target property overrides without repeating their paths.
+	SetVariable(m_variables, "OutputDirectory", GetPath(MakeKey32(kOutputDirectory)).path);
+	SetVariable(m_variables, "Entitlements", GetPath(MakeKey32("entitlements")).path);
 }
 
 Reflex::WString ReflexCLI::ProjectGen::TargetConfiguration::Expand(WString::View value, System::Platform emission_platform, bool allow_deferred) const
@@ -1066,7 +1079,7 @@ Reflex::Array<Reflex::Reference<ReflexCLI::ProjectGen::Target>> ReflexCLI::Proje
 
 REFLEX_BEGIN_INTERNAL(ReflexCLI)
 
-void GenerateProjectGraph(const WString & path, ArrayView <CString::View> platforms_filter, ArrayView<MetaSystem> meta_systems, System::FileHandle & out, bool fresh, bool editor_root)
+void GenerateProjectGraph(const WString & path, ArrayView <CString::View> platforms_filter, ArrayView<MetaSystem> meta_systems, bool fresh, bool editor_root, System::FileHandle & out)
 {
 	static constexpr decltype(&ProjectGen::GenerateVisualStudioProject) kGenerators[] =
 	{ 
@@ -1092,8 +1105,9 @@ void GenerateProjectGraph(const WString & path, ArrayView <CString::View> platfo
 	};
 	Array<PostGenerateAction> post_generate;
 	Map <CString,Map<WString>> used_paths;
+	Map<WString> linux_icons;
 
-	auto collect_post_generate = [&post_generate, &used_paths](ArrayView <Reference <ProjectGen::TargetConfiguration>> configs)
+	auto collect_post_generate = [&post_generate, &used_paths, &linux_icons](ArrayView <Reference <ProjectGen::TargetConfiguration>> configs)
 	{
 		for (auto & config : configs)
 		{
@@ -1108,6 +1122,11 @@ void GenerateProjectGraph(const WString & path, ArrayView <CString::View> platfo
 			for (auto & path : ProjectGen::FlattenPaths(config->GetPaths(true, ProjectGen::kIncludeDirectories)))
 			{
 				if (path.path) used_paths.Acquire(path.source).Set(ProjectGen::ResolvePath(project->GetRoot(), path));
+			}
+			if (config->platform->GetPlatform() == kBuildPlatformLinux && config->GetProductType() == ProjectGen::kOutputType_app)
+			{
+				auto icon = config->GetPath(ProjectGen::kLinuxIcon);
+				if (icon.path) linux_icons.Set(ProjectGen::ResolvePath(project->GetRoot(), icon));
 			}
 		}
 	};
@@ -1156,7 +1175,7 @@ void GenerateProjectGraph(const WString & path, ArrayView <CString::View> platfo
 					File::MakePath(directory);
 					auto generated_count = generated_platforms.GetSize();
 					Map<WString> generated_outputs;
-					kGenerators[platform](generated_project, platform, directory, generated_platforms, generated_outputs);
+					kGenerators[platform](generated_project, platform, directory, generated_platforms, generated_outputs, out);
 					auto generated = generated_platforms.GetSize() != generated_count;
 					if (generated)
 					{
@@ -1170,7 +1189,7 @@ void GenerateProjectGraph(const WString & path, ArrayView <CString::View> platfo
 				{
 					for (auto generated : generated_platforms) collect_post_generate(generated->GetTargetConfigurations());
 
-					Bootstrap::CLI::Print(out, Bootstrap::CLI::kColourBrightBlack, Join("generated ", platform_name));
+					File::WriteLine(out, Join(kColourDim, "generated ", platform_name, kColourDefault));
 				}
 			}
 			catch (const CString & error)
@@ -1189,20 +1208,21 @@ void GenerateProjectGraph(const WString & path, ArrayView <CString::View> platfo
 	{
 		if (system == kMetaSystemVSCode && !editor_root) continue;
 		bool generated = false;
+		bool cmake = system == kMetaSystemCMake;
 		for (auto & generated_project : projects)
 		{
 			if (system == kMetaSystemVSCode && generated_project.Adr() != root_project.Adr()) continue;
-			if (system == kMetaSystemCMake && generated_project->IsLibraryOnly()) continue;
+			if (cmake && generated_project->IsLibraryOnly()) continue;
 			Array<const ProjectGen::TargetPlatform *> generated_platforms;
 			Map<WString> generated_outputs;
 			kMetaGenerators[system](*generated_project, generated_platforms, generated_outputs);
-			if (system == kMetaSystemCMake)
+			if (cmake)
 			{
 				for (auto generated : generated_platforms) collect_post_generate(generated->GetTargetConfigurations());
 			}
 			if (!generated_outputs.Empty()) generated = true;
 		}
-		if (generated) Bootstrap::CLI::Print(out, Bootstrap::CLI::kColourBrightBlack, Join("generated ", kMetaSystems[system]));
+		if (cmake && generated) File::WriteLine(out, Join(kColourDim, "generated ", kMetaSystems[system], kColourDefault));
 	}
 
 	auto previous = System::GetCurrentDirectory();
@@ -1225,10 +1245,14 @@ void GenerateProjectGraph(const WString & path, ArrayView <CString::View> platfo
 		}
 	}
 
+	for (auto & icon : linux_icons)
+	{
+		if (!File::IsDirectory(icon.key)) File::WriteLine(out, Join(kColourWarning, "icon folder not found: ", EncodeUTF8(icon.key), "; Linux desktop packaging skipped", kColourDefault));
+	}
 	System::SetCurrentDirectory(previous);
 }
 
-void CollectSourceProjects(WString::View project_path, BuildPlatform platform, Array<WString> & result, Array<WString> & active, Array<WString> & completed, bool include_project)
+void CollectSourceProjects(WString::View project_path, BuildPlatform platform, Array<WString> & result, Array<WString> & active, Array<WString> & completed, bool include_project, CString::View selected_target = {})
 {
 	auto filename = ResolveAbsolutePathCase(File::ResolveRelativePath(File::CorrectStrokes(project_path)));
 	if (Search(completed, filename)) return;
@@ -1254,6 +1278,7 @@ void CollectSourceProjects(WString::View project_path, BuildPlatform platform, A
 	};
 	for (auto & target : project->GetTargets())
 	{
+		if (selected_target && target->GetName() != selected_target) continue;
 		if (!target->IsLibrary() && target->FindPlatform(platform)) visit(*target, visit);
 	}
 
@@ -1262,10 +1287,10 @@ void CollectSourceProjects(WString::View project_path, BuildPlatform platform, A
 	if (include_project) result.Push(std::move(filename));
 }
 
-Array<WString> FindSourceProjects(WString::View project_path, BuildPlatform platform)
+Array<WString> FindSourceProjects(WString::View project_path, BuildPlatform platform, CString::View target = {})
 {
 	Array<WString> result, active, completed;
-	CollectSourceProjects(project_path, platform, result, active, completed, false);
+	CollectSourceProjects(project_path, platform, result, active, completed, false, target);
 
 	Array<WString> roots;
 	for (auto & candidate : result)
@@ -1291,7 +1316,7 @@ Array<WString> FindSourceProjects(WString::View project_path, BuildPlatform plat
 	return roots;
 }
 
-void GenerateSourceProjects(WString::View project_path, ArrayView<CString::View> platforms, System::FileHandle & std_out, bool fresh)
+void GenerateSourceProjects(WString::View project_path, ArrayView<CString::View> platforms, bool fresh, System::FileHandle & std_out)
 {
 	for (auto platform : platforms)
 	{
@@ -1299,19 +1324,19 @@ void GenerateSourceProjects(WString::View project_path, ArrayView<CString::View>
 		REFLEX_ASSERT(platform_index);
 		for (auto & source_project : FindSourceProjects(project_path, BuildPlatform(platform_index.value)))
 		{
-			GenerateProjectGraph(source_project, { platform }, {}, std_out, fresh, false);
+			GenerateProjectGraph(source_project, { platform }, {}, fresh, false, std_out);
 		}
 	}
 }
 
 REFLEX_END_INTERNAL
 
-Reflex::Array<Reflex::WString> ReflexCLI::ProjectGen::GetSourceProjects(Reflex::WString::View project_path, BuildPlatform platform)
+Reflex::Array<Reflex::WString> ReflexCLI::ProjectGen::GetSourceProjects(Reflex::WString::View project_path, BuildPlatform platform, CString::View target)
 {
-	return FindSourceProjects(project_path, platform);
+	return FindSourceProjects(project_path, platform, target);
 }
 
-void ReflexCLI::ProjectGen::Generate(const WString & path, ArrayView<CString::View> outputs, System::FileHandle & std_out, bool fresh, bool vscode)
+void ReflexCLI::ProjectGen::Generate(const WString & path, ArrayView<CString::View> outputs, bool fresh, System::FileHandle & std_out)
 {
 	Array<CString::View> platforms;
 	Array<MetaSystem> meta_systems;
@@ -1321,15 +1346,14 @@ void ReflexCLI::ProjectGen::Generate(const WString & path, ArrayView<CString::Vi
 		{
 			if (!Search(platforms, name)) platforms.Push(name);
 		}
-		else if (auto system = Search(kMetaSystems, name))
+		else if (name == kMetaSystems[kMetaSystemCMake])
 		{
-			auto value = MetaSystem(system.value);
-			if (!Search(meta_systems, value)) meta_systems.Push(value);
+			meta_systems.Push(kMetaSystemCMake);
 		}
 		else Require(false, "generation output", name);
 	}
-	if (vscode && !Search(meta_systems, kMetaSystemVSCode)) meta_systems.Push(kMetaSystemVSCode);
-	GenerateSourceProjects(path, platforms, std_out, fresh);
+	meta_systems.Push(kMetaSystemVSCode);
+	GenerateSourceProjects(path, platforms, fresh, std_out);
 	if (Search(meta_systems, kMetaSystemCMake))
 	{
 		Array<WString> generated;
@@ -1340,9 +1364,9 @@ void ReflexCLI::ProjectGen::Generate(const WString & path, ArrayView<CString::Vi
 			{
 				if (Search(generated, source_project)) continue;
 				generated.Push(source_project);
-				GenerateProjectGraph(source_project, {}, { kMetaSystemCMake }, std_out, fresh, false);
+				GenerateProjectGraph(source_project, {}, { kMetaSystemCMake }, fresh, false, std_out);
 			}
 		}
 	}
-	GenerateProjectGraph(path, platforms, meta_systems, std_out, fresh, true);
+	GenerateProjectGraph(path, platforms, meta_systems, fresh, true, std_out);
 }

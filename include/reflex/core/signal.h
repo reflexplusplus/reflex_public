@@ -88,13 +88,12 @@ class Reflex::SignalComponent : public Signal <TYPES...>
 {
 public:
 
+	using typename Signal<TYPES...>::Listener;
 	using typename Signal<TYPES...>::Mute;
 
 	using Signal<TYPES...>::CreateListener;
-
 	using Signal<TYPES...>::Notify;
 	using Signal<TYPES...>::Emit;
-
 	using Signal<TYPES...>::DebugProbablyMuted;
 };
 

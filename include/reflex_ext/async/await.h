@@ -18,6 +18,8 @@ namespace Reflex::Async
 
 	void CancelAwait(Data::PropertySet & object, Key32 clock_id);
 
+	bool IsAwaiting(const Data::PropertySet & object, Key32 clock_id);
+
 }
 
 
@@ -40,4 +42,9 @@ inline void Reflex::Async::AttachAwait(Data::PropertySet & object, Key32 clock_i
 inline void Reflex::Async::CancelAwait(Data::PropertySet & object, Key32 clock_id)
 {
 	UnsetAbstractProperty(object, clock_id);
+}
+
+inline bool Reflex::Async::IsAwaiting(const Data::PropertySet & object, Key32 clock_id)
+{
+	return QueryAbstractProperty(RemoveConst(object), clock_id);
 }

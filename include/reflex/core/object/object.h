@@ -157,20 +157,20 @@ protected:
 
 	virtual void OnUnsetProperty(Address address) {}
 
-	virtual void OnSetProperty(Address address, Object & value)					//default implementation simply discards the property
+	virtual void OnSetProperty(Address address, Object & value)						//default implementation simply discards the property
 	{
 		value.RetainMt();
 
 		value.ReleaseMt();
 	}
 
-	virtual void OnQueryProperty(Address address, Object * & pointer_out) const {}	//only return owned/retained properties, not created ones
+	virtual void OnQueryProperty(Address address, Object * & pointer_out) const {}	//return owned/retained properties, not created ones, do not set pointer_out if absent, lookup must not destroy the owner, nor mutate it's properties
 
 
 
 	//ADVANCED
 
-	virtual void OnReleaseData() {}												//for clear up of circular references (primarily used by VM)
+	virtual void OnReleaseData() {}													//for clear up of circular references (primarily used by VM)
 
 	virtual void OnDestruct();
 

@@ -226,11 +226,19 @@ Array<PathDesc> ResourcePaths(const TargetConfiguration & config)
 	auto build_platform = config.platform->GetPlatform();
 	auto platform_index = PlatformIndex(build_platform);
 	auto icon = config.GetPath(kXcodeIconProperties[platform_index]);
-	if (icon.path) result.Push(std::move(icon));
+	if (icon.path)
+	{
+		CheckAssetPath(*config.platform->target->project, build_platform, kXcodeIconProperties[platform_index], ResolvePath(config.platform->target->project->GetRoot(), icon));
+		result.Push(std::move(icon));
+	}
 	if (build_platform == kBuildPlatformIOS)
 	{
 		auto launch_screen = config.GetPath(kXcodeLaunchScreenProperty);
-		if (launch_screen.path) result.Push(std::move(launch_screen));
+		if (launch_screen.path)
+		{
+			CheckAssetPath(*config.platform->target->project, build_platform, kXcodeLaunchScreenProperty, ResolvePath(config.platform->target->project->GetRoot(), launch_screen));
+			result.Push(std::move(launch_screen));
+		}
 	}
 	return result;
 }
@@ -478,6 +486,8 @@ Array <WString> PathValues(ArrayView <PathDesc> paths)
 Array <CString> Definitions(const TargetConfiguration & config)
 {
 	Array<CString> result = config.GetDefinitions();
+	//Preserve backslashes and quotes through Xcode's build-setting argument parsing
+	for (auto & definition : result) definition = EscapePbx(Replace(definition, "\\", "\\\\"));
 	if (result) result.Push("$(inherited)");
 	return result;
 }
@@ -558,6 +568,7 @@ void WriteBuildSettings(Data::Archive & output, const Context & context, const T
 	{
 		WriteSetting(output, "MACH_O_TYPE", "mh_dylib");
 		WriteSetting(output, "WRAPPER_EXTENSION", extension);
+		WriteSetting(output, "GENERATE_PKGINFO_FILE", "YES");
 	}
 	else if (output_extension && output_type == kOutputType_app)
 	{
@@ -587,7 +598,7 @@ void WriteBuildSettings(Data::Archive & output, const Context & context, const T
 		WriteSetting(output, "INFOPLIST_KEY_UILaunchStoryboardName", EncodeUTF8(File::SplitExtension(filename).a));
 	}
 	auto automatically_signable = output_type == kOutputType_app || bundle;
-	auto locally_signable = context.platform.GetPlatform() == kBuildPlatformMacOS && (automatically_signable || output_type == kOutputType_console);
+	auto locally_signable = context.platform.GetPlatform() == kBuildPlatformMacOS && (automatically_signable || output_type == kOutputType_console || output_type == kOutputType_dynamic_library);
 	if (automatically_signable || locally_signable)
 	{
 		if (config.GetBool(kXcodeCodesignProperties[platform_index], true))
@@ -1251,7 +1262,7 @@ void WriteWorkspaceBuildScheme(const WString & workspace, WString::View director
 
 REFLEX_END_INTERNAL
 
-void ReflexCLI::ProjectGen::GenerateXcodeProject(Project & project, BuildPlatform selected_platform, const WString & directory, Array<const TargetPlatform *> & generated_platforms, Map<WString> & outputs)
+void ReflexCLI::ProjectGen::GenerateXcodeProject(Project & project, BuildPlatform selected_platform, const WString & directory, Array<const TargetPlatform *> & generated_platforms, Map<WString> & outputs, System::FileHandle & std_out)
 {
 	Require(selected_platform == kBuildPlatformMacOS || selected_platform == kBuildPlatformIOS, "platform", "expected macos or ios platform");
 	auto target_platforms = CollectTargetPlatforms(project, selected_platform, generated_platforms);

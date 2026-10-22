@@ -70,8 +70,6 @@ public:
 
 	static CString::View GetFormat();
 
-	static CString::View GetPluginHost();
-
 	static WString GetDefaultDevice(bool recording);	//recording flag is used as hint for mobile platforms
 
 
@@ -123,6 +121,8 @@ public:
 	//info
 
 	virtual const Configuration::Class & GetClass() const = 0;
+
+	virtual CString GetHostName() const = 0;	//may be empty for formats that don't report a host; VST3 only knows it after the host initialises the instance
 
 };
 
@@ -349,7 +349,7 @@ struct Reflex::System::AudioPlugin::Event
 		kTypeAutomation,
 	};
 
-	UInt16 type : 1;	//0 == MIDI, 1 == Automation
+	UInt16 type : 2;
 	UInt16 position : 14;
 	UInt16 idx;		//MIDI -> portidx, Automation -> parameter
 	union { UInt32 u32; Float32 f32; } value;

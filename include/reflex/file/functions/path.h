@@ -65,15 +65,14 @@ namespace Reflex::File
 	WString::View ResolveExistingFolder(const WString::View & path);
 
 
-	WString ResolveRelativePath(const WString::View & path);			//path can be either folder (trailing stroke) or filename
+	WString ResolveRelativePath(const WString::View & path);	//normalizes . and .. (except at root), preserves trailing strokes.
 
 	WString MakeRelativePath(const WString::View & base_dir, const WString::View & path, bool case_sensitive);
 
 	WString MakeRelativePath(const WString::View & base_dir, const WString::View & path);
 
 
-	WString ResolveIncludePath(const WString::View & base_dir, const WString::View & include_path);	//resolved path only, will ignore base if path begins with stroke or ':', and removes "./" from beginning of path
-
+	WString ResolveIncludePath(const WString::View & base_dir, const WString::View & include_path);		//normalizes the include path, joining it to base_dir unless its absolute
 
 
 	//prohibit

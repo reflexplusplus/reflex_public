@@ -163,9 +163,12 @@ function(reflex_fetch_libs)
         return()
     endif()
 
-    # Resolve the repo (REFLEX_GITHUB_REPO, else the origin remote).
-    set(_repo "$ENV{REFLEX_GITHUB_REPO}")
+    # Resolve an explicit repo, this checkout's origin, or the public archive default.
+    set(_repo "${REFLEX_GITHUB_REPO}")
     if("${_repo}" STREQUAL "")
+        set(_repo "$ENV{REFLEX_GITHUB_REPO}")
+    endif()
+    if("${_repo}" STREQUAL "" AND EXISTS "${REFLEX_ROOT}/.git")
         execute_process(
             COMMAND git -C "${REFLEX_ROOT}" remote get-url origin
             OUTPUT_VARIABLE _remote OUTPUT_STRIP_TRAILING_WHITESPACE ERROR_QUIET)
@@ -173,11 +176,14 @@ function(reflex_fetch_libs)
         set(_repo "${CMAKE_MATCH_1}")
     endif()
     if("${_repo}" STREQUAL "")
-        message(WARNING "Reflex: cannot determine GitHub repo; skipping binary fetch")
-        return()
+        # Published source archives have no Git origin; their binaries are public.
+        set(_repo "reflexplusplus/reflex_public")
     endif()
 
-    set(_token "$ENV{REFLEX_GITHUB_TOKEN}")  # optional (public repos need none)
+    set(_token "${REFLEX_GITHUB_TOKEN}")  # optional (public repos need none)
+    if("${_token}" STREQUAL "")
+        set(_token "$ENV{REFLEX_GITHUB_TOKEN}")
+    endif()
 
     message(STATUS "Reflex: fetching prebuilt binaries (${_version}, ${_platform}, ${REFLEX_DISTRIBUTION})")
 
@@ -222,8 +228,16 @@ function(reflex_fetch_libs)
         return()
     endif()
 
-    # Libraries (all platforms) -> bin/lib.
-    _reflex_fetch_asset("${_json}" "${_token}" "reflex-libs-${_platform}.zip" "${_lib_dir}" _libs_rc)
+    # Libraries (all platforms) -> bin/lib. Prefer Linux tar archives when
+    # available, retaining ZIP support for legacy and licensed releases.
+    set(_libs_asset "reflex-libs-${_platform}.zip")
+    if(_platform STREQUAL "linux")
+        _reflex_find_asset("${_json}" "reflex-libs-linux.tar.gz" _linux_libs_url _linux_libs_browser_url)
+        if(NOT "${_linux_libs_url}" STREQUAL "")
+            set(_libs_asset "reflex-libs-linux.tar.gz")
+        endif()
+    endif()
+    _reflex_fetch_asset("${_json}" "${_token}" "${_libs_asset}" "${_lib_dir}" _libs_rc)
     if(NOT _libs_rc EQUAL 0)
         message(WARNING "Reflex: could not fetch libraries; aborting")
         file(REMOVE "${_json_tmp}")
@@ -236,7 +250,14 @@ function(reflex_fetch_libs)
     # Tools (both flavours) -> bin/tools. Keyed on the host, not the target,
     # so an iOS or Android configure still lands a usable reflex CLI.
     if(NOT "${_host_platform}" STREQUAL "")
-        _reflex_fetch_asset("${_json}" "${_token}" "reflex-tools-${_host_platform}.zip" "${_tools_dir}" _tools_rc)
+        set(_tools_asset "reflex-tools-${_host_platform}.zip")
+        if(_host_platform STREQUAL "linux")
+            _reflex_find_asset("${_json}" "reflex-tools-linux.tar.gz" _linux_tools_url _linux_tools_browser_url)
+            if(NOT "${_linux_tools_url}" STREQUAL "")
+                set(_tools_asset "reflex-tools-linux.tar.gz")
+            endif()
+        endif()
+        _reflex_fetch_asset("${_json}" "${_token}" "${_tools_asset}" "${_tools_dir}" _tools_rc)
     endif()
 
     # ReflexDocumentation (both flavours) -> bin/tools. Host binary, as above.

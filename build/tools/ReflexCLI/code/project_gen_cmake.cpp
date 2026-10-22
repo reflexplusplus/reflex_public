@@ -605,6 +605,31 @@ void WriteConfiguredBuildActions(Data::Archive & output, CString::View target, A
 	}
 }
 
+void WriteLinuxAppPackaging(Data::Archive & output, CString::View target, const TargetConfiguration & config, UInt index, UInt indentation)
+{
+	auto package_target = Join(target, "__reflex_package_", ToCString(index));
+	auto icon_variable = Join(package_target, "_icons");
+	auto icons = File::CorrectTrailingStroke(ResolvePath(config.platform->target->project->GetRoot(), config.GetPath(kLinuxIcon)));
+	WriteCMakeInvocation(output, indentation, "file", ToWString(Join("GLOB ", icon_variable, " CONFIGURE_DEPENDS")),
+		{ Value(PortableValue(config, Join(icons, L"*/apps/*.png"))) });
+	Array<WString> values { L"COMMAND" };
+	auto command = GetLinuxDesktopStageCommand(config);
+	command[2] = L"stage";
+	for (auto & argument : command) values.Push(ConfigItem(config, PortableCommandArgument(config, argument)));
+	auto [script, launcher] = GetLinuxDesktopPaths(config);
+	values.Append({ L"DEPENDS", Value(PortableValue(config, script)), Value(PortableValue(config, launcher)),
+		Join(L"${", ToWString(icon_variable), L"}"), L"WORKING_DIRECTORY \"${CMAKE_CURRENT_SOURCE_DIR}\"",
+		L"COMMENT \"Package Linux application\"", L"VERBATIM COMMAND_EXPAND_LISTS" });
+	// Resource staging is part of every target build, independent of linking.
+	WriteCMakeInvocation(output, indentation, "add_custom_target", ToWString(package_target), values);
+	WriteCMakeInvocation(output, indentation, "add_dependencies", Join(ToWString(target), L" ", ToWString(package_target)));
+	// Refresh the staged executable after linking, including the first build.
+	Array<WString> post_build { L"POST_BUILD", L"COMMAND" };
+	for (auto & argument : GetLinuxDesktopStageCommand(config)) post_build.Push(ConfigItem(config, PortableCommandArgument(config, argument)));
+	post_build.Append({ L"WORKING_DIRECTORY \"${CMAKE_CURRENT_SOURCE_DIR}\"", L"VERBATIM COMMAND_EXPAND_LISTS" });
+	WriteCMakeInvocation(output, indentation, "add_custom_command", Join(L"TARGET ", ToWString(target)), post_build);
+}
+
 WString LibraryPath(const TargetConfiguration & config, WString::View cmake_root)
 {
 	auto platform = config.platform;
@@ -1073,6 +1098,16 @@ void WriteTarget(Data::Archive & output, const Project & project, const Target &
 				auto extension = config->GetString(kOutputExtension);
 				if (extension) WriteTargetProperty(output, indentation, cmake_target, Join("SUFFIX_", Uppercase(config->GetName())), { Value(Join('.', extension)) });
 			}
+			if (platform->GetPlatform() == kBuildPlatformIOS)
+			{
+				Array<WString> architectures;
+				for (auto architecture : config->GetArchitectures())
+				{
+					Require(architecture == kArchitecture_arm64 || architecture == kArchitecture_x64, kArchitectures, Join("unsupported Apple architecture: ", kArchitectureNames[architecture]));
+					architectures.Push(Value(architecture == kArchitecture_x64 ? CString::View("x86_64") : CString::View("arm64")));
+				}
+				WriteTargetProperty(output, indentation, cmake_target, Join("OSX_ARCHITECTURES_", Uppercase(config->GetName())), architectures);
+			}
 			auto output_directory = config->GetPath(kOutputDirectory);
 			if (output_directory.path) WriteReflexTargetSetting(output, indentation, "output_directory", cmake_target, Path(*config, output_directory), config->GetName());
 		}
@@ -1080,6 +1115,22 @@ void WriteTarget(Data::Archive & output, const Project & project, const Target &
 		{
 			if (actions_are_common[phase_idx]) continue;
 			WriteConfiguredBuildActions(output, cmake_target, configurations, action_phases[phase_idx], EmissionPlatform(platform->GetPlatform()), indentation);
+		}
+		if (platform->GetPlatform() == kBuildPlatformLinux && output_type == kOutputType_app)
+		{
+			auto & first_config = *configurations.GetFirst();
+			const bool desktop = True(first_config.GetPath(kLinuxIcon).path);
+			auto package = first_config.GetString(kLinuxPackageId);
+			for (auto & config : configurations)
+				Require(True(config->GetPath(kLinuxIcon).path) == desktop && config->GetString(kLinuxPackageId) == package,
+					kLinuxPackageId, "desktop integration cannot vary by configuration");
+			if (desktop)
+			{
+				REFLEX_LOOP(index, configurations.size)
+				{
+					if (GenerateLinuxDesktopFiles(*configurations[index])) WriteLinuxAppPackaging(output, cmake_target, *configurations[index], index, indentation);
+				}
+			}
 		}
 		if (platforms.GetSize() > 1) WriteLine(output, 1, "endif()");
 	}

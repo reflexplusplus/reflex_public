@@ -20,7 +20,7 @@ namespace ReflexCLI
 	CString EncodeUTF8(WString::View text);
 	WString DecodeUTF8(CString::View text);
 		
-	bool RunCommand(const WString & path, ArrayView <WString> args, System::FileHandle * std_out = nullptr, bool allow_window = false);
+	bool RunCommand(const WString & path, ArrayView <WString> args, System::FileHandle * std_out = nullptr);
 
 	TemplateDefinition DecodeTemplate(const Data::PropertySet & config);
 	WString GetProjectFolderName(const TemplateDefinition & tmpl, ArrayView<Pair<CString>> inputs);
@@ -30,11 +30,11 @@ namespace ReflexCLI
 	void Require(bool test, CString::View msg, CString::View error);
 	void Require(bool test, CString::View msg, WString::View error);
 
-	template <typename TYPE> inline Array <Array <TYPE>> CopyOwned(ArrayView <ArrayView <TYPE>> items);
-	template <typename TYPE> inline Array <Array <TYPE>> CopyOwned(const Array <ArrayView <TYPE>> & items);
+	template <typename TYPE> Array <Array <TYPE>> CopyOwned(ArrayView <ArrayView <TYPE>> items);
+	template <typename TYPE> Array <Array <TYPE>> CopyOwned(const Array <ArrayView <TYPE>> & items);
 
-	template <typename TYPE> inline Array <ArrayView <TYPE>> CopyUnowned(ArrayView < Array <TYPE> > items);
-	template <typename TYPE> inline Array <ArrayView <TYPE>> CopyUnowned(const Array <Array <TYPE>> & items);
+	template <typename TYPE> Array <ArrayView <TYPE>> CopyUnowned(ArrayView < Array <TYPE> > items);
+	template <typename TYPE> Array <ArrayView <TYPE>> CopyUnowned(const Array <Array <TYPE>> & items);
 }
 
 struct ReflexCLI::TokenDefinition

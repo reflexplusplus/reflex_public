@@ -19,7 +19,7 @@ static constexpr bool kApple = false;
 
 constexpr Key32 kConfig = "Config";
 constexpr Pair <Key32,bool> kLineNumbers = { "ide.texteditor.line_numbers", false };
-constexpr Pair <Key32,UInt8> kTabSpaces = { "ide.texteditor.tab_spaces", 4 };
+constexpr Pair <Key32,UInt8> kTabSpaces = { "ide.texteditor.tab_spaces", 0 };
 constexpr Pair <Key32,bool> kSearchOptionCaseSensitive = { "ide.texteditor.search.case_sensitive", false };
 constexpr Pair <Key32,bool> kSearchOptionWholeWord = { "ide.texteditor.search.word", false };
 

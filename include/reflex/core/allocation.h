@@ -3,6 +3,7 @@
 #include "detail/functions/allocate.h"
 #include "detail/initialiser.h"
 #include "array/view.h"
+#include "object/detail/nullable.h"
 
 
 
@@ -85,8 +86,9 @@ public:
 protected:
 
 	friend Detail::Constructor <Allocation>;
+	friend Detail::ExternalNull <Allocation>;
 
-	Allocation(UInt size) : size(size) {}
+	Allocation(UInt size = 0) : size(size) {}
 
 
 	Detail::Initialiser <TYPE> m_first;
@@ -98,6 +100,12 @@ protected:
 
 //
 //impl
+
+template <class TYPE>
+struct Reflex::Detail::ExternalNull < Reflex::Allocation <TYPE> >
+{
+	static inline ConditionalType <kIsTrivial<TYPE>, StaticObject <Allocation<TYPE>>, NullType> instance;
+};
 
 REFLEX_NS(Reflex::Detail)
 

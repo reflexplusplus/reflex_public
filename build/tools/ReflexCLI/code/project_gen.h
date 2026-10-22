@@ -38,6 +38,12 @@ namespace ReflexCLI::ProjectGen
 	constexpr CString::View kPublicIncludeDirectories = "public_include_directories";
 	constexpr CString::View kCompilerOptions = "compiler_options";
 	constexpr CString::View kPkgConfig = "pkg_config";
+	constexpr CString::View kLinuxIcon = "icon";
+	constexpr CString::View kLinuxPackageId = "package_id";
+	constexpr CString::View kLinuxPackageMaintainer = "package_maintainer";
+	constexpr CString::View kLinuxPackageDescription = "package_description";
+	constexpr CString::View kLinuxDebPackage = "deb_package";
+	constexpr CString::View kLinuxDebDependencies = "deb_dependencies";
 	constexpr CString::View kWarningLevel = "warning_level";
 	constexpr CString::View kOptimization = "optimization";
 	constexpr CString::View kFloatingPoint = "floating_point";
@@ -340,21 +346,22 @@ namespace ReflexCLI::ProjectGen
 	bool ComparePath(const PathDesc & a, const PathDesc & b);
 	bool ComparePaths(ArrayView<PathDesc> a, ArrayView<PathDesc> b);
 
-	void GenerateVisualStudioProject(Project &, BuildPlatform, const WString &, Array<const TargetPlatform *> &, Map<WString> &);
-	void GenerateXcodeProject(Project &, BuildPlatform, const WString &, Array<const TargetPlatform *> &, Map<WString> &);
-	void GenerateAndroidProject(Project &, BuildPlatform, const WString &, Array<const TargetPlatform *> &, Map<WString> &);
-	void GenerateLinuxProject(Project &, BuildPlatform, const WString &, Array<const TargetPlatform *> &, Map<WString> &);
-	void GenerateWebProject(Project &, BuildPlatform, const WString &, Array<const TargetPlatform *> &, Map<WString> &);
+	void GenerateVisualStudioProject(Project &, BuildPlatform, const WString &, Array<const TargetPlatform *> &, Map<WString> &, System::FileHandle &);
+	void GenerateXcodeProject(Project &, BuildPlatform, const WString &, Array<const TargetPlatform *> &, Map<WString> &, System::FileHandle &);
+	void GenerateAndroidProject(Project &, BuildPlatform, const WString &, Array<const TargetPlatform *> &, Map<WString> &, System::FileHandle &);
+	void GenerateLinuxProject(Project &, BuildPlatform, const WString &, Array<const TargetPlatform *> &, Map<WString> &, System::FileHandle &);
+	void GenerateWebProject(Project &, BuildPlatform, const WString &, Array<const TargetPlatform *> &, Map<WString> &, System::FileHandle &);
 	void GenerateCMakeProject(Project &, Array<const TargetPlatform *> &, Map<WString> &);
 	void GenerateVSCodeProject(Project &, Array<const TargetPlatform *> &, Map<WString> &);
 
 	WString ExpandVariables(WString::View value, ArrayView <Variable> variables, System::Platform platform = System::kNumPlatform);
 
 
-	void Generate(const WString & path, ArrayView<CString::View> outputs, System::FileHandle & std_out, bool fresh = false, bool vscode = true);
+	void Generate(const WString & path, ArrayView<CString::View> outputs, bool fresh, System::FileHandle & std_out);
 
-	Array<WString> GetSourceProjects(WString::View project_path, BuildPlatform platform);
-	void Build(const WString & path, CString::View platform, CString::View configuration, CString::View destination, System::FileHandle & std_out);
+	Array<WString> GetSourceProjects(WString::View project_path, BuildPlatform platform, CString::View target = {});
+	CString GetLinuxBuildTarget(CString::View target);
+	void Build(const WString & path, CString::View platform, CString::View configuration, CString::View destination, CString::View target, System::FileHandle & std_out);
 }
 
 

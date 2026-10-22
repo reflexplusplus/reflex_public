@@ -96,8 +96,14 @@ objects belonging to deleted source files.
 Applications use the configured output directory and produce `<OutputName>.wasm`,
 `index.html` and `runtime/*.js`. Static targets produce `lib<OutputName>.a` and do
 not package browser files. Source dependencies use the normal project graph;
-SDK libraries live under `bin/lib/web/<Configuration>/`. No prebuilt web packages
-or automatic LLVM/WASI installation are added by this emitter.
+SDK libraries live under `bin/lib/web/<Configuration>/`. Release builds publish
+these Debug/Release archives as `reflex-libs-web.zip` for both `reflex` and
+`reflex_public`, and include them in the desktop SDK distributions. The public
+archive excludes the VM libraries, following the other platforms. These are
+wasm32 static libraries, shared across Windows, macOS and Linux hosts; consumers
+still need a compatible LLVM/WASI toolchain to compile their own code and link
+the final `.wasm` application. The CI jobs use WASI SDK 34. This emitter does not
+install LLVM/WASI automatically.
 
 Upload the app output folder to an HTTPS host with:
 

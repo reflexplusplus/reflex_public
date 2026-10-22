@@ -11,7 +11,7 @@
 namespace Reflex::System
 {
 
-	class StatusItem;	//a macOS menu bar item or a Windows notification area item. UI thread only.
+	class StatusItem;	//macOS menu bar | Windows notification area | Linux StatusNotifierItem
 
 }
 
@@ -45,16 +45,13 @@ public:
 
 	//lifetime
 
-	static BitmapInfo GetPreferredBitmapInfo();		//size and density of the status area; format is kImageFormatLuminance
+	static BitmapInfo GetPreferredBitmapInfo();		//suggested size and density
 
-	[[nodiscard]] static Unretained <StatusItem> Create();	//null on platforms without a status area
+	[[nodiscard]] static Unretained <StatusItem> Create();
 
 
 
 	//callbacks
-
-	//the first successful call publishes the native item. luminance bitmaps are template (macOS) or theme tinted (Windows) icons.
-	//returns false for invalid bitmap data or a native failure.
 
 	virtual bool SetBitmap(const RawBitmap & bitmap) = 0;
 
@@ -77,5 +74,5 @@ public:
 
 	static Client & null;
 
-	virtual void OnClick(bool rmb, bool dbl) {}	//on button release; dbl is the second click of a double click
+	virtual void OnClick(bool rmb, bool dbl) {}
 };

@@ -53,7 +53,8 @@ bool HasUnset(const Data::PropertySet & values, Key32 id)
 	return QueryLocalProperty(values, MakeAddress<Unset>(id));
 }
 
-template <class TYPE> struct AppendableArrayHandler
+template <class TYPE> 
+struct AppendableArrayHandler
 {
 	using Item = typename TYPE::ItemType;
 	using InputArray = ObjectOf<typename TYPE::ValueArray>;
@@ -87,7 +88,7 @@ template <class TYPE> struct AppendableArrayHandler
 	static void Handle(ValidatedPropertySet & owner, const PropertyRule &, Address address, Object & object)
 	{
 		auto discard = AutoRelease(object);
-		auto incoming = New<TYPE>();
+		auto incoming = Make<TYPE>();
 
 		if (address.type_id == GetTypeID<InputArray>())
 		{
@@ -727,6 +728,12 @@ struct FormatHolder
 
 		case kBuildPlatformLinux:
 			AddAppendableStrings(rules, kPkgConfig);
+			AddKnown<Data::CStringProperty>(rules, kLinuxIcon);
+			AddKnown<Data::CStringProperty>(rules, kLinuxPackageId);
+			AddKnown<Data::CStringProperty>(rules, kLinuxPackageMaintainer);
+			AddKnown<Data::CStringProperty>(rules, kLinuxPackageDescription);
+			AddKnown<Data::CStringProperty>(rules, kLinuxDebPackage);
+			AddKnown<Data::CStringProperty>(rules, kLinuxDebDependencies);
 			break;
 
 		default:
@@ -860,6 +867,8 @@ void ExportDocumentationSymbolsImpl(const WString & folder)
 		kAndroidMainSourceSet, kAndroidSigningProperties,
 		kOutputDirectory, kCppStandard, kRtti, kDefines,
 		kIncludeDirectories, kPublicIncludeDirectories, kCompilerOptions,
+		kPkgConfig, kLinuxIcon, kLinuxPackageId, kLinuxPackageMaintainer,
+		kLinuxPackageDescription, kLinuxDebPackage, kLinuxDebDependencies,
 		kWarningLevel, kOptimization, kFloatingPoint, kRuntimeLibrary,
 		kDebugInformation, kDeadStrip, kMacOSExportedSymbols,
 		kMacOSBuildAllArchitectures, kWindowsSdk, kCMakeIdentifier,
@@ -1023,7 +1032,7 @@ REFLEX_END_INTERNAL
 #if REFLEX_DEBUG
 void ReflexCLI::ProjectGen::ExportDocumentationSymbols()
 {
-	auto folder = Join(GetReflexPath(), L"documentation/reflex_generate/", File::kStroke);
+	auto folder = Join(GetReflexPath(), L"documentation/generate/", File::kStroke);
 	Require(File::IsDirectory(folder), "documentation export", "output folder not found");
 	ExportDocumentationSymbolsImpl(folder);
 }

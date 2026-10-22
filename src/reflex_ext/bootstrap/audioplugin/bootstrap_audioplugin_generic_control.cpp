@@ -228,6 +228,8 @@ Reflex::AlreadyRetained <Reflex::GLX::Object> Reflex::Bootstrap::GenericControl:
 
 void Reflex::Bootstrap::GenericControl::OnSetStyle(const GLX::Style & style)
 {
+	GLX::Object::OnSetStyle(style);
+
 	m_cstyle = GLX::Detail::Compile<ControlCompiledStyle>(style);
 
 	ApplyStyle();

@@ -46,7 +46,10 @@ Reflex::Async::Detail::PeriodicClockItem::PeriodicClockItem(Float interval, cons
 
 				SafeIterate(self.list, [](PeriodicClockItem & item, Float32 delta)
 				{
-					item.Process(delta);
+					if (item.GetRetainCount() > 1)
+					{
+						item.Process(delta);
+					}
 				},
 				delta);
 

@@ -1,4 +1,4 @@
-# Fetches a self-contained reflex-dist-<os>.zip release package and points
+# Fetches the verified modular source archive and points
 # REFLEX_DIR at the extracted tree, so a consumer project needs nothing but:
 #
 #     include(cmake/ReflexFetchDist.cmake)
@@ -7,23 +7,23 @@
 #
 # Consumers vendor a copy of this file next to CPM.cmake (the same bootstrap
 # pattern as CPM itself); the canonical version lives in the Reflex SDK at
-# cmake/ReflexFetchDist.cmake and ships inside every dist package.
+# cmake/ReflexFetchDist.cmake and ships inside the source package.
 #
-# Requires CPM (include cmake/CPM.cmake first) — the dist is cached in
+# Requires CPM (include cmake/CPM.cmake first) — the source is cached in
 # CPM_SOURCE_CACHE like any other dependency. Needs CMake >= 3.19 (string(JSON)).
 #
 # Behaviour:
 #   - An explicit -DREFLEX_DIR=... or REFLEX_DIR environment variable always
 #     wins (SDK-development workflow) — no download happens. If that checkout
 #     is a git repo not at the requested tag, a non-fatal warning is issued.
-#   - Otherwise the dist package for VERSION is fetched:
+#   - Otherwise reflex-source.zip for VERSION is fetched:
 #       * public repos:  plain releases/download/ URL, no credentials.
 #       * PRIVATE repos: GitHub serves release assets only through the API
 #         asset endpoint, so the asset id is resolved from the release
 #         metadata first (cached across reconfigures), authenticated via the
 #         REFLEX_GITHUB_TOKEN environment variable or `gh auth token`.
-#   - The extracted tree's version.txt is checked against VERSION to catch a
-#     poisoned/stale cache.
+#   - Subsequent find_package(Reflex) fetches the target libraries and host CLI
+#     through FetchReflexLibs.cmake. version.txt detects stale source caches.
 
 function(reflex_fetch_dist)
     cmake_parse_arguments(ARG "PRIVATE" "VERSION;REPO" "" ${ARGN})
@@ -71,15 +71,8 @@ function(reflex_fetch_dist)
         return()
     endif()
 
-    # 2. Fetch the dist package for this platform.
-    if(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
-        set(_reflex_dist_os "macos")
-    elseif(CMAKE_SYSTEM_NAME STREQUAL "Windows")
-        set(_reflex_dist_os "windows")
-    else()
-        set(_reflex_dist_os "linux")
-    endif()
-    set(_reflex_dist_asset "reflex-dist-${_reflex_dist_os}.zip")
+    # 2. Fetch the verified source package; find_package installs target libraries and host tools.
+    set(_reflex_dist_asset "reflex-source.zip")
 
     if(NOT ARG_PRIVATE)
         CPMAddPackage(
@@ -101,7 +94,7 @@ function(reflex_fetch_dist)
         endif()
         if(_reflex_token STREQUAL "")
             message(FATAL_ERROR
-                "No credentials to fetch the Reflex SDK dist package from ${ARG_REPO}. "
+                "No credentials to fetch the Reflex SDK source package from ${ARG_REPO}. "
                 "Either set REFLEX_GITHUB_TOKEN (a PAT with read access), log in with `gh auth login`, "
                 "or point -DREFLEX_DIR at a local SDK checkout.")
         endif()
@@ -112,7 +105,7 @@ function(reflex_fetch_dist)
         # reconfigures don't re-hit the API. If a tag's assets are re-uploaded
         # (new asset ids, same names) an existing build dir fails its download
         # with a 404 — reconfigure with -UREFLEX_DIST_ASSET_KEY to re-resolve.
-        set(_reflex_asset_key "${ARG_VERSION}-${_reflex_dist_os}")
+        set(_reflex_asset_key "${ARG_REPO}-${ARG_VERSION}-${_reflex_dist_asset}")
         if(NOT "${REFLEX_DIST_ASSET_KEY}" STREQUAL "${_reflex_asset_key}")
             # Bearer scheme: required by fine-grained PATs (the legacy "token"
             # scheme only works reliably for classic PATs).
@@ -165,14 +158,20 @@ function(reflex_fetch_dist)
         )
     endif()
 
-    # The dist stamps its tag into version.txt — catch a poisoned/stale cache.
+    # The verified source stamps its tag into version.txt — catch a stale cache.
     file(READ "${reflex_SOURCE_DIR}/version.txt" _reflex_dist_version)
     string(STRIP "${_reflex_dist_version}" _reflex_dist_version)
     if(NOT _reflex_dist_version STREQUAL "${ARG_VERSION}")
         message(FATAL_ERROR
-            "Reflex dist at ${reflex_SOURCE_DIR} is '${_reflex_dist_version}' but ${ARG_VERSION} "
+            "Reflex source at ${reflex_SOURCE_DIR} is '${_reflex_dist_version}' but ${ARG_VERSION} "
             "was requested — clear the CPM cache entry and reconfigure.")
     endif()
 
+    # Archive checkouts have no Git origin for the modular binary downloader.
+    set(REFLEX_GITHUB_REPO "${ARG_REPO}" PARENT_SCOPE)
+    set(REFLEX_VERSION "${ARG_VERSION}" PARENT_SCOPE)
+    if(ARG_PRIVATE)
+        set(REFLEX_GITHUB_TOKEN "${_reflex_token}" PARENT_SCOPE)
+    endif()
     set(REFLEX_DIR "${reflex_SOURCE_DIR}" PARENT_SCOPE)
 endfunction()

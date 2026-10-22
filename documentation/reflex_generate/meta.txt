@@ -1,2 +1,0 @@
-id: "reflex_generate";
-name: "reflex generate";

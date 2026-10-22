@@ -35,7 +35,9 @@ public:
 
 
 	//setup
-	
+
+	static Detail::Positioning GetStandardPositioning(bool y, const Style & style);
+
 	void SetMinSize(Float min_size) { OnSetMinSize(min_size); }
 
 

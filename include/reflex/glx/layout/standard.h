@@ -35,6 +35,8 @@ namespace Reflex::GLX
 
 	bool GetAxis(const Object & object);
 
+	bool IsInverted(const Object & object);
+
 	void EnableAutoFit(Object & object, bool x, bool y);
 
 
@@ -209,6 +211,11 @@ template <class TYPE> REFLEX_INLINE Reflex::AlreadyRetained <TYPE> Reflex::GLX::
 REFLEX_INLINE bool Reflex::GLX::GetAxis(const Object & object)
 {
 	return BitCheck(object.GetLayoutFlags(), Detail::kStandardLayoutY);
+}
+
+REFLEX_INLINE bool Reflex::GLX::IsInverted(const Object & object)
+{
+	return BitCheck(object.GetLayoutFlags(), Detail::kStandardLayoutInvert);
 }
 
 REFLEX_INLINE void Reflex::GLX::SetFlow(Object & object, UInt8 flowflags)

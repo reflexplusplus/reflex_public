@@ -27,15 +27,15 @@ public:
 
 	//lifetime
 
-	static Unretained <AbstractViewBar> Create(AbstractViewPort&) { return REFLEX_CREATE(Paginator); }
-
-	Paginator();
+	static const AbstractViewPort::ViewBarType kType;
 
 
 
 protected:
 
 	struct LayoutModel;
+
+	Paginator();
 
 	virtual bool OnEvent(Object & src, Event & e) override;
 

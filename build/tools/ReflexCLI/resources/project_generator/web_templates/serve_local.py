@@ -52,7 +52,8 @@ if __name__ == "__main__":
         parser.error("Select exactly one app with --configuration and --target")
     if args.build:
         try:
-            subprocess.run([Path(sys.executable).as_posix(), (here / "build.py").as_posix(), "--configuration", args.configuration], check=True)
+            subprocess.run([Path(sys.executable).as_posix(), (here / "build.py").as_posix(),
+                            "--configuration", args.configuration, "--target", apps[0]["name"]], check=True)
         except subprocess.CalledProcessError as error:
             sys.exit(error.returncode)
     product = Path(apps[0]["product"])

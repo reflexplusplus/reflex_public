@@ -1,0 +1,87 @@
+id: Menu;
+
+@Font Small:
+{
+	path: "fonts/OpenSans/static/OpenSans/OpenSans-Regular.ttf";
+	
+	size: 12;
+};
+
+menu:
+{
+	align: fit;
+	margin: 4,0;
+	animate: true;
+	render_pad: 4;
+	
+	body:
+	{
+		clip: true;
+	};
+	
+	y:
+	{
+		size: 20;
+	
+		bg: Bar(indent: 6; range: &range; region: &region; content: Fill(corner: 3; colour: 0,32));
+	};
+	
+	bg: 
+	Shadow(indent: -1,0; blur: 4; corner: 2; colour: 0,64),
+	Fill(colour: 232; corner: 2);
+	
+	fg: Border(width: 1; colour: 232; corner: 2);
+	
+	section:
+	{
+		size: 28;
+		
+		margin: 0,0,0,-2;
+		
+		bg: 
+		Fill(indent: 3; colour: 216; corner: 2),
+		Text(value: &value; indent: 10,0; font: Small; colour: 51);
+	};
+	
+	common:
+	{
+		max: 256;
+	
+		size: 28;
+	
+		error:
+		{
+			render: x8;
+	
+			margin: 8,0;
+	
+			bg_colour: 255,0,0,0;
+	
+			size: 17;
+	
+			bg: 
+			CircleFill(colour: 255,0,0), 
+			Text(font: Small; colour: 255; justify: center; value: "!");
+		};
+	};
+	
+	item:
+	{
+		inherit: common;
+	
+		bg: 
+		Text(font: Small; value: &value; indent: 10,0; colour: 51; overflow: &overflow|ellipsis);
+	
+		@State hover:
+		{
+			bg:
+			Fill(indent: 2; colour: 255,128; corner: 4),
+			Text(font: Small; value: &value; indent: 10,0; colour: 40; overflow: &overflow|ellipsis);
+		};
+	
+		@State focused:
+		{
+			fg: Border(indent: 3; colour: 192; corner: 3);
+		};
+	};
+};

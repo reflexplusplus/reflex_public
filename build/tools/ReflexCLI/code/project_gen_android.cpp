@@ -422,6 +422,7 @@ Data::Archive AppGradle(const Target & target, CString::View package_id, const T
 		{ "ANDROID_SDK", ToWString(SdkVersion(debug, kAndroidSdk, 37)) },
 		{ "ANDROID_MIN_SDK", ToWString(SdkVersion(debug, kAndroidMinSdk, 28)) },
 		{ "NATIVE_LIBRARY", ToWString(GradleQuote(Symbol(target.GetName()))) },
+		{ "NATIVE_TARGETS", Join(L"[", GradleQuote(ToWString(target.GetName())), L": ", GradleQuote(ToWString(Symbol(target.GetName()))), L"]") },
 		{ "DEBUG_RUNTIME_LIBRARY", RuntimeLibraryName(debug.GetEnum<RuntimeLibrary>(kRuntimeLibrary, kRuntimeLibraryNames, kRuntimeLibrary_static)) },
 		{ "DEBUG_ABIS", AbiList(debug) },
 		{ "RELEASE_RUNTIME_LIBRARY", RuntimeLibraryName(release.GetEnum<RuntimeLibrary>(kRuntimeLibrary, kRuntimeLibraryNames, kRuntimeLibrary_static)) },
@@ -446,12 +447,15 @@ Data::Archive LibraryGradle(ArrayView<BuildTarget> targets, CString::View packag
 	Data::Archive dependencies;
 	WriteDependencies(dependencies, false, debug);
 	WriteDependencies(dependencies, true, release);
-	WString native_targets;
+	WString native_targets = L"[";
+	bool first_target = true;
 	for (auto & target : targets)
 	{
-		if (native_targets) native_targets.Append(L", ");
-		native_targets.Append(GradleQuote(ToWString(target.cmake_module)));
+		if (!first_target) native_targets.Append(L", ");
+		first_target = false;
+		native_targets.Append(Join(GradleQuote(ToWString(target.target->GetName())), L": ", GradleQuote(ToWString(target.cmake_module))));
 	}
+	native_targets.Push(L']');
 
 	return ProjectGen::Template(library_build_gradle,
 	{
@@ -659,7 +663,7 @@ Data::Archive Activity(CString::View package_id, CString::View library)
 
 REFLEX_END_INTERNAL
 
-void ReflexCLI::ProjectGen::GenerateAndroidProject(Project & project, BuildPlatform, const WString & directory, Array<const TargetPlatform *> & generated_platforms, Map<WString> & outputs)
+void ReflexCLI::ProjectGen::GenerateAndroidProject(Project & project, BuildPlatform, const WString & directory, Array<const TargetPlatform *> & generated_platforms, Map<WString> & outputs, System::FileHandle & std_out)
 {
 	Array<Android::BuildTarget> targets;
 	OutputType output_type = kOutputTypeCount;
@@ -746,6 +750,7 @@ void ReflexCLI::ProjectGen::GenerateAndroidProject(Project & project, BuildPlatf
 	{
 		auto path = ResolvePath(project.GetRoot(), DecodePath(value));
 		File::Detail::CorrectTrailingStroke(path);
+		CheckAssetPath(project, kBuildPlatformAndroid, kAndroidMainSourceSet, path);
 		Require(File::IsDirectory(path), kAndroidMainSourceSet, Join("folder not found: ", EncodeUTF8(path)));
 		resolved_main_source_sets.Push(std::move(path));
 	}

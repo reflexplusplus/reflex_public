@@ -15,7 +15,8 @@ We recommend the native ReflexCLI workflow for most projects. The CLI covers
 installation, project creation, and build management, including Android
 packaging and web builds that CMake alone does not fully cover.
 
-After installing the CLI and SDK, create a project outside the SDK folder:
+After [installing the CLI and SDK](#installation-via-reflexcli), create a project
+outside the SDK folder:
 
 ```text
 mkdir MyApp
@@ -29,8 +30,20 @@ and select the current folder as the output location. `reflex create` creates
 platform projects automatically. Run `reflex build` to build for the host's
 native platform, or `reflex edit` to open a generated project in its IDE.
 
-After changing `project.cfg` or an included cfg file, including the source file
-list, run `reflex generate` to update the generated projects.
+To add source files to a project, update the `@Files` list in `project.cfg`, then
+run `reflex generate` to regenerate the platform projects.
+
+For a graphical project-creation interface, optionally build **Reflex Project
+Creator**. With the CLI and SDK installed, run these commands from the SDK root:
+
+```text
+cd build/tools/ReflexProjectCreator
+reflex generate
+reflex build release
+```
+
+Launch the resulting application from the platform's Release subfolder under
+`build/tools/ReflexProjectCreator/output/`.
 
 CMake is also available for projects with established CMake workflows or
 CMake-based dependencies.

@@ -32,10 +32,15 @@ workload, MSVC, and a Windows SDK. Use an up-to-date installation.
 
 ### Android
 
-Use **Android Studio compatible with AGP 9.2**. Install Android SDK **37**,
-**NDK (Side by side)**, and **CMake 3.22.1** through SDK Manager. Use Android
-Studio's bundled JDK and the generated Gradle wrapper (currently Gradle 9.4.1 /
-AGP 9.2.0). Command-line builds need the JDK available through `JAVA_HOME` and
+Use **Android Studio compatible with AGP 9.2**. Through SDK Manager, install
+**Android SDK Platform 37.0**, **SDK Build Tools 36.0.0**,
+**NDK (Side by side) 28.2.13676358**, and **CMake 3.22.1**. The command-line
+SDK package identifier for the platform is `platforms;android-37.0`; generated
+projects use API level 37.
+
+Use **JDK 17** or a compatible Android Studio bundled JDK, together with the
+generated Gradle wrapper (currently Gradle 9.4.1 / AGP 9.2.0).
+Command-line builds need the JDK available through `JAVA_HOME` and
 the SDK through `ANDROID_HOME` or the generated project's `local.properties`.
 
 [Android Studio releases](https://developer.android.com/studio/releases)
@@ -122,13 +127,15 @@ and [Linux GUI applications with WSL](https://learn.microsoft.com/en-us/windows/
 
 Generation writes a disposable `.vscode/` folder beside `project.cfg` by
 default; open that folder's parent in VS Code. Install the Microsoft C/C++
-extension. Tasks invoke `reflex build` and still require the platform toolchains
-above. Native app debugging uses the Windows debugger, CodeLLDB on macOS, or
+extension (`ms-vscode.cpptools`). Tasks invoke `reflex build`: `<platform>: <target>` builds one target
+in Debug, and `<platform>: Release` builds all targets in Release. All build task
+labels include the platform name. Tasks require the toolchains
+above. Native app debugging uses the Windows debugger, CodeLLDB (`vadimcn.vscode-lldb`) on macOS, or
 GDB on Linux (`/usr/bin/gdb`); Linux IntelliSense assumes `/usr/bin/g++`.
 Custom compiler paths need matching editor settings. Android, iOS, and Web
 have build tasks but no generated deployment/debugging configuration;
 Android/Web IntelliSense is not configured. Windows-generated files do not
-provide Linux debugging through WSL. CMake Tools is unnecessary for this
+provide Linux debugging through WSL. CMake Tools (`ms-vscode.cmake-tools`) is unnecessary for this
 workflow; generated settings disable its automatic configuration.
 
 ## CMake

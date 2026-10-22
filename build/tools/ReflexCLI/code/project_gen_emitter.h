@@ -17,6 +17,10 @@ namespace ReflexCLI::ProjectGen
 	}
 
 	WString GetProjectFolder(const Project & project, BuildPlatform platform);
+	Pair<WString> GetLinuxDesktopPaths(const TargetConfiguration & config);	//script, generated launcher
+	Array<WString> GetLinuxDesktopStageCommand(const TargetConfiguration & config);
+	bool GenerateLinuxDesktopFiles(const TargetConfiguration & config);
+	void CheckAssetPath(const Project & project, BuildPlatform emitter, CString::View property, const WString & path);
 	WString TranslateVariables(WString::View value, ArrayView <Variable> mappings, WString::View open = L"$(", WString::View close = L")");
 	Data::Archive Template(Data::Archive::View value, ArrayView <Variable> mappings);
 	Data::Archive Template(const File::EmbeddedResource & resource, ArrayView <Variable> mappings);

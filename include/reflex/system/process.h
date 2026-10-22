@@ -35,7 +35,8 @@ public:
 	{
 		Priority priority = kPriorityNormal;
 		FileHandle * std_out = nullptr;
-		bool allow_window = false;
+		FileHandle * std_err = nullptr;
+		bool allow_window = true;		// Windows specific: inherit the console; false uses CREATE_NO_WINDOW and cannot redirect to console handles.
 	};
 
 
@@ -51,8 +52,6 @@ public:
 	//interface
 
 	virtual Optional <Int32> GetExitCode() const = 0;
-
-	[[deprecated]] virtual void Detach() = 0;
 
 	virtual void Terminate() = 0;
 

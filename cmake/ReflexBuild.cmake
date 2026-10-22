@@ -92,6 +92,11 @@ function(_reflex_build_apply_target_defaults target)
     if(WIN32)
         target_compile_definitions(${target} PRIVATE UNICODE _UNICODE)
     endif()
+    # Match project_configs/common.cfg for both iOS devices and simulators.
+    # Generated projects override this default with their configured architectures.
+    if(CMAKE_SYSTEM_NAME STREQUAL "iOS" AND NOT CMAKE_OSX_ARCHITECTURES)
+        set_property(TARGET ${target} PROPERTY OSX_ARCHITECTURES arm64)
+    endif()
     if(CMAKE_GENERATOR STREQUAL "Xcode")
         set_target_properties(${target} PROPERTIES
             XCODE_GENERATE_SCHEME ON
@@ -205,6 +210,9 @@ function(reflex_target_set_warning_level target level)
     endif()
 
     if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU" AND NOT _level STREQUAL "PEDANTIC")
+        # GCC speculative warnings have too many false positives
+        list(APPEND _options
+            -Wno-array-bounds -Wno-stringop-overflow -Wno-maybe-uninitialized -Wno-dangling-pointer)
         # GCC mistakes temporary Reflex reference wrappers for temporary referents.
         list(APPEND _options "$<$<COMPILE_LANG_AND_ID:CXX,GNU>:-Wno-dangling-reference>")
     endif()

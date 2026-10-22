@@ -129,7 +129,7 @@ CString Configuration(const Target & target, const TargetConfiguration & config,
 
 REFLEX_END_INTERNAL
 
-void ReflexCLI::ProjectGen::GenerateWebProject(Project & project, BuildPlatform, const WString & directory, Array<const TargetPlatform *> & generated_platforms, Map<WString> & outputs)
+void ReflexCLI::ProjectGen::GenerateWebProject(Project & project, BuildPlatform, const WString & directory, Array<const TargetPlatform *> & generated_platforms, Map<WString> & outputs, System::FileHandle & std_out)
 {
 	auto targets = CollectTargetPlatforms(project, kBuildPlatformWeb, generated_platforms);
 	Array<CString> configurations, names, projects;
@@ -151,6 +151,7 @@ void ReflexCLI::ProjectGen::GenerateWebProject(Project & project, BuildPlatform,
 			if (debug && !run_configurations[0]) run_configurations[0] = debug->GetName();
 			if (release && !run_configurations[1]) run_configurations[1] = release->GetName();
 		}
+		bool missing_index = false;
 		for (auto & config : item.platform->GetTargetConfigurations())
 		{
 			WString launcher;
@@ -162,18 +163,10 @@ void ReflexCLI::ProjectGen::GenerateWebProject(Project & project, BuildPlatform,
 				auto entry_page = config->GetPath(kWebEntryPage);
 				auto page = File::Extract(Web::index_html);
 				auto [product_path, product_filename] = File::SplitFilename(product);
-				if (entry_page.path)
-				{
-					auto source = ToWString(Web::Path(project.GetRoot(), entry_page));
-					Require(File::Exists(source) && !File::IsDirectory(source), kWebEntryPage, Join("launcher file not found: ", EncodeUTF8(source)));
-					// Generated launcher artifacts are disposable; never use them as source pages.
-					auto source_abs = ResolveAbsolutePathCase(source);
-					Require(!CaseInsensitive::eq(Left<true>(source_abs, launcher_folder.GetSize()), launcher_folder), kWebEntryPage, "source page must be outside the generated launchers folder");
-					auto packaged_page = Join(product_path, L"index.html");
-					Require(!CaseInsensitive::eq(source_abs, ResolveAbsolutePathCase(packaged_page)), kWebEntryPage, "source page must differ from the packaged index.html");
-					page = File::Open(source);
-					Require(True(page), kWebEntryPage, Join("could not read launcher file: ", EncodeUTF8(source)));
-				}
+				auto source = ToWString(Web::Path(project.GetRoot(), entry_page));
+				CheckAssetPath(project, kBuildPlatformWeb, kWebEntryPage, source);
+				page = File::Open(source);
+				missing_index = missing_index || page.Empty();
 				auto module = Join("./", Data::EncodeUrlSegment(ToCString(product_filename)));
 				SaveFile(launcher, Template(page, {
 					{ "TITLE", ToWString(EscapeXml(project.GetName())) },
@@ -192,6 +185,7 @@ void ReflexCLI::ProjectGen::GenerateWebProject(Project & project, BuildPlatform,
 				outputs.Set(Join(folder, L"runtime/"));
 			}
 		}
+		if (missing_index) File::WriteLine(std_out, Join(kColourWarning, kWebEntryPage, " could not read launcher index.html", kColourDefault));
 	}
 	if (configurations.Empty()) return;
 	Reverse(projects);

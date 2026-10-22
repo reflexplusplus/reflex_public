@@ -38,6 +38,18 @@ struct Reflex::GLX::Paginator::LayoutModel : public Detail::StandardLayout
 
 Reflex::GLX::Paginator::LayoutModel Reflex::GLX::Paginator::LayoutModel::st_self;
 
+const Reflex::GLX::AbstractViewPort::ViewBarType Reflex::GLX::Paginator::kType = 
+{ 
+	[](AbstractViewPort&) -> Unretained <AbstractViewBar>
+	{
+		return REFLEX_CREATE(Paginator); 
+	},
+	[](bool y, const Style &) -> Detail::Positioning
+	{
+		return Detail::kPositioningFloat;
+	} 
+};
+
 Reflex::GLX::Paginator::Paginator()
 	: AbstractViewBar(LayoutModel::st_self)
 {

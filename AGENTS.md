@@ -13,7 +13,7 @@
 - Use `reflex doc info <symbol>` for exact types and functions, for example `reflex doc info Reflex::Reference` or `reflex doc info Reflex::Array`. The shorter `reflex doc <symbol>` form is equivalent for direct symbol lookup.
 - If the symbol name is uncertain, use `reflex doc list <query>` to search the documentation index.
 - After finding the documented API, confirm declarations and detailed type semantics in `_REFLEX-PATH_/include`, then check `_REFLEX-PATH_/src/reflex_ext/` and `_REFLEX-PATH_/examples/` for established usage patterns.
-- !IMPORTANT: The `reflex doc` command stores its selected codebase and tree location in the user's preferences. For consistent results, pass `--root <codebase>` (normally `--root reflex_cpp`) with all queries. This overrides the stored codebase and location.
+- !IMPORTANT: The `reflex doc` command stores its selected codebase and tree location in the user's preferences. For consistent results, pass `--root <codebase>` (normally `--root cpp`) with all queries. This overrides the stored codebase and location.
 
 ## Namespace Overview
 

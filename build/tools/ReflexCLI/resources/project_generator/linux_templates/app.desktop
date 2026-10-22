@@ -1,0 +1,7 @@
+[Desktop Entry]
+Type=Application
+Name=[NAME]
+Exec=[EXEC]
+Icon=[ID]
+StartupWMClass=[WM_CLASS]
+Terminal=false

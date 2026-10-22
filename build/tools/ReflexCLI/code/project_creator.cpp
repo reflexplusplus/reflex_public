@@ -176,7 +176,7 @@ WString InstallFolder(const TemplateDefinitionEx & tmpl, const Array <Variable> 
 
 			if (!CanWrite(dst_path, std_in, std_out, overwrite))
 			{
-				Bootstrap::CLI::Print(std_out, Bootstrap::CLI::kColourBrightBlack, Join("skipping ", Data::Unpack<CString::View>(Data::EncodeUTF8(dst_path))));
+				File::WriteLine(std_out, Join(kColourDim, "skipping ", Data::Unpack<CString::View>(Data::EncodeUTF8(dst_path)), kColourDefault));
 			}
 			else
 			{
@@ -275,7 +275,7 @@ Reflex::WString ReflexCLI::CreateProject(const TemplateDefinition & base_tmpl, A
 	bool wrote_files = false;
 	auto folder = InstallFolder(tmpl, expanded, tmpl.folder, destination, {}, wrote_files, std_in, out, overwrite);
 
-	ProjectGen::Generate(Join(folder, L"project.cfg"), targets, out);
+	ProjectGen::Generate(Join(folder, L"project.cfg"), targets, false, out);
 
 	return folder;
 }

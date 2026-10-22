@@ -216,7 +216,7 @@ void ReflexCLI::ProjectGen::GenerateVSCodeProject(Project & project, Array<const
 	File::DeletePath(directory);
 	File::MakePath(directory);
 
-	Array<CString> configurations, tasks, launches, build_labels;
+	Array<CString> configurations, tasks, release_tasks, launches, build_labels;
 	Array<CString> recommendations = { "ms-vscode.cpptools" };
 	constexpr CString::View generate = "Generate";
 	// Use the CLI's host defaults, without rewriting the active task files.
@@ -233,6 +233,7 @@ void ReflexCLI::ProjectGen::GenerateVSCodeProject(Project & project, Array<const
 			auto kind = platform->GetPlatform();
 			if (!VSCode::Supports(kind)) continue;
 			generated_platforms.Push(platform.Adr());
+			auto [debug, release] = FindDebugAndReleaseConfigurations(*platform);
 			Array<const TargetConfiguration *> ordered_configs;
 			for (auto & config : platform->GetTargetConfigurations())
 				if (CaseInsensitive::eq(config->GetName(), kDebug)) ordered_configs.Push(config.Adr());
@@ -240,24 +241,30 @@ void ReflexCLI::ProjectGen::GenerateVSCodeProject(Project & project, Array<const
 				if (!CaseInsensitive::eq(config->GetName(), kDebug)) ordered_configs.Push(config.Adr());
 			for (auto config : ordered_configs)
 			{
-				auto build = Join("Build ", kBuildPlatforms[kind], ' ', config->GetName());
-				if (!Search(build_labels, build))
+				bool native = UInt(kind) == UInt(System::kPlatform);
+				bool is_debug = config == debug;
+				CString build;
+				if (is_debug)
+					build = Join(kBuildPlatforms[kind], ": ", target->GetName());
+				else if (config == release)
+					build = Join(kBuildPlatforms[kind], ": Release");
+				if (build && !Search(build_labels, build))
 				{
 					build_labels.Push(build);
-					bool native = UInt(kind) == UInt(System::kPlatform);
-					bool is_default = native && !default_build && CaseInsensitive::eq(config->GetName(), kDebug);
+					bool is_default = native && !default_build && is_debug;
 					if (is_default) default_build = build;
 					const auto executable = EncodeUTF8(System::GetExecutablePath());
 					const auto project_path = EncodeUTF8(project.GetCfgPath());
 					Array<CString> generate_command = { executable, "generate", CString(kBuildPlatforms[kind]), "--path", project_path, "--vscode", "false" };
 					Array<CString> build_command = { executable, "build", CString(kBuildPlatforms[kind]), CString(config->GetName()), "--path", project_path };
+					if (is_debug) build_command.Append({ "--target", CString(target->GetName()) });
 					// One task generates only its platform, then builds if generation succeeds.
 					const bool windows = System::kPlatform == System::kPlatformWindows;
 					Array<CString> args;
 					if (windows)
 						args = { "-NoProfile", "-NonInteractive", "-Command", Join(VSCode::ShellCommand(generate_command), "; if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }; ", VSCode::ShellCommand(build_command), "; exit $LASTEXITCODE") };
 					else args = { "-c", Join(VSCode::ShellCommand(generate_command), " && ", VSCode::ShellCommand(build_command)) };
-					tasks.Push(Join("{\"label\":", VSCode::Json(build), ",\"type\":\"process\",\"command\":", VSCode::Json(windows ? "powershell.exe" : "/bin/sh"), ",\"args\":", VSCode::JsonArray(args),
+					(is_debug ? tasks : release_tasks).Push(Join("{\"label\":", VSCode::Json(build), ",\"type\":\"process\",\"command\":", VSCode::Json(windows ? "powershell.exe" : "/bin/sh"), ",\"args\":", VSCode::JsonArray(args),
 						",\"options\":{\"cwd\":\"${workspaceFolder}\"},\"group\":{\"kind\":\"build\",\"isDefault\":", is_default ? "true" : "false",
 						"},\"problemMatcher\":", kind == kBuildPlatformWindows ? "\"$msCompile\"" : "\"$gcc\"", '}'));
 				}
@@ -296,6 +303,7 @@ void ReflexCLI::ProjectGen::GenerateVSCodeProject(Project & project, Array<const
 					}
 					entry.Append(Join(",\"compilerArgs\":", VSCode::JsonArray(flags), '}'));
 					configurations.Push(std::move(entry));
+					if (!is_debug) continue;
 					auto type = config->GetProductType();
 					if (type != kOutputType_app && type != kOutputType_console) continue;
 					auto launch = Join("{\"name\":", VSCode::Json(label), ",\"request\":\"launch\",\"program\":", VSCode::Json(VSCode::Product(*config, architecture)),
@@ -314,6 +322,7 @@ void ReflexCLI::ProjectGen::GenerateVSCodeProject(Project & project, Array<const
 	}
 	if (configurations.Empty()) configurations.Push("{\"name\":\"Default\",\"includePath\":[\"${workspaceFolder}/**\"],\"cppStandard\":\"c++20\"}");
 	VSCode::Save(directory, L"c_cpp_properties.json", Join("{\"version\":4,\"configurations\":[\n", Merge(configurations, ",\n"), "\n]}\n"), outputs);
+	tasks.Append(release_tasks);
 	VSCode::Save(directory, L"tasks.json", Join("{\"version\":\"2.0.0\",\"tasks\":[\n", Merge(tasks, ",\n"), "\n]}\n"), outputs);
 	VSCode::Save(directory, L"launch.json", Join("{\"version\":\"0.2.0\",\"configurations\":[\n", Merge(launches, ",\n"), "\n]}\n"), outputs);
 	VSCode::Save(directory, L"extensions.json", Join("{\"recommendations\":", VSCode::JsonArray(recommendations), "}\n"), outputs);

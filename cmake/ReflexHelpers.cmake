@@ -584,39 +584,70 @@ endfunction()
 
 
 # =========================================================
-# Internal: inline AAX target (no prebuilt lib, mirrors AUv3)
+# Internal: Avid AAX SDK targets
 # =========================================================
-# Compiles the Reflex AAX umbrella, which includes the required SDK sources,
-# into a static lib aliased Reflex::TargetAAX.
-function(_reflex_build_inline_aax)
-    if(TARGET Reflex::TargetAAX)
+# Adds the Avid AAX SDK at AAX_SDK_PATH (cache or environment variable) once, with the SDK's own CMake project.
+# Reflex does not ship Avid sources; AAX plugins link AAX_SDK::AAX_Export and AAX_SDK::AAXLibrary.
+set(_REFLEX_AAX_SDK_MIN_VERSION 2.9)
+
+function(_reflex_add_aax_sdk_library)
+    if(TARGET AAX_SDK::AAXLibrary)
         return()
     endif()
 
-    set(_aax_sdk "${REFLEX_ROOT}/src/reflex/system/common/instance/ext/aax/SDK")
-    if(REFLEX_PLATFORM_MACOS)
-        set(_aax_unity "${REFLEX_ROOT}/src/reflex/system/macos_aax.mm")
-    else()
-        set(_aax_unity "${REFLEX_ROOT}/src/reflex/system/win_aax.cpp")
+    set(_doc "Avid AAX SDK root (the folder that contains Interfaces/AAX.h)")
+    set(AAX_SDK_PATH "" CACHE PATH "${_doc}")
+    if(NOT AAX_SDK_PATH AND DEFINED ENV{AAX_SDK_PATH})
+        set(AAX_SDK_PATH "$ENV{AAX_SDK_PATH}" CACHE PATH "${_doc}" FORCE)
+    endif()
+    file(TO_CMAKE_PATH "${AAX_SDK_PATH}" _sdk)
+    if(NOT _sdk OR NOT EXISTS "${_sdk}/Interfaces/AAX.h")
+        message(FATAL_ERROR
+            "Reflex: the AAX format needs the Avid AAX SDK, which Reflex does not include. "
+            "Set -DAAX_SDK_PATH=<path> or the AAX_SDK_PATH environment variable to the SDK root "
+            "(the folder that contains Interfaces/AAX.h). Get the SDK from Avid: https://developer.avid.com/aax\n"
+            "Current value: '${_sdk}'")
     endif()
 
-    reflex_add_target(_ReflexSrc_TargetAAX TYPE STATIC_LIBRARY SOURCES "${_aax_unity}")
-    target_include_directories(_ReflexSrc_TargetAAX PRIVATE
-        "${REFLEX_ROOT}/include"
-        "${REFLEX_ROOT}/src"
-        "${_aax_sdk}/Interfaces"
-        "${_aax_sdk}/Interfaces/ACF"
-    )
-    if(REFLEX_PLATFORM_MACOS)
-        _reflex_init_target(_ReflexSrc_TargetAAX APPLE_DEPLOYMENT_TARGET 10.15 OBJC_ARC ON)
-    else()
-        _reflex_init_target(_ReflexSrc_TargetAAX)
+    # AAX_SDK_CURRENT_REVISION encodes 2.9.0 as 20209000; AAX_SDK_VERSION is not bumped every release.
+    set(_found "")
+    set(_version_header "${_sdk}/Interfaces/AAX_Version.h")
+    if(EXISTS "${_version_header}")
+        file(STRINGS "${_version_header}" _revision REGEX "^#define[ \t]+AAX_SDK_CURRENT_REVISION[ \t]")
+        if(_revision MATCHES "([0-9]+)")
+            math(EXPR _major "${CMAKE_MATCH_1} / 10000000")
+            math(EXPR _minor "(${CMAKE_MATCH_1} / 1000) % 100")
+            set(_found "${_major}.${_minor}")
+        endif()
     endif()
-    if(REFLEX_PLATFORM_MACOS)
-        set_source_files_properties("${_aax_unity}" PROPERTIES
-            COMPILE_FLAGS "-Wno-deprecated-declarations -Wno-nullability-completeness")
+    if(NOT _found)
+        message(WARNING "Reflex: could not read AAX_SDK_CURRENT_REVISION from '${_version_header}'. "
+            "Reflex AAX needs AAX SDK ${_REFLEX_AAX_SDK_MIN_VERSION} or later.")
+    elseif(_found VERSION_LESS _REFLEX_AAX_SDK_MIN_VERSION)
+        message(FATAL_ERROR "Reflex AAX needs AAX SDK ${_REFLEX_AAX_SDK_MIN_VERSION} or later, found ${_found} at '${_sdk}'.")
+    elseif(_found VERSION_GREATER _REFLEX_AAX_SDK_MIN_VERSION)
+        message(WARNING "Reflex AAX is tested with AAX SDK ${_REFLEX_AAX_SDK_MIN_VERSION} only, found ${_found} at '${_sdk}'.")
     endif()
-    add_library(Reflex::TargetAAX ALIAS _ReflexSrc_TargetAAX)
+
+    set(AAX_BUILD_EXAMPLES OFF)
+    set(AAX_BUILD_PTSL_EXAMPLES OFF)
+    set(AAX_BUILD_LIBRARY ON)
+    set(AAX_BUILD_TI_INTERFACE OFF)
+    set(AAX_BUILD_JUCE_GUI_EXTENSION OFF)
+    # Stops the SDK project from replacing a default CMAKE_INSTALL_PREFIX in the cache.
+    set(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT OFF)
+    add_subdirectory("${_sdk}" "${CMAKE_BINARY_DIR}/_aax_sdk" EXCLUDE_FROM_ALL)
+
+    foreach(_target AAX_Export AAXLibrary)
+        reflex_target_set_runtime_library(${_target} static DEBUG_CONFIGS Debug)
+        if(REFLEX_PLATFORM_MACOS)
+            reflex_target_set_apple_deployment_target(${_target} 10.15)
+            # AAX_CAutoreleasePool.OSX.mm uses NSAutoreleasePool, which ARC rejects.
+            reflex_target_set_objc_arc(${_target} OFF)
+        endif()
+    endforeach()
+    # Exports the ACF entry points that AAX_Exports.cpp defines.
+    target_compile_definitions(AAX_Export PRIVATE ACFPLUGIN_EXPORTS)
 endfunction()
 
 
@@ -1094,18 +1125,24 @@ function(_reflex_add_plugin_format base_target format sources name vendor versio
 
     elseif(format STREQUAL "AAX")
 
-        # AAX is macOS + Windows only (no iOS). Built inline from source like
-        # AUv3 — the AAX SDK ships source-only, so there is no prebuilt lib.
         if(NOT (REFLEX_PLATFORM_MACOS OR REFLEX_PLATFORM_WINDOWS))
             return()
         endif()
 
-        _reflex_build_inline_aax()   # creates Reflex::TargetAAX
+        _reflex_resolve_target_lib(TargetAAX aax _fmtlib)
+        if(NOT _fmtlib)
+            return()
+        endif()
+        _reflex_add_aax_sdk_library()
+        # The AAX target built from source compiles against the consumer's SDK headers.
+        if(TARGET _ReflexSrc_TargetAAX)
+            target_link_libraries(_ReflexSrc_TargetAAX PRIVATE AAX_SDK::AAX_SDK_Interface)
+        endif()
 
         reflex_add_target(${_t} TYPE MODULE_LIBRARY SOURCES ${sources})
         _reflex_init_target(${_t} FLOATING_POINT fast APPLE_DEPLOYMENT_TARGET "${_apple_deployment_target}")
         set_target_properties(${_t} PROPERTIES OUTPUT_NAME "${name}" PREFIX "")
-        target_link_libraries(${_t} PRIVATE Reflex::TargetAAX)
+        target_link_libraries(${_t} PRIVATE ${_fmtlib} AAX_SDK::AAX_Export AAX_SDK::AAXLibrary)
 
         if(REFLEX_PLATFORM_MACOS)
             reflex_target_set_macos_exported_symbols(${_t}
@@ -1135,11 +1172,24 @@ function(_reflex_add_plugin_format base_target format sources name vendor versio
                 "-framework Network"
                 "-framework Security"
             )
+
+            # PACE wraptool treats the bundle as a flat file unless it has PkgInfo and Resources.
+            file(READ "${_plist}" _plist_xml)
+            set(_pkginfo "")
+            foreach(_key CFBundlePackageType CFBundleSignature)
+                string(REGEX MATCH "<key>${_key}</key>[^<]*<string>([^<]*)</string>" _match "${_plist_xml}")
+                string(APPEND _pkginfo "${CMAKE_MATCH_1}")
+            endforeach()
+            file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/${_t}_PkgInfo" "${_pkginfo}")
+            add_custom_command(TARGET ${_t} POST_BUILD
+                COMMAND "${CMAKE_COMMAND}" -E copy "${CMAKE_CURRENT_BINARY_DIR}/${_t}_PkgInfo" "$<TARGET_BUNDLE_CONTENT_DIR:${_t}>/PkgInfo"
+                COMMAND "${CMAKE_COMMAND}" -E make_directory "$<TARGET_BUNDLE_CONTENT_DIR:${_t}>/Resources"
+            )
         endif()
 
         if(REFLEX_PLATFORM_WINDOWS)
             # Windows .aaxplugin is a folder: <name>.aaxplugin/Contents/x64/<name>.aaxplugin
-            # The SDK entry points are exported by AAX_Exports.cpp in the umbrella.
+            # AAX_SDK::AAX_Export exports the ACF entry points.
             # $<0:> stops multi-config generators appending a per-config subfolder.
             set_target_properties(${_t} PROPERTIES
                 SUFFIX ".aaxplugin"
@@ -1297,6 +1347,8 @@ endfunction()
 #       AU_COMPONENTS  "ES2M:aumu:Example Synth,ES2F:aufx:Example FX"
 #       AU_VENDOR_4CC  "NdAu"      # 4-char vendor code
 #       APPLE_DEPLOYMENT_TARGET "10.15"   # optional; defaults to CMAKE_OSX_DEPLOYMENT_TARGET
+#       # AAX needs the Avid AAX SDK: pass -DAAX_SDK_PATH=<sdk root> or set the
+#       # AAX_SDK_PATH environment variable (AAX SDK 2.9 or later).
 #       # AAX-specific (optional; all three required to auto-sign with PACE wraptool):
 #       AAX_ACCOUNT    "myilokacct"          # PACE/iLok account name
 #       AAX_SIGN_ID    "Developer ID: ..."   # signing certificate identity

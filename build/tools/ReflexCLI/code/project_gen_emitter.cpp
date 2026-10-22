@@ -33,6 +33,19 @@ Reflex::WString ReflexCLI::ProjectGen::GetProjectFolder(const Project & project,
 	return Join(project.GetRoot(), project.GetGeneratedDirectory(), ToWString(kBuildPlatforms[platform]), File::kStroke);
 }
 
+void ReflexCLI::ProjectGen::CheckAssetPath(const Project & project, BuildPlatform emitter, CString::View property, const WString & path)
+{
+	if (path)
+	{
+		auto artefacts = File::CorrectTrailingStroke(ResolveAbsolutePathCase(Join(project.GetRoot(), project.GetGeneratedDirectory())));
+		auto source = ResolveAbsolutePathCase(path);
+
+		bool outside = !CaseInsensitive::eq(Left<true>(source, artefacts.GetSize()), artefacts);
+
+		Require(outside, kBuildPlatforms[emitter], Join(property, " must be outside the generated artefacts folder: ", EncodeUTF8(artefacts)));
+	}
+}
+
 Reflex::WString ReflexCLI::ProjectGen::TranslateVariables(WString::View value, ArrayView<Variable> mappings, WString::View open, WString::View close)
 {
 	WString result = value;
@@ -169,12 +182,14 @@ Reflex::Array<Reflex::CString::View> ReflexCLI::ProjectGen::GnuWarningOptions(co
 
 	if (warning_level != kWarningLevel_pedantic)
 	{
-		result.Push("-Wno-sign-compare");
-		result.Push("-Wno-missing-field-initializers");
-		result.Push("-Wno-char-subscripts");
-		result.Push("-Wno-missing-braces");
-		if (gcc && cpp) result.Push("-Wno-dangling-reference");
+		result.Append({ "-Wno-sign-compare", "-Wno-missing-field-initializers", "-Wno-char-subscripts", "-Wno-missing-braces" });
+		if (gcc)
+		{
+			result.Append({ "-Wno-array-bounds", "-Wno-stringop-overflow", "-Wno-maybe-uninitialized", "-Wno-dangling-pointer" });
+			if (cpp) result.Push("-Wno-dangling-reference");
+		}
 	}
+
 	return result;
 }
 

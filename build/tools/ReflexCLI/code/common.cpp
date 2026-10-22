@@ -89,9 +89,9 @@ Reflex::WString ReflexCLI::MakeReflexExecutablePath(WString::View reflex_path)
 #endif
 }
 
-bool ReflexCLI::RunCommand(const WString & path, ArrayView <WString> args, System::FileHandle * std_out, bool allow_window)
+bool ReflexCLI::RunCommand(const WString & path, ArrayView <WString> args, System::FileHandle * std_out)
 {
-	auto process = Make<System::Process>(path, args, System::Process::Options{ .std_out = std_out, .allow_window = allow_window });
+	auto process = Make<System::Process>(path, args, System::Process::Options{ .std_out = std_out, .std_err = std_out });
 
 	process->Wait();
 

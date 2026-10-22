@@ -80,7 +80,13 @@ namespace ReflexCLI
 		namespace Linux
 		{
 
+			extern const Reflex::File::EmbeddedResource app_desktop;
+
+			extern const Reflex::File::EmbeddedResource desktop_sh;
+
 			extern const Reflex::File::EmbeddedResource Makefile;
+
+			extern const Reflex::File::EmbeddedResource package_deb_sh;
 
 		}
 

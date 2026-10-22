@@ -128,6 +128,8 @@ Reflex::Bootstrap::AudioPlugin::AudioPlugin(const Class & cls, System::AudioPlug
 	PublishInterface<System::AudioPlugin::Callbacks>(this);
 
 	REFLEX_ATOMIC_OR(m_atomic_group_flags, m_parameters.all_group_flags);
+
+	m_events_out_buffer.Allocate(Max<UInt>(cls.num_params, 256));
 	
 	if (!IsPlugin()) Detail::RestoreStandaloneAudioApp(global, instance);
 }

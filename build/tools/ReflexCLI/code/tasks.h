@@ -16,6 +16,21 @@ namespace ReflexCLI
 		WString value;
 	};
 
+	class GlobalVariables
+	{
+	public:
+		REFLEX_NONCOPYABLE(GlobalVariables);
+		explicit GlobalVariables(const Data::PropertySet & args);
+		~GlobalVariables();
+		static const Data::PropertySet & GetProperties() { return s_current->m_values; }
+		static Array<Variable> Get();
+
+	private:
+		static const GlobalVariables * s_current;
+		Data::PropertySet m_values;
+		const GlobalVariables * m_previous;
+	};
+
 	struct XmlAttribute
 	{
 		CString name;
@@ -121,9 +136,13 @@ namespace ReflexCLI
 	extern Output output;
 
 
+	inline const auto & kColourDefault = Bootstrap::CLI::Detail::kColours[Bootstrap::CLI::kColourDefault];
+
 	inline const auto & kColourDim = Bootstrap::CLI::Detail::kColours[Bootstrap::CLI::kColourBrightBlack];
 
-	inline const auto & kColourDefault = Bootstrap::CLI::Detail::kColours[Bootstrap::CLI::kColourDefault];
+	inline const auto & kColourAccent = Bootstrap::CLI::Detail::kColours[Bootstrap::CLI::kColourBrightYellow];
+
+	inline const auto & kColourWarning = Bootstrap::CLI::Detail::kColours[Bootstrap::CLI::kColourYellow];
 
 
 	inline void PrintCommandWithDescription(System::FileHandle & std_out, CString::View name, CString::View description)

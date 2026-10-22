@@ -14,6 +14,7 @@
 #   Reflex::TargetCLAP         (Windows + macOS)
 #   Reflex::TargetVST2         (Windows + macOS)
 #   Reflex::TargetAU           (macOS only)
+#   Reflex::TargetAAX          (Windows + macOS; needs AAX_SDK_PATH)
 #
 # Low-level target operations (from ReflexBuild.cmake) and helper functions
 # (from ReflexHelpers.cmake):
@@ -319,6 +320,7 @@ if(WIN32 OR (APPLE AND NOT CMAKE_SYSTEM_NAME STREQUAL "iOS")
     _reflex_import_lib(TargetVST3  ReflexTargetVST3)
     _reflex_import_lib(TargetCLAP  ReflexTargetCLAP)
     _reflex_import_lib(TargetVST2  ReflexTargetVST2)
+    _reflex_import_lib(TargetAAX  ReflexTargetAAX)
 endif()
 
 if(CMAKE_SYSTEM_NAME STREQUAL "Linux")

@@ -14,9 +14,4 @@ inline bool OfferUp(Object & object, Event & e)
 	return object.GetParent()->Emit(clone);
 }
 
-REFLEX_INLINE bool IsInverted(Object & object)
-{
-	return BitCheck(object.GetLayoutFlags(), Detail::kStandardLayoutInvert);
-}
-
 REFLEX_END

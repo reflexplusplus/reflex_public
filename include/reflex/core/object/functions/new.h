@@ -111,7 +111,7 @@ template <class TYPE> inline Reflex::Unretained < Reflex::ObjectOf <TYPE> > Refl
 {
 	REFLEX_STATIC_ASSERT(!kIsObject<TYPE>);
 
-	return New < ObjectOf <TYPE> >(value);
+	return REFLEX_CREATE(ObjectOf<TYPE>, value);
 }
 
 //by design not implemented, for heap use Object or ObjectOf

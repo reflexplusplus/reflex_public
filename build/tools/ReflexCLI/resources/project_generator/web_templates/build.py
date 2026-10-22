@@ -145,6 +145,7 @@ def main():
     manifest = json.loads((HERE / "build-config.json").read_text(encoding="utf-8"))
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--configuration", default=manifest["default_configuration"])
+    parser.add_argument("--target", help="build one target and its dependencies")
     parser.add_argument("--jobs", type=int, default=os.cpu_count() or 1)
     parser.add_argument("--rebuild", action="store_true")
     args = parser.parse_args()
@@ -153,6 +154,9 @@ def main():
     targets = [target for target in manifest["targets"] if target["configuration"] == args.configuration]
     if not targets:
         parser.error(f"Undefined configuration: {args.configuration}")
+    selected = [target for target in targets if not args.target or target["name"] == args.target]
+    if not selected:
+        parser.error(f"Undefined target for {args.configuration}: {args.target}")
     for builder in manifest["projects"]:
         if not Path(builder).is_file():
             raise RuntimeError(f"Missing generated dependency project: {builder}; regenerate web projects")
@@ -246,7 +250,7 @@ def main():
         active.remove(key)
         completed.add(key)
 
-    for target in targets:
+    for target in selected:
         build(target)
 
 

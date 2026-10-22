@@ -3,6 +3,38 @@
 
 REFLEX_BEGIN_INTERNAL(ReflexCLI::ProjectGen::Linux)
 
+CString DesktopValue(CString::View value)
+{
+	CString result;
+	for (auto c : value)
+	{
+		switch (c)
+		{
+		case '\\': result.Append("\\\\"); break;
+		case '\n': result.Append("\\n"); break;
+		case '\r': result.Append("\\r"); break;
+		case '\t': result.Append("\\t"); break;
+		case ' ': result.Append("\\s"); break;
+		default: result.Push(c); break;
+		}
+	}
+	return result;
+}
+
+CString DesktopExec(CString::View path)
+{
+	CString result = "\"";
+	for (auto c : path)
+	{
+		if (c == '"' || c == '`' || c == '$' || c == '\\') result.Push('\\');
+		result.Push(c);
+		if (c == '%') result.Push('%');
+	}
+	result.Push('"');
+	// Resolve env before field-code expansion when an executable path contains %.
+	return Join(Search(path, '%') ? "/usr/bin/env " : "", DesktopValue(result));
+}
+
 Array<CString::View> GccFloatingPointOptions(const TargetConfiguration & config)
 {
 	REFLEX_STATIC_ASSERT(kFloatingPointCount == 4);
@@ -216,7 +248,7 @@ CString DependencyProjectID(const Project & project)
 
 CString DependencyTargetID(const Target & target)
 {
-	return Join("target_", MakeIdentifier(target.GetName()));
+	return GetLinuxBuildTarget(target.GetName());
 }
 
 CString Libraries(const Target & target, const TargetConfiguration & config)
@@ -228,10 +260,10 @@ CString Libraries(const Target & target, const TargetConfiguration & config)
 	return result;
 }
 
-WString BuildCommand(const BuildActionDesc & action)
+WString BuildCommand(ArrayView<WString> arguments)
 {
 	WString command = L"cd '$(PROJECT_ROOT)' &&";
-	for (auto & argument : action.command)
+	for (auto & argument : arguments)
 	{
 		command.Push(L' ');
 		auto value = TranslateVariables(argument);
@@ -243,7 +275,7 @@ WString BuildCommand(const BuildActionDesc & action)
 void WriteActionRecipe(Data::Archive & output, CString::View name, const BuildActionDesc & action)
 {
 	WriteLine(output, 1, Join("@echo ", ShellQuote(name)));
-	WriteLine(output, 1, Join(L"@", BuildCommand(action)));
+	WriteLine(output, 1, Join(L"@", BuildCommand(action.command)));
 }
 
 CString WriteBuildActions(Data::Archive & output, const Array<BuildActionDesc> & actions, CString::View id, CString::View phase, CString dependency, CString::View intermediate_directory)
@@ -388,7 +420,19 @@ bool WriteConfiguration(Data::Archive & output, const Target & target, const Tar
 	{
 		WriteLine(output, 1, Join("$(CXX) $(OBJECT_ARGS_", id, ") $(LDFLAGS_", id, ") -o \"$@\" $(LDLIBS_", id, ")"));
 	}
-	auto final_target = WriteBuildActions(output, config.GetBuildActions(kBuildPhasePostBuild, System::kPlatformLinux), id, "post", MakeWord(target_path), intermediate_directory);
+	CString app_target = MakeWord(target_path);
+	if (GenerateLinuxDesktopFiles(config))
+	{
+		auto [script, launcher] = GetLinuxDesktopPaths(config);
+		auto package_target = Join("package_", id);
+		Data::WriteLine(output, Join(".PHONY: ", package_target));
+		Data::WriteLine(output, Join(package_target, ": ", app_target, ' ', MakeWord(PathValue(EncodeUTF8(script))), ' ', MakeWord(PathValue(EncodeUTF8(launcher)))));
+		WriteLine(output, 1, "@echo 'Package Linux application'");
+		// Scan the icon folder on every app build, including builds without a relink.
+		WriteLine(output, 1, Join(L"@", BuildCommand(GetLinuxDesktopStageCommand(config))));
+		app_target = std::move(package_target);
+	}
+	auto final_target = WriteBuildActions(output, config.GetBuildActions(kBuildPhasePostBuild, System::kPlatformLinux), id, "post", app_target, intermediate_directory);
 	Data::WriteLine(output, Join("TARGETS += ", final_target));
 	Data::WriteLine(output, Join(".PHONY: ", DependencyTargetID(target)));
 	Data::WriteLine(output, Join(DependencyTargetID(target), ": ", final_target));
@@ -426,7 +470,72 @@ void WriteDependencyProjects(Data::Archive & output, Project & project, ArrayVie
 
 REFLEX_END_INTERNAL
 
-void ReflexCLI::ProjectGen::GenerateLinuxProject(Project & project, BuildPlatform, const WString & directory, Array<const TargetPlatform *> & generated_platforms, Map<WString> & outputs)
+Reflex::Pair<Reflex::WString> ReflexCLI::ProjectGen::GetLinuxDesktopPaths(const TargetConfiguration & config)
+{
+	auto & target = *config.platform->target;
+	auto folder = GetProjectFolder(*target.project, kBuildPlatformLinux);
+	return { Join(folder, L"desktop.sh"), Join(folder, L"desktop/", ToWString(config.GetName()), L"/", ToWString(target.GetName()), L".desktop") };
+}
+
+Reflex::Array<Reflex::WString> ReflexCLI::ProjectGen::GetLinuxDesktopStageCommand(const TargetConfiguration & config)
+{
+	auto [script, launcher] = GetLinuxDesktopPaths(config);
+	auto & project = *config.platform->target->project;
+	auto directory = config.GetPath(kOutputDirectory);
+	Require(True(directory.path), kOutputDirectory, "required for Linux desktop integration");
+	return { L"sh", script, L"package", launcher,
+		ResolvePath(project.GetRoot(), config.GetPath(kLinuxIcon)),
+		Join(File::CorrectTrailingStroke(directory.path), ToWString(Linux::ProductFilename(config))),
+		ToWString(config.GetString(kLinuxPackageId)) };
+}
+
+bool ReflexCLI::ProjectGen::GenerateLinuxDesktopFiles(const TargetConfiguration & config)
+{
+	if (config.platform->GetPlatform() != kBuildPlatformLinux || config.GetProductType() != kOutputType_app || !config.GetPath(kLinuxIcon).path) return false;
+	auto & project = *config.platform->target->project;
+	auto icons = ResolvePath(project.GetRoot(), config.GetPath(kLinuxIcon));
+	if (!File::IsDirectory(icons)) return false;
+	CheckAssetPath(project, kBuildPlatformLinux, kLinuxIcon, icons);
+	auto package = config.GetString(kLinuxPackageId);
+	Require(package && package.GetFirst() != '.', kLinuxPackageId, "expected an application ID");
+	for (auto c : package)
+		Require((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9') || c == '.' || c == '_' || c == '-', kLinuxPackageId, "invalid application ID");
+	auto directory = config.GetPath(kOutputDirectory);
+	Require(True(directory.path), kOutputDirectory, "required for Linux desktop integration");
+	auto architectures = config.GetArchitectures();
+	Require(architectures.GetSize() == 1, kArchitectures, "desktop integration requires one architecture");
+	auto executable = Join(File::CorrectTrailingStroke(ResolvePath(project.GetRoot(), directory)), ToWString(Linux::ProductFilename(config)));
+	executable = Replace(executable, L"$(Architecture)", ToWString(kArchitectureNames[architectures[0]]));
+	executable = Replace(executable, L"$(ARCHITECTURE)", ToWString(kArchitectureNames[architectures[0]]));
+	auto path = EncodeUTF8(File::SplitFilename(executable).b);
+	auto [script, launcher] = GetLinuxDesktopPaths(config);
+	SaveFile(script, File::Extract(Linux::desktop_sh), kBuildPlatformLinux);
+	SaveFile(Join(launcher, L".package-deb.sh"), Template(Linux::package_deb_sh,
+	{
+		{ "PACKAGE_ID", ToWString(ShellQuote(package)) },
+		{ "PACKAGE_NAME", ToWString(ShellQuote(config.GetString(kLinuxDebPackage))) },
+		{ "VERSION", ToWString(ShellQuote(config.GetVariable("PRODUCT_VERSION", "1.0.0"))) },
+		{ "MAINTAINER", ToWString(ShellQuote(config.GetString(kLinuxPackageMaintainer))) },
+		{ "DESCRIPTION", ToWString(ShellQuote(config.GetString(kLinuxPackageDescription, config.GetVariable("PRODUCT_NAME", project.GetName())))) },
+		{ "DEPENDENCIES", ToWString(ShellQuote(config.GetString(kLinuxDebDependencies))) },
+		{ "EXECUTABLE", ToWString(ShellQuote(path)) },
+	}), kBuildPlatformLinux);
+	SaveFile(launcher, Template(Linux::app_desktop,
+	{
+		{ "NAME", ToWString(Linux::DesktopValue(config.GetVariable("PRODUCT_NAME", project.GetName()))) },
+		{ "EXEC", ToWString(Linux::DesktopExec(path)) },
+		{ "ID", ToWString(package) },
+		{ "WM_CLASS", ToWString(Linux::DesktopValue(EncodeUTF8(File::SplitFilename(executable).b))) },
+	}), kBuildPlatformLinux);
+	return true;
+}
+
+Reflex::CString ReflexCLI::ProjectGen::GetLinuxBuildTarget(CString::View target)
+{
+	return Join("target_", Linux::MakeIdentifier(target));
+}
+
+void ReflexCLI::ProjectGen::GenerateLinuxProject(Project & project, BuildPlatform, const WString & directory, Array<const TargetPlatform *> & generated_platforms, Map<WString> & outputs, System::FileHandle & std_out)
 {
 	constexpr CString::View kDebugRelease[] = { "debug", "release" };
 

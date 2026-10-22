@@ -1,0 +1,2 @@
+id: "generate";
+name: "reflex generate";

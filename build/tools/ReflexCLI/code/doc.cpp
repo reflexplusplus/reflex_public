@@ -17,7 +17,7 @@ namespace CLI = Bootstrap::CLI;
 
 using namespace Documentation;
 
-constexpr CString::View kDefaultCodebase = "reflex_cpp";
+constexpr CString::View kDefaultCodebase = "cpp";
 
 constexpr CString::View kPathDelimiter = "/";
 
@@ -125,7 +125,7 @@ WString GetDocumentationFolder(WString::View repo, CString::View codebase)
 		return docs;
 	}
 
-	CLI::ThrowError(Join("could not find documentation symbols for '", codebase, "'"));
+	CLI::ThrowError(Join("could not find documentation symbols for '", codebase, "'. Use 'reflex doc codebases' to list available codebases, then 'reflex doc codebase <name>' to select one."));
 
 	return {};
 }
@@ -583,11 +583,9 @@ void Tree(const Data::PropertySet & args, CString::View base, System::FileHandle
 {
 	auto label = [](const ModuleNode & node)
 	{
-		auto kColourBrightWhite = CLI::Detail::kColours[CLI::kColourBrightYellow];
-
 		auto ns = node.is_namespace;
 
-		return Join(kColourDim, ns ? "[nsp]" : "[grp]", ns ? kColourBrightWhite : kColourDefault, ' ', node.name, kColourDefault);
+		return Join(kColourDim, ns ? "[nsp]" : "[grp]", ns ? kColourAccent : kColourDefault, ' ', node.name, kColourDefault);
 	};
 
 	auto AppendDimCount = [](CString & line, UInt count)
@@ -595,11 +593,11 @@ void Tree(const Data::PropertySet & args, CString::View base, System::FileHandle
 		if (count)
 		{
 			line.Push(' ');
-			line.Append(CLI::Detail::kColours[CLI::kColourBrightBlack]);
+			line.Append(kColourDim);
 			line.Push('(');
 			line.Append(ToCString(count));
 			line.Push(')');
-			line.Append(CLI::Detail::kColours[CLI::kColourDefault]);
+			line.Append(kColourDefault);
 		}
 	};
 
@@ -793,9 +791,9 @@ void List(const Data::PropertySet & args, CString::View value, System::FileHandl
 	for (auto & match : matches)
 	{
 		CString line;
-		line.Append(CLI::Detail::kColours[CLI::kColourBrightBlack]);
+		line.Append(kColourDim);
 		line.Append(kCategoryTags[match.b->category_ex]);
-		line.Append(CLI::Detail::kColours[CLI::kColourDefault]);
+		line.Append(kColourDefault);
 		line.Push(' ');
 		out.Write(line.GetData(), line.GetSize());
 		PrintSymbol(out, *context.index, location, *match.b);

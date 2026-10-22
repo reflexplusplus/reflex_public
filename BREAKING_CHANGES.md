@@ -1,5 +1,80 @@
 # Breaking Changes
 
+## v0.7.0
+
+### AAX and VST2 plugins require explicit SDK paths
+
+Building the `AAX` format with `reflex_add_audio_plugin` now requires a separately installed Avid AAX SDK, version 2.9 or later. Set `AAX_SDK_PATH` as a CMake cache variable or an environment variable pointing to the SDK root. CMake builds the SDK once using its supplied CMake project, and each AAX plugin links against it. Configuration fails for an older SDK and issues a warning for a newer version, as only 2.9 has been tested. On macOS, Makefile and Ninja projects that compile their own `.mm` files must enable `OBJCXX`. For projects generated from the `cpp_audioplugin_aax` template, set the SDK path with `reflex set AAX_SDK_PATH <path>`. If you build Reflex from a source checkout, rebuild `ReflexTargetAAX`.
+
+For VST2, the stock cfg definitions for `ReflexTargetVST2` and `cpp_audioplugin_vst2` now require a nonempty `VST2API_PATH`. Set it to the folder containing `vst2api.h` with `reflex set VST2API_PATH <path>`, then regenerate projects that use those definitions.
+
+### `GLX::AbstractViewPort` bars use type descriptors
+
+Scrollbar positioning can now be configured in the viewport stylesheet's `x` and `y` blocks, including the new `float | float` positioning mode. For example:
+
+```text
+x:
+{
+    inherit: bar;
+    positioning: float;
+};
+
+y:
+{
+    inherit: bar;
+    positioning: inline;
+};
+```
+
+`GLX::AbstractViewPort::ViewBarCtr` and `SetViewBarCtr(bool y, ViewBarCtr)` have been replaced by `ViewBarType` and `SetViewBarTypes(ViewBarType x, ViewBarType y)`. Configure both axes in one call.
+
+Replace `kNullBar` with `kPlaceholderBar` when a placeholder of a specified size is intended. Use `EnableViewBars(bool x, bool y)` to toggle bars on and off independently of their type.
+
+For example, to configure a horizontal scrollbar and a vertical paginator:
+
+```cpp
+viewport.SetViewBarTypes(GLX::AbstractViewPort::kScrollBar, GLX::Paginator::kType);
+```
+
+### Plugin host names are queried per instance
+
+The static `System::AudioPlugin::GetPluginHost()` has been removed. Call `GetHostName()` on the plugin instance instead. It returns an owning `CString`, which may be empty for formats that do not report a host; VST3 only knows the name after the host initializes the instance. Custom implementations of `System::AudioPlugin` must implement the new pure virtual method `CString GetHostName() const`.
+
+### Process options and lifetime API
+
+- The deprecated `System::Process::Detach()` has been removed.
+- On Windows, `Process::Options::allow_window` now defaults to `true`, allowing console inheritance. Set it explicitly to `false` to retain the previous window-suppression behavior. That mode uses `CREATE_NO_WINDOW` and cannot redirect to console handles.
+- `Options` now has a `FileHandle * std_err` member between `std_out` and `allow_window`.
+
+### Project configuration and generation
+
+- The framework build description has moved from `build/lib/project.cfg` to `project.cfg` at the repository root.
+- `OutputDirectory` and `Entitlements` are now reserved project variables derived from target properties. Remove custom `@Variables` declarations with those names and use the `output_directory` and `entitlements` properties instead.
+- `generated_directory` is now read only from the root project document, rather than inherited from includes. Declare it in the root document if needed; it may name a nested folder but must resolve inside the project directory.
+
+### Await callbacks run after their registration is removed
+
+`Async::AttachAwait` now removes the completed await registration before invoking its callback. `Async::IsAwaiting(object, id)` therefore returns `false` inside the completion callback unless a new await has been attached. The callback can safely attach another await under the same ID; completion cleanup no longer removes the replacement.
+
+
+## v0.6.0
+
+### `Output::SetLogFile` and `Output::Disable` replaced by `Output::Enable`
+
+`Reflex::Output::Enable(bool console, WillRetain<System::FileHandle> logfile)` sets both output targets in one call. `console` enables or disables console output and log capture to the queue; a non-null `logfile` enables file output, and a null one disables it.
+
+```cpp
+// Before
+Output::SetLogFile(file);
+Output::Disable();
+
+// After
+Output::Enable(true, file);
+Output::Enable(REFLEX_DEBUG, {});
+```
+
+`Disable()` kept console output in debug builds; pass `REFLEX_DEBUG` as `console` for the same result, or `false` to silence all output.
+
 ## v0.4.1
 
 ### Bootstrap audio-plugin parameters use abstract definitions
@@ -93,7 +168,7 @@ AU_VENDOR_4CC "MyCo"
 
 Use the same values in `project.cfg`, with property syntax, and run `reflex generate --path <project.cfg>` after changing them.
 
-For the complete registration, identifier-stability, parameter, and multi-class Audio Unit requirements, run `reflex doc info Reflex::Bootstrap::AudioPlugin --root reflex_cpp`.
+For the complete registration, identifier-stability, parameter, and multi-class Audio Unit requirements, run `reflex doc info Reflex::Bootstrap::AudioPlugin --root cpp`.
 
 ## v0.2.02
 

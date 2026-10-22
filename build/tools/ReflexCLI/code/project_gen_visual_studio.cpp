@@ -434,6 +434,7 @@ void WriteProject(const Context & context)
 	auto windows_sdk = property_context->GetString(kWindowsSdk);
 	auto resources = property_context->GetPaths(false, kWindowsResources);
 	Require(True(windows_sdk), kWindowsSdk, "is required");
+	for (auto & resource : FlattenPaths(*resources)) CheckAssetPath(context.project, kBuildPlatformWindows, kWindowsResources, ResolvePath(context.project.GetRoot(), resource));
 
 	XmlWriter xml;
 	
@@ -519,7 +520,7 @@ void WriteProject(const Context & context)
 
 REFLEX_END_INTERNAL
 
-void ReflexCLI::ProjectGen::GenerateVisualStudioProject(Project & project, BuildPlatform, const WString & directory, Array<const TargetPlatform *> & generated_platforms, Map<WString> & outputs)
+void ReflexCLI::ProjectGen::GenerateVisualStudioProject(Project & project, BuildPlatform, const WString & directory, Array<const TargetPlatform *> & generated_platforms, Map<WString> & outputs, System::FileHandle & out)
 {
 	auto project_directory = Join(directory, L"vcxproj", File::kStroke);
 

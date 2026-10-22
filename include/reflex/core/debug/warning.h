@@ -12,6 +12,8 @@
 
 #define REFLEX_DEBUG_WARN(OUTPUT, FLAG, TEST, ...) REFLEX_IF_DEBUG(if ((FLAG) && !(TEST)) OUTPUT.LogEx(Reflex::kLogWarning, {}, __VA_ARGS__, " [", REFLEX_STRINGIFY(FLAG), ']'))
 
+#define REFLEX_DEBUG_ERROR(OUTPUT, FLAG, TEST, ...) REFLEX_IF_DEBUG(if ((FLAG) && !(TEST)) OUTPUT.LogEx(Reflex::kLogError, {}, __VA_ARGS__, " [", REFLEX_STRINGIFY(FLAG), ']'))
+
 
 
 

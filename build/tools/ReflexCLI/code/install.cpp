@@ -203,31 +203,56 @@ void WaitForProcess(CString::View label, const WString & process_path, ArrayView
 	Require(RunCommand(process_path, args), label, "failed");
 }
 
-void UnzipFile(CString::View label, WString::View zip_path, WString::View dest_path, System::FileHandle & std_out)
+void ExtractArchive(CString::View label, WString::View archive_path, WString::View dest_path, System::FileHandle & std_out)
 {
 	File::MakePath(dest_path);
 
-	CLI::Await(std_out, Join(kColourDim, "Extracting ", kColourDefault, label), false, {}, [zip_path = WString(zip_path), dest_path = WString(dest_path), label = Join(label)](CLI::TaskContext & ctx)
+	CLI::Await(std_out, Join(kColourDim, "Extracting ", kColourDefault, label), false, {}, [archive_path = WString(archive_path), dest_path = WString(dest_path), label = Join(label)](CLI::TaskContext & ctx)
 	{
 		Array <WString> args;
 	
 		WString process_path;
 
-		switch (System::kPlatform)
+		if (Right<true>(archive_path, 7) == L".tar.gz" || Right<true>(archive_path, 4) == L".tgz" || Right<true>(archive_path, 7) == L".tar.xz")
+		{
+			process_path = L"tar";
+			args.Append({ L"-xf", archive_path, L"-C", dest_path });
+		}
+		else switch (System::kPlatform)
 		{
 		case System::kPlatformWindows:
 			process_path = L"powershell";
 			args.Append({ L"-NoProfile", L"-ExecutionPolicy", L"Bypass", L"-Command" });
-			args.Push(Join(L"$ProgressPreference='SilentlyContinue'; Expand-Archive -LiteralPath '", zip_path, L"' -DestinationPath '", dest_path, L"' -Force"));
+			args.Push(Join(L"$ProgressPreference='SilentlyContinue'; Expand-Archive -LiteralPath '", archive_path, L"' -DestinationPath '", dest_path, L"' -Force"));
 			break;
 
 		case System::kPlatformMacOS:
 			process_path = L"/usr/bin/unzip";
-			args.Append({ L"-q", L"-o", zip_path, L"-d", dest_path });
+			args.Append({ L"-q", L"-o", archive_path, L"-d", dest_path });
+			break;
+
+		case System::kPlatformLinux:
+			process_path = L"python3";
+			// Python's standard ZIP extraction does not restore Unix modes or symlinks.
+			args.Append({ L"-c", LR"(import os, pathlib, stat, sys, zipfile
+root = pathlib.Path(sys.argv[2]).resolve()
+with zipfile.ZipFile(sys.argv[1]) as archive:
+    for info in archive.infolist():
+        path = root / info.filename
+        path.resolve().relative_to(root)
+        mode = info.external_attr >> 16
+        if stat.S_ISLNK(mode):
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.symlink_to(os.fsdecode(archive.read(info)))
+        else:
+            path = pathlib.Path(archive.extract(info, root))
+            if mode:
+                path.chmod(stat.S_IMODE(mode))
+)", archive_path, dest_path });
 			break;
 
 		default:
-			CLI::ThrowError("install unzip is not implemented on this platform");
+			CLI::ThrowError("archive extraction is not implemented on this platform");
 		}
 
 		WaitForProcess(label, process_path, args);
@@ -264,6 +289,9 @@ CString::View GetPlatform()
 
 	case System::kPlatformMacOS:
 		return "macos";
+
+	case System::kPlatformLinux:
+		return "linux";
 	}
 
 	CLI::ThrowError("unknown platform");
@@ -477,17 +505,17 @@ void MoveDirectoryContent(WString::View src_path, WString::View dst_path, Array 
 	}
 }
 
-void InstallReleaseArchive(WString::View zip_path, WString::View install_root, WString::View temp_path, System::FileHandle & std_out, Array <DeferredMove> & deferred_moves, bool test)
+void InstallReleaseArchive(WString::View archive_path, WString::View install_root, WString::View temp_path, System::FileHandle & std_out, Array <DeferredMove> & deferred_moves, bool test)
 {
 	auto extract_path = Join(temp_path, L"extract/repo", File::kStroke);
 
-	UnzipFile(kCoreFilesLabel, zip_path, extract_path, std_out);
+	ExtractArchive(kCoreFilesLabel, archive_path, extract_path, std_out);
 
 	auto [folders, files] = File::List(extract_path, true);
 
 	if (folders.GetSize() != 1 || files)
 	{
-		CLI::ThrowError("unexpected release zip layout");
+		CLI::ThrowError("unexpected release archive layout");
 	}
 
 	auto archive_root = Join(extract_path, folders.GetFirst().key);
@@ -505,11 +533,11 @@ void InstallReleaseArchive(WString::View zip_path, WString::View install_root, W
 	}
 }
 
-void InstallPackageArchive(CString::View label, WString::View zip_path, WString::View dest_path, WString::View temp_path, System::FileHandle & std_out, Array <DeferredMove> & deferred_moves, bool test)
+void InstallPackageArchive(CString::View label, WString::View archive_path, WString::View dest_path, WString::View temp_path, System::FileHandle & std_out, Array <DeferredMove> & deferred_moves, bool test)
 {
 	auto extract_path = Join(temp_path, L"extract/", ToWString(label), File::kStroke);
 
-	UnzipFile(label, zip_path, extract_path, std_out);
+	ExtractArchive(label, archive_path, extract_path, std_out);
 
 	if (!test)
 	{
@@ -517,6 +545,7 @@ void InstallPackageArchive(CString::View label, WString::View zip_path, WString:
 	}
 }
 
+#if defined(REFLEX_OS_WINDOWS)
 void CreateDeferredBatch(WString::View temp_path, ArrayView <DeferredMove> deferred_moves)
 {
 	auto batch_path = Join(temp_path, L"update.bat");
@@ -558,13 +587,14 @@ void CreateDeferredBatch(WString::View temp_path, ArrayView <DeferredMove> defer
 
 	if (auto process = Make<System::Process>(L"cmd.exe", args, System::Process::Options{ .allow_window = false }))
 	{
-		process->Detach();
+		process->SetProperty(K32("detach"), New<ObjectOf<bool>>(true));
 	}
 	else
 	{
 		CLI::ThrowError("failed to launch deferred update");
 	}
 }
+#endif
 
 void ResetInstallTargets(WString::View install_root)
 {
@@ -839,15 +869,15 @@ void ReflexCLI::Install(CString::View version, const Array <CString::View> & pla
 		CLI::ThrowError("release content is missing required fields");
 	}
 
-	auto zip_path = Join(temp_path, L"download/", ToWString(content_name));
+	auto archive_path = Join(temp_path, L"download/", ToWString(content_name));
 
-	DownloadFile(content_label, content_url, zip_path, std_out);
+	DownloadFile(content_label, content_url, archive_path, std_out);
 		
 	Array <DeferredMove> deferred_moves;
 
-	InstallReleaseArchive(zip_path, install_root, temp_path, std_out, deferred_moves, test);
+	InstallReleaseArchive(archive_path, install_root, temp_path, std_out, deferred_moves, test);
 
-	PrintConfirmation(std_out, content_label, zip_path);
+	PrintConfirmation(std_out, content_label, archive_path);
 
 	if (!test)
 	{
@@ -870,21 +900,16 @@ void ReflexCLI::Install(CString::View version, const Array <CString::View> & pla
 
 	if (deferred_moves)
 	{
-		if (System::kPlatform == System::kPlatformWindows)
+#if defined(REFLEX_OS_WINDOWS)
+		CreateDeferredBatch(temp_path, deferred_moves);
+		return;
+#else
+		for (auto & move : deferred_moves)
 		{
-			CreateDeferredBatch(temp_path, deferred_moves);
-
-			return;
+			CLI::Print(std_out, CLI::kColourBrightRed, ToCString(move.dst_path));
 		}
-		else
-		{
-			for (auto & move : deferred_moves)
-			{
-				CLI::Print(std_out, CLI::kColourBrightRed, ToCString(move.dst_path));
-			}
-
-			CLI::ThrowError(Join("failed to install ", ToCString(deferred_moves.GetSize()), "files"));
-		}
+		CLI::ThrowError(Join("failed to install ", ToCString(deferred_moves.GetSize()), "files"));
+#endif
 	}
 
 	DeletePathIfExists(temp_path);

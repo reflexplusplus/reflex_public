@@ -63,8 +63,6 @@ private:
 
 	struct Layout;
 
-	struct DragState;
-
 
 	bool m_enable_resize;
 

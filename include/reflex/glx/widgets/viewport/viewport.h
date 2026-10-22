@@ -40,13 +40,17 @@ public:
 
 	struct ViewState;
 
-	using ViewBarCtr = FunctionPointer <Unretained<AbstractViewBar>(AbstractViewPort&)>;
+	struct ViewBarType
+	{
+		FunctionPointer <Unretained<AbstractViewBar>(AbstractViewPort&)> create;
+		FunctionPointer <Detail::Positioning(bool y, const Style&)> get_positioning = &AbstractViewBar::GetStandardPositioning;
+	};
 
 
 
 	//standard viewbars
 
-	static const ViewBarCtr kNullBar, kScrollBar, kZoomBar;
+	static const ViewBarType kPlaceholderBar, kScrollBar, kZoomBar;
 
 
 
@@ -58,7 +62,9 @@ public:
 
 	//setup
 
-	void SetViewBarCtr(bool y, ViewBarCtr ctr);
+	void SetViewBarTypes(ViewBarType x, ViewBarType y);
+
+	void EnableViewBars(bool x, bool y);
 
 	void InvertScrollAxis(bool enable = true);
 
@@ -134,21 +140,24 @@ public:
 
 
 
+	//impl
+
+	struct Impl;
+
+
+
 protected:
 
 	AbstractViewPort(bool zoomable);
 
 	void InvertAxis(bool invertx, bool inverty);
 
-	virtual void OnSetStyle(const Style & style) override;
+	void OnSetStyle(const Style & style) override;
 
-	virtual bool OnEvent(Object & src, Event & e) override;
+	bool OnEvent(Object & src, Event & e) override;
 
-
-
-public: //TODO merge & cleanup
 	
-	struct Impl { UInt8 bytes[576]; } m_impl;	//TODO / TRANSTIONAL move to protected
+	Reflex::Detail::Initialiser <Impl,8,592> m_impl;
 
 };
 

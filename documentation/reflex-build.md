@@ -63,6 +63,20 @@ platform. `reflex build all` uses the broader default platform selection above;
 `reflex build all debug` limits those builds to Debug. Generate the selected
 projects first; each build requires its platform toolchain.
 
+Use `--target <name>` to build one compiled target named in `project.cfg`, for
+example `reflex build linux debug --target Standalone`. Windows, macOS, iOS,
+Linux, Android, and web build that target with its dependencies. Without
+`--target`, all targets are built; without a configuration, all configurations
+of the selected target are built. Android maps the cfg target name to its native
+CMake target through the generated Gradle `reflexTarget` property. Imported
+libraries with a `source_project` still prepare their dependency projects using
+the existing project-wide builds.
+
+Generated VS Code tasks offer `<platform>: <target>` for each target's Debug
+build and one `<platform>: Release` task for all targets on each platform. Debug launches reference the
+matching target's task; the first native Debug target is the default build task.
+All build task labels include the platform name, including the native platform.
+
 If a platform build fails, the CLI reports its error and continues with the
 remaining selected platforms. The command exits with a failure status if any
 platform failed, including when a required toolchain is missing. Linux remains
@@ -138,7 +152,7 @@ platform defaults, and application build steps, keeping each end project's
 | File | Role |
 | --- | --- |
 | `common.cfg` | Shared variables, compiler settings, and platform/configuration defaults used by both the Reflex library build project and Reflex-based apps and libraries |
-| `common_app.cfg` | Reflex source or prebuilt library dependencies, shared application settings, and resource generation |
+| `common_app.cfg` | Reflex source or prebuilt library dependencies, shared application settings, resource generation, and the optional macOS release-signing template |
 | `cpp_app.cfg` | Native GUI application template and platform assets |
 | `cpp_console_app.cfg` | Console application templates |
 | `cpp_audioplugin.cfg` | Audio plugin and standalone application templates |
@@ -184,18 +198,59 @@ Set it to `false` or run `reflex unset reflex_32bit` to return to x64-only
 generation. Regenerate Windows projects after changing the setting. Individual
 projects can still override their `architectures` explicitly.
 
+`REFLEX_CODESIGN_IDENTITY` enables certificate signing for macOS Release builds
+of the stock native/VM apps and audio-plugin Standalone, CLAP, VST2, VST3, and
+Audio Unit targets. It defaults to an empty string, which leaves the existing
+signing behavior unchanged. Set it to the full identity of a signing certificate
+whose private key is available in the build Mac's keychain:
+
+```text
+reflex set REFLEX_CODESIGN_IDENTITY "Developer ID Application: Your Company (TEAMID)"
+reflex generate macos
+```
+
+Use `security find-identity -v -p codesigning` on macOS to list available
+identities. The value is passed unchanged to `codesign --sign`; no certificate
+prefix is added or removed. This release-signing workflow uses hardened runtime,
+a secure timestamp, and the target's `entitlements` file, then verifies the
+completed bundle with strict verification. Xcode's native signing is disabled
+only for those Release configurations; Debug and other platforms retain their
+existing settings. Signing and verification failures fail the build.
+
+The shared `macos_release_codesign` template is defined in `common_app.cfg` and
+inherited by those stock targets. Its build steps use the resolved
+`$(OutputDirectory)`, `$(OutputName)`, `$(Extension)`, and `$(Entitlements)` values,
+so target overrides of the output directory and entitlements are respected.
+`OutputDirectory` and `Entitlements` are reserved variables resolved from the
+corresponding target properties after ordinary config variables are expanded;
+use them in build steps rather than to define those properties themselves.
+Custom bundle templates can inherit `macos_release_codesign` when they supply
+an output directory, bundle extension, and entitlements file.
+
+AAX does not inherit this signing step: it requires a separate PACE wrapping
+and signing workflow. Setting this variable does not add that workflow, sign
+Windows binaries, or perform notarization. Handwritten CMake projects continue
+to use their CMake signing settings; the CLI preference does not set a CMake
+cache variable automatically.
+
+To disable this release-signing step, run
+`reflex unset REFLEX_CODESIGN_IDENTITY` and regenerate the macOS projects.
+Regenerate after changing the identity as well. Remove any equivalent local
+post-build signing steps when adopting the shared template to avoid signing
+the same bundle twice.
+
 ## Property reference
 
 The detailed cfg types, properties, and supported values are documented in the
-`reflex_generate` codebase. Select it and browse or search:
+`generate` codebase. Select it and browse or search:
 
 ```text
-reflex doc codebase reflex_generate
-reflex doc list --root reflex_generate
-reflex doc list optimization --root reflex_generate
+reflex doc codebase generate
+reflex doc list --root generate
+reflex doc list optimization --root generate
 ```
 
-Use `reflex doc info <symbol> --root reflex_generate` to inspect an entry.
+Use `reflex doc info <symbol> --root generate` to inspect an entry.
 `--root` is optional and mainly intended for agents: it makes each query
 independent of the saved codebase and browsing-location preferences. For
 interactive use, omit it to browse within the current saved location.
