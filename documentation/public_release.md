@@ -140,7 +140,10 @@ or regenerate the public export.
 
 Publication creates the version tag in `reflex` at the verified source commit,
 mirrors the public source snapshot into `reflex_public`, tags that exported
-commit, and uploads the matching public release assets. Existing tags are never
+commit, and uploads the matching public release assets. After public GitHub
+publication succeeds, it creates or updates a notes-only release in licensed
+`reflex`, using the same changelog and prerelease status. Binary assets are
+uploaded only to `reflex_public`. Existing tags are never
 moved. Repeating publication is allowed when the existing public tag is still
 at the public branch head and the candidate contents match.
 
@@ -179,7 +182,7 @@ fails, the workflow fails while the GitHub release remains published.
   `APPLE_NOTARY_PASSWORD`.
 - Set `EXPORT_PUSH_TOKEN` with Contents read/write access to
   `reflexplusplus/reflex_public`. The workflow's own token creates the source
-  tag in `reflex` and needs Contents write permission there.
+  tag and notes-only release in `reflex` and needs Contents write permission there.
 
 The licensed export includes scripts, tests, `export_rules.json` and `.github`,
 excluding the legacy `build-release.yml` and `export-repos.yml` workflows.

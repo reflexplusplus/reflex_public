@@ -692,12 +692,10 @@ void UpdateAliasLaunchers(WString::View install_root)
 	{
 	case System::kPlatformWindows:
 		CreateAliasLauncher(Join(install_root, L"documentation/ReflexDocumentation.lnk"), Join(install_root, L"bin/tools/win/ReflexDocumentation.exe"));
-		CreateAliasLauncher(Join(install_root, L"ReflexProjectCreator.lnk"), Join(install_root, L"bin/tools/win/ReflexProjectCreator.exe"));
 		break;
 
 	case System::kPlatformMacOS:
 		CreateAliasLauncher(Join(install_root, L"documentation/ReflexDocumentation"), Join(install_root, L"bin/tools/macos/ReflexDocumentation.app"));
-		CreateAliasLauncher(Join(install_root, L"ReflexProjectCreator"), Join(install_root, L"bin/tools/macos/ReflexProjectCreator.app"));
 		break;
 	}
 }
