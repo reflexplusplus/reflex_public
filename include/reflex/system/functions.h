@@ -27,6 +27,12 @@ namespace Reflex::System
 
 
 
+	//cryptography
+
+	bool GenerateRandomBytes(ArrayRegion <UInt8> bytes);	//synchronous; true if fully filled, false leaves contents unspecified; empty succeeds
+
+
+
 	//notifications
 
 	[[nodiscard]] Unretained <Object> CreateListener(Notification id, void * client, FunctionPointer <void(void*)> callback);
@@ -119,6 +125,9 @@ namespace Reflex::System::Detail
 {
 
 	void Log(LogType type, const char * msg);
+
+
+	void EmitClock();	//console only, dispatch one clock tick in console apps; call on main thread.
 
 
 	void EnumerateStackTrace(void * client, FunctionPointer<void(void *, UInt frame, const void * address, const char * symbol)> callback);

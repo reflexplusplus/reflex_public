@@ -1,6 +1,5 @@
 #pragma once
 
-#include "common/global.h"
 #include "common/functions.h"
 #include "reflex_ext/async/task.h"
 

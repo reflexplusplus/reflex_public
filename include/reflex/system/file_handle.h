@@ -44,9 +44,11 @@ public:
 	{
 		kStandardIn,
 		kStandardOut,
+		kStandardError,
 
 		kStandardStreamIn = kStandardIn,
 		kStandardStreamOut = kStandardOut,
+		kStandardStreamError = kStandardError,
 	};
 
 
@@ -55,6 +57,7 @@ public:
 
 	[[nodiscard]] static Unretained <FileHandle> Create(const WString & path, Mode mode = kModeRead, bool lock = true, Allocator & allocator = g_default_allocator);
 
+	// Borrows the process stream without closing it on destruction; returns null when unavailable.
 	[[nodiscard]] static Unretained <FileHandle> Create(StandardStream stream, Allocator & allocator = g_default_allocator);
 
 

@@ -239,6 +239,47 @@ Regenerate after changing the identity as well. Remove any equivalent local
 post-build signing steps when adopting the shared template to avoid signing
 the same bundle twice.
 
+## Stripping macOS release symbols
+
+`dead_strip: true` removes unused code at link time. It does not remove the
+remaining local symbol names. There is currently no dedicated cfg property for
+symbol stripping; use an ordered Release `post_build` step:
+
+```text
+@macos:
+{
+    @Configuration Release:
+    {
+        @BuildStep post_build:
+        [
+            {
+                name: "Strip symbols";
+                inputs: "$(OutputDirectory)/$(OutputName)";
+                command: ["strip", "-S", "-x", "$(OutputDirectory)/$(OutputName)"];
+            }
+            // Put signing, verification, and installation steps after this.
+        ];
+    };
+};
+```
+
+This example targets a console executable. For an app or plugin bundle, strip
+its Mach-O executable inside the bundle, rather than the bundle directory.
+`-S -x` removes debugging and local symbols while preserving global symbols.
+Stripping changes the executable and invalidates any existing signature, so
+the order must be build, strip, sign, verify, package, and notarize.
+
+Build steps accumulate across inherited scopes; declaring a Release list does
+not replace an inherited list. Keep stripping and signing in the same ordered
+list, or arrange inherited steps so stripping happens first. In particular, do
+not append stripping after the shared `macos_release_codesign` template's steps.
+
+Regenerate with `reflex generate macos` (or `reflex generate cmake` for CMake)
+after editing the cfg. Then run `reflex build macos release`, or build the
+generated CMake project directly. ReflexCLI's macOS Release cfg and checked-in
+CMake bootstrap project both strip symbols before signing and installation;
+Debug builds retain their symbols.
+
 ## Property reference
 
 The detailed cfg types, properties, and supported values are documented in the

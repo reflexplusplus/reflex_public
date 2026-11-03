@@ -195,6 +195,19 @@ if(REFLEX_PLATFORM_LINUX OR REFLEX_PLATFORM_MACOS OR REFLEX_PLATFORM_WINDOWS)
 		)
 		reflex_target_add_build_action(ReflexCLI
 			PHASE POST_BUILD
+			NAME "Strip symbols"
+			WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
+			CONFIG Release
+			COMMAND
+				"${CMAKE_STRIP}"
+				"-S"
+				"-x"
+				"output/macos/Release/ReflexCLI/reflex"
+			INPUTS
+				"output/macos/Release/ReflexCLI/reflex"
+		)
+		reflex_target_add_build_action(ReflexCLI
+			PHASE POST_BUILD
 			NAME "Codesign"
 			WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
 			CONFIG Release

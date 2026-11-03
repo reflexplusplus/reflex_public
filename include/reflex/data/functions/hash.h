@@ -23,6 +23,9 @@ namespace Reflex::Data
 
 	UInt32 CRC32(const Archive::View & bytes, UInt32 previous = 0);
 
+	UInt32 CRC32C(const Archive::View & bytes, UInt32 previous = 0);
+
+
 	UInt32 Checksum32(const Archive::View & bytes, UInt32 previous = 0);
 
 }
@@ -48,6 +51,8 @@ void SHA1(const Archive::View & bytes, Archive::Region output);
 
 void SHA256(const Archive::View & bytes, Archive::Region output);
 
+UInt32 CRC32(bool castagnoli, const Archive::View & bytes, UInt32 previous = 0);
+
 REFLEX_END
 
 inline Reflex::Data::Archive Reflex::Data::SHA1(const Archive::View & bytes)
@@ -58,4 +63,14 @@ inline Reflex::Data::Archive Reflex::Data::SHA1(const Archive::View & bytes)
 inline Reflex::Data::Archive Reflex::Data::SHA256(const Archive::View & bytes)
 {
 	return Detail::Hash<Detail::SHA256,32>(bytes);
+}
+
+inline Reflex::UInt32 Reflex::Data::CRC32(const Archive::View & bytes, UInt32 previous)
+{
+	return Detail::CRC32(false, bytes, previous);
+}
+
+inline Reflex::UInt32 Reflex::Data::CRC32C(const Archive::View & bytes, UInt32 previous)
+{
+	return Detail::CRC32(true, bytes, previous);
 }

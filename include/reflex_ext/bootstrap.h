@@ -7,6 +7,7 @@
 #elif defined(REFLEX_BOOTSTRAP_TYPE_VM_APP)
 #include "bootstrap/vm_app.h"
 #elif defined(REFLEX_BOOTSTRAP_TYPE_CONSOLE_APP)
+#include "bootstrap/common/global.h"
 #include "bootstrap/console_app.h"
 #elif defined (REFLEX_BOOTSTRAP_TYPE_LIBRARY)
 #include "bootstrap/common.h"

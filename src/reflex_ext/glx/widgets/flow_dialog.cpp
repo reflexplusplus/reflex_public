@@ -122,13 +122,13 @@ bool Reflex::GLX::FlowDialog::ShowPage(Key32 id, Direction fwd)
 
 		FocusBranch(content);
 
-		m_content = NoRetain(content);
+		m_content = content;
 
 		auto e = Make<Event>(kShowPage);
 
 		Data::SetKey32(e, kid, id);
 
-		Emit(e);
+		if (GetRetainCount()) Emit(e);	//this typically occurs before attaching to tree, so guard here
 
 		g_flow_dialog_selecting_page = false;
 
@@ -154,7 +154,6 @@ void Reflex::GLX::FlowDialog::OnSetStyle(const Style & style)
 	auto footer_style = footer->GetStyle();
 
 	m_buttons[0].SetStyle(footer_style["prev"]);
-
 	m_buttons[1].SetStyle(footer_style["next"]);
 
 	Detail::ApplySubStyle(m_content, m_body_style, m_current_style);

@@ -16,6 +16,6 @@ namespace Reflex::System
 	
 	UIntNative GetThreadID();
 
-	Float64 GetElapsedTime();
+	Float64 GetElapsedTime();		//high accuracy performance-timer
 
 }

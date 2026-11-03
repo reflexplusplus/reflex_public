@@ -47,7 +47,6 @@ public:
 	struct Labels
 	{
 		WString prev = kBackLabel;
-
 		WString next = kNextLabel;
 	};
 
@@ -75,7 +74,7 @@ public:
 
 	bool ShowPage(Key32 id, Direction direction = kDirectionForward);
 
-	AlreadyRetained <Object> GetCurrentPage();
+	Key32 GetCurrentPage() const;
 
 
 
@@ -131,9 +130,9 @@ private:
 //
 //impl
 
-inline Reflex::AlreadyRetained <Reflex::GLX::Object> Reflex::GLX::FlowDialog::GetCurrentPage()
+inline Reflex::Key32 Reflex::GLX::FlowDialog::GetCurrentPage() const
 {
-	return m_content;
+	return m_current_page;
 }
 
 inline void Reflex::GLX::FlowDialog::Close()

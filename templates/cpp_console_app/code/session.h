@@ -68,7 +68,7 @@ inline Reflex::ArrayView <Reflex::CString> _PRODUCT-NAME-SYMBOL_::ConsoleSession
 
 template <class ... ARGS> inline void _PRODUCT-NAME-SYMBOL_::ConsoleSession::Print(ARGS && ... args)
 {
-	auto text = Reflex::Detail::DebugJoin(Reflex::kSpace, std::forward<ARGS>(args)...);
+	auto text = Reflex::Detail::FormatDebugOutput(Reflex::Detail::g_debug_scratch, Reflex::kSpace, std::forward<ARGS>(args)...);
 
 	output.LogEx(Reflex::kLogNormal, {}, text);
 
@@ -77,7 +77,7 @@ template <class ... ARGS> inline void _PRODUCT-NAME-SYMBOL_::ConsoleSession::Pri
 
 template <class ... ARGS> inline void _PRODUCT-NAME-SYMBOL_::ConsoleSession::PrintEx(ARGS && ... args)
 {
-	auto text = Reflex::Detail::DebugJoin({}, std::forward<ARGS>(args)...);
+	auto text = Reflex::Detail::FormatDebugOutput(Reflex::Detail::g_debug_scratch, {}, std::forward<ARGS>(args)...);
 
 	output.LogEx(Reflex::kLogNormal, {}, text);
 

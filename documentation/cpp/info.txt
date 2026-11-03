@@ -5581,6 +5581,7 @@ See also Bootstrap::Detail::SetStyle.
 #h2 Binary data and arrays
 <list>
 #p ArchiveObject (also named BinaryProperty; ObjectOf<Array<UInt8>>)
+#p ArrayOfBinaryProperty (ObjectOf<Array<Array<UInt8>>>; array of binary data)
 #p ArrayOfUInt32Property
 #p ArrayOfUInt64Property
 #p ArrayOfInt32Property
@@ -9043,6 +9044,16 @@ See also Bootstrap::Detail::SetStyle.
 </list>
 
 #p This setting controls concurrent access, not write durability or synchronisation to disk.
+
+#h2 Standard streams
+
+#p 'FileHandle::Create(stream)' wraps one of the process standard streams: kStandardIn, kStandardOut, or kStandardError. The kStandardStreamIn, kStandardStreamOut, and kStandardStreamError names are equivalent aliases.
+
+#p Standard-stream wrappers borrow their streams and do not close them when destroyed. Creating an output wrapper preserves the current position and contents of redirected output. Flush writes buffered output without requiring disk synchronisation for terminals or pipes.
+
+#p Standard streams are supported by Windows and the shared POSIX backend used by Linux, macOS, Android, and iOS. The output destination depends on the process launch environment and redirection. Creation returns FileHandle::null when a stream is unavailable.
+
+#p On web, standard output and standard error write UTF-8 text through the browser host logging functions. Output is buffered until a newline, Flush, or wrapper destruction. These output streams do not support seeking or truncation. Standard input is unavailable and returns FileHandle::null.
 
 #h2 Core operations
 

@@ -18,10 +18,26 @@ export function createLibcImports(memory, write = (fd, text) => (fd === 2 ? cons
             return 0;
         },
         clock_res_get: (clock, result) => { data().setBigUint64(result, 1000000n, true); return clock <= 1 ? 0 : 28; },
-        random_get: (pointer, length) => {
-            for (let offset = 0; offset < length; offset += 65536)
-                crypto.getRandomValues(new Uint8Array(memory.buffer, pointer + offset, Math.min(65536, length - offset)));
-            return 0;
+        random_get: (pointer, length) =>
+        {
+            pointer >>>= 0;
+            length >>>= 0;
+            try
+            {
+                // Web Crypto requires an unshared buffer; WebAssembly memory is shared.
+                const buffer = new Uint8Array(Math.min(65536, length));
+                for (let offset = 0; offset < length; offset += buffer.length)
+                {
+                    const chunk = buffer.subarray(0, Math.min(buffer.length, length - offset));
+                    crypto.getRandomValues(chunk);
+                    new Uint8Array(memory.buffer, pointer + offset, chunk.length).set(chunk);
+                }
+                return 0;
+            }
+            catch
+            {
+                return 29; // WASI EIO: secure random generation failed.
+            }
         },
         fd_write: (fd, vectors, count, written) => {
             if (fd !== 1 && fd !== 2) return 8;

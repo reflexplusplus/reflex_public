@@ -78,9 +78,9 @@ enum NetworkSimulation : UInt32
 	kNetworkSimulationBroadband = 8000000,		//64Mbps
 };
 
-[[nodiscard]] Unretained <Task> CreateHttpRequest(const CString::View & method, const CString::View & url, const HttpHeaders & headers, const Data::Archive::View & body, WillRetain <HttpRequestCallbacks> callbacks, NetworkSimulation network_simulation = kNetworkSimulationNone, Output & output = File::output);
+[[nodiscard]] Unretained <Task> CreateHttpRequest(const CString::View & method, const CString::View & url, const HttpHeaders & headers, const Data::Archive::View & body, WillRetain <HttpRequestCallbacks> callbacks, NetworkSimulation network_simulation = kNetworkSimulationNone, Output & output = File::output, UInt retry_count = 3);
 
-Worker::Result Fetch(Worker::Context & ctx, CString::View method, CString::View url, HttpHeaders::View headers, Data::Archive::View body, HttpRequestCallbacks & callbacks, NetworkSimulation network_simulation = kNetworkSimulationNone, Output & output = File::output);	//synchronous function
+Worker::Result Fetch(Worker::Context & ctx, CString::View method, CString::View url, HttpHeaders::View headers, Data::Archive::View body, HttpRequestCallbacks & callbacks, NetworkSimulation network_simulation = kNetworkSimulationNone, Output & output = File::output, UInt retry_count = 3);	//synchronous function
 
 REFLEX_END
 
@@ -90,19 +90,19 @@ REFLEX_END
 //
 //impl
 
-inline Reflex::Unretained <Reflex::Async::Task> Reflex::Async::Detail::CreateHttpRequest(const CString::View & method, const CString::View & url, const HttpHeaders & headers, const Data::Archive::View & body, WillRetain <HttpRequestCallbacks> callbacks, Detail::NetworkSimulation network_simulation, Output & output)
+inline Reflex::Unretained <Reflex::Async::Task> Reflex::Async::Detail::CreateHttpRequest(const CString::View & method, const CString::View & url, const HttpHeaders & headers, const Data::Archive::View & body, WillRetain <HttpRequestCallbacks> callbacks, Detail::NetworkSimulation network_simulation, Output & output, UInt retry_count)
 {
 	REFLEX_ASSERT(method && url); //TODO assert on url validation
 
 	output.Log(method, url);
 
-	return Worker::Create([method = Join(method), url = Join(url), headers, body = Join(body), callbacks = AutoRelease(callbacks), network_simulation, &output](Worker::Context & ctx)
+	return Worker::Create([method = Join(method), url = Join(url), headers, body = Join(body), callbacks = AutoRelease(callbacks), network_simulation, &output, retry_count](Worker::Context & ctx)
 	{
-		return Detail::Fetch(ctx, method, url, headers, body, callbacks, network_simulation, output);
+		return Detail::Fetch(ctx, method, url, headers, body, callbacks, network_simulation, output, retry_count);
 	});
 }
 
 inline Reflex::Unretained <Reflex::Async::Task> Reflex::Async::CreateHttpRequest(const CString::View & method, const CString::View & url, const HttpHeaders & headers, const Data::Archive::View & body, Output & output)
 {
-	return Detail::CreateHttpRequest(method, url, headers, body, New<Detail::StandardHttpRequestCallbacks>(), Detail::kNetworkSimulationNone, output);
+	return Detail::CreateHttpRequest(method, url, headers, body, New<Detail::StandardHttpRequestCallbacks>(), Detail::kNetworkSimulationNone, output, 3);
 }

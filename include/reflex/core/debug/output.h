@@ -339,9 +339,7 @@ template <class TYPE> inline decltype (auto) Convert(const TYPE & value)
 
 //actual handler
 
-extern char g_debug_scratch[8][256];
-
-extern UInt g_debug_scratch_idx;
+extern thread_local char g_debug_scratch[256];
 
 template <class TYPE> inline UInt WriteString(ArrayRegion <char> & buffer, const TYPE & arg)
 {
@@ -363,38 +361,45 @@ template <class TYPE> inline void WriteStringDelimited(ArrayRegion <char> & buff
 
 //varadic handler
 
-inline CString::View DebugJoin(const CString::View & delim, const char * arg)
+inline CString::View FormatDebugOutput(ArrayRegion <char> buffer, const CString::View & delim, const char * arg)
 {
 	return arg;
 }
 
-inline CString::View DebugJoin(const CString::View & delim, const CString::View & arg)
+inline CString::View FormatDebugOutput(ArrayRegion <char> buffer, const CString::View & delim, const CString::View & arg)
 {
 	return arg;
 }
 
-template <typename... VARGS> inline CString::View DebugJoin(const CString::View & delim, const VARGS & ... args)
+template <typename... VARGS> inline CString::View FormatDebugOutput(ArrayRegion <char> buffer, const CString::View & delim, const VARGS & ... args)
 {
-	ArrayRegion <char> buffer = { g_debug_scratch[g_debug_scratch_idx++ & 7], sizeof(g_debug_scratch[0]) - 1 };
-
 	auto itr = buffer;
+	itr.size--;	//reserve space for the null terminator
 
 	(WriteStringDelimited(itr, args, delim), ...);
 
-	CString::View output = { buffer.data, buffer.size - itr.size };
+	CString::View output = { buffer.data, buffer.size - 1 - itr.size };
 
 	output.size -= Min(output.size, delim.size);
-
-	if constexpr (REFLEX_DEBUG)
-	{
-		//prevent out of bounds assertion (which is invalid because we reserved the last character for null)
-
-		buffer.size = sizeof(g_debug_scratch[0]);
-	}
 
 	buffer[output.size] = 0;	//null terminate
 
 	return output;
+}
+
+[[deprecated("use Reflex::Detail::FormatDebugOutput with an explicit scratch buffer")]] inline CString::View DebugJoin(const CString::View & delim, const char * arg)
+{
+	return FormatDebugOutput(g_debug_scratch, delim, arg);
+}
+
+[[deprecated("use Reflex::Detail::FormatDebugOutput with an explicit scratch buffer")]] inline CString::View DebugJoin(const CString::View & delim, const CString::View & arg)
+{
+	return FormatDebugOutput(g_debug_scratch, delim, arg);
+}
+
+template <typename... VARGS> [[deprecated("use Reflex::Detail::FormatDebugOutput with an explicit scratch buffer")]] inline CString::View DebugJoin(const CString::View & delim, const VARGS & ... args)
+{
+	return FormatDebugOutput(g_debug_scratch, delim, args...);
 }
 
 REFLEX_END
@@ -413,7 +418,7 @@ REFLEX_INLINE Reflex::Output::Buffer::Buffer(const CString::View & ref)
 
 template <typename... VARGS> inline void Reflex::Output::LogEx(LogType type, const CString::View & delim, VARGS && ... args)
 {
-	(*m_output)(*this, type, Detail::DebugJoin(delim, std::forward<VARGS>(args)...));
+	(*m_output)(*this, type, Detail::FormatDebugOutput(Detail::g_debug_scratch, delim, std::forward<VARGS>(args)...));
 }
 
 template <typename... VARGS> inline void Reflex::Output::Log(VARGS &&... args)

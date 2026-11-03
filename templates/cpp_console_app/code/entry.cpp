@@ -73,7 +73,9 @@ UInt8 System::OnStart(const ArrayView <CString::View> & cmdline)
 			{
 				auto file = Cast<System::FileHandle>(pfile);
 
-				auto buffer = Reflex::Detail::DebugJoin(" ", frame, address, symbol);
+				char scratch[256];
+
+				auto buffer = Reflex::Detail::FormatDebugOutput(scratch, " ", frame, address, symbol);
 
 				File::WriteLine(*file, buffer);
 			});

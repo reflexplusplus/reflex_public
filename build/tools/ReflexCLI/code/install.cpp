@@ -833,6 +833,8 @@ void ReflexCLI::Install(CString::View version, const Array <CString::View> & pla
 {
 	auto install_root = path ? WString(path) : GetReflexPath();
 
+	if (!install_root) CLI::ThrowError("cannot determine SDK installation directory; pass --path <folder>");
+
 	auto temp_path = CreateInstallTempPath(install_root);
 
 	CString release_url = Join(kReleasesApiUrl, '/', version);

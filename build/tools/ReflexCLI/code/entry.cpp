@@ -1272,7 +1272,9 @@ Reflex::UInt8 Reflex::System::OnStart(const ArrayView <CString::View> & cmdline)
 			System::Detail::EnumerateStackTrace(file.Adr(), [](void * pfile, UInt frame, const void * address, const char * symbol)
 			{
 				auto file = Cast<System::FileHandle>(pfile);
-				File::WriteLine(*file, Reflex::Detail::DebugJoin(" ", frame, address, symbol));
+				char scratch[256];
+
+				File::WriteLine(*file, Reflex::Detail::FormatDebugOutput(scratch, " ", frame, address, symbol));
 			});
 			file->Flush(true);
 			System::Detail::Terminate(1);

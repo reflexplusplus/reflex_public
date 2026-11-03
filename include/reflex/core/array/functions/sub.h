@@ -168,7 +168,16 @@ template <bool BOUNDS_CHECK, class ARRAY> inline auto Reflex::ReverseSplice(ARRA
 
 	auto view = ToView(array);
 
-	return Detail::Splice<BOUNDS_CHECK>(view, view.size - position);
+	if constexpr (BOUNDS_CHECK)
+	{
+		position = Min(position, view.size);
+	}
+	else
+	{
+		REFLEX_ASSERT(position <= view.size);
+	}
+
+	return Detail::Splice<false>(view, view.size - position);
 }
 
 template <bool BOUNDS_CHECK, class TYPE> REFLEX_INLINE Reflex::ArrayRegion <TYPE> Reflex::Inc(ArrayRegion <TYPE> & itr, UInt n)

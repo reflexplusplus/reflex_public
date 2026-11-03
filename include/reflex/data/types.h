@@ -26,6 +26,8 @@ namespace Reflex::Data
 
 	using BinaryProperty = ArchiveObject;
 
+	using ArrayOfBinaryProperty = ObjectOf < Array <Archive> >;
+
 
 	using UInt32Property = ObjectOf <UInt32>;
 
@@ -88,7 +90,8 @@ template <class TYPE> struct Reflex::SubIndexType < Reflex::Data::MapOfKey32Prop
 //
 //impl
 
-REFLEX_EXTERN_NULL(Reflex::Data::BinaryProperty);
+REFLEX_EXTERN_NULL(Reflex::Data::ArchiveObject);
+REFLEX_EXTERN_NULL(Reflex::Data::ArrayOfBinaryProperty);
 
 REFLEX_EXTERN_NULL(Reflex::Data::ArrayOfUInt32Property);
 REFLEX_EXTERN_NULL(Reflex::Data::ArrayOfUInt64Property);

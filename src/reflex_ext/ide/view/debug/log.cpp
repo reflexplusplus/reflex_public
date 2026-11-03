@@ -100,7 +100,7 @@ LogView::LogView()
 
 			auto & buffer = item.c;
 
-			CString::View ref(buffer.data, buffer.size);
+			CString::View ref(buffer.data, RawStringLength(buffer.data, buffer.size));
 
 			auto & ns = *m_namespaces.SearchValue(item.a, &m_unknown);
 

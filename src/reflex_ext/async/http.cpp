@@ -50,7 +50,7 @@ Reflex::Unretained <Reflex::Object> Reflex::Async::Detail::StandardHttpRequestCa
 	}
 }
 
-Reflex::Async::Worker::Result Reflex::Async::Detail::Fetch(Worker::Context & ctx, CString::View method, CString::View url, HttpHeaders::View headers, Data::Archive::View body, HttpRequestCallbacks & callbacks, NetworkSimulation network_simulation, Output & output)
+Reflex::Async::Worker::Result Reflex::Async::Detail::Fetch(Worker::Context & ctx, CString::View method, CString::View url, HttpHeaders::View headers, Data::Archive::View body, HttpRequestCallbacks & callbacks, NetworkSimulation network_simulation, Output & output, UInt retry_count)
 {
 	REFLEX_ATOMIC_INC(g_num_http_requests, 1);
 
@@ -58,7 +58,7 @@ Reflex::Async::Worker::Result Reflex::Async::Detail::Fetch(Worker::Context & ctx
 
 	auto connection = AutoRelease(callbacks.Connect(Data::IsHttps(url_parts.scheme), url_parts.domain, url_parts.port));
 
-	UInt retry = 3;
+	UInt retry = retry_count;
 
 	Pair <Float32, UInt32> progress;
 

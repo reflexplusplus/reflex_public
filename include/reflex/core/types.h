@@ -47,15 +47,17 @@ namespace Reflex
 	using WChar = wchar_t;
 
 
-	using AtomicUInt8 = std::atomic <UInt8>;
+	template <class TYPE> using Atomic = std::atomic <TYPE>;
 
-	using AtomicUInt32 = std::atomic <UInt32>;
+	using AtomicUInt8 = Atomic <UInt8>;
 
-	using AtomicUInt64 = std::atomic <UInt64>;
+	using AtomicUInt32 = Atomic <UInt32>;
 
-	using AtomicFloat32 = std::atomic <Float32>;
+	using AtomicUInt64 = Atomic <UInt64>;
 
-	using AtomicPointer = std::atomic <void*>;
+	using AtomicFloat32 = Atomic <Float32>;
+
+	using AtomicPointer = Atomic <void*>;
 
 
 	class Object;

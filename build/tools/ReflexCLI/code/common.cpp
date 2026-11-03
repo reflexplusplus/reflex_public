@@ -56,7 +56,8 @@ Reflex::WString ReflexCLI::GetReflexPath()
 
 	auto expected_repo_path = Merge(ReverseSplice<true>(parts, 4).a, File::kStroke);
 
-	if (check_include_path(expected_repo_path))
+	// A bootstrap installation has the CLI in bin/tools/<platform>, but no SDK headers yet.
+	if (check_include_path(expected_repo_path) || executable_path == MakeReflexExecutablePath(Join(expected_repo_path, File::kStroke)))
 	{
 		return Join(expected_repo_path, File::kStroke);
 	}

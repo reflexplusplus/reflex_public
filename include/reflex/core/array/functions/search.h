@@ -26,9 +26,12 @@ namespace Reflex
 	template <class POLICY = StandardCompare, class ARRAY, class FROM_VALUE, class TO_VALUE> auto Replace(const ARRAY & array, const FROM_VALUE & from_element_or_array, const TO_VALUE & to_element_or_array);
 
 
+	template <class POLICY = StandardCompare, class ARRAY, class VALUE> auto Filter(const ARRAY & array, VALUE && element_or_array);
+
+
 	template <class POLICY = StandardCompare, class TYPE, class VALUE> void Remove(Array <TYPE> & array, VALUE && element_or_array);
 
-	template <class POLICY = StandardCompare, class ARRAY, class VALUE> auto Filter(const ARRAY & array, VALUE && element_or_array);
+	template <class POLICY = StandardCompare, class TYPE> void RemoveAdjacentDuplicates(Array <TYPE> & array);
 
 }
 
@@ -166,7 +169,6 @@ template <class POLICY, class TYPE, class VALUE> inline void RemoveValue(Array <
 	}
 
 	auto start = array.GetData();
-
 	auto ptr = start + array.GetSize();
 
 	while (ptr-- != start)
@@ -176,6 +178,31 @@ template <class POLICY, class TYPE, class VALUE> inline void RemoveValue(Array <
 			array.Remove(UInt(ptr - start));
 		}
 	}
+}
+
+template <class POLICY, class TYPE> inline UInt RemoveAdjacentDuplicates(ArrayRegion <TYPE> region)
+{
+	if (region)
+	{
+		auto write = region.data;
+		auto read = write + 1;
+		auto end = write + region.size;
+
+		while (read != end)
+		{
+			if (!POLICY::eq(*write, *read))
+			{
+				++write;
+
+				if (write != read) *write = std::move(*read);
+			}
+			++read;
+		}
+
+		return UInt32(write - region.data) + 1;
+	}
+
+	return 0;
 }
 
 REFLEX_END
@@ -244,6 +271,15 @@ template <class POLICY, class ARRAY, class FROM, class TO> inline auto Reflex::R
 	}
 }
 
+template <class POLICY, class ARRAY, class VALUE> REFLEX_INLINE auto Reflex::Filter(const ARRAY & array, VALUE && element_or_array)
+{
+	Array rtn = ToView(array);
+
+	Remove(rtn, std::forward<VALUE>(element_or_array));
+
+	return rtn;
+}
+
 template <class POLICY, class TYPE, class VALUE> REFLEX_INLINE void Reflex::Remove(Array <TYPE> & array, VALUE && element_or_array)
 {
 	if constexpr (std::is_convertible< VALUE, ArrayView <TYPE> >::value)
@@ -252,15 +288,11 @@ template <class POLICY, class TYPE, class VALUE> REFLEX_INLINE void Reflex::Remo
 	}
 	else
 	{
-		Detail::RemoveValue<POLICY,TYPE,VALUE>(array, std::forward<VALUE>(element_or_array));
+		Detail::RemoveValue<POLICY, TYPE, VALUE>(array, std::forward<VALUE>(element_or_array));
 	}
 }
 
-template <class POLICY, class ARRAY, class VALUE> REFLEX_INLINE auto Reflex::Filter(const ARRAY & array, VALUE && element_or_array)
+template <class POLICY, class TYPE> REFLEX_INLINE void Reflex::RemoveAdjacentDuplicates(Array <TYPE> & array)
 {
-	Array rtn = ToView(array);
-
-	Remove(rtn, std::forward<VALUE>(element_or_array));
-
-	return rtn;
+	array.SetSize(Detail::RemoveAdjacentDuplicates<POLICY,TYPE>(ToRegion(array)));
 }
