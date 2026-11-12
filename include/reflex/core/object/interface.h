@@ -143,7 +143,7 @@ template <class TYPE> inline void Reflex::RetractInterface(Object & owner, TYPE 
 
 template <class TYPE> inline TYPE * Reflex::QueryInterface(Object & owner)
 {
-	return static_cast<TYPE*>(Detail::QueryInterface(owner, GetTypeID<TYPE>(), nullptr));
+	return Cast<TYPE>(Detail::QueryInterface(owner, GetTypeID<TYPE>(), nullptr));
 }
 
 template <class TYPE> REFLEX_INLINE const TYPE * Reflex::QueryInterface(const Object & owner)
@@ -153,7 +153,7 @@ template <class TYPE> REFLEX_INLINE const TYPE * Reflex::QueryInterface(const Ob
 
 template <class TYPE> inline Reflex::AlreadyRetained <TYPE> Reflex::GetInterface(Object & owner)
 {
-	return static_cast<TYPE*>(Detail::QueryInterface(owner, GetTypeID<TYPE>(), &TYPE::null));
+	return Cast<TYPE>(Detail::QueryInterface(owner, GetTypeID<TYPE>(), &TYPE::null));
 }
 
 template <class TYPE> REFLEX_INLINE Reflex::ConstAlreadyRetained <TYPE> Reflex::GetInterface(const Object & owner)

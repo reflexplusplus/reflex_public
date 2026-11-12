@@ -47,17 +47,8 @@ class HttpConnection(url: String) {
 
 	// ⚠️ throws RuntimeException; returns the status code.
 	@Suppress("unused") // Used from C++
-	fun PerformRequest(): Int {
-		val code = connection.responseCode
-		inputStream = if (code >= 200 && code < 300) {
-			connection.inputStream
-		} else {
-			connection.errorStream
-		}
-		return connection.responseCode
-	}
+	fun PerformRequest(): Int = connection.responseCode
 
-	// Call the next methods only if the retunr from PerformRequest was a good code (200)
 	@Suppress("unused") // Used from C++
 	fun ReadResponseHeaders(): ArrayList<String> {
 		val result = arrayListOf<String>()
@@ -78,17 +69,20 @@ class HttpConnection(url: String) {
 
 	@Suppress("unused") // Used from C++
 	fun ReadResponseBody(maxBytes: Int): ByteArray? {
-		if (inputStream == null) return null
+		val stream = inputStream ?: OpenResponseBody() ?: return null
+		inputStream = stream
 
 		val buffer = ByteArray(maxBytes)
-		val length = inputStream!!.read(buffer)
-		if (length == -1) { // no more data
-			inputStream!!.close()
-			return null
-		}
+		val length = stream.read(buffer)
+		if (length == -1) return null
 
 //		println("TEMP: ReadResponseBody ${String(buffer)}")
 		return buffer.sliceArray(IntRange(0, length - 1))
+	}
+
+	private fun OpenResponseBody(): InputStream? {
+		val code = connection.responseCode
+		return if (code in 200..299) connection.inputStream else connection.errorStream
 	}
 
 	@Suppress("unused") // Used from C++

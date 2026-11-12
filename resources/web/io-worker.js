@@ -47,10 +47,7 @@ async function execute(data) {
         const controller = new AbortController();
         const timer = connectTimeout ? setTimeout(() => controller.abort(), connectTimeout) : undefined;
         try {
-            self.postMessage({ type: "http-diagnostic", message: `${method} ${diagnosticURL(url)}` });
             const response = await fetch(url, { method, headers, body, signal: controller.signal });
-            self.postMessage({ type: "http-diagnostic", message: `${method} ${diagnosticURL(url)} -> ${response.status}` +
-                (response.redirected ? ` (redirected to ${diagnosticURL(response.url)})` : "") });
             const responseHeaders = new TextEncoder().encode(Array.from(response.headers, ([key, value]) => `${key}: ${value}\r\n`).join(""));
             const id = nextHandle++;
             responses.set(id, { status: response.status, headers: responseHeaders, reader: response.body?.getReader(), controller, readTimeout, remainder: new Uint8Array() });

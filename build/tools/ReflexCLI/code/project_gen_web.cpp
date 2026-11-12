@@ -95,6 +95,26 @@ CString Actions(const Target & target, const TargetConfiguration & config, Build
 	return Join('[', Merge(actions, ','), ']');
 }
 
+void OverlayLauncher(const WString & source, const WString & destination)
+{
+	auto [folders, files] = File::List(source, true);
+	for (auto & folder : folders) OverlayLauncher(Join(source, folder.key), Join(destination, folder.key));
+	for (auto & file : files) SaveFile(Join(destination, file.key), File::Open(Join(source, file.key)), kBuildPlatformWeb);
+}
+
+void TranslateLauncher(const WString & folder, ArrayView<Variable> variables)
+{
+	auto [folders, files] = File::List(folder, true);
+	for (auto & child : folders) TranslateLauncher(Join(folder, child.key), variables);
+	for (auto & file : files)
+	{
+		auto path = Join(folder, file.key);
+		auto extension = File::SplitExtension(file.key).b;
+		if (file.key != L".htaccess" && extension != L"html" && extension != L"css" && extension != L"js" && extension != L"json" && extension != L"svg" && extension != L"txt") continue;
+		SaveFile(path, Data::EncodeUTF8(TranslateVariables(Data::DecodeUTF8(File::Open(path)), variables, L"[", L"]")), kBuildPlatformWeb);
+	}
+}
+
 CString Configuration(const Target & target, const TargetConfiguration & config, WString::View launcher)
 {
 	auto type = config.GetProductType();
@@ -129,13 +149,12 @@ CString Configuration(const Target & target, const TargetConfiguration & config,
 
 REFLEX_END_INTERNAL
 
-void ReflexCLI::ProjectGen::GenerateWebProject(Project & project, BuildPlatform, const WString & directory, Array<const TargetPlatform *> & generated_platforms, Map<WString> & outputs, System::FileHandle & std_out)
+void ReflexCLI::ProjectGen::GenerateWebProject(Project & project, BuildPlatform, const WString & directory, Array<const TargetPlatform *> & generated_platforms, Map<WString> & outputs, System::FileHandle &)
 {
 	auto targets = CollectTargetPlatforms(project, kBuildPlatformWeb, generated_platforms);
 	Array<CString> configurations, names, projects;
 	CString reflex_path;
 	CString run_configurations[2];
-	const auto generate_timestamp = ToWString(System::GetTime());
 	for (auto & item : targets)
 	{
 		if (item.target->IsLibrary()) continue;
@@ -151,7 +170,6 @@ void ReflexCLI::ProjectGen::GenerateWebProject(Project & project, BuildPlatform,
 			if (debug && !run_configurations[0]) run_configurations[0] = debug->GetName();
 			if (release && !run_configurations[1]) run_configurations[1] = release->GetName();
 		}
-		bool missing_index = false;
 		for (auto & config : item.platform->GetTargetConfigurations())
 		{
 			WString launcher;
@@ -159,20 +177,27 @@ void ReflexCLI::ProjectGen::GenerateWebProject(Project & project, BuildPlatform,
 			if (config->GetProductType() == kOutputType_app)
 			{
 				auto launcher_folder = File::CorrectTrailingStroke(ResolveAbsolutePathCase(Join(directory, L"launchers/")));
-				launcher = Join(launcher_folder, ToWString(config->GetName()), File::kStroke, ToWString(item.target->GetName()), L"/index.html");
-				auto entry_page = config->GetPath(kWebEntryPage);
-				auto page = File::Extract(Web::index_html);
+				launcher = Join(launcher_folder, ToWString(config->GetName()), File::kStroke, ToWString(item.target->GetName()), L"/");
+				SaveFile(Join(launcher, L"index.html"), File::Extract(Web::index_html), kBuildPlatformWeb);
+				SaveText(Join(launcher, L".htaccess"), "DirectoryIndex index.html\n\nHeader always set Cross-Origin-Opener-Policy \"same-origin\"\nHeader always set Cross-Origin-Embedder-Policy \"require-corp\"\n\nAddType application/wasm .wasm\nAddType text/javascript .js\n\n<Files \"index.html\">\n    Header always set Cache-Control \"no-cache\"\n</Files>\n\n<Files \"[MODULE_FILENAME]\">\n    Header set Content-Type \"application/wasm\"\n    Header set Content-Encoding \"gzip\"\n    Header set X-Uncompressed-Content-Length \"[BUILD_SIZE]\"\n</Files>\n", kBuildPlatformWeb);
+				auto launch_folder = config->GetPath(kWebLaunchFolder);
+				if (launch_folder.path)
+				{
+					auto source = File::CorrectTrailingStroke(ToWString(Web::Path(project.GetRoot(), launch_folder)));
+					CheckAssetPath(project, kBuildPlatformWeb, kWebLaunchFolder, source);
+					Require(System::IsDirectory(source), kWebLaunchFolder, "must name an existing folder");
+					Web::OverlayLauncher(source, launcher);
+				}
 				auto [product_path, product_filename] = File::SplitFilename(product);
-				auto source = ToWString(Web::Path(project.GetRoot(), entry_page));
-				CheckAssetPath(project, kBuildPlatformWeb, kWebEntryPage, source);
-				page = File::Open(source);
-				missing_index = missing_index || page.Empty();
+				auto filename = File::SplitExtension(product_filename).a;
 				auto module = Join("./", Data::EncodeUrlSegment(ToCString(product_filename)));
-				SaveFile(launcher, Template(page, {
+				// Leave build-time placeholders intact for build.py to resolve during packaging.
+				Web::TranslateLauncher(launcher, {
 					{ "TITLE", ToWString(EscapeXml(project.GetName())) },
 					{ "MODULE", ToWString(module) },
-					{ "GENERATE_TIMESTAMP", generate_timestamp }
-				}), kBuildPlatformWeb);
+					{ "FILENAME", ToWString(Data::EncodeUrlSegment(ToCString(filename))) },
+					{ "MODULE_FILENAME", Replace(Replace(product_filename, L"\\", L"\\\\"), L"\"", L"\\\"") }
+				});
 			}
 			configurations.Push(Web::Configuration(*item.target, config, launcher));
 			if (!Search(names, config->GetName())) names.Push(CString(config->GetName()));
@@ -182,10 +207,10 @@ void ReflexCLI::ProjectGen::GenerateWebProject(Project & project, BuildPlatform,
 			{
 				auto folder = File::SplitFilename(product).a;
 				outputs.Set(Join(folder, L"index.html"));
+				outputs.Set(Join(folder, L".htaccess"));
 				outputs.Set(Join(folder, L"runtime/"));
 			}
 		}
-		if (missing_index) File::WriteLine(std_out, Join(kColourWarning, kWebEntryPage, " could not read launcher index.html", kColourDefault));
 	}
 	if (configurations.Empty()) return;
 	Reverse(projects);

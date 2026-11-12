@@ -54,13 +54,14 @@ namespace Reflex::System
 
 	bool Exists(const WString & path);
 
+	WString ResolvePath(const WString & path);
+
+	bool IsAbsolutePath(const WString::View & path);
+
 
 	bool MakeDirectory(const WString & path);
 
 	bool IsDirectory(const WString & path);
-
-
-	bool IsAbsolutePath(const WString::View & path);
 
 
 	WString GetPath(Path path);

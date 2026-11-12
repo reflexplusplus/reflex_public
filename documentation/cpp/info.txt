@@ -9081,6 +9081,23 @@ See also Bootstrap::Detail::SetStyle.
 	@WString Description: "#p Synchronous HTTP connection wrapper.
 
 #p Requests are performed synchronously through 'Request(...)', so this API should normally be used from a background thread rather than the main/UI thread.
+
+#h2 Response delivery
+
+#p Pass a 'HttpConnection::Client' to 'Request'. When an HTTP response arrives, 'OnResponse(UInt code)' receives its status before any calls to 'OnHeader' or 'OnChunk'. Return true to accept the response or false to reject it and skip all header and body callbacks.
+
+#p After acceptance, 'OnHeader' receives each response header and 'OnChunk' receives body data as it arrives. Returning false from 'OnChunk' stops delivery.
+
+#h2 Request result
+
+#p 'Request' returns a 'HttpConnection::Result' describing how delivery ended. The HTTP status is available through 'OnResponse'.
+
+<list>
+#p 'kResultCompleted' means the client accepted the response and delivery finished. An accepted HTTP 404 can also complete.
+#p 'kResultRejected' means 'OnResponse' returned false.
+#p 'kResultAborted' means 'OnChunk' returned false.
+#p 'kResultTransportError' means the request failed before a response arrived or during delivery.
+</list>
 ";
 
 	Path: ["Reflex", "System", "HttpConnection"];
@@ -11200,4 +11217,15 @@ See also Bootstrap::Detail::SetStyle.
 #p Return 'Object::null' to bypass the application run loop and exit immediately. This is useful for combined GUI and command-line applications when command-line arguments select a command-line-only operation.";
 
 	Path: ["Reflex", "System", "App", "OnStart"];
+};
+
+687:
+{
+	@WString Description: "#p Resolves an existing file or directory to an absolute path, following symbolic links. Returns an empty string if the path does not exist or resolution fails.
+
+#p The result uses Reflex path delimiters and preserves a trailing slash supplied in the input.
+
+#p On Web, checks whether the path exists and returns the input path unchanged if it does, or an empty string otherwise.";
+
+	Path: ["Reflex", "System", "ResolvePath"];
 };

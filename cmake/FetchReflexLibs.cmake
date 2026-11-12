@@ -133,9 +133,9 @@ function(reflex_fetch_libs)
         endif()
     endif()
 
-    # Resolve version. version.txt is generated from the git tag and baked into
-    # exported/distributed trees (the only place this fetch runs), so there is no
-    # git-tag fallback: a downloaded zip has no .git to describe.
+    # Resolve version. Release preparation sets version.txt in reflex_master,
+    # and exports carry it into the distributed source tree. A downloaded zip
+    # has no .git to describe.
     if(DEFINED REFLEX_VERSION AND NOT "${REFLEX_VERSION}" STREQUAL "")
         set(_version "${REFLEX_VERSION}")
     elseif(EXISTS "${REFLEX_ROOT}/version.txt")

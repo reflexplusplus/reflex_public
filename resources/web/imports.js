@@ -1,6 +1,6 @@
-import { createLibcImports } from "./libc.js";
-import { createThreadImports } from "./threads.js";
-import { createIOImports } from "./io.js";
+import { createLibcImports } from "./libc.js?r1-dev";
+import { createThreadImports } from "./threads.js?r1-dev";
+import { createIOImports } from "./io.js?r1-dev";
 
 // Explicit imports for the Clang backend. No generated runtime helpers.
 export function createImports(memory, systemID = 1n, onAssertion = console.error, timeOrigin = performance.timeOrigin) {
@@ -17,6 +17,13 @@ export function createImports(memory, systemID = 1n, onAssertion = console.error
         reflex_io: createIOImports(memory),
         wasi_snapshot_preview1: createLibcImports(memory, undefined, timeOrigin),
         reflex_host: {
+            openURL: (pointer, length) =>
+            {
+                const result = new Int32Array(new SharedArrayBuffer(4));
+                self.postMessage({ type: "open-url", url: text(pointer, length), result: result.buffer });
+                while (Atomics.load(result, 0) === 0) Atomics.wait(result, 0, 0);
+                return Atomics.load(result, 0) > 0 ? 1 : 0;
+            },
             assertion: (pointer, length) => onAssertion(text(pointer, length)),
             systemID: () => systemID,
             log: (pointer, length) => console.log(text(pointer, length)),
@@ -24,6 +31,10 @@ export function createImports(memory, systemID = 1n, onAssertion = console.error
             error: (pointer, length) => console.error(text(pointer, length)),
             waitAudio: (pointer, generation) => Atomics.wait(new Int32Array(memory.buffer, pointer, 1), 0, generation),
             wakeAudio: pointer => Atomics.notify(new Int32Array(memory.buffer, pointer, 1), 0),
+            requestMidi: () => self.postMessage({ type: "midi-request" }),
+            enableMidi: (token, enable) => self.postMessage({ type: "midi-enable", token, enable: Boolean(enable) }),
+            sendMidi: packed => self.postMessage({ type: "midi-output", packed: packed >>> 0 }),
+            resumeAudio: () => self.postMessage({ type: "audio-resume" }),
             performanceTime: () => (timeOffset + performance.now()) / 1000,
         },
     };

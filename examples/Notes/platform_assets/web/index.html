@@ -22,7 +22,7 @@ canvas { display: block; }
     <canvas id="screen"></canvas>
 </main>
 <script type="module">
-import { startReflex } from "./runtime/runtime.js";
+import { startReflex } from "./runtime/runtime.js?[BUILD_TIMESTAMP]";
 const status = document.querySelector("#status");
 const loading = document.querySelector("#loading");
 const onProgress = ({ loaded, total, done }) => {
@@ -31,7 +31,7 @@ const onProgress = ({ loaded, total, done }) => {
 const fail = error => { loading.hidden = true; status.hidden = false; status.textContent = error?.stack || String(error); };
 try {
     const app = await startReflex({
-        moduleUrl: "[MODULE]" + "?[GENERATE_TIMESTAMP]", canvas: document.querySelector("#screen"),
+        moduleUrl: "[MODULE]" + "?[BUILD_TIMESTAMP]", canvas: document.querySelector("#screen"),
         initialBytes: 32 * 1024 * 1024, maximumBytes: 512 * 1024 * 1024, onError: fail, onProgress,
     });
     loading.hidden = true;

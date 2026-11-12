@@ -179,6 +179,14 @@ struct MidiSettings : public AudioMidiSettings
 		: AudioMidiSettings(audioplugin, styles)
 	{
 		Build(&System::AudioPlugin::GetMidiPorts, &System::AudioPlugin::Lock::EnableMidiPort);
+		
+		EnableOnAttachDetachWindow();
+	}
+
+	void OnAttachWindow() override
+	{
+		GLX::Object::OnAttachWindow();
+		Data::SetBool(audioplugin, "request_midi", true);
 	}
 };
 

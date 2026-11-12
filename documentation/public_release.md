@@ -5,9 +5,11 @@ or require `reflex_master`. The legacy master workflows remain available.
 
 ## Run a release
 
-Run **Release Public SDK** (`release_public_sdk.yml`) in the licensed
-repository. Select the source branch or tag and enter a version such as
-`v0.7.0`. A matching, completed `changelog/v0.7.0.md` must be committed.
+Follow [Release protocol v2](release_protocol_v2.md) to prepare and test the
+release in `reflex_master`, then export it to the licensed repository. Run
+**Release Public SDK** (`release_public_sdk.yml`) there and select the branch or
+tag for the licensed export. CI reads the release version from the selected
+revision's root `version.txt` and requires a matching, completed changelog.
 There is no requirement to merge the selected revision to `main`.
 
 The manual form has three runner checkboxes, all checked by default. Checked
@@ -39,9 +41,10 @@ Shared workflow orchestration and summaries run directly in Python. Windows setu
 uses built-in PowerShell; the new workflows do not require Bash on Windows.
 
 Templates build in Debug on supported target platforms; the console template
-is desktop-only. Examples builds the six selected desktop examples. Run desktop
-apps applies only to selected templates/examples and currently runs on Windows
-and macOS; checking it alone does not select any projects.
+is desktop-only. On desktop platforms, Examples builds each direct subfolder of
+`examples/` containing `project.cfg` in native mode or `CMakeLists.txt` in CMake
+mode. Run desktop apps applies only to selected templates/examples and currently
+runs on Windows and macOS; checking it alone does not select any projects.
 
 `Build: CMake` switches both the library and consumer builds to CMake. The CLI
 bootstrap already uses its checked-in CMake project in either mode. CMake mode
@@ -81,7 +84,7 @@ as source for optional local builds; they are not built or packaged by this work
 Source files are selected by the `reflex_public` section of `export_rules.json`.
 Repository exports then filter the selected paths through Git's ignore rules
 in one batch. Tracked files remain eligible; ignored untracked files are omitted,
-including explicit exceptions. Git's local and global ignore settings also apply.
+unless explicitly listed in `except`. Git's local and global ignore settings also apply.
 Binary packaging and mirroring the verified snapshot do not apply this filter.
 The same section's `exclude_files` lists the exact repo-relative paths of VM,
 AAX and VST2 archives and debug-symbol files to omit from binary packages.
@@ -98,7 +101,9 @@ Documentation assets are forwarded unchanged, including Linux `.tar.gz`
 or `.tar.xz` packages, and remain optional separate downloads.
 
 Verification extracts the packaged SDK and uses its packaged host CLI to
-generate/build the public C++ templates for each supported target platform.
+generate/build the public C++ templates for each supported target platform. On
+Windows, macOS, and Linux it also generates and builds each exported example
+with a `project.cfg` in Debug using the packaged CLI and libraries.
 Each verification job downloads only its required archives and the common
 candidate manifest. All six platforms receive the verified public source,
 their target libraries and the appropriate host CLI.
@@ -185,20 +190,22 @@ fails, the workflow fails while the GitHub release remains published.
   tag and notes-only release in `reflex` and needs Contents write permission there.
 
 The licensed export includes scripts, tests, `export_rules.json` and `.github`,
-excluding the legacy `build-release.yml` and `export-repos.yml` workflows.
+excluding `build-release.yml`, which remains in the private repository for
+tag-triggered library/tool builds and releases. The old repository export
+workflow has been removed.
 The public export removes the release infrastructure and rule file. Check Runners
 checks use local builds and do not require distribution-signing secrets.
 
 Because the licensed export now includes workflow files, a token used to push
-that checkout must also be permitted to update workflows. This also applies if
-the legacy exporter is used to push the updated licensed export.
+that checkout must also be permitted to update workflows.
 
 ## Helper commands
 
 `scripts/export_reflex_public_sdk.py` provides `check`, `package`, `assemble`,
 `verify` and `publish` commands. Normally use the workflow, which sets up the
 platform toolchains and enforces the successful-build requirement before
-publication. Run a command with `--help` to see its inputs.
+publication. `check`, `package` and `assemble` read root `version.txt`. Run a
+command with `--help` to see its inputs.
 
 The release helper imports only `ci_build` and `export_common` from this repo.
 Release notes must have the matching version headline, a nonempty body and no

@@ -72,13 +72,14 @@ GlobalImpl::GlobalImpl(CString::View vendor, CString::View product, WString::Vie
 				lock.PurgeIncremental();
 			}
 
-			if constexpr (REFLEX_DEBUG)
+			#if REFLEX_DEBUG || defined(REFLEX_ARCH_WEBASM)
+			if (self.m_prefs_monitor.Poll())
 			{
-				if (self.m_prefs_monitor.Poll())
-				{
-					self.CommitPreferences();
-				}
+				self.CommitPreferences();
+
+				self.m_prefs_monitor.Poll();
 			}
+			#endif
 		}
 	}))
 #endif

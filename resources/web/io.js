@@ -11,7 +11,7 @@ export function createIOImports(memory) {
 }
 
 export function createIOManager(memory, onError = console.error) {
-    const worker = new Worker(new URL("./io-worker.js", import.meta.url), { type: "module" });
+    const worker = new Worker(new URL("./io-worker.js?r1-dev", import.meta.url), { type: "module" });
     const pending = new Map();
     let nextRequest = 1;
     let failed = false;

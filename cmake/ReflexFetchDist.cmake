@@ -158,7 +158,7 @@ function(reflex_fetch_dist)
         )
     endif()
 
-    # The verified source stamps its tag into version.txt — catch a stale cache.
+    # The verified source carries the committed version.txt — catch a stale cache.
     file(READ "${reflex_SOURCE_DIR}/version.txt" _reflex_dist_version)
     string(STRIP "${_reflex_dist_version}" _reflex_dist_version)
     if(NOT _reflex_dist_version STREQUAL "${ARG_VERSION}")

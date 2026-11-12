@@ -1,5 +1,5 @@
-import { createImports } from "./imports.js";
-import { createGLImports } from "./gl.js";
+import { createImports } from "./imports.js?r1-dev";
+import { createGLImports } from "./gl.js?r1-dev";
 
 let instance;
 let started = false;
@@ -45,6 +45,30 @@ self.onmessage = async ({ data }) => {
             } finally { instance.exports.free(pointer); }
             return;
         }
+        if (data.type === "midi-input") {
+            requireFunction(instance.exports, "reflexMidiInput")(data.token, data.packed);
+            return;
+        }
+        if (data.type === "midi-ports") {
+            const encoder = new TextEncoder();
+            const names = data.ports.map(port => encoder.encode(port.name));
+            const tableSize = names.length * 16;
+            const size = tableSize + names.reduce((sum, name) => sum + name.length, 0);
+            const pointer = size ? requireFunction(instance.exports, "malloc")(size) : 0;
+            if (size && !pointer) throw new Error("MIDI port allocation failed");
+            try {
+                const table = new Uint32Array(self.reflexMemory.buffer, pointer, names.length * 4);
+                const bytes = new Uint8Array(self.reflexMemory.buffer);
+                let offset = pointer + tableSize;
+                data.ports.forEach((port, i) => {
+                    table.set([port.token, (port.output ? 1 : 0) | (port.enabled ? 2 : 0), offset, names[i].length], i * 4);
+                    bytes.set(names[i], offset);
+                    offset += names[i].length;
+                });
+                requireFunction(instance.exports, "reflexMidiPorts")(pointer, names.length);
+            } finally { if (pointer) instance.exports.free(pointer); }
+            return;
+        }
         if (data.type === "audio-configure") {
             const pointer = requireFunction(instance.exports, "reflexConfigureAudio")(data.sampleRate);
             self.postMessage({ type: "audio-configured", pointer });
@@ -68,6 +92,11 @@ self.onmessage = async ({ data }) => {
         if (data.type === "input") {
             if (instance && typeof instance.exports.reflexInputEvent === "function")
                 instance.exports.reflexInputEvent(data.kind, data.a, data.b, data.modifiers, data.repeat ? 1 : 0);
+            return;
+        }
+        if (data.type === "touch")
+        {
+            requireFunction(instance.exports, "reflexTouchEvent")(data.kind, data.id, data.timestamp, data.x, data.y, data.modifiers);
             return;
         }
         if (data.type !== "start") return;
@@ -110,7 +139,31 @@ self.onmessage = async ({ data }) => {
         self.reflexCanvas = data.canvas;
         self.reflexMemory = data.memory;
         requireFunction(exports, "reflexSetPixelDensity")(data.density);
-        start();
+        const encoder = new TextEncoder();
+        const argumentsUTF8 = data.commandLine.map(argument => encoder.encode(argument));
+        const tableSize = argumentsUTF8.length * 8;
+        const argumentsSize = tableSize + argumentsUTF8.reduce((size, argument) => size + argument.byteLength, 0);
+        const argumentsPointer = argumentsSize ? requireFunction(exports, "malloc")(argumentsSize) : 0;
+        if (argumentsSize && !argumentsPointer) throw new Error("Command-line argument allocation failed");
+        try
+        {
+            // Each descriptor contains a wasm32 UTF-8 pointer and byte length.
+            const table = new Uint32Array(data.memory.buffer, argumentsPointer, argumentsUTF8.length * 2);
+            const bytes = new Uint8Array(data.memory.buffer, argumentsPointer, argumentsSize);
+            let offset = tableSize;
+            for (let index = 0; index < argumentsUTF8.length; ++index)
+            {
+                table[index * 2] = argumentsPointer + offset;
+                table[index * 2 + 1] = argumentsUTF8[index].byteLength;
+                bytes.set(argumentsUTF8[index], offset);
+                offset += argumentsUTF8[index].byteLength;
+            }
+            start(argumentsPointer, argumentsUTF8.length);
+        }
+        finally
+        {
+            if (argumentsPointer) requireFunction(exports, "free")(argumentsPointer);
+        }
         if (typeof requestAnimationFrame !== "function") throw new Error("Worker animation frames are unavailable");
         const frame = () => {
             try {

@@ -19,18 +19,18 @@ canvas { display: block; }
 <body>
 <header>
     <button id="fit" disabled aria-pressed="false">Fit</button>
-    <button id="run-audio" hidden disabled aria-pressed="false">Run audio</button>
 </header>
 <pre id="status" role="status">Starting…</pre>
 <main id="stage">
     <canvas id="screen"></canvas>
 </main>
 <script type="module">
-import { startReflex } from "./runtime/runtime.js";
+import { startReflex } from "./runtime/runtime.js?[BUILD_TIMESTAMP]";
 const status = document.querySelector("#status");
 const fail = error => { status.hidden = false; status.textContent = String(error.stack || error); };
 try {
-    const app = await startReflex({ moduleUrl: "[MODULE]" + "?[GENERATE_TIMESTAMP]", canvas: document.querySelector("#screen"),
+    const app = await startReflex({ moduleUrl: "./[FILENAME].wasm?[TIMESTAMP]", canvas: document.querySelector("#screen"),
+        touchMode: "raw", // Use "viewport" for JavaScript two-finger pan and zoom.
         initialBytes: 32 * 1024 * 1024, maximumBytes: 512 * 1024 * 1024, onError: fail });
     status.hidden = true;
     const fitButton = document.querySelector("#fit");
@@ -41,24 +41,6 @@ try {
         app.setFit(fit);
         fitButton.setAttribute("aria-pressed", String(fit));
     };
-    if (app.audioSupported) {
-        const button = document.querySelector("#run-audio");
-        button.hidden = false;
-        button.disabled = false;
-        let running = false;
-        const onState = value => {
-            running = value === "running";
-            button.setAttribute("aria-pressed", String(running));
-        };
-        button.onclick = async () => {
-            button.disabled = true;
-            try {
-                if (running) { await app.pauseAudio(); onState("suspended"); }
-                else await app.runAudio(onState);
-            } catch (error) { onState("failed"); fail(error); }
-            finally { button.disabled = false; }
-        };
-    }
 } catch (error) { fail(error); }
 </script>
 </body>

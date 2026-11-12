@@ -123,8 +123,6 @@ Reflex::AlreadyRetained <Reflex::GLX::Object> Reflex::GLX::AcquireOverlay(Object
 		return overlay;
 	}));
 
-	overlay->SendTop();
-
 	overlay->block_input = block_input;
 	
 	overlay->block_dragdrop = block_dragdrop;

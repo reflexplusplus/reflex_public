@@ -2,6 +2,7 @@
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 import argparse
+import gzip
 import hashlib
 import json
 import os
@@ -9,6 +10,7 @@ import re
 import shutil
 import subprocess
 import sys
+import time
 
 HERE = Path(__file__).resolve().parent
 INITIAL_BYTES = 32 * 1024 * 1024
@@ -127,21 +129,39 @@ def actions(items):
         run(action["command"], action["cwd"])
 
 
-def package(target, reflex):
-    folder = Path(target["product"]).parent
+def package(target, reflex, build_timestamp, linked_product):
+    product = Path(target["product"])
+    folder = product.parent
+    launcher = Path(target["launcher"])
+    if not launcher.is_dir():
+        raise RuntimeError(f"Generated launch folder is missing: {launcher}; regenerate the web project")
+    substitutions = {b"[BUILD_TIMESTAMP]": build_timestamp.encode("ascii"), b"[TIMESTAMP]": build_timestamp.encode("ascii"), b"[BUILD_SIZE]": str(linked_product.stat().st_size).encode("ascii")}
+    for source in launcher.rglob("*"):
+        if not source.is_file():
+            continue
+        destination = folder / source.relative_to(launcher)
+        destination.parent.mkdir(parents=True, exist_ok=True)
+        if source.name == ".htaccess" or source.suffix in (".html", ".css", ".js", ".json", ".svg", ".txt"):
+            content = source.read_bytes()
+            for key, value in substitutions.items():
+                content = content.replace(key, value)
+            destination.write_bytes(content)
+        else:
+            shutil.copy2(source, destination)
+    # Keep uncompressed linker output in intermediate/ for incremental builds.
+    with linked_product.open("rb") as source, product.open("wb") as destination:
+        with gzip.GzipFile(filename="", mode="wb", fileobj=destination, mtime=0) as stream:
+            shutil.copyfileobj(source, stream)
     runtime = reflex / "resources/web"
     if not runtime.is_dir():
         raise RuntimeError(f"Browser runtime is missing: {runtime}")
     (folder / "runtime").mkdir(exist_ok=True)
     for source in runtime.glob("*.js"):
         shutil.copy2(source, folder / "runtime" / source.name)
-    launcher = Path(target["launcher"])
-    if not launcher.is_file():
-        raise RuntimeError(f"Generated launcher is missing: {launcher}; regenerate the web project")
-    shutil.copy2(launcher, folder / "index.html")
 
 
 def main():
+    build_timestamp = str(time.time_ns() // 1_000_000)
     manifest = json.loads((HERE / "build-config.json").read_text(encoding="utf-8"))
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--configuration", default=manifest["default_configuration"])
@@ -204,6 +224,7 @@ def main():
         identity = hashlib.sha256(key.encode()).hexdigest()[:16]
         intermediate = HERE / "intermediate" / args.configuration / identity
         intermediate.mkdir(parents=True, exist_ok=True)
+        linked_product = product if target["static"] else intermediate / product.name
         flags = [*common, *target["flags"]]
         # clang++ otherwise treats .c files as C++, which rejects valid codec C.
         c_flags = [flag for flag in flags if not flag.startswith("-std=")
@@ -224,19 +245,19 @@ def main():
                        "-lsetjmp", "-lunwind", "-mexec-model=reactor",
                        "-Wl,--allow-undefined-file=" + allowlist.as_posix(),
                        "-Wl,-z,stack-size=4194304,--export=malloc,--export=free,--export=__wasm_call_ctors,--import-memory",
-                       f"-Wl,--initial-memory={INITIAL_BYTES},--max-memory={MAXIMUM_BYTES}", "-o", product]
+                       f"-Wl,--initial-memory={INITIAL_BYTES},--max-memory={MAXIMUM_BYTES}", "-o", linked_product]
             if args.configuration.casefold() == "release":
                 command.append("-Wl,--strip-all")
         stamp = intermediate / "link.json"
         signature = json.dumps([RSP_FORMAT_VERSION, [argument_text(arg) for arg in command]])
-        relink = args.rebuild or changed or not product.exists() or not stamp.exists()
+        relink = args.rebuild or changed or not linked_product.exists() or not stamp.exists()
         if not relink:
             relink = stamp.read_text(encoding="utf-8") != signature
         if not relink:
             inputs = [*objects, *[Path(lib) for lib in target["libraries"] if not lib.startswith("-l")]]
             if not target["static"]:
                 inputs.append(allowlist)
-            relink = any(path.stat().st_mtime_ns > product.stat().st_mtime_ns for path in inputs)
+            relink = any(path.stat().st_mtime_ns > linked_product.stat().st_mtime_ns for path in inputs)
         if relink:
             stamp.unlink(missing_ok=True)
             # Recreate archives to remove objects from deleted source files.
@@ -245,7 +266,7 @@ def main():
             run_llvm(command, target["cwd"], intermediate / "link.rsp")
             stamp.write_text(signature, encoding="utf-8")
         if not target["static"]:
-            package(target, reflex)
+            package(target, reflex, build_timestamp, linked_product)
         actions(target["post"])
         active.remove(key)
         completed.add(key)

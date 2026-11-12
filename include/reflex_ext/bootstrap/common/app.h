@@ -70,6 +70,8 @@ private:
 
 	void AttachSessionListener();
 
+	void StoreSessionPreferences();
+
 
 	WString m_filename;
 

@@ -77,6 +77,8 @@ bool Reflex::File::PersistentPropertySet::Open(const WString::View & path, Key32
 
 void Reflex::File::PersistentPropertySet::Save(const WString::View & path)
 {
+	m_signal.Notify(kNotificationStore, kNullKey);
+
 	Data::Archive archive;
 
 	format->Encode(archive, *this);

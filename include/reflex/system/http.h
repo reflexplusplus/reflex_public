@@ -6,10 +6,30 @@
 
 
 //
-//Primary API
+//Secondary API (use Async::HTTP)
 
 namespace Reflex::System
 {
+
+	enum HttpResponseCode : UInt32
+	{
+		kHttpResponseCodeOK = 200,
+		kHttpResponseCodeCreated = 201,
+		kHttpResponseCodeAccepted = 202,
+		kHttpResponseCodeNoContent = 204,
+		kHttpResponseCodePartialContent = 206,
+
+		kHttpResponseCodeMovedPermanently = 301,
+		kHttpResponseCodeFound = 302,
+
+		kHttpResponseCodeBadRequest = 400,
+		kHttpResponseCodeUnauthorized = 401,
+		kHttpResponseCodeForbidden = 403,
+		kHttpResponseCodeNotFound = 404,
+
+		kHttpResponseCodeInternalServerError = 500,
+		kHttpResponseCodeServiceUnavailable = 503
+	};
 
 	class HttpConnection;
 
@@ -30,8 +50,7 @@ public:
 	static HttpConnection & null;
 
 
-
-	//types
+	//defines
 
 	static const CString::View kHEAD;
 	static const CString::View kGET;
@@ -40,38 +59,31 @@ public:
 	static constexpr Float kDefaultConnectionTimeout = 4;
 	static constexpr Float kDefaultReadTimeout = 60;
 
-	using ReceiveHeaderFn = Function <void(const CString::View & key, const CString::View & value)>;
 
-	using ReceiveDataFn = Function <bool(const ArrayView <UInt8> & chunk)>;
+	//types
 
-	enum Response
+	struct Client : public Object
 	{
-		kResponseAborted = -1,
-		kResponseNoConnection = 0,
+		static Client & null;
 
-		kResponseOK = 200,
-		kResponseCreated = 201,
-		kResponseCodeAccepted = 202,
-		kResponseNoContent = 204,
-		kResponsePartialContent = 206,
+		virtual bool OnResponse(UInt code) = 0;
+		virtual void OnHeader(CString::View key, CString::View value) = 0;
+		virtual bool OnChunk(ArrayView <UInt8> chunk) = 0;
+	};
 
-		kResponseMovedPermanently = 301,
-		kResponseFound = 302,
-
-		kResponseBadRequest = 400,
-		kResponseUnauthorized = 401,
-		kResponseForbidden = 403,
-		kResponseNotFound = 404,
-
-		kResponseInternalServerError = 500,
-		kResponseServiceUnavailable = 503
+	enum Result
+	{
+		kResultCompleted,
+		kResultRejected,	//Client::OnResponse returned false 
+		kResultAborted,		//Client::OnChunk returned false 
+		kResultTransportError
 	};
 
 
 
 	//lifetime
 
-	[[nodiscard]] static Unretained <HttpConnection> Create(bool https, const CString::View & hostname, UInt16 = 0);
+	[[nodiscard]] static Unretained <HttpConnection> Create(bool https, CString::View hostname, UInt16 port = 0);
 
 
 
@@ -79,5 +91,5 @@ public:
 
 	virtual void SetTimeout(Float connect_timeout_seconds, Float read_timeout_seconds = kDefaultReadTimeout) = 0;
 
-	virtual Response Request(const CString::View & method, const CString::View & resource, const ArrayView < Pair <CString> > & headers, const ArrayView <UInt8> & body, const ReceiveHeaderFn & receive_header, const ReceiveDataFn & receive_data) = 0;
+	virtual Result Request(CString::View method, CString::View resource, ArrayView < Pair <CString> > headers, ArrayView <UInt8> body, WillRetain <Client> client) = 0;
 };

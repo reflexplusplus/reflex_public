@@ -26,7 +26,7 @@ export function createThreadManager(module, memory, onError = console.error, han
         let replied = false;
         const id = nextId++;
         try {
-            worker = new Worker(new URL("./thread-worker.js", import.meta.url), { type: "module" });
+            worker = new Worker(new URL("./thread-worker.js?r1-dev", import.meta.url), { type: "module" });
             workers.add(worker);
             worker.onmessage = event => {
                 if (handle(event) || handleService(event)) return;

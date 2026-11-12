@@ -30,7 +30,7 @@ namespace ReflexCLI::ProjectGen
 	constexpr CString::View kAndroidMainSourceSet = "main_source_set";
 	constexpr CString::View kAndroidSigningProperties = "signing_properties";
 	constexpr CString::View kOutputDirectory = "output_directory";
-	constexpr CString::View kWebEntryPage = "entry_page";
+	constexpr CString::View kWebLaunchFolder = "launch_folder";
 	constexpr CString::View kCppStandard = "cpp_standard";
 	constexpr CString::View kRtti = "rtti";
 	constexpr CString::View kDefines = "defines";

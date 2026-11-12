@@ -1,4 +1,4 @@
-import { createImports } from "./imports.js";
+import { createImports } from "./imports.js?r1-dev";
 
 let instance;
 let assertionMessage;

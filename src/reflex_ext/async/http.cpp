@@ -6,9 +6,86 @@
 //
 //declarations
 
-REFLEX_BEGIN_INTERNAL(Reflex::Async)
+REFLEX_BEGIN_INTERNAL(Reflex::Async::Detail)
 
 AtomicUInt32 g_num_http_requests = 0;
+
+struct HttpImpl : public System::HttpConnection::Client
+{
+	HttpImpl(Worker::Context & ctx, HttpRequestCallbacks & callbacks, UInt32 byte_rate)
+		: ctx(ctx)
+		, callbacks(callbacks)
+		, byte_rate(byte_rate)
+	{
+	}
+
+	bool OnResponse(UInt code) override
+	{
+		status_code = code;
+		return !ctx.Cancelled() && callbacks.OnResponse(code);
+	}
+
+	void OnHeader(CString::View key, CString::View value) override
+	{
+		if (CaseInsensitive::eq(key, "content-length"))
+		{
+			if (auto bytes = ToUInt32(value))
+			{
+				progress_per_byte = 1.0f / Float32(bytes);
+			}
+		}
+
+		callbacks.OnHeader(key, value);
+	}
+
+	bool OnChunk(Data::Archive::View chunk) override
+	{
+		if (ctx.Cancelled()) return false;
+
+		bytes_received += chunk.size;
+
+		if (byte_rate)
+		{
+			auto elapsed = System::GetElapsedTime() - start_time;
+			auto active = REFLEX_ATOMIC_READ(g_num_http_requests);
+
+			REFLEX_ASSERT(active);
+
+			auto max_byte_rate_per_thread = Float64(byte_rate) / active;
+			auto allowed = max_byte_rate_per_thread * elapsed;
+
+			if (bytes_received > allowed)
+			{
+				auto sleep_ms = Truncate((bytes_received - allowed) * 1000.0 / max_byte_rate_per_thread);
+
+				while (sleep_ms)
+				{
+					auto sleep_chunk = Min(sleep_ms, 25);
+
+					System::SuspendThread(sleep_chunk);
+
+					sleep_ms -= sleep_chunk;
+
+					if (ctx.Cancelled()) return false;
+				}
+			}
+		}
+
+		callbacks.OnChunk(chunk);
+
+		ctx.SetProgress(Min(Float32(bytes_received) * progress_per_byte, 1.0f));
+
+		return !ctx.Cancelled();
+	}
+
+	Worker::Context & ctx;
+	HttpRequestCallbacks & callbacks;
+	const UInt32 byte_rate;
+	const Float64 start_time = System::GetElapsedTime();
+	UInt status_code = 0;
+	Float32 progress_per_byte = 0;
+	UInt64 bytes_received = 0;
+};
 
 REFLEX_END_INTERNAL
 
@@ -34,19 +111,26 @@ void Reflex::Async::Detail::StandardHttpRequestCallbacks::OnChunk(const Data::Ar
 	m_body.Append(chunk);
 }
 
-Reflex::Unretained <Reflex::Object> Reflex::Async::Detail::StandardHttpRequestCallbacks::OnComplete()
+Reflex::Unretained <Reflex::Object> Reflex::Async::Detail::StandardHttpRequestCallbacks::OnComplete(System::HttpConnection::Result result)
 {
-	if (m_is_lz4 && m_body) m_body = Data::Decompress(Data::kLZ4, m_body);
-
-	if (m_is_json)
+	if (result == System::HttpConnection::kResultCompleted)
 	{
-		Data::PropertySet options;
-		Data::SetUInt32(options, "flags", m_decode_json_flags);
-		return New<Data::PropertySet>(Data::DecodePropertySet(Data::kJsonFormat, m_body, options));
+		if (m_is_lz4 && m_body) m_body = Data::Decompress(Data::kLZ4, m_body);
+
+		if (m_is_json)
+		{
+			Data::PropertySet options;
+			Data::SetUInt32(options, "flags", m_decode_json_flags);
+			return New<Data::PropertySet>(Data::DecodePropertySet(Data::kJsonFormat, m_body, options));
+		}
+		else
+		{
+			return New<Data::ArchiveObject>(m_body);
+		}
 	}
 	else
 	{
-		return New<Data::ArchiveObject>(m_body);
+		return {};
 	}
 }
 
@@ -54,137 +138,71 @@ Reflex::Async::Worker::Result Reflex::Async::Detail::Fetch(Worker::Context & ctx
 {
 	REFLEX_ATOMIC_INC(g_num_http_requests, 1);
 
+	using Http = System::HttpConnection;
+
 	auto url_parts = Data::SplitUrl(url);
 
-	auto connection = AutoRelease(callbacks.Connect(Data::IsHttps(url_parts.scheme), url_parts.domain, url_parts.port));
+	const bool simulate_response = network_simulation < kNetworkSimulation384k;
+	const UInt32 byte_rate = network_simulation == kNetworkSimulationNone || simulate_response ? 0 : network_simulation;
 
-	UInt retry = retry_count;
+	Retained <Http> connection = Http::null;
+	if (!simulate_response && !ctx.Cancelled()) connection = callbacks.Connect(Data::IsHttps(url_parts.scheme), url_parts.domain, url_parts.port);
 
-	Pair <Float32, UInt32> progress;
+	Worker::Result result;
 
-	auto receive_headers = [&callbacks, &progress](const CString::View & key, const CString::View & value)
+	for (UInt retries = retry_count; !ctx.Cancelled(); --retries)
 	{
-		if (CaseInsensitive::eq(key, "content-length"))
-		{
-			if (auto bytes = ToUInt32(value))
-			{
-				progress.a = 1.0f / Float32(bytes);
-			}
-		}
+		auto client = Make<HttpImpl>(ctx, callbacks, byte_rate);
+		auto outcome = Http::kResultTransportError;
 
-		callbacks.OnHeader(key, value);
-	};
-
-	REFLEX_MARKER(Try);
-
-	progress = {};
-
-	System::HttpConnection::ReceiveDataFn receive_data = [&callbacks, &ctx, &progress](const ArrayView <UInt8> & chunk) mutable
-	{
-		callbacks.OnChunk(chunk);
-
-		progress.b += chunk.size;
-
-		ctx.SetProgress(Min(Float32(progress.b) * progress.a, 1.0f));
-
-		return !ctx.Cancelled();
-	};
-
-	auto start_time = System::GetElapsedTime();
-
-	System::HttpConnection::Response code;
-
-	if (network_simulation != kNetworkSimulationNone)
-	{
-		if (network_simulation < kNetworkSimulation384k)
+		if (simulate_response)
 		{
 			System::SuspendThread(125);
 
-			code = System::HttpConnection::Response(network_simulation);
-
-			goto Complete;
+			if (network_simulation != kNetworkSimulationNoConnection)
+			{
+				outcome = client->OnResponse(UInt(network_simulation)) ? Http::kResultCompleted : Http::kResultRejected;
+			}
 		}
 		else
 		{
-			receive_data = [&ctx, receive_data, max_byte_rate = Float64(network_simulation), start_time, bytes_received = UInt32(0)](const ArrayView<UInt8> & chunk) mutable
-			{
-				if (max_byte_rate)
-				{
-					bytes_received += chunk.size;
-
-					auto elapsed = System::GetElapsedTime() - start_time;
-
-					auto active = REFLEX_ATOMIC_READ(g_num_http_requests);
-
-					REFLEX_ASSERT(active);
-
-					auto max_byte_rate_per_thread = (max_byte_rate / active);
-
-					auto allowed = max_byte_rate_per_thread * elapsed;
-
-					if (bytes_received > allowed)
-					{
-						auto sleep_ms = Truncate((bytes_received - allowed) * 1000.0 / max_byte_rate_per_thread);
-
-						while (sleep_ms)
-						{
-							auto sleep_chunk = Min(sleep_ms, 25);
-
-							System::SuspendThread(sleep_chunk);
-
-							sleep_ms -= sleep_chunk;
-
-							if (ctx.Cancelled()) return false;
-						}
-					}
-
-					return receive_data(chunk);
-				}
-				else
-				{
-					System::SuspendThread(250);
-
-					return false;
-				}
-			};
+			outcome = connection->Request(method, url_parts.resource, headers, body, client);
 		}
-	}
 
-	code = connection->Request(method, url_parts.resource, headers, body, receive_headers, receive_data);
-
-	Complete:
-
-	auto delta = SetDelta(start_time, System::GetElapsedTime());
-
-	auto log = [&output, &url_parts, delta](System::HttpConnection::Response code, LogType type)
-	{
-		output.LogEx(type, {}, '[', UInt(code), "] ", url_parts.resource, " (", delta * 1000.0f, "ms)");
-	};
-
-	Worker::Result rtn;
-
-	switch (code)
-	{
-	case System::HttpConnection::kResponseAborted:
-		File::output.LogEx(kLogError, {}, "[ABORTED] ", url_parts.resource);
-		break;
-
-	default:
-		if (callbacks.OnResponse(code))
+		if (outcome == Http::kResultAborted || ctx.Cancelled())
 		{
-			log(code, kLogNormal);
-			ctx.SetProgress(1.0f);
-			rtn = { true, callbacks.OnComplete() };
+			output.LogEx(kLogError, {}, "[ABORTED] ", url_parts.resource);
 			break;
 		}
+
+		auto elapsed_ms = (System::GetElapsedTime() - client->start_time) * 1000.0;
+		auto status_code = client->status_code;
+
+		bool retry = false;
+		auto log_type = kLogNormal;
+		bool completed = outcome == Http::kResultCompleted;
+
+		if (completed)
+		{
+			ctx.SetProgress(1.0f);
+		}
 		else
 		{
-			log(code, retry ? kLogWarning : kLogError);
-			if (retry--) goto Try;
+			// Once a response has been accepted, the callbacks may hold partial data.
+			retry = retries && (outcome == Http::kResultRejected || !status_code);
+			log_type = retry ? kLogWarning : kLogError;
+		}
+
+		output.LogEx(log_type, {}, '[', status_code, "] ", url_parts.resource, " (", elapsed_ms, "ms)");
+
+		if (!retry)
+		{
+			result = { completed, callbacks.OnComplete(outcome) };
+			break;
 		}
 	}
 
 	REFLEX_ATOMIC_DEC(g_num_http_requests, 1);
 
-	return rtn;
+	return result;
 }

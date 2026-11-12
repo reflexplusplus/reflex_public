@@ -1,42 +1,71 @@
 // Decisions about browser defaults stay in this main-thread handler. Reflex
 // receives input asynchronously on its application worker, as on Android.
-export function attachInput(canvas, worker) {
+import { attachTouchInput } from "./touch.js?r1-dev";
+
+export function attachInput(canvas, worker, touchOptions) {
     const removals = [];
     const pressedButtons = new Set();
     let pendingLeave;
+    let pointerEntered = false;
     canvas.tabIndex = 0;
     // Keep the application surface keyboard-focusable without browser focus chrome.
     canvas.style.outline = "none";
     canvas.style.touchAction = "none";
+    const touch = attachTouchInput(canvas, worker, touchOptions);
     const modifiers = event => (event.shiftKey ? 1 : 0) | (event.ctrlKey ? 2 : 0) | (event.altKey ? 4 : 0) | (event.metaKey ? 8 : 0);
     const send = (kind, a = 0, b = 0, event = {}) => worker.postMessage({ type: "input", kind, a, b, modifiers: modifiers(event), repeat: Boolean(event.repeat) });
     const listen = (target, name, fn, options) => { target.addEventListener(name, fn, options); removals.push(() => target.removeEventListener(name, fn, options)); };
+    const enter = event =>
+    {
+        if (pointerEntered) return;
+        pointerEntered = true;
+        send(1, 0, 0, event);
+    };
+    const leave = event =>
+    {
+        if (!pointerEntered) return;
+        pointerEntered = false;
+        send(2, 0, 0, event);
+    };
     const position = event => {
+        // The pointer may already be over the canvas when listeners are attached.
+        // Establish GLX's pointer window before forwarding any position.
+        enter(event);
         const rect = canvas.getBoundingClientRect();
         // CSS dimensions can compensate fractional DPR; input stays in Reflex units.
         send(3, (event.clientX - rect.left) * Number(canvas.dataset.logicalWidth || rect.width) / rect.width, (event.clientY - rect.top) * Number(canvas.dataset.logicalHeight || rect.height) / rect.height, event);
     };
-    listen(canvas, "pointerenter", event => { pendingLeave = undefined; send(1, 0, 0, event); });
+    listen(canvas, "pointerenter", event => { if (event.pointerType === "touch") return; pendingLeave = undefined; enter(event); });
     listen(canvas, "pointerleave", event => {
+        if (event.pointerType === "touch") return;
         // A resize can move the canvas out from under the pointer. Keep GLX's
         // captured pointer attached until mouse-up, including Firefox's leave
         // between pointer-up and the corresponding compatibility mouse-up.
         if (pressedButtons.size) pendingLeave = event;
-        else send(2, 0, 0, event);
+        else leave(event);
     });
-    listen(canvas, "pointermove", position);
+    listen(canvas, "pointermove", event => { if (event.pointerType !== "touch") position(event); });
     // Retain movement events when a drag crosses the canvas boundary.
-    listen(canvas, "pointerdown", event => canvas.setPointerCapture(event.pointerId));
-    listen(canvas, "mousedown", event => { event.preventDefault(); canvas.focus(); position(event); pressedButtons.add(event.button); send(4, event.button === 2 ? 1 : 0, event.detail === 2 ? 1 : 0, event); });
+    listen(canvas, "pointerdown", event => { if (event.pointerType !== "touch") canvas.setPointerCapture(event.pointerId); });
+    listen(canvas, "mousedown", event => { if (event.sourceCapabilities?.firesTouchEvents) return; event.preventDefault(); canvas.focus(); position(event); pressedButtons.add(event.button); send(4, event.button === 2 ? 1 : 0, event.detail === 2 ? 1 : 0, event); });
     listen(window, "mouseup", event => {
         if (pressedButtons.delete(event.button)) send(5, event.button === 2 ? 1 : 0, 0, event);
         if (!pressedButtons.size && pendingLeave) {
-            send(2, 0, 0, pendingLeave);
+            leave(pendingLeave);
             pendingLeave = undefined;
         }
     });
     listen(canvas, "contextmenu", event => event.preventDefault());
-    listen(canvas, "wheel", event => { event.preventDefault(); position(event); send(6, -event.deltaX / 100, -event.deltaY / 100, event); }, { passive: false });
+    listen(canvas, "wheel", event =>
+    {
+        event.preventDefault();
+        position(event);
+        // GLX consumes scroll distances, not wheel ticks. Native backends use 32 units per line.
+        const mode = event.deltaMode;
+        const scaleX = mode === WheelEvent.DOM_DELTA_PAGE ? Number(canvas.dataset.logicalWidth || canvas.clientWidth) : mode === WheelEvent.DOM_DELTA_LINE ? 32 : 1;
+        const scaleY = mode === WheelEvent.DOM_DELTA_PAGE ? Number(canvas.dataset.logicalHeight || canvas.clientHeight) : mode === WheelEvent.DOM_DELTA_LINE ? 32 : 1;
+        send(6, -event.deltaX * scaleX * 0.5, -event.deltaY * scaleY * 0.5, event);
+    }, { passive: false });
     listen(canvas, "focus", event => send(7, 0, 0, event));
     listen(canvas, "blur", event => send(8, 0, 0, event));
     const keys = { Tab:13, Enter:14, Escape:15, Space:16, Backspace:17, Insert:18, Delete:19, Home:20, End:21,
@@ -52,5 +81,12 @@ export function attachInput(canvas, worker) {
         if (Array.from(event.key).length === 1 && !event.ctrlKey && !event.metaKey) send(11, event.key.codePointAt(0), 0, event);
     });
     listen(canvas, "keyup", event => { event.preventDefault(); send(10, keys[event.code] || 0, 0, event); });
-    return () => removals.forEach(remove => remove());
+    return {
+        setTouchMode: touch.setTouchMode,
+        detach: () =>
+        {
+            touch.detach();
+            for (const remove of removals) remove();
+        },
+    };
 }

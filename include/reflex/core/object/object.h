@@ -184,7 +184,7 @@ private:
 
 	static void operator delete[](void * ptr);
 
-	virtual void OnQueryProperty(Address address, Object * & pointer_out) final {}	//legacy
+	virtual void OnQueryProperty(Address address, Object * & pointer_out) final {}	//prevent accidental use of non-const signature
 
 
 	Allocator * m_allocator;

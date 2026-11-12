@@ -27,6 +27,13 @@ class Handler(SimpleHTTPRequestHandler):
     extensions_map = {**SimpleHTTPRequestHandler.extensions_map, ".wasm": "application/wasm", ".js": "text/javascript"}
 
     def end_headers(self):
+        path = Path(self.translate_path(self.path))
+        if path.name.endswith(".wasm") and path.is_file():
+            self.send_header("Content-Encoding", "gzip")
+            # Gzip's trailer stores the original size modulo 2**32; Wasm32 fits.
+            with path.open("rb") as stream:
+                stream.seek(-4, os.SEEK_END)
+                self.send_header("X-Uncompressed-Content-Length", str(int.from_bytes(stream.read(4), "little")))
         self.send_header("Cross-Origin-Opener-Policy", "same-origin")
         self.send_header("Cross-Origin-Embedder-Policy", "require-corp")
         self.send_header("Cache-Control", "no-store")

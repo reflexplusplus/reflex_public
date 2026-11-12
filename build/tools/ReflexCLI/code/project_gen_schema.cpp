@@ -723,7 +723,7 @@ struct FormatHolder
 			break;
 
 		case kBuildPlatformWeb:
-			AddKnown<Data::CStringProperty>(rules, kWebEntryPage);
+			AddKnown<Data::CStringProperty>(rules, kWebLaunchFolder);
 			break;
 
 		case kBuildPlatformLinux:
