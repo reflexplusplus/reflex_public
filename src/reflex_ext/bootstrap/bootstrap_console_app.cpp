@@ -215,7 +215,7 @@ void Reflex::Bootstrap::CLI::Await(System::FileHandle & out, CString::View title
 	{
 		bool IsWriteable() const override { return true; }
 		UInt64 GetSize() const override { return archive.GetSize(); }
-		void SetPosition(UInt64 position) override {}
+		bool SetPosition(UInt64) override { return false; }
 		UInt64 GetPosition() const override { return archive.GetSize(); }
 		UInt32 Read(void * ptr, UInt32 max_size) override { return 0; }
 		UInt32 Write(const void * ptr, UInt size) override { archive.Append({ Cast<UInt8>(ptr), size }); return size; }

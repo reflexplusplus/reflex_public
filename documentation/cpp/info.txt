@@ -9059,7 +9059,7 @@ See also Bootstrap::Detail::SetStyle.
 
 <list>
 #p Read and Write perform raw byte I/O.
-#p SetPosition and GetPosition control the file cursor.
+#p SetPosition moves the file cursor and returns true if it reaches the requested position. GetPosition reports the current position.
 #p GetSize returns the current file size.
 #p Truncate shrinks the file at the current position.
 #p Flush flushes buffered writes, with 'commit' requesting a stronger store-to-disk style flush when supported.

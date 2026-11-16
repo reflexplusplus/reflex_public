@@ -37,13 +37,12 @@ struct FileRegion : public System::FileHandle
 
 	UInt64 GetSize() const override { return m_size; }
 
-	void SetPosition(UInt64 position) override
+	bool SetPosition(UInt64 position) override
 	{
-		REFLEX_ASSERT(position <= m_size);
+		if (position > m_size || !m_file->SetPosition(m_offset + position)) return false;
 
 		m_position = UInt32(position);
-
-		return m_file->SetPosition(m_offset + position);
+		return true;
 	}
 
 	UInt64 GetPosition() const override

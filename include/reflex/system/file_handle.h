@@ -70,7 +70,7 @@ public:
 	virtual UInt64 GetSize() const = 0;
 
 
-	virtual void SetPosition(UInt64 position) = 0;
+	virtual bool SetPosition(UInt64 position) = 0;
 
 	virtual UInt64 GetPosition() const = 0;
 

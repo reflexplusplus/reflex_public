@@ -12071,7 +12071,7 @@
 		{
 			Return:
 			{
-				@UInt64 TypeID: 8980083472638940421;
+				@UInt64 TypeID: 8976997392607876357;
 			};
 
 			Arguments:

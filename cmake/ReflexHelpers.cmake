@@ -722,6 +722,7 @@ function(_reflex_resolve_target_lib alias basename out)
                     _reflex_init_target(${_srctgt})
                 endif()
                 if(REFLEX_PLATFORM_LINUX)
+                    target_compile_definitions(${_srctgt} PRIVATE _FILE_OFFSET_BITS=64)
                     set_target_properties(${_srctgt} PROPERTIES
                         POSITION_INDEPENDENT_CODE ON)
                     if(REFLEX_LINUX_BACKEND STREQUAL "wayland")

@@ -29,7 +29,7 @@ struct MemoryReader : public MemoryFile
 
 	UInt64 GetSize() const override;
 
-	void SetPosition(UInt64 position) override;
+	bool SetPosition(UInt64 position) override;
 
 	UInt64 GetPosition() const override;
 
@@ -51,7 +51,7 @@ struct MemoryWriter : public MemoryFile
 
 	UInt64 GetSize() const override;
 
-	void SetPosition(UInt64 position) override;
+	bool SetPosition(UInt64 position) override;
 
 	UInt64 GetPosition() const override;
 

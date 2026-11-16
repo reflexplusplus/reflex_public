@@ -53,8 +53,8 @@ WString SetUnixPathImpl(WString::View reflex_path, WString::View platform, Array
 		return false;
 	};
 
-	auto home = File::CorrectTrailingStroke(System::GetEnvironmentVariable(L"HOME"));
-	auto shell = System::GetEnvironmentVariable(L"SHELL");
+	auto home = File::CorrectTrailingStroke(Data::DecodeUTF8(System::GetEnvironmentVariable("HOME")));
+	auto shell = Data::DecodeUTF8(System::GetEnvironmentVariable("SHELL"));
 
 	if (!home) CLI::ThrowError("HOME environment variable is not set");
 
@@ -768,12 +768,15 @@ void DownloadFile(CString::View label, CString::View url, WString::View output_p
 	});
 }
 
-CString ReadInstalledVersion()
+WString GetInstalledVersionPath(const WString & root)
 {
-	auto version_path = Join(GetReflexPath(), L"bin/lib/", ToWString(GetPlatform()), L"/version.txt");
+	return Join(root, L"bin/lib/", ToWString(GetPlatform()), L"/version.txt");
+}
 
+CString ReadVersionFile(const WString & version_path)
+{
+	if (!System::Exists(version_path)) return {};
 	auto utf8 = File::Open(version_path);
-	
 	return Trim(Data::Unpack<CString::View>(utf8));
 }
 
@@ -781,7 +784,7 @@ REFLEX_END_INTERNAL
 
 void ReflexCLI::ListVersions(System::FileHandle & std_out)
 {
-	auto installed_version = ReadInstalledVersion();
+	auto installed_version = ReadVersionFile(GetInstalledVersionPath(GetReflexPath()));
 
 	Array <ReleaseVersion> releases = GetReleases(std_out, 50);
 	
@@ -802,13 +805,20 @@ void ReflexCLI::ListVersions(System::FileHandle & std_out)
 
 void ReflexCLI::GetVersion(System::FileHandle & std_out)
 {
-	if (auto version = ReadInstalledVersion())
+	auto root = GetReflexPath();
+	if (!root) CLI::ThrowError("cannot determine SDK directory");
+
+	auto installed_version = ReadVersionFile(GetInstalledVersionPath(root));
+	auto source_version = ReadVersionFile(Join(root, L"version.txt"));
+
+	if (installed_version)
 	{
-		File::WriteLine(std_out, version);
+		Require(installed_version == source_version, "SDK version mismatch", Join("repository: ", source_version, ", binaries: ", installed_version));
+		File::WriteLine(std_out, installed_version);
 	}
 	else
 	{
-		CLI::ThrowError("version info not found");
+		File::WriteLine(std_out, source_version);
 	}
 }
 

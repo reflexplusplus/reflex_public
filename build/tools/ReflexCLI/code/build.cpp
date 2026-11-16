@@ -122,7 +122,7 @@ void BuildWithGradle(const Project & project, WString::View directory, CString::
 
 WString FindMsBuild()
 {
-	auto program_files = File::CorrectStrokes(System::GetEnvironmentVariable(L"ProgramFiles(x86)"));
+	auto program_files = File::CorrectStrokes(Data::DecodeUTF8(System::GetEnvironmentVariable("ProgramFiles(x86)")));
 	Require(True(program_files), "build failed", "ProgramFiles(x86) is not set");
 	File::Detail::CorrectTrailingStroke(program_files);
 	auto vswhere = Join(program_files, L"Microsoft Visual Studio/Installer/vswhere.exe");

@@ -1,5 +1,25 @@
 # Breaking Changes
 
+## v0.10.0
+
+### `System::GetEnvironmentVariable` returns bytes
+
+The experimental API now takes a `CString` name and returns an `Array<UInt8>` without a terminating NUL. POSIX returns the bytes from the environment as-is. Windows takes a UTF-8 name and returns a UTF-8 value. The result is empty when the variable is unset or empty, and on Web.
+
+Pass a narrow string for the name. If you expect UTF-8 and need a `WString`, decode the result explicitly.
+
+```cpp
+auto home = Data::DecodeUTF8(System::GetEnvironmentVariable("HOME"));
+```
+
+### `System::FileHandle::SetPosition` returns seek success
+
+Custom `FileHandle` implementations must change their override to `bool SetPosition(UInt64 position)` and return `true` if the requested position was reached. Existing call sites can still ignore the result. Check it before reading or writing at an offset that must be reached, and rebuild code that implements or uses `FileHandle` against the updated SDK.
+
+### SDK release automation
+
+Update local export commands from `scripts/export_sdk.py` to `scripts/export_reflex_sdk.py`. The legacy tag-triggered library and tool release workflow has been removed. Follow the [release protocol](documentation/release_protocol_v2.md) to build, verify, and publish SDK binaries through Release Public SDK.
+
 ## v0.9.0
 
 ### Web launcher configuration uses `launch_folder`
@@ -18,7 +38,7 @@ Update `Async::Detail::HttpRequestCallbacks` overrides to `OnResponse(UInt statu
 
 ### SDK export automation uses the flat export rules
 
-Replace calls to `scripts/export_repo.py` and the removed `export-repos.yml` workflow with `scripts/export_sdk.py` and the [Public SDK release workflow](documentation/public_release.md). Move any per-directory `export.json` rules into root `export_rules.json`. If your automation expected `reflex-dist-*` from the private tag-triggered workflow, switch to the public release's separate source, library, and tool packages.
+Replace calls to `scripts/export_repo.py` and the removed `export-repos.yml` workflow with `scripts/export_reflex_sdk.py` and the [Public SDK release workflow](documentation/public_release.md). Move any per-directory `export.json` rules into root `export_rules.json`. If your automation expected `reflex-dist-*` from the private tag-triggered workflow, switch to the public release's separate source, library, and tool packages.
 
 ## v0.7.0
 

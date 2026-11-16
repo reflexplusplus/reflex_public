@@ -742,7 +742,7 @@ const CLI::TaskDef kCommands[] =
 
 			File::WriteLine(std_out);
 			PrintCommandWithDescription(std_out, "install", "install or update the SDK");
-			PrintCommandWithDescription(std_out, "version", "show the installed SDK version");
+			PrintCommandWithDescription(std_out, "version", "show the installed SDK or repository version");
 			PrintCommandWithDescription(std_out, "versions", "list available SDK versions");
 			PrintCommandWithDescription(std_out, "where", "show the install location");
 			PrintCommandWithDescription(std_out, "set-path", "select the SDK installation used by new terminal sessions");

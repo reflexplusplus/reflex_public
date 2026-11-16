@@ -1,7 +1,6 @@
 # Public SDK releases
 
-Public releases are built from `reflexplusplus/reflex`. They do not check out
-or require `reflex_master`. The legacy master workflows remain available.
+Public releases are built from the licensed export in `reflexplusplus/reflex`.
 
 ## Run a release
 
@@ -104,9 +103,10 @@ Verification extracts the packaged SDK and uses its packaged host CLI to
 generate/build the public C++ templates for each supported target platform. On
 Windows, macOS, and Linux it also generates and builds each exported example
 with a `project.cfg` in Debug using the packaged CLI and libraries.
-Each verification job downloads only its required archives and the common
-candidate manifest. All six platforms receive the verified public source,
-their target libraries and the appropriate host CLI.
+Each verification job downloads the shared source archive and candidate
+manifest, then reuses the original build artifacts for its target libraries
+and host CLI. iOS uses the macOS CLI; Android and Web use the Linux CLI.
+Assembly does not upload separate bundles for each verification job.
 Each job checks the downloaded archives against the original manifest.
 It does not rebuild the CLI or use the checkout's development CLI. Native desktop
 and iOS jobs also run the existing CMake distribution-consumer checks. No
@@ -127,7 +127,7 @@ publishing.
 `reflex install` and CMake consume these same modular packages. The website
 uses `reflex-source.zip` as the release's core content and labels the library,
 CLI and documentation assets by platform. Its tag-archive fallback remains
-available for older releases and the legacy workflow. After deploying website
+available for older releases. After deploying website
 changes, pull an existing release again to refresh its cached asset mapping.
 
 The CMake `reflex_fetch_dist` helper retains its entry point but fetches
@@ -189,10 +189,7 @@ fails, the workflow fails while the GitHub release remains published.
   `reflexplusplus/reflex_public`. The workflow's own token creates the source
   tag and notes-only release in `reflex` and needs Contents write permission there.
 
-The licensed export includes scripts, tests, `export_rules.json` and `.github`,
-excluding `build-release.yml`, which remains in the private repository for
-tag-triggered library/tool builds and releases. The old repository export
-workflow has been removed.
+The licensed export includes scripts, tests, `export_rules.json` and `.github`.
 The public export removes the release infrastructure and rule file. Check Runners
 checks use local builds and do not require distribution-signing secrets.
 

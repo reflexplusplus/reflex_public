@@ -25,6 +25,8 @@ namespace Reflex::System
 
 	Float64 GetElapsedTime();	//high accuracy performance-timer
 
+	Array <UInt8> GetEnvironmentVariable(const CString & var);
+
 
 
 	//cryptography
@@ -67,9 +69,6 @@ namespace Reflex::System
 	WString GetPath(Path path);
 
 	WString GetExecutablePath();
-
-	WString GetEnvironmentVariable(const WString & variable);
-
 
 	WString GetCurrentDirectory();
 

@@ -31,8 +31,8 @@ The exporter mirrors the source working tree and removes files that are absent
 from the export. Run it from a clean `reflex_master` checkout at the tested SHA:
 
 ```shell
-python scripts/export_sdk.py --dest D:/devt/public/reflex --identity reflexplusplus/reflex --dry-run
-python scripts/export_sdk.py --dest D:/devt/public/reflex --identity reflexplusplus/reflex
+python scripts/export_reflex_sdk.py --dest D:/devt/public/reflex --identity reflexplusplus/reflex --dry-run
+python scripts/export_reflex_sdk.py --dest D:/devt/public/reflex --identity reflexplusplus/reflex
 ```
 
 In the licensed checkout, review the diff and confirm that root `version.txt`,
@@ -52,6 +52,8 @@ binaries, verifies the candidate, and publishes the verified source and assets t
 `reflex_public`. CI creates the downstream tags. There is no manual public export
 or tag push in this protocol.
 
-The packaged libraries carry a per-platform copy of the release version for
-`reflex version`. See [Public SDK releases](public_release.md) for runner setup,
-packaging, and publication details.
+The packaged libraries carry a per-platform copy of the release version.
+`reflex version` falls back to the root `version.txt` if the binary marker is
+missing and reports an error if both markers are present and disagree.
+See [Public SDK releases](public_release.md) for runner setup, packaging, and
+publication details.
