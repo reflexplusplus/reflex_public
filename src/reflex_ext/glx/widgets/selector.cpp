@@ -109,7 +109,7 @@ void Reflex::GLX::Selector::OnSetStyle(const Style & style)
 {
 	GLX::Object::OnSetStyle(style);
 
-	m_set_content = Detail::kSetContentSwitch[Detail::GetBool(style, kanimate)];
+	m_set_content = (Detail::GetBool(style, kanimate) && Detail::g_render_to_texture) ? Detail::g_set_content_impl : &Detail::SetContentNotAnimated;
 
 	for (auto & i : m_content)
 	{

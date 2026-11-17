@@ -38,15 +38,15 @@ namespace Reflex::GLX::Detail
 
 REFLEX_NS(Reflex::GLX::Detail)
 
-void SetContentAnimated(Object & parent, Object & content, bool yaxis, bool far);
-
 void SetContentNotAnimated(Object & parent, Object & content, bool yaxis, bool far);
 
-constexpr decltype(&SetContentAnimated) kSetContentSwitch[] = { &SetContentNotAnimated, &SetContentAnimated };
+void SetContentAnimated(Object & parent, Object & content, bool yaxis, bool far);
+
+extern decltype(&SetContentNotAnimated) g_set_content_impl;
 
 REFLEX_END
 
-inline void Reflex::GLX::Detail::SetContent(Object & parent, Object & content, bool yaxis, bool far)
+REFLEX_INLINE void Reflex::GLX::Detail::SetContent(Object & parent, Object & content, bool yaxis, bool far)
 {
-	kSetContentSwitch[kCanRenderToTexture](parent, content, yaxis, far);
+	g_set_content_impl(parent, content, yaxis, far);
 }

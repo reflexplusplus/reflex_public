@@ -32,8 +32,12 @@ public:
 	
 	[[nodiscard]] static Unretained <SplitBehaviour> Create();
 
-	void EnableSplit(GLX::Object & item) { Data::SetBool(item, kresizable, true); }
 
+	virtual void EnableBounds(bool constrain) = 0;
+
+
+	void EnableSplit(GLX::Object & item) { Data::SetBool(item, kresizable, true); }
+	
 	virtual void ClearSplitSize(GLX::Object & item) = 0;
 
 	virtual void SetSplitSize(GLX::Object & item, Float size) = 0;

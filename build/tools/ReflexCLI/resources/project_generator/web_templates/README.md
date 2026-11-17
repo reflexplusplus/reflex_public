@@ -148,9 +148,15 @@ cache rule requires `mod_headers` and `AllowOverride FileInfo` (or an equivalent
 cache configuration. The local Python server continues to send `no-store` for
 all files and does not read `.htaccess`.
 
-Serve `.wasm` as `application/wasm`. The launcher uses relative URLs. Linker and
-launcher memory settings are kept at the prototype's 32 MiB initial / 512 MiB
-maximum shared memory, with a 4 MiB application stack.
+Serve `.wasm` as `application/wasm`. The launcher uses relative URLs. Set
+`initialBytes` and `maximumBytes` in the launcher's `startReflex` call to
+control the startup size and growth limit of shared memory. The supplied
+launchers use 32 MiB and 512 MiB. The linker computes the minimum from the
+app's static memory layout, including its 4 MiB stack. Startup fails if
+`initialBytes` is below that minimum. The linked Wasm allows an imported
+maximum up to the 4 GiB wasm32 ceiling, subject to browser limits. Both
+launcher values must be multiples of 64 KiB, and the maximum must be at least
+the initial size.
 
 The emitter currently supports `app` and `static_library`, with `architectures:
 native` selecting wasm32. Native console and plugin targets are disabled for

@@ -28,13 +28,13 @@ namespace Reflex::GLX::Detail
 	constexpr System::fRect kNormalRect = { { 0.0f, 0.0f }, { 1.0f, 1.0f } };
 
 
-	extern const bool & kCanRenderToTexture;
-
 	extern const Float32 & kPixelSize;
 
 
 	extern Data::Detail::PropertySheetInterface & iresource;
 
 	extern Data::Detail::PropertySheetInterface & istylesheet;
+
+	extern const bool & g_render_to_texture;
 
 }

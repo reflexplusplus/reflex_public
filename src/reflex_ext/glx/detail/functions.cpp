@@ -10,7 +10,7 @@ REFLEX_BEGIN_INTERNAL(Reflex::GLX::Detail)
 
 REFLEX_DECLARE_KEY32(Hide);
 
-UInt32 g_setcontent_id = 0;
+UInt32 g_set_content_counter = 0;
 
 struct MouseTracker : public Object::Delegate
 {
@@ -183,7 +183,7 @@ template <class AXIS> void Exchange(Object & self, Object & current, Object & ne
 		in->Detach();
 	}));
 
-	self.SetProperty(++g_setcontent_id & 3, playlist);
+	self.SetProperty(++g_set_content_counter & 3, playlist);
 
 	playlist->Play();
 }
@@ -288,15 +288,26 @@ void Reflex::GLX::Detail::Hide(Object & object)
 	SetBounds(object, kHide, {}, {});
 }
 
+void Reflex::GLX::Detail::SetContentNotAnimated(Object & parent, Object & content, bool yaxis, bool far)
+{
+	parent.Clear();
+
+	AddStretch(parent, content);
+
+	parent.SetProperty(K32("Exchange"), REFLEX_CREATE(StrongRefObject, content));
+}
+
 void Reflex::GLX::Detail::SetContentAnimated(Object & parent, Object & content, bool yaxis, bool far)
 {
+	REFLEX_ASSERT(g_render_to_texture);
+
 	if (auto pref = parent.QueryProperty<StrongRefObject>(K32("Exchange")))
 	{
 		auto current = pref->ref.Adr();
 
 		if (current != &content)
 		{
-			auto t = AutoRelease(current);	//can die inside Exchange because it re-sets StrongRefObject
+			auto retain = AutoRelease(current);	//can die inside Exchange because it re-sets StrongRefObject
 
 			if (yaxis)
 			{
@@ -316,13 +327,4 @@ void Reflex::GLX::Detail::SetContentAnimated(Object & parent, Object & content, 
 
 		parent.SetProperty(K32("Exchange"), REFLEX_CREATE(StrongRefObject, content));
 	}
-}
-
-void Reflex::GLX::Detail::SetContentNotAnimated(Object & parent, Object & content, bool yaxis, bool far)
-{
-	parent.Clear();
-
-	AddStretch(parent, content);
-
-	parent.SetProperty(K32("Exchange"), REFLEX_CREATE(StrongRefObject, content));
 }

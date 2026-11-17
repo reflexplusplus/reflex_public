@@ -34,6 +34,24 @@ export function createGLImports(memory, canvas, exports) {
         api["glDelete" + plural] = (n, p) => { for (const id of ints(p, n).slice()) { gl["delete" + singular](object(id)); objects[id] = null; } };
         api["glBind" + singular] = (target, id) => gl["bind" + singular](target, object(id));
     }
+    const vertexArrays = new Map();
+    let nextVertexArray = 1;
+    api.glGenVertexArrays = (n, p) => {
+        const handles = ints(p, n);
+        for (let i = 0; i < n; ++i) {
+            const vertexArray = gl.createVertexArray();
+            const id = vertexArray ? nextVertexArray++ : 0;
+            if (id) vertexArrays.set(id, vertexArray);
+            handles[i] = id;
+        }
+    };
+    api.glDeleteVertexArrays = (n, p) => {
+        for (const id of ints(p, n)) {
+            gl.deleteVertexArray(vertexArrays.get(id) ?? null);
+            vertexArrays.delete(id);
+        }
+    };
+    api.glBindVertexArray = id => gl.bindVertexArray(vertexArrays.get(id) ?? null);
     api.glCreateProgram = () => add(gl.createProgram());
     api.glCreateShader = type => add(gl.createShader(type));
     for (const name of ["deleteProgram", "deleteShader", "compileShader", "linkProgram", "useProgram"])

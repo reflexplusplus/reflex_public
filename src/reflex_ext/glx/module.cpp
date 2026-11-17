@@ -1,6 +1,7 @@
+#include "module.h"
+#include "../../../include/reflex_ext/glx/detail/functions.h"
 #include "../../../include/reflex_ext/glx/animation/functions.h"
 #include "widgets/menu.h"
-
 
 
 
@@ -11,8 +12,6 @@ extern FunctionPointer <Unretained <Animation>(const Function <void(Object &, Fl
 REFLEX_END
 
 REFLEX_BEGIN_INTERNAL(Reflex::GLX)
-
-Reflex::Detail::Module g_glx_ext_module("GLX ext", Reflex::GLX::module);
 
 struct Globals
 {
@@ -25,6 +24,8 @@ struct Globals
 		{
 			return CreateInterpolatedAnimation(callback);
 		};
+
+		Detail::g_set_content_impl = Detail::g_render_to_texture ? &Detail::SetContentAnimated : &Detail::SetContentNotAnimated;
 
 		RegisterKey("MenuOpen");
 		RegisterKey("MenuSelect");	//item: Object;
@@ -47,4 +48,8 @@ Reflex::Detail::Module::Member <Globals> g_glx_ext_globals(g_glx_ext_module);
 
 REFLEX_END_INTERNAL
 
+Reflex::Detail::Module Reflex::GLX::g_glx_ext_module("GLX ext", Reflex::GLX::module);
+
 Reflex::GLX::Menu & Reflex::GLX::Menu::null = g_glx_ext_globals->null_menu;
+
+decltype(&Reflex::GLX::Detail::SetContentNotAnimated) Reflex::GLX::Detail::g_set_content_impl = nullptr;

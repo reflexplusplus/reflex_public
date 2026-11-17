@@ -13,8 +13,8 @@ import sys
 import time
 
 HERE = Path(__file__).resolve().parent
-INITIAL_BYTES = 32 * 1024 * 1024
-MAXIMUM_BYTES = 512 * 1024 * 1024
+# The launcher sets the actual maximum of the imported shared memory.
+WASM32_MEMORY_CEILING_BYTES = 1 << 32
 RSP_FORMAT_VERSION = 3
 
 
@@ -245,7 +245,7 @@ def main():
                        "-lsetjmp", "-lunwind", "-mexec-model=reactor",
                        "-Wl,--allow-undefined-file=" + allowlist.as_posix(),
                        "-Wl,-z,stack-size=4194304,--export=malloc,--export=free,--export=__wasm_call_ctors,--import-memory",
-                       f"-Wl,--initial-memory={INITIAL_BYTES},--max-memory={MAXIMUM_BYTES}", "-o", linked_product]
+                       f"-Wl,--max-memory={WASM32_MEMORY_CEILING_BYTES}", "-o", linked_product]
             if args.configuration.casefold() == "release":
                 command.append("-Wl,--strip-all")
         stamp = intermediate / "link.json"

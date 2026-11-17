@@ -23,6 +23,8 @@ SplitState g_split_state;
 
 struct SplitBehaviourImpl : public SplitBehaviour
 {
+	void EnableBounds(bool constrain) override { m_constrain_to_parent = constrain; }
+
 	void ClearSplitSize(GLX::Object & item) override;
 
 	void SetSplitSize(GLX::Object & item, Float size) override;
@@ -32,6 +34,9 @@ struct SplitBehaviourImpl : public SplitBehaviour
 	bool OnPointerTender(Core::PointerAction action, const Core::Pointer & pointer, UInt8 flags, Core::Trap & trap) override;
 
 	bool OnEvent(GLX::Object & src, Event & e) override;
+
+
+	bool m_constrain_to_parent = true;
 };
 
 bool IsLastInline(const Object & object)
@@ -194,7 +199,7 @@ bool SplitBehaviourImpl::OnEvent(GLX::Object & src, Event & e)
 
 			g_split_state.init_size = Detail::GetSize(y, target->GetRect().size);
 
-			g_split_state.max = Detail::GetSize(y, object->GetRect().size) - (g_split_state.content_size - Detail::GetSize(y, target->contentsize));
+			g_split_state.max = m_constrain_to_parent ? Detail::GetSize(y, object->GetRect().size) - (g_split_state.content_size - Detail::GetSize(y, target->contentsize)) : kLarge.w;
 
 			g_split_state.scale = 1.0f / GetObject()->GetComputedStyle()->GetScale();
 
