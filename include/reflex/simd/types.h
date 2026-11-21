@@ -14,10 +14,10 @@ using Float32x4 = System::Float32x4;
 
 using Int32x4 = System::Int32x4;
 
-enum Boolean : UInt32
+enum Boolean : Int32
 {
-	kBooleanTrue = kMaxUInt32,
-	kBooleanFalse = 0,
+	kBooleanTrue = -1,
+	kBooleanFalse = 0
 };
 
 template <class TYPE, UInt N> struct PlatformVectorType;
@@ -25,6 +25,7 @@ template <class TYPE, UInt N> struct PlatformVectorType;
 template <> struct PlatformVectorType <Float32,4>
 {
 	using Type = Float32x4;
+	using SingleType = Float32;
 
 	REFLEX_INLINE static Type Zero() { return REFLEX_ZERO_F32_X4(); }
 
@@ -42,6 +43,7 @@ template <> struct PlatformVectorType <Float32,4>
 template <> struct PlatformVectorType <Int32,4>
 {
 	using Type = Int32x4;
+	using SingleType = Int32;
 
 	REFLEX_INLINE static Type Zero() { return REFLEX_ZERO_I32_X4(); }
 
@@ -58,10 +60,6 @@ template <> struct PlatformVectorType <Int32,4>
 
 template <> struct PlatformVectorType <Boolean,4> : public PlatformVectorType <Int32,4>
 {
-	REFLEX_INLINE static Type Set1(Boolean v) { return REFLEX_SET1_I32_X4(v); }
-	REFLEX_INLINE static Type Set(Boolean a, Boolean b, Boolean c, Boolean d) { return REFLEX_SET_I32_X4(a, b, c, d); }
-
-	REFLEX_INLINE static void StoreUnaligned(Boolean * dest, const Type & v4) { REFLEX_STOREUNALIGNED_I32_X4(Reinterpret<Int32>(dest), v4); }
 };
 
 REFLEX_END

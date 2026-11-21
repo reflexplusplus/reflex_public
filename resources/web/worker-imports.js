@@ -1,6 +1,75 @@
+// Explicit imports for the Clang backend. No generated runtime helpers.
+export function createImports(memory, ioPort, systemID, onAssertion, timeOrigin) {
+    // Normalize each worker's local clock to the shared process origin.
+    const timeOffset = performance.timeOrigin - timeOrigin;
+    const decoder = new TextDecoder("utf-8");
+    const text = (pointer, length) => {
+        // Create the view at access time, so shared-memory growth is observed.
+        return decoder.decode(new Uint8Array(memory.buffer, pointer >>> 0, length >>> 0).slice());
+    };
+    return {
+        env: { memory },
+        wasi: createThreadImports(),
+        reflex_io: createIOImports(memory, ioPort),
+        reflex_secret: {
+            requestOnStack: (operation, handle, pointer, reply) => {
+                const address = reply >>> 0;
+                const state = new Int32Array(memory.buffer, address, 1);
+                self.postMessage({ type: "secret-request", operation, handle: handle >>> 0, pointer: pointer >>> 0, reply: address });
+                while (Atomics.load(state, 0) === 0) Atomics.wait(state, 0, 0);
+            },
+        },
+        wasi_snapshot_preview1: createLibcImports(memory, undefined, timeOrigin),
+        reflex_host: {
+            openURL: (pointer, length) =>
+            {
+                const result = new Int32Array(new SharedArrayBuffer(4));
+                self.postMessage({ type: "open-url", url: text(pointer, length), result: result.buffer });
+                while (Atomics.load(result, 0) === 0) Atomics.wait(result, 0, 0);
+                return Atomics.load(result, 0) > 0 ? 1 : 0;
+            },
+            assertion: (pointer, length) => onAssertion(text(pointer, length)),
+            systemID: () => systemID,
+            log: (pointer, length) => console.log(text(pointer, length)),
+            warn: (pointer, length) => console.warn(text(pointer, length)),
+            error: (pointer, length) => console.error(text(pointer, length)),
+            waitAudio: (pointer, generation) => Atomics.wait(new Int32Array(memory.buffer, pointer, 1), 0, generation),
+            wakeAudio: pointer => Atomics.notify(new Int32Array(memory.buffer, pointer, 1), 0),
+            requestMidi: () => self.postMessage({ type: "midi-request" }),
+            enableMidi: (token, enable) => self.postMessage({ type: "midi-enable", token, enable: Boolean(enable) }),
+            sendMidi: packed => self.postMessage({ type: "midi-output", packed: packed >>> 0 }),
+            resumeAudio: () => self.postMessage({ type: "audio-resume" }),
+            performanceTime: () => (timeOffset + performance.now()) / 1000,
+        },
+    };
+}
+
+// The page owns worker creation; callers can wait inside a Reflex worker.
+// The compiled pthread layer owns each thread's Wasm stack and TLS allocation.
+function createThreadImports(post = message => self.postMessage(message)) {
+    return {
+        "thread-spawn": argument => {
+            const result = new Int32Array(new SharedArrayBuffer(8));
+            post({ type: "spawn-thread", argument, result: result.buffer });
+            while (Atomics.load(result, 0) === 0) Atomics.wait(result, 0, 0);
+            return Atomics.load(result, 1);
+        },
+    };
+}
+
+function createIOImports(memory, port) {
+    return {
+        requestOnStack: (operation, handle, pointer, length, offset, reply) => {
+            const state = new Int32Array(memory.buffer, reply >>> 0, 1);
+            port.postMessage({ operation, handle, pointer: pointer >>> 0, length: length >>> 0, offset, reply: reply >>> 0 });
+            while (Atomics.load(state, 0) === 0) Atomics.wait(state, 0, 0);
+        },
+    };
+}
+
 // Minimal WASI ABI imports used by the compiled C/C++ support libraries.
 // Reflex file/network services use their own System bridge, not these calls.
-export function createLibcImports(memory, write = (fd, text) => (fd === 2 ? console.error : console.log)(text), timeOrigin = performance.timeOrigin) {
+function createLibcImports(memory, write = (fd, text) => (fd === 2 ? console.error : console.log)(text), timeOrigin = performance.timeOrigin) {
     const data = () => new DataView(memory.buffer);
     const decoder = new TextDecoder();
     const sleeper = new Int32Array(new SharedArrayBuffer(4));

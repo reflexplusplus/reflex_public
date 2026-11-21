@@ -1,11 +1,11 @@
-import { createImports } from "./imports.js?r1-dev";
+import { createImports } from "./worker-imports.js?r5-dev";
 
 let instance;
 let assertionMessage;
 self.onmessage = async ({ data }) => {
     try {
         if (data.type === "initialize") {
-            const imports = createImports(data.memory, data.systemID, text => { assertionMessage = text; }, data.timeOrigin);
+            const imports = createImports(data.memory, data.ioPort, data.systemID, text => { assertionMessage = text; }, data.timeOrigin);
             // The module contains renderer imports even when this thread never
             // renders. Keep the System renderer confined to its owning worker.
             for (const item of WebAssembly.Module.imports(data.module)) {

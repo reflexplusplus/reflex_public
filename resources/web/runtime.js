@@ -1,9 +1,10 @@
 // Page-side loader. Reflex application execution takes place in the worker.
 const PAGE_BYTES = 65536;
-import { createMIDIManager } from "./midi.js?r1-dev";
-import { createThreadManager } from "./threads.js?r1-dev";
-import { attachInput } from "./input.js?r1-dev";
-import { createIOManager } from "./io.js?r1-dev";
+import { createMIDIManager } from "./midi.js?r5-dev";
+import { createThreadManager } from "./threads.js?r5-dev";
+import { attachInput } from "./input.js?r5-dev";
+import { createIOManager } from "./io.js?r5-dev";
+import { createSecretStorageManager } from "./secret-storage.js?r5-dev";
 
 function workerError(message) {
     const error = new Error(message);
@@ -65,7 +66,7 @@ async function downloadModule(response, onProgress) {
     return bytes.buffer;
 }
 
-export async function startReflex({ moduleUrl, canvas, initialBytes, maximumBytes, onError = console.error, onProgress, touchMode = "raw" }) {
+export async function startReflex({ moduleUrl, canvas, initialBytes, maximumBytes, onError = console.error, onProgress, touchMode = "raw", secretStorage = false }) {
     if (touchMode !== "raw" && touchMode !== "viewport") throw new Error('touchMode must be "raw" or "viewport"');
     const commandLine = [];
     for (const parameter of window.location.search.slice(1).split("&"))
@@ -97,7 +98,7 @@ export async function startReflex({ moduleUrl, canvas, initialBytes, maximumByte
     const midiSupported = exports.has("reflexMidiPorts") && exports.has("reflexMidiInput");
     const memory = new WebAssembly.Memory({ initial, maximum, shared: true });
     const timeOrigin = performance.timeOrigin + performance.now();
-    const worker = new Worker(new URL("./application-worker.js?r1-dev", import.meta.url), { type: "module" });
+    const worker = new Worker(new URL("./application-worker.js?r5-dev", import.meta.url), { type: "module" });
     // Runtime-owned control also supports custom/older project scaffolds.
     const windowSelector = document.createElement("select");
     windowSelector.setAttribute("aria-label", "Window");
@@ -119,11 +120,13 @@ export async function startReflex({ moduleUrl, canvas, initialBytes, maximumByte
         }
         windowSelector.hidden = windowSelector.options.length < 2;
     };
-    const io = createIOManager(memory, onError);
+    const io = createIOManager(memory, failRuntime);
+    const secrets = createSecretStorageManager(memory, secretStorage === true);
     const midi = createMIDIManager(worker);
     const handleService = event =>
     {
         const { data } = event;
+        if (secrets.handle(event)) return true;
         if (midiSupported && midi.handle(event)) return true;
         if (data.type === "audio-resume")
         {
@@ -131,7 +134,7 @@ export async function startReflex({ moduleUrl, canvas, initialBytes, maximumByte
             resumeRequestedAudio();
             return true;
         }
-        if (data.type !== "open-url") return io.handle(event);
+        if (data.type !== "open-url") return false;
         const result = new Int32Array(data.result);
         let opened;
         let success = false;
@@ -162,7 +165,7 @@ export async function startReflex({ moduleUrl, canvas, initialBytes, maximumByte
         return true;
     };
     const systemID = readSystemID();
-    const threads = createThreadManager(module, memory, onError, handleService, systemID, timeOrigin);
+    const threads = createThreadManager(module, memory, io.connect, failRuntime, handleService, systemID, timeOrigin);
     let detachInput = () => {};
     let detachDensity = () => {};
     let detachFit = () => {};
@@ -222,9 +225,39 @@ export async function startReflex({ moduleUrl, canvas, initialBytes, maximumByte
         if (audioConfiguration) { audioConfiguration.reject(error); audioConfiguration = undefined; }
         onError(error);
     };
+    let failure;
+    let rejectStartup;
+    const stop = () =>
+    {
+        // Terminate the Wasm callers. Pending synchronous calls must never resume after a worker crash.
+        worker.terminate();
+        threads.stop();
+        io.stop();
+        secrets.stop();
+        midi.stop();
+        windowSelector.remove();
+        resetTouchViewport();
+        detachFit();
+        detachAudio();
+        if (audioContext) audioContext.close().catch(onError);
+        detachDensity();
+        detachInput();
+    };
+    function failRuntime(error)
+    {
+        if (failure) return;
+        failure = error;
+        if (rejectStartup) rejectStartup(error);
+        else
+        {
+            stop();
+            reportError(error);
+        }
+    }
     const initializeAudio = async () =>
     {
-        await audioContext.audioWorklet.addModule(new URL("./audio-worklet.js?r1-dev", import.meta.url));
+        await audioContext.audioWorklet.addModule(new URL("./audio-worklet.js?r5-dev", import.meta.url));
+        if (failure) throw failure;
         const pointer = await new Promise((resolve, reject) =>
         {
             audioConfiguration = { resolve, reject };
@@ -240,6 +273,7 @@ export async function startReflex({ moduleUrl, canvas, initialBytes, maximumByte
     };
     const runAudio = async (onState = audioOnState, onStats = audioOnStats) =>
     {
+        if (failure) throw failure;
         if (!audioSupported) throw new Error("This Reflex application does not include audio output");
         audioRequested = true;
         audioOnState = onState;
@@ -266,15 +300,9 @@ export async function startReflex({ moduleUrl, canvas, initialBytes, maximumByte
     try {
         const offscreen = canvas.transferControlToOffscreen();
         await new Promise((resolve, reject) => {
-            const fail = message => {
-                detachInput();
-                midi.stop();
-                threads.stop();
-                io.stop();
-                worker.terminate();
-                reject(workerError(message));
-            };
-            worker.onerror = event => fail(event.message || "Reflex worker failed");
+            rejectStartup = reject;
+            worker.onerror = event => failRuntime(new Error(event.message || "Reflex application worker failed"));
+            worker.onmessageerror = () => failRuntime(new Error("Could not decode a message from the Reflex application worker"));
             worker.onmessage = event => {
                 if (threads.handle(event) || handleService(event)) return;
                 const { data } = event;
@@ -283,12 +311,13 @@ export async function startReflex({ moduleUrl, canvas, initialBytes, maximumByte
                 if (data.type === "title") document.title = data.text;
                 if (data.type === "cursor") canvas.style.cursor = data.cursor;
                 else if (data.type === "ready") resolve();
-                else if (data.type === "error") fail(data.message);
+                else if (data.type === "error") failRuntime(workerError(data.message));
             };
-            worker.postMessage({ type: "start", module, memory, canvas: offscreen, density, systemID, timeOrigin, commandLine }, [offscreen]);
+            io.connect(worker, { type: "start", module, memory, canvas: offscreen, density, systemID, timeOrigin, commandLine }, [offscreen]);
         });
-        worker.onerror = event => reportError(new Error(event.message || "Reflex worker failed"));
+        rejectStartup = undefined;
         worker.onmessage = event => {
+            if (failure) return;
             if (threads.handle(event) || handleService(event)) return;
             const { data } = event;
             if (data.type === "threads-benchmarked" && threadBenchmark) { threadBenchmark.resolve(data.samples); threadBenchmark = undefined; }
@@ -296,7 +325,7 @@ export async function startReflex({ moduleUrl, canvas, initialBytes, maximumByte
             if (data.type === "window") updateWindow(data);
             if (data.type === "title") document.title = data.text;
             if (data.type === "cursor") canvas.style.cursor = data.cursor;
-            if (data.type === "error") reportError(workerError(data.message));
+            if (data.type === "error") failRuntime(workerError(data.message));
             if (data.type === "audio-configured" && audioConfiguration) { audioConfiguration.resolve(data.pointer); audioConfiguration = undefined; }
             if (data.type === "verified" && verification) { verification.resolve(data.result); verification = undefined; }
         };
@@ -355,6 +384,7 @@ export async function startReflex({ moduleUrl, canvas, initialBytes, maximumByte
             setTouchMode: input.setTouchMode,
             resetTouchViewport,
             benchmarkThreads: (count = 20) => {
+                if (failure) return Promise.reject(failure);
                 if (!WebAssembly.Module.exports(module).some(item => item.name === "reflexBenchmarkThreads"))
                     return Promise.reject(new Error("Thread benchmark requires the Test Project"));
                 if (threadBenchmark) return Promise.reject(new Error("Thread benchmark already running"));
@@ -363,26 +393,18 @@ export async function startReflex({ moduleUrl, canvas, initialBytes, maximumByte
                 return new Promise((resolve, reject) => { threadBenchmark = { resolve, reject }; worker.postMessage({ type: "benchmark-threads", count }); });
             },
             audioSupported,
-            setFit: (value, element) => { fit = Boolean(value); fitElement = element; observer.disconnect(); observer.observe(fitElement || canvas.parentElement); updateFit(); },
+            setFit: (value, element) => { if (failure) return; fit = Boolean(value); fitElement = element; observer.disconnect(); observer.observe(fitElement || canvas.parentElement); updateFit(); },
             runAudio,
             pauseAudio: () => { audioRequested = false; return audioContext ? audioContext.suspend() : Promise.resolve(); },
             verify: () => {
+                if (failure) return Promise.reject(failure);
                 if (verification) return Promise.reject(new Error("Verification already running"));
                 return new Promise((resolve, reject) => { verification = { resolve, reject }; worker.postMessage({ type: "verify" }); });
             },
         };
     } catch (error) {
-        midi.stop();
-        windowSelector.remove();
-        resetTouchViewport();
-        detachFit();
-        detachAudio();
-        if (audioContext) audioContext.close().catch(onError);
-        detachDensity();
-        detachInput();
-        threads.stop();
-        io.stop();
-        worker.terminate();
+        failure = error;
+        stop();
         throw error;
     }
 }

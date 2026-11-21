@@ -1,12 +1,15 @@
 // Async browser APIs live here; the calling Reflex worker waits on the reply.
 let memory;
 let nextHandle = 1;
+const ports = new Map();
 const files = new Map();
 const directories = new Map();
 const responses = new Map();
 const decoder = new TextDecoder();
 const text = (p, n) => decoder.decode(new Uint8Array(memory.buffer, p, n).slice());
 const bytes = (p, n) => new Uint8Array(memory.buffer, p, n);
+// Chromium limits a single sync access handle write to a signed 32-bit size.
+const maxTransferSize = 0x7fffffff;
 // Include the path for diagnosis without exposing URL credentials/query values.
 const diagnosticURL = value => {
     const url = new URL(value);
@@ -96,12 +99,11 @@ async function execute(data) {
     if (op === 2) return file.access.getSize();
     if (op === 3 || op === 4) {
         if (op === 4 && !file.writable) return -1;
+        const transfer = op === 3 ? "read" : "write";
         let total = 0;
         while (total < n) {
-            const size = Math.min(65536, n - total);
-            const buffer = op === 3 ? new Uint8Array(size) : bytes(p + total, size).slice();
-            const done = file.access[op === 3 ? "read" : "write"](buffer, { at: at + total });
-            if (op === 3) bytes(p + total, done).set(buffer.subarray(0, done));
+            const size = Math.min(maxTransferSize, n - total);
+            const done = file.access[transfer](bytes(p + total, size), { at: at + total });
             total += done;
             if (done < size) break;
         }
@@ -155,9 +157,7 @@ async function execute(data) {
     if (op === 17) { directories.delete(handle); return 0; }
     return -1;
 }
-self.onmessage = async ({ data }) => {
-    if (data.type === "initialize") { memory = data.memory; return; }
-    if (data.type !== "io") return;
+async function completeRequest(data) {
     let result = -1n;
     try { result = BigInt(await execute(data)); }
     catch (error) {
@@ -165,9 +165,28 @@ self.onmessage = async ({ data }) => {
             self.postMessage({ type: "http-diagnostic", message: error.message });
         else console.debug("Reflex I/O:", error.message);
     }
-    new DataView(data.reply).setBigInt64(8, result, true);
-    const state = new Int32Array(data.reply);
+    const reply = new DataView(memory.buffer, data.reply, 16);
+    reply.setBigInt64(8, result, true);
+    const state = new Int32Array(reply.buffer, reply.byteOffset, 1);
+    // Publishing ready lets the caller return and reuse this stack slot.
     Atomics.store(state, 0, 1);
     Atomics.notify(state, 0);
-    self.postMessage({ type: "io-complete", requestId: data.requestId });
+}
+
+function reportFailure(error) {
+    self.postMessage({ type: "io-fatal", message: error.message });
+}
+
+self.onmessageerror = () => reportFailure(new Error("Could not decode an I/O worker control message"));
+self.onmessage = ({ data }) => {
+    if (data.type === "initialize") memory = data.memory;
+    if (data.type === "connect") {
+        ports.set(data.id, data.port);
+        data.port.onmessage = ({ data: request }) => completeRequest(request).catch(reportFailure);
+        data.port.onmessageerror = () => reportFailure(new Error("Could not decode an I/O request"));
+    }
+    if (data.type === "disconnect") {
+        ports.get(data.id).close();
+        ports.delete(data.id);
+    }
 };

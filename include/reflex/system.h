@@ -37,3 +37,5 @@
 #include "system/entry/console.h"		//framework: console/cmd line app
 #include "system/entry/app.h"			//framework: ui app (on macos, if no view_ctr then 'accessory' app)
 #include "system/entry/audioplugin.h"	//framework: clap/vst/au/aax plugin + standalone
+
+#include "system/extensions/secret_storage.h"

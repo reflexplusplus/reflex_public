@@ -1,6 +1,6 @@
 // Decisions about browser defaults stay in this main-thread handler. Reflex
 // receives input asynchronously on its application worker, as on Android.
-import { attachTouchInput } from "./touch.js?r1-dev";
+import { attachTouchInput } from "./touch.js?r5-dev";
 
 export function attachInput(canvas, worker, touchOptions) {
     const removals = [];

@@ -10,7 +10,6 @@ namespace CLI = Bootstrap::CLI;
 
 constexpr WString::View kTemplatesFolder = L"templates/";
 constexpr Key32 kTasks = "tasks";
-constexpr auto kFirstPositionalArg = K32("value");
 
 struct ArgDef
 {
@@ -733,6 +732,9 @@ const CLI::TaskDef kCommands[] =
 			PrintCommandWithDescription(std_out, "build", "build generated platform projects");
 			PrintCommandWithDescription(std_out, "set", "set a build variable");
 			PrintCommandWithDescription(std_out, "get", "view a build variable");
+			PrintCommandWithDescription(std_out, "get-secret --key NAME", "write a stored secret to stdout");
+			PrintCommandWithDescription(std_out, "set-secret --key NAME [--path FILE]", "store a secret from a file or stdin");
+			PrintCommandWithDescription(std_out, "unset-secret --key NAME", "remove a stored secret");
 			PrintCommandWithDescription(std_out, "unset", "remove a build variable");
 			PrintCommandWithDescription(std_out, "variables", "list build variables");
 			PrintCommandWithDescription(std_out, "export", "export variables");
@@ -1045,6 +1047,9 @@ const CLI::TaskDef kCommands[] =
 		Generate(args, true, std_out);
 	}),
 	CLI::MakeTask("run", &Run),
+	CLI::MakeTask("unset-secret", &UnsetSecret),
+	CLI::MakeTask("set-secret", &SetSecret),
+	CLI::MakeTask("get-secret", &GetSecret),
 	CLI::MakeTask("build-resources", [](const Data::PropertySet & args, System::FileHandle & std_out)
 	{
 		ValidateArgs(args, { Arg("path") });

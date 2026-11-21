@@ -129,6 +129,23 @@ def actions(items):
         run(action["command"], action["cwd"])
 
 
+def package_runtime(runtime, destination):
+    # The pthread entry has exactly one import, of the dependency-free worker helpers.
+    destination.mkdir(exist_ok=True)
+    imports = (runtime / "worker-imports.js").read_text(encoding="utf-8")
+    header, _, entry = (runtime / "thread-worker.js").read_text(encoding="utf-8").partition("\n")
+    expected = r'import \{ createImports \} from "\./worker-imports\.js\?r[0-9]+(?:-dev)?";'
+    if not re.fullmatch(expected, header):
+        raise RuntimeError("thread-worker.js must begin with its worker-imports.js import")
+    dependency = re.compile(r"(?m)^\s*(?:import\b|export\s*[{*])|\bimport\s*[.(]")
+    if dependency.search(imports) or dependency.search(entry):
+        raise RuntimeError("The packaged pthread worker must be a self-contained module")
+    for source in runtime.glob("*.js"):
+        if source.name != "thread-worker.js":
+            shutil.copy2(source, destination / source.name)
+    (destination / "thread-worker.js").write_bytes((imports.rstrip() + "\n\n" + entry.lstrip("\n")).encode("utf-8"))
+
+
 def package(target, reflex, build_timestamp, linked_product):
     product = Path(target["product"])
     folder = product.parent
@@ -155,9 +172,7 @@ def package(target, reflex, build_timestamp, linked_product):
     runtime = reflex / "resources/web"
     if not runtime.is_dir():
         raise RuntimeError(f"Browser runtime is missing: {runtime}")
-    (folder / "runtime").mkdir(exist_ok=True)
-    for source in runtime.glob("*.js"):
-        shutil.copy2(source, folder / "runtime" / source.name)
+    package_runtime(runtime, folder / "runtime")
 
 
 def main():
@@ -199,7 +214,7 @@ def main():
     reflex = Path(manifest["reflex"])
     # Preserve the explicit host import allowlist. Never permit
     # arbitrary missing Reflex symbols to become browser imports.
-    # Keep resources/web/host-imports.txt aligned with gl.js and imports.js.
+    # Keep resources/web/host-imports.txt aligned with gl.js and worker-imports.js.
     allowlist = reflex / "resources/web/host-imports.txt"
     if not allowlist.is_file():
         raise RuntimeError(f"Browser host import allowlist is missing: {allowlist}")

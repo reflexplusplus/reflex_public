@@ -9033,17 +9033,19 @@ See also Bootstrap::Detail::SetStyle.
 #p kModeAppend: open for writing at the end of the file, preserving existing contents.
 </list>
 
-#p The 'lock' argument should typically be left true.
-
-#p When enabled, Reflex requests platform locking or restricted share access so concurrent access is reduced while the handle is open.
+#h2 Lock modes
 
 <list>
-#p For kModeRead this is typically a shared read lock, allowing other readers but blocking writers.
-#p For kModeOverwrite and kModeAppend this is typically an exclusive write lock.
-#p With 'lock' set false, the remaining sharing behaviour is platform-specific and other processes may still read or write the file concurrently.
+#p kLockNone opens the file without requesting a lock. On Windows, existing share restrictions can still prevent the open.
+#p kLockTry is the default. It attempts to acquire the lock immediately and returns FileHandle::null if the lock is busy.
+#p kLockWait blocks until the lock is acquired or an error occurs.
 </list>
 
-#p This setting controls concurrent access, not write durability or synchronisation to disk.
+#p POSIX takes a shared lock for kModeRead and an exclusive lock for kModeOverwrite or kModeAppend. Windows uses file share modes to provide comparable access rules. These restrictions last until the handle closes.
+
+#p On Windows, kLockWait emulates Linux's blocking lock acquisition by retrying the open after a short sleep whenever it encounters a sharing violation. Prefer kLockTry for typical Windows use. Use kLockWait when the caller needs to block.
+
+#p On web, kLockNone and kLockTry use the browser's normal OPFS access rules. kLockWait returns FileHandle::null.
 
 #h2 Standard streams
 
@@ -11229,3 +11231,84 @@ See also Bootstrap::Detail::SetStyle.
 
 	Path: ["Reflex", "System", "ResolvePath"];
 };
+
+688:
+{
+	@WString Description: "#p Stores binary secrets using the platform's protected storage. Calls are synchronous and some backends may prompt for authorization or unlock. Use a worker thread when a call could block the UI.
+
+#h2 Opening a store
+
+#p Use 'Make<System::SecretStorage>(storage_name, get_path)' to create and retain a store. If you call 'SecretStorage::Create' directly, retain its 'Unretained<SecretStorage>' result for as long as you use the store. Use a stable application namespace such as 'com.example.mail'. Invalid configuration or an unavailable backend returns the false-valued 'SecretStorage::null'. Its operations return 'kResultFailed', and its 'Get' clears the output.
+
+#p Windows calls 'get_path(storage_name)' to obtain an existing absolute local directory with a trailing slash. Other platforms do not call 'get_path'. Keep directory creation inside the callback so the same call works on all platforms.
+
+#p A typical Bootstrap app uses its product's user-data directory and a subdirectory named after a hash of the store name. This gives each store a stable directory under the same product without using the store name as a path component. Keep the directory private and dedicated to that store.
+
+<code>
+#p auto store = Make<System::SecretStorage>($qcom.vendor.app.secrets$q, [](CString::View storage_name)
+#p {
+#p 	auto global = Bootstrap::global;
+#p 	auto path = Bootstrap::Detail::MakeProductPath(System::kPathUserData, global->vendor, global->product, ToWString(Data::BytesToHex(Data::SHA256(Data::Pack(storage_name)))));
+#p 	path.Push(File::kStroke);
+#p 	File::MakePath(path);
+#p 	return path;
+#p });
+</code>
+
+#h2 Keys, values, and results
+
+#p Store names and keys take 'CString::View' and must contain 1 to 255 bytes. Keys are case sensitive. Embedded NULs and views without a terminator preserve their exact byte identity. A name identifies a store or entry and does not grant access to it.
+
+#p Values are opaque binary data, including empty values. Reflex caps each value at 65,536 bytes (64 KiB). The underlying store may impose a smaller limit. Retrieved data is held in ordinary application memory.
+
+<list>
+#p 'kResultSuccess' means the requested operation completed.
+#p 'kResultNotFound' means the requested entry is absent.
+#p 'kResultDenied' means access was denied or the user cancelled authorization.
+#p 'kResultTooLarge' means the key or value exceeds a size limit.
+#p 'kResultFailed' covers invalid input such as an empty key, unavailable stores, and other backend failures.
+</list>
+
+#h2 Platform storage
+
+<list>
+#p Windows uses per-user DPAPI with 'CRYPTPROTECT_UI_FORBIDDEN' for both encryption and decryption. Each entry has a salted SHA-256 filename. A separate digest binds the ciphertext to its entry.
+#p macOS uses generic password items in the default Keychain, with its normal access controls and unlock prompts.
+#p iOS uses generic password items with 'kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly' and does not request synchronization.
+#p Linux loads libsecret at runtime. Operations require a Secret Service provider in the user's D-Bus session. Writes use the default collection.
+#p Android stores AES-256-GCM ciphertext in the app's private no-backup directory and keeps the encryption key in Android Keystore. The key identity is authenticated with the ciphertext.
+#p Web is disabled by default. Enable it with 'secretStorage: true' in the web launcher's 'startReflex()' options. The first 'Create' starts a dedicated worker that stores AES-256-GCM ciphertext and a non-exportable Web Crypto key in IndexedDB. The worker closes when the last store is released. If browser storage or cryptography is unavailable, 'Create' returns 'SecretStorage::null'.
+</list>
+
+#p There is no plaintext fallback. Account and app isolation depend on the platform.
+
+#p Web storage is scoped to the browser origin. Scripts running on that origin can use the key for decryption. Use distinct store names for apps sharing an origin. Clearing site data or browser eviction can remove the values and key.
+
+#h2 Why Windows uses files
+
+#p Reflex uses files to keep its stored entries out of general listings from the Windows Credential Manager API. Anyone with permission to list the storage directory can still see the files.";
+
+	Path: ["Reflex", "System", "SecretStorage"];
+};
+
+689:
+{
+	@WString Description: "#p Stores the binary value for 'key', replacing an existing entry. An empty value is stored as an existing entry.";
+
+	Path: ["Reflex", "System", "SecretStorage", "Set"];
+};
+
+690:
+{
+	@WString Description: "#p Reads the stored bytes for 'key'. Returns 'kResultNotFound' if the entry is absent. Clears 'value' on failure. A successful read may return an empty value.";
+
+	Path: ["Reflex", "System", "SecretStorage", "Get"];
+};
+
+691:
+{
+	@WString Description: "#p Removes the entry for 'key'. Returns 'kResultNotFound' if the entry is already absent.";
+
+	Path: ["Reflex", "System", "SecretStorage", "Unset"];
+};
+

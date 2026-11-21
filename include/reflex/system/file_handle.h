@@ -40,6 +40,13 @@ public:
 		kModeAppend,
 	};
 
+	enum Lock : UInt8
+	{
+		kLockNone,
+		kLockTry,
+		kLockWait,
+	};
+
 	enum StandardStream : UInt8
 	{
 		kStandardIn,
@@ -55,7 +62,7 @@ public:
 
 	//lifetime
 
-	[[nodiscard]] static Unretained <FileHandle> Create(const WString & path, Mode mode = kModeRead, bool lock = true, Allocator & allocator = g_default_allocator);
+	[[nodiscard]] static Unretained <FileHandle> Create(const WString & path, Mode mode = kModeRead, Lock lock = kLockTry, Allocator & allocator = g_default_allocator);
 
 	// Borrows the process stream without closing it on destruction; returns null when unavailable.
 	[[nodiscard]] static Unretained <FileHandle> Create(StandardStream stream, Allocator & allocator = g_default_allocator);

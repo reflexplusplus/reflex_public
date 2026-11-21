@@ -106,11 +106,26 @@ The loader supplies one process time origin to the application worker and every 
 
 `application-worker.js` owns WebGL2 and invokes the System clock through worker animation frames. `gl.js` supplies the ES3 ABI used by the common renderer with integer object handles and refreshed memory views. `input.js` decides DOM defaults on the page, then forwards events to System. Renderer/window operations require the application worker; secondary renderer imports fail explicitly when invoked.
 
-`threads.js` maps each dynamic pthread creation to a new browser worker, terminated when the thread finishes. The calling worker waits for readiness while the page remains available. Priorities, pooling and abnormal worker recovery remain future work.
+`threads.js` maps each dynamic pthread creation to a new browser worker, terminated when the thread finishes. The calling worker waits for readiness while the page remains available. A fatal application, pthread, or I/O worker error stops the runtime and terminates its workers.
 
-`io-worker.js` owns OPFS handles and fetch streams. `io.js` uses per-request shared completion records, routed by the page without blocking. File copies are bounded to 64 KiB. HTTP bodies are pulled into bounded caller buffers with backpressure; callbacks execute synchronously on the calling Reflex thread. CORS, restricted headers, quotas and OPFS locks remain browser constraints. Read-only handles can coexist; writable handles use browser locking even for `lock=false`. Timestamp setters are unsupported; rename requires browser `move` support.
+`io-worker.js` owns OPFS handles and fetch streams. The page connects each Wasm worker to it with a `MessagePort` at startup. Each request travels directly over that port. The I/O worker writes the result into the caller's Wasm stack and wakes it with `Atomics.notify`. A failed operation returns `-1`. OPFS reads and writes use views into shared Wasm memory directly, with one browser call for requests up to the native transfer limit. HTTP bodies are pulled into bounded caller buffers with backpressure; callbacks execute synchronously on the calling Reflex thread. CORS, restricted headers, quotas and OPFS locks remain browser constraints. Read-only handles can coexist; writable handles use browser locking even for `lock=false`. Timestamp setters are unsupported; rename requires browser `move` support. Rebuild the Wasm module when updating to the `reflex_io.requestOnStack` import.
 
-`libc.js` implements the small support ABI needed by compiled C/C++: empty environment/arguments, clocks, random bytes, console streams, yield, worker-safe clock polling and exit reporting. It does not emulate a general WASI filesystem. Math uses the compiled standard library rather than JavaScript imports. Missing imports fail instantiation; the linker allows only declared host GL imports, so unresolved Reflex symbols fail the build.
+`worker-imports.js` implements the support ABI used by both application and pthread workers, including host calls, file I/O, and the small WASI surface for clocks, randomness, and console streams. It does not emulate a general WASI filesystem. Math uses the compiled standard library rather than JavaScript imports. Missing imports fail instantiation; the linker allows only declared host GL imports, so unresolved Reflex symbols fail the build.
+
+The Web packager combines `worker-imports.js` and the pthread entry into a
+self-contained deployed `runtime/thread-worker.js`. Pthread workers load
+that module directly from its versioned URL and use normal browser caching.
+
+### Browser secret storage
+
+Set `secretStorage: true` in the launcher's `startReflex()` options to enable
+`System::SecretStorage` on Web. The first `Create()` starts a dedicated worker,
+separate from file and HTTP I/O. The last store to be released shuts it down.
+In a secure browser context it uses IndexedDB and Web Crypto to store encrypted
+records and a non-exportable AES-256-GCM key. Choose a distinct store name for
+each app served from the same origin. Scripts on that origin can use the key to
+decrypt records, and clearing or evicting site data can remove both the records
+and the key.
 
 ## Current limits
 

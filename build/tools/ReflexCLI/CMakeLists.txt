@@ -32,6 +32,7 @@ endif()
 set(REFLEXCLI_COMMON_SOURCES
 	"code/common.cpp"
 	"code/tasks.cpp"
+	"code/secrets.cpp"
 	"code/entry.cpp"
 	"code/build.cpp"
 	"code/resources.cpp"

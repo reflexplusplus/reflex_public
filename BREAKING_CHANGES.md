@@ -1,5 +1,15 @@
 # Breaking Changes
 
+## v0.10.3
+
+### `System::FileHandle::Create` uses an explicit lock mode
+
+Replace an explicit boolean lock argument with `System::FileHandle::kLockTry` for `true` or `System::FileHandle::kLockNone` for `false`. The default remains `kLockTry`. Use `kLockWait` to wait for a conflicting lock to be released on supported native platforms.
+
+### Regenerate and rebuild Web applications
+
+Regenerate Web projects with the updated CLI, rebuild the Wasm module, and deploy the generated runtime files together. The file I/O host interface and worker packaging have changed. Custom hosting and CDN configurations should include the full query string in cache keys so versioned runtime URLs and build timestamps select the matching assets. The generated Apache configuration revalidates `index.html` and caches other assets for one day.
+
 ## v0.10.0
 
 ### `System::GetEnvironmentVariable` returns bytes

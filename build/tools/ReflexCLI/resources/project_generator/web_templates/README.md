@@ -16,7 +16,8 @@ Generated files:
   the selected application's output folder on each build.
 - `.htaccess`: written beside the output `index.html` on each application build,
   setting the directory index, COOP/COEP isolation headers, Wasm/JavaScript MIME
-  types and `Cache-Control: no-cache` for `index.html` only on Apache hosts.
+  types and cache headers on Apache hosts. `index.html` revalidates on each
+  use. All other files, including JavaScript and Wasm, are cacheable for one day.
 - `serve_local.py`: serves a selected built app with COOP/COEP and Wasm MIME headers.
 
 With a ReflexCLI containing the web generator (rebuild CLI/resources after
@@ -87,11 +88,13 @@ Source files are never overwritten. Source edits require regeneration;
 for temporary experiments, edit the generated folder under `launchers/`.
 Packaging substitutes build values into output files without changing that folder.
 Internal runtime imports, Worker URLs and audio worklet URLs use a shared
-revision query (currently fixed at `?r1-dev` during early development). Disable
+revision query (currently fixed at `?r5-dev` during early development). Disable
 browser caching or clear cached runtime files when changing JavaScript under
 this unchanged revision. Once stable, remove `-dev` and increment every internal
-revision together for subsequent runtime changes. Packaging copies those files
-unchanged, so dependencies keep their cache keys across app builds.
+revision together for subsequent runtime changes. Packaging copies the runtime
+modules unchanged except for `thread-worker.js`, which it combines with
+`worker-imports.js` into a self-contained script. New pthread workers load
+that script directly from its versioned URL.
 The local server serves static files and does not execute PHP.
 
 Set `LLVM_ROOT` to an LLVM installation containing `clang++`, `wasm-ld` and
@@ -142,11 +145,12 @@ Cross-Origin-Opener-Policy: same-origin
 Cross-Origin-Embedder-Policy: require-corp
 ```
 
-Include the generated `.htaccess` when uploading to Apache. Its `index.html`
-cache rule requires `mod_headers` and `AllowOverride FileInfo` (or an equivalent
-`AllowOverrideList` permitting `Header`). Other hosting servers need their own
-cache configuration. The local Python server continues to send `no-store` for
-all files and does not read `.htaccess`.
+Include the generated `.htaccess` when uploading to Apache. Its cache rules
+require `mod_headers` and `AllowOverride FileInfo` (or an equivalent
+`AllowOverrideList` permitting `Header`). Configure equivalent rules for other
+hosts. If a CDN caches these files, include the full query string in its cache
+key so the launcher timestamps and JavaScript revisions select fresh assets.
+The local Python server sends `no-store` for development and ignores `.htaccess`.
 
 Serve `.wasm` as `application/wasm`. The launcher uses relative URLs. Set
 `initialBytes` and `maximumBytes` in the launcher's `startReflex` call to

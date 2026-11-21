@@ -36,9 +36,9 @@ namespace Reflex::SIMD
 	template <class TYPE> TYPE Sum(const TypeV4 <TYPE> & value);
 
 
-	template <class TYPE> TypeV4 <TYPE> Set(const TypeV4 <TYPE> & vec, UInt vidx, TYPE value);
+	template <class TYPE> TypeV4 <TYPE> Set(const TypeV4 <TYPE> & vec, UInt vidx, typename TypeV4<TYPE>::SingleType value);
 
-	template <class TYPE> TYPE Get(const TypeV4 <TYPE> & vec, UInt vidx);
+	template <class TYPE> typename TypeV4<TYPE>::SingleType Get(const TypeV4 <TYPE> & vec, UInt vidx);
 
 
 	FloatV4 ToFloatV4(const IntV4 & value);
@@ -63,25 +63,25 @@ template <class TYPE> REFLEX_INLINE Reflex::SIMD::TypeV4 <TYPE> Reflex::SIMD::Lo
 
 template <class TYPE> REFLEX_INLINE Reflex::SIMD::TypeV4 <TYPE> Reflex::SIMD::InterleaveLo(const TypeV4 <TYPE> & a, const TypeV4 <TYPE> & b)
 {
-	return _mm_unpacklo_ps(a, b);
+	return Reinterpret<TypeV4<TYPE>>(REFLEX_UNPACKLO_F32_X4(Reinterpret<Float32x4>(a), Reinterpret<Float32x4>(b)));
 }
 
 template <class TYPE> REFLEX_INLINE Reflex::SIMD::TypeV4 <TYPE> Reflex::SIMD::InterleaveHi(const TypeV4 <TYPE> & a, const TypeV4 <TYPE> & b)
 {
-	return _mm_unpackhi_ps(a, b);
+	return Reinterpret<TypeV4<TYPE>>(REFLEX_UNPACKHI_F32_X4(Reinterpret<Float32x4>(a), Reinterpret<Float32x4>(b)));
 }
 
 template <class TYPE> REFLEX_INLINE void Reflex::SIMD::Transpose(TypeV4 <TYPE> & a, TypeV4 <TYPE> & b, TypeV4 <TYPE> & c, TypeV4 <TYPE> & d)
 {
-	auto vTmp1 = REFLEX_UNPACKLO_F32_X4(a.data, b.data);
-	auto vTmp2 = REFLEX_UNPACKHI_F32_X4(a.data, b.data);
-	auto vTmp3 = REFLEX_UNPACKLO_F32_X4(c.data, d.data);
-	auto vTmp4 = REFLEX_UNPACKHI_F32_X4(c.data, d.data);
+	auto vTmp1 = REFLEX_UNPACKLO_F32_X4(Reinterpret<Float32x4>(a.data), Reinterpret<Float32x4>(b.data));
+	auto vTmp2 = REFLEX_UNPACKHI_F32_X4(Reinterpret<Float32x4>(a.data), Reinterpret<Float32x4>(b.data));
+	auto vTmp3 = REFLEX_UNPACKLO_F32_X4(Reinterpret<Float32x4>(c.data), Reinterpret<Float32x4>(d.data));
+	auto vTmp4 = REFLEX_UNPACKHI_F32_X4(Reinterpret<Float32x4>(c.data), Reinterpret<Float32x4>(d.data));
 
-	a = REFLEX_MOVELH_32_X4(vTmp1, vTmp3);
-	b = REFLEX_MOVEHL_32_X4(vTmp3, vTmp1);
-	c = REFLEX_MOVELH_32_X4(vTmp2, vTmp4);
-	d = REFLEX_MOVEHL_32_X4(vTmp4, vTmp2);
+	a = Reinterpret<TypeV4<TYPE>>(REFLEX_MOVELH_32_X4(vTmp1, vTmp3));
+	b = Reinterpret<TypeV4<TYPE>>(REFLEX_MOVEHL_32_X4(vTmp3, vTmp1));
+	c = Reinterpret<TypeV4<TYPE>>(REFLEX_MOVELH_32_X4(vTmp2, vTmp4));
+	d = Reinterpret<TypeV4<TYPE>>(REFLEX_MOVEHL_32_X4(vTmp4, vTmp2));
 }
 
 template <Reflex::Int P0, Reflex::Int P1, Reflex::Int P2, Reflex::Int P3, class TYPE> REFLEX_INLINE Reflex::SIMD::TypeV4 <TYPE> Reflex::SIMD::Shuffle(const TypeV4 <TYPE> & a, const TypeV4 <TYPE> & b)
@@ -115,7 +115,7 @@ template <class TYPE> REFLEX_INLINE TYPE Reflex::SIMD::Sum(const TypeV4 <TYPE> &
 	//return value[0] + value[1] + value[2] + value[3];
 }
 
-template <class TYPE> REFLEX_INLINE Reflex::SIMD::TypeV4 <TYPE> Reflex::SIMD::Set(const TypeV4 <TYPE> & vec, UInt vidx, TYPE value1)
+template <class TYPE> REFLEX_INLINE Reflex::SIMD::TypeV4 <TYPE> Reflex::SIMD::Set(const TypeV4 <TYPE> & vec, UInt vidx, typename TypeV4<TYPE>::SingleType value1)
 {
 	auto rtn = vec;
 
@@ -124,7 +124,7 @@ template <class TYPE> REFLEX_INLINE Reflex::SIMD::TypeV4 <TYPE> Reflex::SIMD::Se
 	return rtn;
 }
 
-template <class TYPE> REFLEX_INLINE TYPE Reflex::SIMD::Get(const TypeV4 <TYPE> & value, UInt vidx)
+template <class TYPE> REFLEX_INLINE typename Reflex::SIMD::TypeV4<TYPE>::SingleType Reflex::SIMD::Get(const TypeV4 <TYPE> & value, UInt vidx)
 {
 	return value[vidx];
 }

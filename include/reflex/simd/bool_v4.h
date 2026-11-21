@@ -14,6 +14,8 @@ namespace Reflex::SIMD
 	using BoolV4 = TypeV4 <Boolean>;
 
 
+	BoolV4 MakeBoolV4(UInt8 flags);
+
 	inline Boolean ToBool(bool value) { return value ? kBooleanTrue : kBooleanFalse; }
 
 
@@ -63,11 +65,18 @@ namespace Reflex::SIMD
 
 REFLEX_NS(Reflex::SIMD::Detail)
 
+extern const BoolV4 kBoolV4Masks[16];
+
 extern const Int kCount[16];
 
 extern const UInt kFree[16];
 
 REFLEX_END
+
+REFLEX_INLINE Reflex::SIMD::BoolV4 Reflex::SIMD::MakeBoolV4(UInt8 flags)
+{
+	return Detail::kBoolV4Masks[flags & 15];
+}
 
 REFLEX_INLINE Reflex::Int Reflex::SIMD::GetFlags(const BoolV4 & value)
 {

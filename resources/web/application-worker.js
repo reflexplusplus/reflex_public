@@ -1,5 +1,5 @@
-import { createImports } from "./imports.js?r1-dev";
-import { createGLImports } from "./gl.js?r1-dev";
+import { createImports } from "./worker-imports.js?r5-dev";
+import { createGLImports } from "./gl.js?r5-dev";
 
 let instance;
 let started = false;
@@ -102,7 +102,7 @@ self.onmessage = async ({ data }) => {
         if (data.type !== "start") return;
         if (started) throw new Error("Reflex application worker was already started");
         started = true;
-        const imports = createImports(data.memory, data.systemID, text => { assertionMessage = text; }, data.timeOrigin);
+        const imports = createImports(data.memory, data.ioPort, data.systemID, text => { assertionMessage = text; }, data.timeOrigin);
         imports.reflex_gl = createGLImports(data.memory, data.canvas, () => instance.exports);
         imports.reflex_host.setTitle = (p, n) => {
             const text = new TextDecoder().decode(new Uint8Array(data.memory.buffer, p, n).slice());

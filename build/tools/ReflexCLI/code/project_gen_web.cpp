@@ -179,7 +179,7 @@ void ReflexCLI::ProjectGen::GenerateWebProject(Project & project, BuildPlatform,
 				auto launcher_folder = File::CorrectTrailingStroke(ResolveAbsolutePathCase(Join(directory, L"launchers/")));
 				launcher = Join(launcher_folder, ToWString(config->GetName()), File::kStroke, ToWString(item.target->GetName()), L"/");
 				SaveFile(Join(launcher, L"index.html"), File::Extract(Web::index_html), kBuildPlatformWeb);
-				SaveText(Join(launcher, L".htaccess"), "DirectoryIndex index.html\n\nHeader always set Cross-Origin-Opener-Policy \"same-origin\"\nHeader always set Cross-Origin-Embedder-Policy \"require-corp\"\n\nAddType application/wasm .wasm\nAddType text/javascript .js\n\n<Files \"index.html\">\n    Header always set Cache-Control \"no-cache\"\n</Files>\n\n<Files \"[MODULE_FILENAME]\">\n    Header set Content-Type \"application/wasm\"\n    Header set Content-Encoding \"gzip\"\n    Header set X-Uncompressed-Content-Length \"[BUILD_SIZE]\"\n</Files>\n", kBuildPlatformWeb);
+				SaveText(Join(launcher, L".htaccess"), "DirectoryIndex index.html\n\nHeader always set Cross-Origin-Opener-Policy \"same-origin\"\nHeader always set Cross-Origin-Embedder-Policy \"require-corp\"\n\nAddType application/wasm .wasm\nAddType text/javascript .js\n\n<Files \"index.html\">\n    Header always set Cache-Control \"no-cache\"\n</Files>\n\n<FilesMatch \"^(?!index[.]html$).+\">\n    Header set Cache-Control \"public, max-age=86400\"\n</FilesMatch>\n\n<Files \"[MODULE_FILENAME]\">\n    Header set Content-Type \"application/wasm\"\n    Header set Content-Encoding \"gzip\"\n    Header set X-Uncompressed-Content-Length \"[BUILD_SIZE]\"\n</Files>\n", kBuildPlatformWeb);
 				auto launch_folder = config->GetPath(kWebLaunchFolder);
 				if (launch_folder.path)
 				{

@@ -27,9 +27,9 @@ public:
 
 	//type
 
-	using SingleType = TYPE;
-
 	using DataType = typename PlatformVectorType<TYPE,4>::Type;
+
+	using SingleType = typename PlatformVectorType<TYPE,4>::SingleType;
 
 
 
@@ -37,13 +37,13 @@ public:
 
 	TypeV4();
 
-	TypeV4(TYPE value);
+	TypeV4(SingleType value);
 
-	TypeV4(TYPE a, TYPE b, TYPE c, TYPE d);
+	TypeV4(SingleType a, SingleType b, SingleType c, SingleType d);
 
 	TypeV4(const DataType & data);
 
-	TypeV4(const TypeV4 <TYPE> & data);
+	TypeV4(const TypeV4 & data);
 
 
 
@@ -57,9 +57,9 @@ public:
 
 	//set
 
-	void Set(TYPE value);
+	void Set(SingleType value);
 
-	void Set(TYPE a, TYPE b, TYPE c, TYPE d);
+	void Set(SingleType a, SingleType b, SingleType c, SingleType d);
 
 
 
@@ -69,7 +69,7 @@ public:
 
 	TypeV4 & operator=(const DataType & data);
 
-	TypeV4 & operator=(TYPE value);
+	TypeV4 & operator=(SingleType value);
 
 
 
@@ -87,20 +87,20 @@ public:
 
 	//access
 
-	TYPE & operator[](UInt idx);
+	SingleType & operator[](UInt idx);
 
-	const TYPE & operator[](UInt idx) const;
+	const SingleType & operator[](UInt idx) const;
 
-	TYPE ReadFirst() const;
+	SingleType ReadFirst() const;
 
-	Quad <TYPE> Read() const;
+	Quad <SingleType> Read() const;
 
-	void Read(TYPE * unaligned) const;
+	void Read(SingleType * unaligned) const;
 
 
-	TYPE * GetData();
+	SingleType * GetData();
 
-	const TYPE * GetData() const;
+	const SingleType * GetData() const;
 
 
 
@@ -128,13 +128,13 @@ template <class TYPE> REFLEX_INLINE Reflex::SIMD::TypeV4<TYPE>::TypeV4()
 	AssertAlignment(this);
 }
 
-template <class TYPE> REFLEX_INLINE Reflex::SIMD::TypeV4<TYPE>::TypeV4(TYPE value)
+template <class TYPE> REFLEX_INLINE Reflex::SIMD::TypeV4<TYPE>::TypeV4(SingleType value)
 	: data(PlatformVectorType<TYPE,4>::Set1(value))
 {
 	AssertAlignment(this);
 }
 
-template <class TYPE> REFLEX_INLINE Reflex::SIMD::TypeV4<TYPE>::TypeV4(TYPE a, TYPE b, TYPE c, TYPE d)
+template <class TYPE> REFLEX_INLINE Reflex::SIMD::TypeV4<TYPE>::TypeV4(SingleType a, SingleType b, SingleType c, SingleType d)
 	: data(PlatformVectorType<TYPE,4>::Set(d, c, b, a))
 {
 	AssertAlignment(this);
@@ -146,7 +146,7 @@ template <class TYPE> REFLEX_INLINE Reflex::SIMD::TypeV4<TYPE>::TypeV4(const Dat
 	AssertAlignment(this);
 }
 
-template <class TYPE> REFLEX_INLINE Reflex::SIMD::TypeV4<TYPE>::TypeV4(const TypeV4 <TYPE> & data)
+template <class TYPE> REFLEX_INLINE Reflex::SIMD::TypeV4<TYPE>::TypeV4(const TypeV4 & data)
 	: data(data.data)
 {
 	AssertAlignment(this);
@@ -162,12 +162,12 @@ template <class TYPE> REFLEX_INLINE Reflex::SIMD::TypeV4<TYPE>::operator const t
 	return data;
 }
 
-template <class TYPE> REFLEX_INLINE void Reflex::SIMD::TypeV4<TYPE>::Set(TYPE value)
+template <class TYPE> REFLEX_INLINE void Reflex::SIMD::TypeV4<TYPE>::Set(SingleType value)
 {
 	data = PlatformVectorType<TYPE,4>::Set1(value);
 }
 
-template <class TYPE> REFLEX_INLINE void Reflex::SIMD::TypeV4<TYPE>::Set(TYPE a, TYPE b, TYPE c, TYPE d)
+template <class TYPE> REFLEX_INLINE void Reflex::SIMD::TypeV4<TYPE>::Set(SingleType a, SingleType b, SingleType c, SingleType d)
 {
 	data = PlatformVectorType<TYPE,4>::Set(d, c, b, a);
 }
@@ -186,7 +186,7 @@ template <class TYPE> REFLEX_INLINE Reflex::SIMD::TypeV4 <TYPE> & Reflex::SIMD::
 	return *this;
 }
 
-template <class TYPE> REFLEX_INLINE Reflex::SIMD::TypeV4 <TYPE> & Reflex::SIMD::TypeV4<TYPE>::operator=(TYPE value)
+template <class TYPE> REFLEX_INLINE Reflex::SIMD::TypeV4 <TYPE> & Reflex::SIMD::TypeV4<TYPE>::operator=(SingleType value)
 {
 	Set(value);
 
@@ -221,45 +221,45 @@ template <class TYPE> REFLEX_INLINE Reflex::SIMD::TypeV4 <TYPE> & Reflex::SIMD::
 	return *this;
 }
 
-template <class TYPE> REFLEX_INLINE TYPE & Reflex::SIMD::TypeV4<TYPE>::operator[](UInt idx)
+template <class TYPE> REFLEX_INLINE typename Reflex::SIMD::TypeV4<TYPE>::SingleType & Reflex::SIMD::TypeV4<TYPE>::operator[](UInt idx)
 {
 	REFLEX_ASSERT(idx < 4);
 
-	return Reinterpret<TYPE>(&data)[idx];
+	return Reinterpret<SingleType>(&data)[idx];
 }
 
-template <class TYPE> REFLEX_INLINE const TYPE & Reflex::SIMD::TypeV4<TYPE>::operator[](UInt idx) const
+template <class TYPE> REFLEX_INLINE const typename Reflex::SIMD::TypeV4<TYPE>::SingleType & Reflex::SIMD::TypeV4<TYPE>::operator[](UInt idx) const
 {
 	REFLEX_ASSERT(idx < 4);
 
-	return Reinterpret<TYPE>(&data)[idx];
+	return Reinterpret<SingleType>(&data)[idx];
 }
 
-template <class TYPE> REFLEX_INLINE void Reflex::SIMD::TypeV4<TYPE>::Read(TYPE * unaligned) const
+template <class TYPE> REFLEX_INLINE void Reflex::SIMD::TypeV4<TYPE>::Read(SingleType * unaligned) const
 {
 	PlatformVectorType<TYPE,4>::StoreUnaligned(unaligned, *this);
 }
 
-template <class TYPE> REFLEX_INLINE TYPE Reflex::SIMD::TypeV4<TYPE>::ReadFirst() const
+template <class TYPE> REFLEX_INLINE typename Reflex::SIMD::TypeV4<TYPE>::SingleType Reflex::SIMD::TypeV4<TYPE>::ReadFirst() const
 {
 	return REFLEX_GETFIRST_F32_X4(data);
 }
 
-template <class TYPE> REFLEX_INLINE Reflex::Quad <TYPE> Reflex::SIMD::TypeV4<TYPE>::Read() const
+template <class TYPE> REFLEX_INLINE Reflex::Quad <typename Reflex::SIMD::TypeV4<TYPE>::SingleType> Reflex::SIMD::TypeV4<TYPE>::Read() const
 {
-	Quad <TYPE> rtn;
+	Quad <SingleType> rtn;
 
 	PlatformVectorType<TYPE,4>::StoreUnaligned(&rtn.a, *this);
 
 	return rtn;
 }
 
-template <class TYPE> REFLEX_INLINE TYPE * Reflex::SIMD::TypeV4<TYPE>::GetData()
+template <class TYPE> REFLEX_INLINE typename Reflex::SIMD::TypeV4<TYPE>::SingleType * Reflex::SIMD::TypeV4<TYPE>::GetData()
 {
-	return Reinterpret<TYPE>(&data);
+	return Reinterpret<SingleType>(&data);
 }
 
-template <class TYPE> REFLEX_INLINE const TYPE * Reflex::SIMD::TypeV4<TYPE>::GetData() const
+template <class TYPE> REFLEX_INLINE const typename Reflex::SIMD::TypeV4<TYPE>::SingleType * Reflex::SIMD::TypeV4<TYPE>::GetData() const
 {
-	return Reinterpret<TYPE>(&data);
+	return Reinterpret<SingleType>(&data);
 }

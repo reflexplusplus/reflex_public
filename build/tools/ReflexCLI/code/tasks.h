@@ -95,17 +95,13 @@ namespace ReflexCLI
 
 
 	void Install(CString::View version, const Array <CString::View> & platforms, const WString & path, bool test, System::FileHandle & std_out);
-
 	void ListVersions(System::FileHandle & std_out);
-
 	void GetVersion(System::FileHandle & std_out);
 
 	void SetPath(const WString & path, System::FileHandle & std_out);
 
 	void Doc(const Data::PropertySet & args, System::FileHandle & std_out);
-
 	void DocHelp(System::FileHandle & std_out);
-
 
 	enum BuildPlatform : UInt8
 	{
@@ -129,8 +125,12 @@ namespace ReflexCLI
 	WString CreateProject(const TemplateDefinition & tmpl, ArrayView <Variable> string_inputs, ArrayView <Variable> path_inputs, ArrayView <CString::View> targets, const WString & destination, System::FileHandle & std_in, System::FileHandle & std_out, const Function <bool(const WString&)> & overwrite);
 
 	void BuildResources(const WString::View & filename, Float & progress);
-	
 	void BuildPlist(const Data::PropertySet & args, System::FileHandle & std_out);
+
+
+	void UnsetSecret(const Data::PropertySet & args, System::FileHandle & std_out);
+	void SetSecret(const Data::PropertySet & args, System::FileHandle & std_out);
+	void GetSecret(const Data::PropertySet & args, System::FileHandle & std_out);
 
 
 	extern Output output;
@@ -150,6 +150,8 @@ namespace ReflexCLI
 		File::WriteLine(std_out, Join(kColourDefault, name, ' ', kColourDim, description, kColourDefault));
 	}
 
+
+	constexpr auto kFirstPositionalArg = K32("value");
 
 	constexpr Key32 kInclude = "include";
 

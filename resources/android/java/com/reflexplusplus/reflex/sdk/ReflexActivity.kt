@@ -81,6 +81,13 @@ open class ReflexActivity(private val filepathsResourceId: Int) : NativeActivity
 	}
 
 	private val kAccessModeOpenReadOnly = 1
+
+	@Suppress("unused") // Used from C++
+	fun accessSecret(operation: Int, key: String, value: ByteArray): ByteArray
+	{
+		return ReflexSecrets.access(applicationContext, operation, key, value)
+	}
+
 	private val kAccessModeCreateNew = 2
 	private val kAccessModeOpenReadWrite = 3
 

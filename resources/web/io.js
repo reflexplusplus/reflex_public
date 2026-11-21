@@ -1,34 +1,21 @@
-export function createIOImports(memory) {
-    return {
-        request: (operation, handle, pointer, length, offset) => {
-            const reply = new SharedArrayBuffer(16);
-            const state = new Int32Array(reply);
-            self.postMessage({ type: "io", operation, handle, pointer: pointer >>> 0, length: length >>> 0, offset, reply });
-            while (Atomics.load(state, 0) === 0) Atomics.wait(state, 0, 0);
-            return new DataView(reply).getBigInt64(8, true);
-        },
-    };
-}
-
-export function createIOManager(memory, onError = console.error) {
-    const worker = new Worker(new URL("./io-worker.js?r1-dev", import.meta.url), { type: "module" });
-    const pending = new Map();
-    let nextRequest = 1;
-    let failed = false;
-    const finish = reply => { new DataView(reply).setBigInt64(8, -1n, true); Atomics.store(new Int32Array(reply), 0, 1); Atomics.notify(new Int32Array(reply), 0); };
+export function createIOManager(memory, onError) {
+    const worker = new Worker(new URL("./io-worker.js?r5-dev", import.meta.url), { type: "module" });
+    let nextPortId = 1;
     worker.postMessage({ type: "initialize", memory });
     worker.onmessage = ({ data }) => {
-        if (data.type === "io-complete") pending.delete(data.requestId);
-        else if (data.type === "http-diagnostic") console.warn("Reflex HTTP:", data.message);
+        if (data.type === "http-diagnostic") console.warn("Reflex HTTP:", data.message);
+        if (data.type === "io-fatal") onError(new Error(`Reflex I/O worker: ${data.message}`));
     };
-    worker.onerror = event => { failed = true; for (const reply of pending.values()) finish(reply); pending.clear(); onError(new Error(event.message)); };
+    worker.onerror = event => onError(new Error(event.message || "Reflex I/O worker failed"));
+    worker.onmessageerror = () => onError(new Error("Could not decode a message from the Reflex I/O worker"));
     return {
-        handle: ({ data }) => {
-            if (data.type !== "io") return false;
-            if (failed) finish(data.reply);
-            else { const requestId = nextRequest++; pending.set(requestId, data.reply); worker.postMessage({ ...data, requestId }); }
-            return true;
+        connect: (caller, message, transfer = []) => {
+            const id = nextPortId++;
+            const { port1, port2 } = new MessageChannel();
+            caller.postMessage({ ...message, ioPort: port1 }, [...transfer, port1]);
+            worker.postMessage({ type: "connect", id, port: port2 }, [port2]);
+            return () => worker.postMessage({ type: "disconnect", id });
         },
-        stop: () => { failed = true; for (const reply of pending.values()) finish(reply); pending.clear(); worker.terminate(); },
+        stop: () => worker.terminate(),
     };
 }
