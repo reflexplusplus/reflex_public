@@ -19,7 +19,7 @@ REFLEX_END
 
 
 //
-//Scopeable
+//Detail::ScopeOf
 
 template <class TYPE, bool TLS, class VARIANT>
 class Reflex::Detail::ScopeOf

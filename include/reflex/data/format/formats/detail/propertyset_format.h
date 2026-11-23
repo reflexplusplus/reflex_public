@@ -23,11 +23,8 @@ struct PropertySetFormat : public SerializableFormat
 		const char * desc;
 
 		FunctionPointer <void(const SerializableFormat & format, Archive &, const Object &)> store;
-
 		FunctionPointer <Unretained<Object>(const SerializableFormat & format, Archive::View &)> restore;
-
 		FunctionPointer <bool(const PropertySetFormat & format, const Object & a, const Object & b)> compare;
-
 		FunctionPointer <AlreadyRetained<Object>()> null;
 	};
 

@@ -1,5 +1,28 @@
 # Breaking Changes
 
+## v0.10.4
+
+### Web launchers pass command-line arguments explicitly
+
+`startReflex()` now accepts a `commandLine` array of strings, passed to `System::App::OnStart` in array order. Omitting it passes an empty argument list. URL query parameters are no longer forwarded automatically. Update custom launchers that depend on query parameters to parse them and supply the resulting arguments through `commandLine`.
+
+For fixed arguments, add `commandLine: ["--preset", "Demo"]` to the existing `startReflex()` options. To preserve the previous URL query conversion, construct the array before calling `startReflex()`.
+
+```javascript
+const commandLine = [];
+for (const parameter of window.location.search.slice(1).split("&"))
+{
+    for (const [name, value] of new URLSearchParams(parameter))
+    {
+        if (!name) continue;
+        commandLine.push(`--${name}`);
+        if (parameter.includes("=")) commandLine.push(value);
+    }
+}
+```
+
+Then include `commandLine` in the options object. Bare query parameters become flags, explicit empty values are preserved, and repeated parameters keep their order. Deploy the updated launcher and runtime together.
+
 ## v0.10.3
 
 ### `System::FileHandle::Create` uses an explicit lock mode

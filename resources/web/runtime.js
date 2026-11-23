@@ -66,18 +66,8 @@ async function downloadModule(response, onProgress) {
     return bytes.buffer;
 }
 
-export async function startReflex({ moduleUrl, canvas, initialBytes, maximumBytes, onError = console.error, onProgress, touchMode = "raw", secretStorage = false }) {
+export async function startReflex({ moduleUrl, canvas, initialBytes, maximumBytes, commandLine = [], onError = console.error, onProgress, touchMode = "raw", secretStorage = false }) {
     if (touchMode !== "raw" && touchMode !== "viewport") throw new Error('touchMode must be "raw" or "viewport"');
-    const commandLine = [];
-    for (const parameter of window.location.search.slice(1).split("&"))
-    {
-        for (const [name, value] of new URLSearchParams(parameter))
-        {
-            if (!name) continue;
-            commandLine.push(`--${name}`);
-            if (parameter.includes("=")) commandLine.push(value);
-        }
-    }
     if (!globalThis.crossOriginIsolated)
         throw new Error("Reflex shared memory requires cross-origin isolation (COOP/COEP)");
     const initial = pages(initialBytes, "initialBytes");

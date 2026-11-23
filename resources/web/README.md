@@ -13,12 +13,11 @@ Custom launcher URLs can use `./[FILENAME].wasm?[TIMESTAMP]` or a CDN prefix;
 See the [generated-project notes](../../build/tools/ReflexCLI/resources/project_generator/web_templates/README.md)
 for all placeholders and custom hosting requirements.
 
-The page URL's query parameters are passed to `OnStart` as command-line
-arguments: `?preset=Demo&autoplay=false` becomes `--preset`, `Demo`, `--autoplay`,
-`false`. Bare parameters such as `?debug` become flags (`--debug`); `?name=`
-passes an explicit empty value. Names and values are URL-decoded (including
-`+` as space), and repeated parameters retain their order. Empty names are
-ignored. Only the page query is used, not the Wasm or runtime cache-key queries.
+`startReflex()` accepts an optional `commandLine` array of strings. The arguments
+are passed to `OnStart` in array order. For example, add
+`commandLine: ["--preset", "Demo"]` to the options in your `index.html`. Omitting
+`commandLine` passes an empty argument list. To forward URL query parameters,
+parse them in your launcher and pass the resulting arguments as `commandLine`.
 
 Use `reflex generate web` and `reflex build web` with Clang/LLVM helpers.
 If changing the generator/templates, rebuild ReflexCLI and its embedded resources

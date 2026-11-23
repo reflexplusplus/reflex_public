@@ -49,16 +49,18 @@ struct MenuImpl : public Menu
 	void OnDetachWindow() override;
 
 
+	void SetRoot(Object & root);
+
+
 	ConstReference <ComputedStyle> m_cstyle;
 
 	Key32 m_context;
 
 	Object m_content;
 
-	MenuImpl * m_root;
+	Core::WeakReference m_root;
 
 	Core::WeakReference m_parent_item;
-
 };
 
 REFLEX_END
@@ -69,5 +71,5 @@ struct Reflex::GLX::MenuImpl::ComputedStyle : public Reflex::Object
 
 	ComputedStyle(const Style & style);
 
-	const ConstAlreadyRetained <Style> kFolder, kItem, kSeparator;
+	const ConstAlreadyRetained <Style> folder, item, separator;
 };

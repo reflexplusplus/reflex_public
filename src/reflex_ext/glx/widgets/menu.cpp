@@ -137,7 +137,7 @@ REFLEX_END_INTERNAL
 
 Reflex::GLX::MenuImpl::MenuImpl()
 	: m_cstyle(New<ComputedStyle>())
-	, m_root(this)
+	, m_root(*this)
 {
 	EnableAbsolute(*this);
 
@@ -152,7 +152,7 @@ Reflex::GLX::MenuImpl::MenuImpl()
 
 void Reflex::GLX::MenuImpl::Clear()
 {
-	if (this == m_root) DetachClock(*this, kSubmenuHoverTimer);
+	if (this == m_root.Adr()) DetachClock(*this, kSubmenuHoverTimer);
 
 	m_content.Clear();
 }
@@ -169,9 +169,7 @@ Reflex::AlreadyRetained <Reflex::GLX::Object> Reflex::GLX::MenuImpl::AddItem(Wil
 			{
 				if (auto idx = GLX::LookupBranchIndex(menu->GetContent(), item))
 				{
-					auto proot = Cast<MenuImpl>(menu->m_root);
-
-					Core::WeakReference rootref(*proot);
+					Core::WeakReference rootref = menu->m_root;
 
 					GLX::Emit(*menu, kMenuSelect, kindex, idx.value, kitem, item);
 
@@ -190,7 +188,7 @@ Reflex::AlreadyRetained <Reflex::GLX::Object> Reflex::GLX::MenuImpl::AddSeparato
 {
 	auto item = New<Object>();
 
-	item->SetStyle(m_cstyle->kSeparator);
+	item->SetStyle(m_cstyle->separator);
 
 	return AddSeparator(item);
 }
@@ -199,7 +197,7 @@ Reflex::AlreadyRetained <Reflex::GLX::Menu> Reflex::GLX::MenuImpl::AddSubMenu(Wi
 {
 	auto menu = Cast<MenuImpl>(base);
 
-	menu->m_root = m_root;
+	menu->SetRoot(*m_root);
 
 	menu->m_parent_item = item;
 
@@ -226,7 +224,7 @@ Reflex::AlreadyRetained <Reflex::GLX::Menu> Reflex::GLX::MenuImpl::AddSubMenu(Wi
 
 Reflex::AlreadyRetained <Reflex::GLX::Object> Reflex::GLX::MenuImpl::AddItem(const WString::View & label)
 {
-	return AddItem(CreateWithLabel(label, m_cstyle->kItem));
+	return AddItem(CreateWithLabel(label, m_cstyle->item));
 }
 
 Reflex::AlreadyRetained <Reflex::GLX::Object> Reflex::GLX::MenuImpl::AddSeparator(WillRetain <Object> item)
@@ -240,7 +238,7 @@ Reflex::AlreadyRetained <Reflex::GLX::Object> Reflex::GLX::MenuImpl::AddSeparato
 
 Reflex::AlreadyRetained <Reflex::GLX::Menu> Reflex::GLX::MenuImpl::AddSubMenu(const WString::View & label)
 {
-	auto submenu = AddSubMenu(CreateWithLabel(label, m_cstyle->kFolder), Create());
+	auto submenu = AddSubMenu(CreateWithLabel(label, m_cstyle->folder), Create());
 
 	submenu->SetStyle(GetStyle());
 
@@ -294,7 +292,7 @@ bool Reflex::GLX::MenuImpl::OnEvent(Object & src, Event & e)
 	{
 		if (item)
 		{
-			Object*(Object::*GetNextFn[2])() = {&Object::GetPrev, &Object::GetNext};
+			constexpr Object*(Object::*GetNextFn[2])() = {&Object::GetPrev, &Object::GetNext};
 
 			while (IsSeparator(item)) item = (item->*GetNextFn[down])();
 
@@ -455,7 +453,7 @@ void Reflex::GLX::MenuImpl::OnAttachWindow()
 {
 	Object * src = this;
 
-	if (this == m_root)
+	if (this == m_root.Adr())
 	{
 		if (auto owner = QueryProperty<Reflex::Detail::WeakRef<Object>>(kowner)) src = owner->Load().Adr();
 
@@ -465,7 +463,7 @@ void Reflex::GLX::MenuImpl::OnAttachWindow()
 
 			if (auto menu = Cast<MenuImpl>(QueryParentByType<Menu>(mouseover)))
 			{
-				if (menu->m_root == this)
+				if (menu->m_root.Adr() == this)
 				{
 					if (auto item = QueryContainingItem(*menu, mouseover))
 					{
@@ -477,7 +475,7 @@ void Reflex::GLX::MenuImpl::OnAttachWindow()
 
 							if (BranchContains(item, Core::desktop->GetMouseOver()))
 							{
-								Cast<MenuImpl>(*menu_ref)->OpenSubMenu(item);
+								if (menu_ref && item_ref) Cast<MenuImpl>(*menu_ref)->OpenSubMenu(item);
 							}
 						});
 					}
@@ -521,7 +519,7 @@ void Reflex::GLX::MenuImpl::OnAttachWindow()
 
 void Reflex::GLX::MenuImpl::OnDetachWindow()
 {
-	if (this == m_root) DetachClock(*this, kSubmenuHoverTimer);
+	if (this == m_root.Adr()) DetachClock(*this, kSubmenuHoverTimer);
 
 	DetachClock(*this, kNullKey);
 
@@ -534,14 +532,27 @@ void Reflex::GLX::MenuImpl::OnDetachWindow()
 	GLX::ScrollArea::OnDetachWindow();
 }
 
+void Reflex::GLX::MenuImpl::SetRoot(Object & root)
+{
+	m_root = root;
+
+	for (auto & i : GetContent())
+	{
+		if (auto submenu = QuerySubMenu(i))
+		{
+			submenu->SetRoot(root);
+		}
+	}
+}
+
 Reflex::GLX::MenuImpl::ComputedStyle::ComputedStyle()
 {
 }
 
 Reflex::GLX::MenuImpl::ComputedStyle::ComputedStyle(const Style & style)
-	: kFolder(style[K32("folder")])
-	, kItem(style[K32("item")])
-	, kSeparator(style[kseparator])
+	: folder(style[K32("folder")])
+	, item(style[K32("item")])
+	, separator(style[kseparator])
 {
 }
 
@@ -601,7 +612,6 @@ REFLEX_NOINLINE bool Reflex::GLX::Detail::EmitMenuOpenEvent(Object & src, Menu &
 	e->SetProperty(kmenu, Cast<Object>(menu));	//legacy for VM
 
 	Data::SetKey32(e, kcontext, context);
-
 	Data::SetUInt8(e, kmodifiers, System::GetModifierKeys());
 
 	return src.Emit(e);
