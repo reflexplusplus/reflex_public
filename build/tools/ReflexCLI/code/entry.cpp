@@ -151,11 +151,11 @@ Array <CString::View> FindTargets(const CString::View & arg)
 	{
 		auto value = Trim(raw);
 
-		if (auto ptarget = SearchValue<StringCompare>(ToView(kBuildPlatforms), value))
+		if (auto ptarget = SearchValue<NormalizedStringCompare>(ToView(kBuildPlatforms), value))
 		{
 			if (!Search(targets, *ptarget)) targets.Push(*ptarget);
 		}
-		else if (auto system = SearchValue<StringCompare>(ToView(kMetaSystems), value))
+		else if (auto system = SearchValue<NormalizedStringCompare>(ToView(kMetaSystems), value))
 		{
 			if (!Search(targets, *system)) targets.Push(*system);
 		}
@@ -183,7 +183,7 @@ const TemplateDefinition * SearchTemplate(const ArrayView <TemplateDefinition> &
 {
 	for (auto & tmpl : templates)
 	{
-		if (StringCompare::eq(GetTemplateID(tmpl), value)) return &tmpl;
+		if (NormalizedStringCompare::eq(GetTemplateID(tmpl), value)) return &tmpl;
 	}
 
 	return nullptr;

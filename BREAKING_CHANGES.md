@@ -1,5 +1,13 @@
 # Breaking Changes
 
+## v0.10.5
+
+### `WString` deserialization requires an explicit encoding
+
+The previously deprecated generic `Data::Deserialize` into a `WString` has been removed. Replace calls such as `Data::Deserialize<WString>(stream)` or `Data::Deserialize(stream, string)` with `Data::DeserializeUCS2(stream)` or `Data::DeserializeUCS2(stream, string)` when reading the UCS-2 representation used by the previous decoder. Use `Data::DeserializeUTF8` for data written with `Data::SerializeUTF8`.
+
+For a string member restored through generic serialization, use `Data::Detail::WStringUCS2` to explicitly select UCS-2, or implement the containing type's serialization with matching `SerializeUTF8`/`DeserializeUTF8` or `SerializeUCS2`/`DeserializeUCS2` calls. Choose the decoder that matches existing stored data.
+
 ## v0.10.4
 
 ### Web launchers pass command-line arguments explicitly

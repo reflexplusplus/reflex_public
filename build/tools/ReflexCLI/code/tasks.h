@@ -88,7 +88,7 @@ namespace ReflexCLI
 	bool GetFilePermissions(WString::View path, UInt32 & permissions);
 	bool SetFilePermissions(WString::View path, UInt32 permissions);
 
-	struct StringCompare
+	struct NormalizedStringCompare
 	{
 		static bool eq(CString::View a, CString::View b);
 	};

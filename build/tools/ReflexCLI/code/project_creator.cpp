@@ -212,28 +212,7 @@ WString InstallFolder(const TemplateDefinitionEx & tmpl, const Array <Variable> 
 	return dst;
 }
 
-char Normalize(char c)
-{
-	if (c == '-') c = '_';
-
-	if (c >= 'A' && c <= 'Z') c = char(c - 'A' + 'a');
-
-	return c;
-}
-
 REFLEX_END_INTERNAL
-
-bool ReflexCLI::StringCompare::eq(CString::View a, CString::View b)
-{
-	if (a.size != b.size) return false;
-
-	for (UInt i = 0; i < a.size; ++i)
-	{
-		if (Normalize(a[i]) != Normalize(b[i])) return false;
-	}
-
-	return true;
-}
 
 Reflex::WString ReflexCLI::CreateProject(const TemplateDefinition & base_tmpl, ArrayView <Variable> string_inputs, ArrayView <Variable> path_inputs, ArrayView <CString::View> targets, const WString & destination, System::FileHandle & std_in, System::FileHandle & out, const Function <bool(const WString&)> & overwrite)
 {

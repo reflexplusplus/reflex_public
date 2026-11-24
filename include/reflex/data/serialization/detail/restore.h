@@ -48,7 +48,7 @@ template <> struct ArrayDecoder <WChar>
 {
 	static void RestoreImpl(Archive::View & stream, WChar * data, UInt size);
 
-	static void RestoreImpl(Archive::View & stream, WString & data);
+	static void RestoreImpl(Archive::View & stream, WString & data) = delete;	// use DeserializeUTF8 or DeserializeUCS2
 
 	static void RestoreImpl(Archive::View & stream, WString::View & data);		//NOT DEFINED, WIN/MAC INCOMPATIBLE
 };
@@ -95,21 +95,6 @@ template <class TYPE> REFLEX_INLINE void ArrayDecoder<TYPE>::RestoreImpl(Archive
 	data = { Reinterpret<TYPE>(stream.data), size };
 
 	stream = Nudge(stream, sizeof(TYPE) * size);
-}
-
-REFLEX_INLINE void ArrayDecoder<WChar>::RestoreImpl(Archive::View & stream, WString & data)
-{
-	typename IndexType<Array<WChar>>::Type size;
-
-	Detail::RestoreImpl(stream, size);
-
-	UInt nbytes = size * 2;
-
-	data.Clear();
-
-	DecodeUCS2(data, { stream.data, nbytes });
-
-	stream = Nudge(stream, nbytes);
 }
 
 template <UInt IDX, class TUPLE> void RestoreTuple(Archive::View & stream, TUPLE & tuple)

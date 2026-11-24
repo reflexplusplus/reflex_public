@@ -189,7 +189,28 @@ Reflex::Array<Variable> ReadVariableProperties(const Reflex::Data::PropertySet &
 	return result;
 }
 
+REFLEX_INLINE char Normalize(char c)
+{
+	if (c == '-') c = '_';
+
+	if (c >= 'A' && c <= 'Z') c = char(c - 'A' + 'a');
+
+	return c;
+}
+
 REFLEX_END_INTERNAL
+
+bool ReflexCLI::NormalizedStringCompare::eq(CString::View a, CString::View b)
+{
+	if (a.size != b.size) return false;
+
+	for (UInt i = 0; i < a.size; ++i)
+	{
+		if (Normalize(a[i]) != Normalize(b[i])) return false;
+	}
+
+	return true;
+}
 
 Reflex::ArrayView <Reflex::CString> ReflexCLI::GetCStrings(const Data::PropertySet & properties, Key32 id)
 {

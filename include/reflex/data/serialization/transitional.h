@@ -25,12 +25,6 @@ namespace Reflex::Data
 
 }
 
-REFLEX_NS(Reflex::Data::Detail)
-
-void RestoreLegacyWString(Archive::View & stream, WString & out);
-
-REFLEX_END
-
 
 
 
