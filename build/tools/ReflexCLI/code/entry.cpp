@@ -741,6 +741,7 @@ const CLI::TaskDef kCommands[] =
 			PrintCommandWithDescription(std_out, "import", "import variables");
 			PrintCommandWithDescription(std_out, "build-resources", "build Reflex++ resource output for a source file");
 			PrintCommandWithDescription(std_out, "build-plist", "generate an Info.plist file for a supported target");
+			PrintCommandWithDescription(std_out, "touch <file>", "set a file's access and modification times to the current time");
 
 			File::WriteLine(std_out);
 			PrintCommandWithDescription(std_out, "install", "install or update the SDK");
@@ -812,6 +813,10 @@ const CLI::TaskDef kCommands[] =
 
 			case K32("build-resources"):
 				print_arg(true, "--path <path>", "the resources.xml description to build, defaults to ./resources.xml");
+				return;
+
+			case K32("touch"):
+				print_arg(false, "<file>", "the existing file whose access and modification times to update");
 				return;
 
 			case K32("build-plist"):
@@ -1050,6 +1055,12 @@ const CLI::TaskDef kCommands[] =
 	CLI::MakeTask("unset-secret", &UnsetSecret),
 	CLI::MakeTask("set-secret", &SetSecret),
 	CLI::MakeTask("get-secret", &GetSecret),
+	CLI::MakeTask("touch", [](const Data::PropertySet & args, System::FileHandle &)
+	{
+		ValidateArgs(args, { RequiredArg(kFirstPositionalArg) });
+		auto path = CLI::GetFilename(args, "value", true);
+		Require(System::SetFileTime(path, System::GetTime()), "could not update file timestamps", path);
+	}),
 	CLI::MakeTask("build-resources", [](const Data::PropertySet & args, System::FileHandle & std_out)
 	{
 		ValidateArgs(args, { Arg("path") });

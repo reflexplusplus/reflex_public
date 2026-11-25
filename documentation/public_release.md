@@ -70,8 +70,10 @@ bootstraps the CLI through CMake, and checks the resulting executable. It does
 not build libraries or example/template apps, or create package archives.
 
 The workflow builds Debug and Release libraries for Windows, macOS, Linux,
-iOS, Android and Web. It builds a fresh CLI on each host and signs/notarizes the
-macOS CLI. AAX and VST2 are disabled through the shared builder's defaults.
+iOS, Android and Web. It builds a fresh CLI on each desktop host and
+signs/notarizes the macOS CLI. iOS uses the packaged macOS CLI. Android and Web
+use the packaged Linux CLI. AAX and VST2 are disabled through the shared
+builder's defaults.
 Generation and build settings are passed through command-local `--variables`;
 the workflows do not set or unset persistent CLI preferences.
 
@@ -99,30 +101,26 @@ the common source snapshot and other target libraries remain ZIPs.
 Documentation assets are forwarded unchanged, including Linux `.tar.gz`
 or `.tar.xz` packages, and remain optional separate downloads.
 
-Verification extracts the packaged SDK and uses its packaged host CLI to
+Each target's build job verifies its local library archive before uploading it.
+The job extracts the shared public source and uses the packaged host CLI to
 generate/build the public C++ templates for each supported target platform. On
 Windows, macOS, and Linux it also generates and builds each exported example
 with a `project.cfg` in Debug using the packaged CLI and libraries.
-Each verification job downloads the shared source archive and candidate
-manifest, then reuses the original build artifacts for its target libraries
-and host CLI. iOS uses the macOS CLI; Android and Web use the Linux CLI.
-Assembly does not upload separate bundles for each verification job.
-Each job checks the downloaded archives against the original manifest.
-It does not rebuild the CLI or use the checkout's development CLI. Native desktop
-and iOS jobs also run the existing CMake distribution-consumer checks. No
-application is launched.
+Native desktop and iOS jobs also run the existing CMake distribution-consumer
+checks. No application is launched.
 
-The `public-candidate` artifact contains the source snapshot, release assets,
-notes, source revision and SHA-256 checksums. It is retained for 14 days. If any
-build or verification job fails, publication does not run; artifacts remain
-available for diagnosis.
+The Prepare job uploads the source archive and release notes once. Desktop
+verification uses its local CLI archive. Cross-target jobs download the exact
+CLI artifact from their desktop host job by artifact ID. Successful target
+jobs upload their library archive and a report with SHA-256 hashes for the
+source, library and CLI archives they verified.
 
-Platform jobs upload archives only. Assembly requires all six library archives and
-three host CLI archives, then writes one final `candidate.json` manifest.
-Verification checks its file hashes, and publication selects release assets
-from that same manifest. All jobs use the workflow's selected source revision.
-Publication downloads the complete candidate and checks every file hash before
-publishing.
+Publish downloads the original artifacts by ID, combines the six reports into
+`candidate.json`, and checks every release file against that manifest. Reports
+must agree on the shared source archive, on each reused CLI archive, and on the
+selected revision. This keeps the publisher on the verified bytes even when
+jobs are rerun. Uploaded artifacts are retained for 14 days. Publication runs
+only after all six build and verification jobs succeed.
 
 `reflex install` and CMake consume these same modular packages. The website
 uses `reflex-source.zip` as the release's core content and labels the library,
@@ -138,15 +136,18 @@ repository; `REFLEX_GITHUB_REPO` can select another repository.
 
 ## Automatic publication
 
-Once all platform verification jobs pass, the same workflow automatically
+Once all platform build jobs pass verification, the same workflow automatically
 publishes the verified artifacts. There is no second workflow or manual approval
 step. Publication checks the source revision and checksums; it does not rebuild
 or regenerate the public export.
 
 Publication mirrors the verified source snapshot into `reflex_public`, tags the
-exported commit, and uploads the matching public release assets. It then requests
-a website mirror and waits until the CLI can discover the release through
-reflexplusplus.dev.
+exported commit, and uploads the matching public release assets. The publisher
+requests the asset digests from the GitHub API and compares their SHA-256 values
+with the candidate manifest without downloading the assets again. A missing
+asset, missing digest, or mismatch fails publication before the website mirror
+is requested. The workflow then waits until the CLI can discover the release
+through reflexplusplus.dev.
 
 After the website confirms availability, CI squashes the licensed preparation
 commits into a single commit on `dev`, using the version as its subject. The
@@ -204,8 +205,8 @@ that checkout must also be permitted to update workflows.
 
 ## Helper commands
 
-`scripts/export_reflex_public_sdk.py` provides `check`, `package`, `assemble`,
-`verify` and `publish` commands. Normally use the workflow, which sets up the
+`scripts/export_reflex_public_sdk.py` provides `check`, `source`, `package`,
+`verify`, `assemble` and `publish` commands. Normally use the workflow, which sets up the
 platform toolchains and enforces the successful-build requirement before
 publication. `check`, `package` and `assemble` read root `version.txt`. Run a
 command with `--help` to see its inputs.
