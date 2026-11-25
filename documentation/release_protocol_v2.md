@@ -43,14 +43,19 @@ need a correction, make it there and export the corrected revision.
 
 ## 4. Build and publish from licensed `reflex`
 
-In `reflexplusplus/reflex`, run **Release Public SDK** on the branch containing
-the licensed export commit. Confirm that the workflow is running on that commit.
+In `reflexplusplus/reflex`, run **Release Public SDK** on the preparation branch
+containing the licensed export, such as `release-prep-v0.10.5`. Start that branch
+from licensed `dev` and make incremental commits as needed.
+The workflow requires a branch other than `dev` or `main`. Confirm that the
+workflow is running on the final preparation commit.
 Choose the runners; the version comes from the selected revision's `version.txt`.
 The workflow validates the version and changelog before building. It then builds
 the libraries and CLI, exports the trimmed public source on CI, packages the
 binaries, verifies the candidate, and publishes the verified source and assets to
-`reflex_public`. CI creates the downstream tags. There is no manual public export
-or tag push in this protocol.
+`reflex_public`. Once the public release is available on the website, CI squashes
+the preparation commits into one commit named for the version, such as
+`v0.10.5`. It pushes that commit to licensed `dev` together with the version tag,
+publishes the licensed release notes, and deletes the remote preparation branch.
 
 The packaged libraries carry a per-platform copy of the release version.
 `reflex version` falls back to the root `version.txt` if the binary marker is

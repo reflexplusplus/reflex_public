@@ -6,10 +6,10 @@ Public releases are built from the licensed export in `reflexplusplus/reflex`.
 
 Follow [Release protocol v2](release_protocol_v2.md) to prepare and test the
 release in `reflex_master`, then export it to the licensed repository. Run
-**Release Public SDK** (`release_public_sdk.yml`) there and select the branch or
-tag for the licensed export. CI reads the release version from the selected
-revision's root `version.txt` and requires a matching, completed changelog.
-There is no requirement to merge the selected revision to `main`.
+**Release Public SDK** (`release_public_sdk.yml`) there and select the preparation
+branch containing the licensed export. The workflow rejects `dev`, `main`, and
+tags. CI reads the release version from the selected revision's root `version.txt`
+and requires a matching, completed changelog.
 
 The manual form has three runner checkboxes, all checked by default. Checked
 uses self-hosted runners; unchecked uses GitHub-hosted runners:
@@ -143,25 +143,29 @@ publishes the verified artifacts. There is no second workflow or manual approval
 step. Publication checks the source revision and checksums; it does not rebuild
 or regenerate the public export.
 
-Publication creates the version tag in `reflex` at the verified source commit,
-mirrors the public source snapshot into `reflex_public`, tags that exported
-commit, and uploads the matching public release assets. After public GitHub
-publication succeeds, it creates or updates a notes-only release in licensed
-`reflex`, using the same changelog and prerelease status. Binary assets are
-uploaded only to `reflex_public`. Existing tags are never
-moved. Repeating publication is allowed when the existing public tag is still
-at the public branch head and the candidate contents match.
+Publication mirrors the verified source snapshot into `reflex_public`, tags the
+exported commit, and uploads the matching public release assets. It then requests
+a website mirror and waits until the CLI can discover the release through
+reflexplusplus.dev.
 
-After GitHub publication, the shared website notification requests a mirror of
-the release and polls until it is available through reflexplusplus.dev, which
-the CLI uses for installation and release discovery. If that confirmation
-fails, the workflow fails while the GitHub release remains published.
+After the website confirms availability, CI squashes the licensed preparation
+commits into a single commit on `dev`, using the version as its subject. The
+squash has the same file tree as the verified preparation commit. CI pushes it
+and its version tag atomically, then creates or updates the notes-only licensed
+release and deletes the remote preparation branch. If someone adds commits to the
+preparation branch during publication, Git rejects the deletion. If `dev` changes
+after the publisher checks it, Git rejects the `dev` and tag update together.
+
+A failure after public publication can leave the GitHub public release live.
+Existing tags are never moved. Repeating publication is allowed when the
+existing public tag is still at the public branch head and the candidate
+contents match.
 
 ## Repository setup
 
 - Introduce `release_public_sdk.yml` on the licensed repository's default
-  branch so its manual Run workflow button is available. Runs can then
-  select `dev` or another branch.
+  branch so its manual Run workflow button is available. Select a preparation
+  branch when dispatching the workflow.
 - Enable Actions and make the selected self-hosted runners available to `reflex`,
   with the standard `self-hosted` and OS labels (`Windows`, `macOS`, `Linux`).
   CMake and the native platform toolchain must be installed. Shared setup reuses
@@ -188,6 +192,8 @@ fails, the workflow fails while the GitHub release remains published.
 - Set `EXPORT_PUSH_TOKEN` with Contents read/write access to
   `reflexplusplus/reflex_public`. The workflow's own token creates the source
   tag and notes-only release in `reflex` and needs Contents write permission there.
+  Licensed branch and tag rules must allow the workflow token to update `dev`,
+  create the version tag, and delete the preparation branch.
 
 The licensed export includes scripts, tests, `export_rules.json` and `.github`.
 The public export removes the release infrastructure and rule file. Check Runners

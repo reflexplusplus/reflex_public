@@ -93,9 +93,9 @@ struct PluginWindowClient :
 		initial_rect.size = { Truncate(m_last_size.w), Truncate(m_last_size.h) };
 	}
 
-	void OnSetRect(System::WindowDisplay mode, const System::iRect & rect, const System::iRect & interactable, Int32 dpifactor) override
+	void OnSetRect(System::WindowDisplay mode, const System::iRect & rect, const System::iRect & client_area, Int32 dpifactor) override
 	{
-		WindowClient::OnSetRect(mode, rect, interactable, dpifactor);
+		WindowClient::OnSetRect(mode, rect, client_area, dpifactor);
 
 		if (mode == System::kWindowDisplayWindowed) m_last_size = GetRect().size;
 	}
@@ -175,9 +175,9 @@ struct DesktopAppWindowClient : public WindowClient
 		initial_rect = m_pending_rect;
 	}
 
-	void OnSetRect(System::WindowDisplay mode, const System::iRect & rect, const System::iRect & interactable, Int32 dpifactor) override
+	void OnSetRect(System::WindowDisplay mode, const System::iRect & rect, const System::iRect & client_area, Int32 dpifactor) override
 	{
-		WindowClient::OnSetRect(mode, rect, interactable, dpifactor);
+		WindowClient::OnSetRect(mode, rect, client_area, dpifactor);
 
 		if (mode == System::kWindowDisplayWindowed) m_windowed_rect = GetRect();
 	}
@@ -204,6 +204,17 @@ struct MobileWindowClient : public WindowClient
 		default:
 			return System::kScreenOrientationDefault;
 		}
+	}
+
+	static void ApplyClientAreaInset(GLX::Object & container, GLX::Object & content, const GLX::Margin & padding)
+	{
+		auto style = Make<GLX::Style>(kNullKey);
+
+		GLX::SetMargin(style, K32("padding"), padding);
+
+		container.SetMod(K32("client_inset"), GLX::Detail::ComputedStyle::Create(style));
+
+		GLX::SetMargin(content, K32("client_inset"), padding);
 	}
 
 	MobileWindowClient(GLX::Object & view)
@@ -283,17 +294,15 @@ struct MobileWindowClient : public WindowClient
 		return GetScreenOrientation();
 	}
 
-	void OnSetRect(System::WindowDisplay state, const System::iRect & rect, const System::iRect & interactable, Int32 dpifactor) override
+	void OnSetRect(System::WindowDisplay state, const System::iRect & rect, const System::iRect & client_area, Int32 dpifactor) override
 	{
-		auto style = Make<GLX::Style>(kNullKey);
+		auto content = GetContent();
+		
+		auto padding = GLX::MakeMargin(ToFloat32(client_area.origin.x), ToFloat32(client_area.origin.y), ToFloat32(rect.size.w - client_area.size.w), ToFloat32(rect.size.h - client_area.size.h));
 
-		auto padding = GLX::MakeMargin(ToFloat32(interactable.origin.x), ToFloat32(interactable.origin.y), ToFloat32(rect.size.w - interactable.size.w), ToFloat32(rect.size.h - interactable.size.h));
+		ApplyClientAreaInset(content, content, padding);
 
-		GLX::SetMargin(style, "padding", padding);
-
-		GetContent()->SetMod("client_area", GLX::Detail::ComputedStyle::Create(style));
-
-		GLX::WindowClient::OnSetRect(state, rect, interactable, dpifactor);
+		GLX::WindowClient::OnSetRect(state, rect, client_area, dpifactor);
 	}
 
 	AlreadyRetained <GLX::Object> m_view;
@@ -301,7 +310,13 @@ struct MobileWindowClient : public WindowClient
 
 struct EmulatedMobileWrapper : public GLX::Object
 {
-	using Device = Tuple <CString::View, System::iSize>;
+	struct Device
+	{
+		CString::View name;
+		System::iSize size;
+		GLX::Margin portrait_insets;
+		GLX::Margin landscape_insets;
+	};
 
 	static const Device & GetEmulatedDevice()
 	{
@@ -351,7 +366,7 @@ struct EmulatedMobileWrapper : public GLX::Object
 
 		GLX::AddInline(*this, view);
 
-		SelectDevice(GetEmulatedDevice(), IsLandscape());
+		EnableOnAttachDetachWindow();
 	}
 
 
@@ -368,6 +383,11 @@ private:
 		return Data::GetFloat32(global->prefs, kMagnification, 1.0f);
 	}
 
+	void OnAttachWindow() override
+	{
+		SelectDevice(GetEmulatedDevice(), IsLandscape());
+	}
+
 	bool OnEvent(GLX::Object & src, GLX::Event & e) override
 	{
 		if (auto menu = GLX::GetMenu(e); menu && src == m_popup)
@@ -376,9 +396,9 @@ private:
 
 			UInt idx = 0;
 
-			for (auto [name, size] : kDevices)
+			for (const auto & device : kDevices)
 			{
-				GLX::AddMenuOption(menu, ToWString(name), idx++ == current_idx);
+				GLX::AddMenuOption(menu, ToWString(device.name), idx++ == current_idx);
 			}
 
 			GLX::BindMenuSelect(menu, [this](UInt index)
@@ -427,17 +447,17 @@ private:
 
 	void SelectDevice(const Device & device, bool landscape)
 	{
-		auto [name,isize] = device;
-
-		GLX::SetText(m_popup, ToWString(name));
-		GLX::SetText(m_popup, Join(ToWString(isize.w), L'x', ToWString(isize.h)), "info");
+		GLX::SetText(m_popup, ToWString(device.name));
+		GLX::SetText(m_popup, Join(ToWString(device.size.w), L'x', ToWString(device.size.h)), "info");
 		GLX::Select(m_landscape, landscape);
 
-		auto fsize = MakeSize(ToFloat32(isize.w), ToFloat32(isize.h));
+		auto fsize = MakeSize(ToFloat32(device.size.w), ToFloat32(device.size.h));
 
 		if (landscape) Swap(fsize.w, fsize.h);
 
 		GLX::SetBounds(m_view, "mobile_emulation", fsize, fsize);
+
+		MobileWindowClient::ApplyClientAreaInset(m_view, GetWindow()->GetContent(), landscape ? device.landscape_insets : device.portrait_insets);
 	}
 
 	void SetMagnification(Float magnification)
@@ -489,22 +509,23 @@ private:
 	static constexpr Key32 kMagnification = "bootstrap.mobile_magnification";
 	static constexpr Key32 kLandscape = "bootstrap.mobile_landscape";
 
-	static constexpr Tuple <CString::View, System::iSize> kDevices[] =
+	// Full display size in logical units. Android insets assume gesture navigation on the Pixel 8, A25 and A51.
+	static constexpr Device kDevices[] =
 	{
-		{ "Samsung Galaxy S7", { 360, 640 } },
-		{ "iPhone SE", { 375, 647 } },
-		{ "iPhone 13 mini", { 375, 700 } },
-		{ "Pixel 8", { 360, 712 } },
-		{ "iPhone 13", { 390, 730 } },
-		{ "iPhone 15 / Pro", { 393, 734 } },
-		{ "iPhone 17", { 402, 756 } },
-		{ "iPhone 15 Plus / Pro Max", { 430, 814 } },
-		{ "iPhone 17 Pro Max", { 440, 838 } },
-		{ "Samsung Galaxy A25", { 360, 780 - 50 } },
-		{ "Samsung Galaxy S8+", { 360, 740 } },
-		{ "Samsung Galaxy A51", { 360, 800 - 24 } },
-		{ "iPad Mini", { 744, 1085 } },
-		{ "iPad", { 820, 1132 } },
+		{ "Samsung Galaxy S7", { 360, 640 }, GLX::MakeMargin(0, 24, 0, 0), GLX::MakeMargin(0, 24, 0, 0) },
+		{ "iPhone SE", { 375, 667 }, GLX::MakeMargin(0, 20, 0, 0), GLX::MakeMargin(0, 0, 0, 0) },
+		{ "iPhone 13 mini", { 375, 812 }, GLX::MakeMargin(0, 50, 0, 34), GLX::MakeMargin(50, 0, 50, 21) },
+		{ "Pixel 8", { 360, 800 }, GLX::MakeMargin(0, 32, 0, 24), GLX::MakeMargin(32, 24, 0, 24) },
+		{ "iPhone 13", { 390, 844 }, GLX::MakeMargin(0, 47, 0, 34), GLX::MakeMargin(47, 0, 47, 21) },
+		{ "iPhone 15 / Pro", { 393, 852 }, GLX::MakeMargin(0, 59, 0, 34), GLX::MakeMargin(59, 0, 59, 21) },
+		{ "iPhone 17", { 402, 874 }, GLX::MakeMargin(0, 62, 0, 34), GLX::MakeMargin(62, 20, 62, 20) },
+		{ "iPhone 15 Plus / Pro Max", { 430, 932 }, GLX::MakeMargin(0, 59, 0, 34), GLX::MakeMargin(59, 0, 59, 21) },
+		{ "iPhone 17 Pro Max", { 440, 956 }, GLX::MakeMargin(0, 62, 0, 34), GLX::MakeMargin(62, 20, 62, 20) },
+		{ "Samsung Galaxy A25", { 360, 780 }, GLX::MakeMargin(0, 32, 0, 24), GLX::MakeMargin(32, 24, 0, 24) },
+		{ "Samsung Galaxy S8+", { 360, 740 }, GLX::MakeMargin(0, 24, 0, 48), GLX::MakeMargin(0, 24, 48, 0) },
+		{ "Samsung Galaxy A51", { 360, 800 }, GLX::MakeMargin(0, 32, 0, 24), GLX::MakeMargin(32, 24, 0, 24) },
+		{ "iPad Mini", { 744, 1133 }, GLX::MakeMargin(0, 24, 0, 20), GLX::MakeMargin(0, 24, 0, 20) },
+		{ "iPad", { 820, 1180 }, GLX::MakeMargin(0, 24, 0, 20), GLX::MakeMargin(0, 24, 0, 20) },
 	};
 };
 
@@ -542,7 +563,7 @@ void Reflex::Bootstrap::Detail::PublishAppView(System::App::Configuration & conf
 		{
 			Detail::g_create_stylesheet_options = [](const GLX::Object & client)
 			{
-				auto [name,isize] = EmulatedMobileWrapper::GetEmulatedDevice();
+				auto isize = EmulatedMobileWrapper::GetEmulatedDevice().size;
 
 				if (EmulatedMobileWrapper::IsLandscape()) Swap(isize.w, isize.h);
 
