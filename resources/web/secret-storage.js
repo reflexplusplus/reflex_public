@@ -32,7 +32,7 @@ export function createSecretStorageManager(memory, enabled) {
         const { port1, port2 } = new MessageChannel();
         let worker;
         try {
-            worker = new Worker(new URL("./secret-storage-worker.js?r5-dev", import.meta.url), { type: "module" });
+            worker = new Worker(new URL("./secret-storage-worker.js?r6-dev", import.meta.url), { type: "module" });
             worker.postMessage({ memory, port: port2 }, [port2]);
         } catch (error) {
             worker?.terminate();

@@ -1,7 +1,7 @@
 export function createThreadManager(module, memory, connectIO, onError, handleService, systemID, timeOrigin) {
     let nextId = 2;
     const workers = new Set();
-    const workerURL = new URL("./thread-worker.js?r5-dev", import.meta.url);
+    const workerURL = new URL("./thread-worker.js?r6-dev", import.meta.url);
     let stopped = false;
 
     function spawn(data, reply) {

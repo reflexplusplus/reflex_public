@@ -76,7 +76,9 @@ The stock generated UI projects use X11 and require an EGL/OpenGL ES 3
 implementation. Audio applications use ALSA. File open/save/folder dialogs
 require a working session D-Bus service and `xdg-desktop-portal` with a suitable
 desktop backend. Opening URLs, files, and folders through `System::Open`
-requires `xdg-open` from the `xdg-utils` runtime package. WSLg alone does not guarantee a working file portal.
+requires `xdg-open` from `xdg-utils` and `setsid` from `util-linux`.
+`System::Open` reports the launcher status and returns while the opener runs
+in a separate session. WSLg alone does not guarantee a working file portal.
 
 #### Debian/Ubuntu packages
 
@@ -88,7 +90,7 @@ sudo apt install -y build-essential cmake pkg-config libcurl4-openssl-dev \
     libegl1-mesa-dev libgles2-mesa-dev libxkbcommon-dev \
     libx11-dev libx11-xcb-dev libxcb1-dev libxcb-util-dev libxcb-cursor-dev \
     libxcb-icccm4-dev libxcb-randr0-dev libxcb-xkb-dev libxcb-xtest0-dev libxcb-sync-dev \
-    libxkbcommon-x11-dev libasound2-dev libdbus-1-dev xdg-utils
+    libxkbcommon-x11-dev libasound2-dev libdbus-1-dev xdg-utils util-linux
 ```
 
 Console-only projects need only the compiler/build tools and the dependencies

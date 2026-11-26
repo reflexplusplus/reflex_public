@@ -1,5 +1,5 @@
 export function createIOManager(memory, onError) {
-    const worker = new Worker(new URL("./io-worker.js?r5-dev", import.meta.url), { type: "module" });
+    const worker = new Worker(new URL("./io-worker.js?r6-dev", import.meta.url), { type: "module" });
     let nextPortId = 1;
     worker.postMessage({ type: "initialize", memory });
     worker.onmessage = ({ data }) => {

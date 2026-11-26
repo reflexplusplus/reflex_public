@@ -1,5 +1,19 @@
 # Breaking Changes
 
+## v0.10.8
+
+### Pass one item to `System::Share` on Windows UI targets
+
+Windows UI targets now require exactly one item. Code that passed several items and relied on Windows opening the first should pass that item alone. Sharing on Android, iOS, and macOS is now available through the UI targets. Their console targets return `false`.
+
+### Linux `System::Open` reports the launcher status
+
+Linux now starts `xdg-open` in a separate session using `setsid` from `util-linux`. A successful return reports that the launcher succeeded. Code that needs confirmation that the target opened must obtain it separately.
+
+### Rebuild and redeploy Web apps with the matching runtime
+
+The WebAssembly host interface adds the share request. Rebuild the Wasm module and deploy it together with the updated JavaScript runtime files.
+
 ## v0.10.5
 
 ### `WString` deserialization requires an explicit encoding

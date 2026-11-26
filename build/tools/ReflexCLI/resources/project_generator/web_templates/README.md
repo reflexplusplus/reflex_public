@@ -88,10 +88,9 @@ Source files are never overwritten. Source edits require regeneration;
 for temporary experiments, edit the generated folder under `launchers/`.
 Packaging substitutes build values into output files without changing that folder.
 Internal runtime imports, Worker URLs and audio worklet URLs use a shared
-revision query (currently fixed at `?r5-dev` during early development). Disable
-browser caching or clear cached runtime files when changing JavaScript under
-this unchanged revision. Once stable, remove `-dev` and increment every internal
-revision together for subsequent runtime changes. Packaging copies the runtime
+revision query (currently `?r6-dev`). Increment it across all internal URLs when
+deploying runtime JavaScript changes. For local edits under an unchanged
+revision, disable or clear the browser cache. Packaging copies the runtime
 modules unchanged except for `thread-worker.js`, which it combines with
 `worker-imports.js` into a self-contained script. New pthread workers load
 that script directly from its versioned URL.

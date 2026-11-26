@@ -1,5 +1,5 @@
-import { createImports } from "./worker-imports.js?r5-dev";
-import { createGLImports } from "./gl.js?r5-dev";
+import { createImports } from "./worker-imports.js?r6-dev";
+import { createGLImports } from "./gl.js?r6-dev";
 
 let instance;
 let started = false;

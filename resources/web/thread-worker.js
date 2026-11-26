@@ -1,4 +1,4 @@
-import { createImports } from "./worker-imports.js?r5-dev";
+import { createImports } from "./worker-imports.js?r6-dev";
 
 let instance;
 let assertionMessage;

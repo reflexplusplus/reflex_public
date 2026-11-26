@@ -1,10 +1,10 @@
 // Page-side loader. Reflex application execution takes place in the worker.
 const PAGE_BYTES = 65536;
-import { createMIDIManager } from "./midi.js?r5-dev";
-import { createThreadManager } from "./threads.js?r5-dev";
-import { attachInput } from "./input.js?r5-dev";
-import { createIOManager } from "./io.js?r5-dev";
-import { createSecretStorageManager } from "./secret-storage.js?r5-dev";
+import { createMIDIManager } from "./midi.js?r6-dev";
+import { createThreadManager } from "./threads.js?r6-dev";
+import { attachInput } from "./input.js?r6-dev";
+import { createIOManager } from "./io.js?r6-dev";
+import { createSecretStorageManager } from "./secret-storage.js?r6-dev";
 
 function workerError(message) {
     const error = new Error(message);
@@ -88,7 +88,7 @@ export async function startReflex({ moduleUrl, canvas, initialBytes, maximumByte
     const midiSupported = exports.has("reflexMidiPorts") && exports.has("reflexMidiInput");
     const memory = new WebAssembly.Memory({ initial, maximum, shared: true });
     const timeOrigin = performance.timeOrigin + performance.now();
-    const worker = new Worker(new URL("./application-worker.js?r5-dev", import.meta.url), { type: "module" });
+    const worker = new Worker(new URL("./application-worker.js?r6-dev", import.meta.url), { type: "module" });
     // Runtime-owned control also supports custom/older project scaffolds.
     const windowSelector = document.createElement("select");
     windowSelector.setAttribute("aria-label", "Window");
@@ -113,6 +113,48 @@ export async function startReflex({ moduleUrl, canvas, initialBytes, maximumByte
     const io = createIOManager(memory, failRuntime);
     const secrets = createSecretStorageManager(memory, secretStorage === true);
     const midi = createMIDIManager(worker);
+    const openURL = url =>
+    {
+        if (!["http:", "https:", "mailto:", "tel:"].includes(url.protocol)) return false;
+
+        // Open a blank tab first so popup blocking has an observable result.
+        let opened;
+        try
+        {
+            opened = window.open("about:blank", "_blank");
+            if (!opened) return false;
+
+            opened.opener = null;
+            opened.location.replace(url.href);
+            return true;
+        }
+        catch
+        {
+            if (opened) opened.close();
+            return false;
+        }
+    };
+    let sharing = false;
+    const shareURL = data =>
+    {
+        const url = new URL(data.url);
+        if (!["http:", "https:"].includes(url.protocol)) return false;
+        if (sharing) return true;
+
+        const payload = { url: url.href };
+        if (data.text) payload.text = data.text;
+        if (typeof navigator.share !== "function" || (navigator.canShare && !navigator.canShare(payload))) return false;
+        if (navigator.userActivation?.isActive === false) return false;
+
+        // Invoke share on the page while the original gesture is still active.
+        const share = navigator.share(payload);
+        sharing = true;
+        share.catch(error =>
+        {
+            if (!failure && error.name !== "AbortError") openURL(url);
+        }).finally(() => { sharing = false; });
+        return true;
+    };
     const handleService = event =>
     {
         const { data } = event;
@@ -124,29 +166,14 @@ export async function startReflex({ moduleUrl, canvas, initialBytes, maximumByte
             resumeRequestedAudio();
             return true;
         }
-        if (data.type !== "open-url") return false;
+        if (data.type !== "open-url" && data.type !== "share-url") return false;
         const result = new Int32Array(data.result);
-        let opened;
         let success = false;
         try
         {
-            const url = new URL(data.url);
-            if (["http:", "https:", "mailto:", "tel:"].includes(url.protocol))
-            {
-                // Open a blank tab first so popup blocking has an observable result.
-                opened = window.open("about:blank", "_blank");
-                if (opened)
-                {
-                    opened.opener = null;
-                    opened.location.replace(url.href);
-                    success = true;
-                }
-            }
+            success = data.type === "open-url" ? openURL(new URL(data.url)) : shareURL(data);
         }
-        catch
-        {
-            if (opened) opened.close();
-        }
+        catch { /* Invalid URL or unavailable browser UI. */ }
         finally
         {
             Atomics.store(result, 0, success ? 1 : -1);
@@ -246,7 +273,7 @@ export async function startReflex({ moduleUrl, canvas, initialBytes, maximumByte
     }
     const initializeAudio = async () =>
     {
-        await audioContext.audioWorklet.addModule(new URL("./audio-worklet.js?r5-dev", import.meta.url));
+        await audioContext.audioWorklet.addModule(new URL("./audio-worklet.js?r6-dev", import.meta.url));
         if (failure) throw failure;
         const pointer = await new Promise((resolve, reject) =>
         {

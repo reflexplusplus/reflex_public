@@ -7,6 +7,13 @@ export function createImports(memory, ioPort, systemID, onAssertion, timeOrigin)
         // Create the view at access time, so shared-memory growth is observed.
         return decoder.decode(new Uint8Array(memory.buffer, pointer >>> 0, length >>> 0).slice());
     };
+    const requestPage = data =>
+    {
+        const result = new Int32Array(new SharedArrayBuffer(4));
+        self.postMessage({ ...data, result: result.buffer });
+        while (Atomics.load(result, 0) === 0) Atomics.wait(result, 0, 0);
+        return Atomics.load(result, 0) > 0 ? 1 : 0;
+    };
     return {
         env: { memory },
         wasi: createThreadImports(),
@@ -21,13 +28,8 @@ export function createImports(memory, ioPort, systemID, onAssertion, timeOrigin)
         },
         wasi_snapshot_preview1: createLibcImports(memory, undefined, timeOrigin),
         reflex_host: {
-            openURL: (pointer, length) =>
-            {
-                const result = new Int32Array(new SharedArrayBuffer(4));
-                self.postMessage({ type: "open-url", url: text(pointer, length), result: result.buffer });
-                while (Atomics.load(result, 0) === 0) Atomics.wait(result, 0, 0);
-                return Atomics.load(result, 0) > 0 ? 1 : 0;
-            },
+            openURL: (pointer, length) => requestPage({ type: "open-url", url: text(pointer, length) }),
+            shareURL: (pointer, length, textPointer, textLength) => requestPage({ type: "share-url", url: text(pointer, length), text: text(textPointer, textLength) }),
             assertion: (pointer, length) => onAssertion(text(pointer, length)),
             systemID: () => systemID,
             log: (pointer, length) => console.log(text(pointer, length)),
